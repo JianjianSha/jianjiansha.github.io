@@ -164,11 +164,11 @@ ADD_LIBRARY(shm SHARED core.cpp)
 有关的库依赖，分为预装库和本项目（pytorch）内包含的库，CMake生成规则位于cmake/Dependencies.cmake文件中，仔细查看该文件发现：
 - 预先装的库依赖，这些库名存在Caffe2_PUBLIC_DEPENDENCY_LIBS中。如上文所举例子OpenBLAS 那样添加g++的链接flag和 -I<include dir>flag。
 - 本项目内包含的库。包括：
-> tbb
+(1) tbb
 ```
 add_subdirectory(${CMAKE_SOURCE_DIR}/aten/src/ATen/cpu/tbb)    # 添加tbb库
 ```
-> qnnpack
+(2) qnnpack
 ```
 # 添加 qnnpack 库
 # source directory为${PROJECT_SOURCE_DIR}/third_party/QNNPACK
@@ -177,7 +177,7 @@ add_subdirectory("${QNNPACK_SOURCE_DIR}" "${CONFU_DEPENDENCIES_BINARY_DIR}/QNNPA
 list(APPEND Caffe2_DEPENDENCY_LIBS qnnpack)
 ```
 最后一行指引CMake去QNNPACK的目录（位于third_party下）去生成qnnpack库，然后回到Dependencies.cmake中添加到Caffe2_DEPENDENCY_LIBS中。
-> nnpack
+(3) nnpack
 ```
 # 添加 nnpack
 include(${CMAKE_CURRENT_LIST_DIR}/External/nnpack.cmake)
@@ -188,9 +188,9 @@ add_subdirectory(${NNPACK_SOURCE_DIR} ${CONFU_DEPENDENCIES_BINARY_DIR}/NNPACK)
 ```
 找到包含NNPACK的代码目录位于third_party下，显然这个NNPACK也应该包含CMakeLists.txt文件指示CMake 生成nnpack库，然后回到Dependencies.cmake中将nnpack添加到Caffe2_DEPENDENCY_LIBS。
 
-> 类似地，还添加了 cpuinfo，gflag，glog::glog，googletest，fbgemm，fp16等。这些也不一定全部使用，是否使用还得看相应配置
+(4) 类似地，还添加了 cpuinfo，gflag，glog::glog，googletest，fbgemm，fp16等。这些也不一定全部使用，是否使用还得看相应配置
 
-> LMDB。使用如下语句
+(5) LMDB。使用如下语句
 ```
 find_package(LMDB)
 ```
@@ -201,7 +201,7 @@ list(APPEND Caffe2_DEPENDENCY_LIBS ${LMDB_LIBRARIES})
 ```
 类似的，还可以添加OPENCL，LEVELDB，NUMA，ZMQ，REDIS，OPENCV，FFMPEG，Python，MPI等。
 
-> pybind11。在Dependencies.cmake添加pybind11依赖，
+(6) pybind11。在Dependencies.cmake添加pybind11依赖，
 ```
 find_package(pybind11 CONFIG)# 配置模式下寻找，然而没有${pybind11_DIR}，也没有pybind11Config.cmake
 if(NOT pybind11_FOUND)
@@ -213,7 +213,7 @@ endif()
 include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/../third_party/pybind11/include)
 
 ```
-> OPENMP
+(7) OPENMP
 ```
 FIND_PACKAGE(OpenMP QUIET)
 ```
@@ -222,7 +222,7 @@ FIND_PACKAGE(OpenMP QUIET)
 target_compile_options(caffe2 INTERFACE ${OpenMP_CXX_FLAGS})
 target_link_libraries(caffe2 PRIVATE ${OpenMP_CXX_LIBRARIES})
 ```
-> CUDA。在Dependencies.cmake中有
+(8) CUDA。在Dependencies.cmake中有
 ```
 include(${CMAKE_CURRENT_LIST_DIR}/public/cuda.cmake)
 ```
@@ -236,7 +236,7 @@ list(APPEND Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS caffe2::cuda caffe2::nvrtc)
 ```
 保存到Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS，将来在caffe2/CMakeLists.txt用于链接。
 
-> 其他的依赖库如NCCL，CUB，GLOO等与上述某一点说明类似，不再一一罗列。
+(9) 其他的依赖库如NCCL，CUB，GLOO等与上述某一点说明类似，不再一一罗列。
 
 Dependencies.cmake中有很多库是作为生成caffe2库的依赖，比如QNNPACK，对这部分库添加到Caffe2_DEPENDENCY_LIBS（或Caffe2_PUBLIC_DEPENDENCY_LIBS，Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS），这个使用下面语句（位于caffe2/CMakeLists.txt）得到链接flag
 ```
