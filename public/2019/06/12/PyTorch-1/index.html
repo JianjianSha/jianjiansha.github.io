@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="安装一直以来就对深度学习的框架源码有着浓厚兴趣，但是由于涉及到的领域较多，C++，python，CUDA，数学等，加上时间也比较零碎，就耽搁至今，后来意识到我不可能等完全弄明白之后再来写博客记录，毕竟能力不足，所以还是边看源码边记录，不求完全搞明白，但求能从整体上有个大致的理解，如果还能整明白一些数学计算上的代码实现，那就再好不过了。 当前最流行的深度学习框架就是tensorflow和pytorc">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-06-12T12:54:36.328Z">
+<meta property="og:updated_time" content="2019-06-12T13:02:15.200Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PyTorch_1">
 <meta name="twitter:description" content="安装一直以来就对深度学习的框架源码有着浓厚兴趣，但是由于涉及到的领域较多，C++，python，CUDA，数学等，加上时间也比较零碎，就耽搁至今，后来意识到我不可能等完全弄明白之后再来写博客记录，毕竟能力不足，所以还是边看源码边记录，不求完全搞明白，但求能从整体上有个大致的理解，如果还能整明白一些数学计算上的代码实现，那就再好不过了。 当前最流行的深度学习框架就是tensorflow和pytorc">
@@ -173,59 +173,41 @@
 <p>有关的库依赖，分为预装库和本项目（pytorch）内包含的库，CMake生成规则位于cmake/Dependencies.cmake文件中，仔细查看该文件发现：</p>
 <ul>
 <li>预先装的库依赖，这些库名存在Caffe2_PUBLIC_DEPENDENCY_LIBS中。如上文所举例子OpenBLAS 那样添加g++的链接flag和 -I<include dir>flag。</include></li>
-<li>本项目内包含的库。包括：<blockquote>
-<p>tbb</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_subdirectory($&#123;CMAKE_SOURCE_DIR&#125;/aten/src/ATen/cpu/tbb)    # 添加tbb库</span><br></pre></td></tr></table></figure>
+<li>本项目内包含的库。包括：<br>(1) tbb<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_subdirectory($&#123;CMAKE_SOURCE_DIR&#125;/aten/src/ATen/cpu/tbb)    # 添加tbb库</span><br></pre></td></tr></table></figure>
 
 </li>
 </ul>
-<blockquote>
-<p>qnnpack</p>
-</blockquote>
+<p>(2) qnnpack</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 添加 qnnpack 库</span><br><span class="line"># source directory为$&#123;PROJECT_SOURCE_DIR&#125;/third_party/QNNPACK</span><br><span class="line"># output directory为$&#123;PROJECT_BINARY_DIR&#125;/confu-deps/QNNPACK</span><br><span class="line">add_subdirectory(&quot;$&#123;QNNPACK_SOURCE_DIR&#125;&quot; &quot;$&#123;CONFU_DEPENDENCIES_BINARY_DIR&#125;/QNNPACK&quot;)</span><br><span class="line">list(APPEND Caffe2_DEPENDENCY_LIBS qnnpack)</span><br></pre></td></tr></table></figure>
 
-<p>最后一行指引CMake去QNNPACK的目录（位于third_party下）去生成qnnpack库，然后回到Dependencies.cmake中添加到Caffe2_DEPENDENCY_LIBS中。</p>
-<blockquote>
-<p>nnpack</p>
-</blockquote>
+<p>最后一行指引CMake去QNNPACK的目录（位于third_party下）去生成qnnpack库，然后回到Dependencies.cmake中添加到Caffe2_DEPENDENCY_LIBS中。<br>(3) nnpack</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 添加 nnpack</span><br><span class="line">include($&#123;CMAKE_CURRENT_LIST_DIR&#125;/External/nnpack.cmake)</span><br></pre></td></tr></table></figure>
 
 <p>跳至nnpack.cmake文件，发现其中包含</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_subdirectory($&#123;NNPACK_SOURCE_DIR&#125; $&#123;CONFU_DEPENDENCIES_BINARY_DIR&#125;/NNPACK)</span><br></pre></td></tr></table></figure>
 
 <p>找到包含NNPACK的代码目录位于third_party下，显然这个NNPACK也应该包含CMakeLists.txt文件指示CMake 生成nnpack库，然后回到Dependencies.cmake中将nnpack添加到Caffe2_DEPENDENCY_LIBS。</p>
-<blockquote>
-<p>类似地，还添加了 cpuinfo，gflag，glog::glog，googletest，fbgemm，fp16等。这些也不一定全部使用，是否使用还得看相应配置</p>
-</blockquote>
-<blockquote>
-<p>LMDB。使用如下语句</p>
-</blockquote>
+<p>(4) 类似地，还添加了 cpuinfo，gflag，glog::glog，googletest，fbgemm，fp16等。这些也不一定全部使用，是否使用还得看相应配置</p>
+<p>(5) LMDB。使用如下语句</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find_package(LMDB)</span><br></pre></td></tr></table></figure>
 
 <p>所以去cmake/Modules目录下寻找FindLMDB.cmake， 在这个.cmake文件中寻找lmdb库以及lmdb.h头文件（linux中已经安装，分别位于/usr/lib/x86_64-linux-gnu和/usr/include）, 将库名称和头文件目录分别保存于变量LMDB_LIBRARIES和LMDB_INCLUDE_DIR，然后回到Dependencies.cmake，照例执行</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">include_directories(SYSTEM $&#123;LMDB_INCLUDE_DIR&#125;)</span><br><span class="line">list(APPEND Caffe2_DEPENDENCY_LIBS $&#123;LMDB_LIBRARIES&#125;)</span><br></pre></td></tr></table></figure>
 
 <p>类似的，还可以添加OPENCL，LEVELDB，NUMA，ZMQ，REDIS，OPENCV，FFMPEG，Python，MPI等。</p>
-<blockquote>
-<p>pybind11。在Dependencies.cmake添加pybind11依赖，</p>
-</blockquote>
+<p>(6) pybind11。在Dependencies.cmake添加pybind11依赖，</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">find_package(pybind11 CONFIG)# 配置模式下寻找，然而没有$&#123;pybind11_DIR&#125;，也没有pybind11Config.cmake</span><br><span class="line">if(NOT pybind11_FOUND)</span><br><span class="line">  find_package(pybind11)     # 继续module模式下寻找</span><br><span class="line">endif()</span><br></pre></td></tr></table></figure>
 
 <p>虽然存在cmake/Modules/Findpybind11.cmake，然而其中find_path并没有找到pybind11/pybind11.h这个头文件，因为我没有预先安装pybind11，CMake自然是找不到的，于是在Dependencies.cmake中直接添加</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include_directories(SYSTEM $&#123;CMAKE_CURRENT_LIST_DIR&#125;/../third_party/pybind11/include)</span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>OPENMP</p>
-</blockquote>
+<p>(7) OPENMP</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FIND_PACKAGE(OpenMP QUIET)</span><br></pre></td></tr></table></figure>
 
 <p>如果找到OpenMP，那么${OpenMP_CXX_FLAGS} 和 ${OpenMP_CXX_LIBRARIES}分别存储头文件搜索路径和库文件链接flag，生成caffe2时可以用到OpenMP，用法是在caffe2/CMakeLists.txt中，</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">target_compile_options(caffe2 INTERFACE $&#123;OpenMP_CXX_FLAGS&#125;)</span><br><span class="line">target_link_libraries(caffe2 PRIVATE $&#123;OpenMP_CXX_LIBRARIES&#125;)</span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>CUDA。在Dependencies.cmake中有</p>
-</blockquote>
+<p>(8) CUDA。在Dependencies.cmake中有</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include($&#123;CMAKE_CURRENT_LIST_DIR&#125;/public/cuda.cmake)</span><br></pre></td></tr></table></figure>
 
 <p>在这个cuda.cmake中，使用 find_library寻找cuda相关的库，找到后作为IMPORTED target进行库的添加，</p>
@@ -235,9 +217,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">list(APPEND Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS caffe2::cuda caffe2::nvrtc)</span><br></pre></td></tr></table></figure>
 
 <p>保存到Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS，将来在caffe2/CMakeLists.txt用于链接。</p>
-<blockquote>
-<p>其他的依赖库如NCCL，CUB，GLOO等与上述某一点说明类似，不再一一罗列。</p>
-</blockquote>
+<p>(9) 其他的依赖库如NCCL，CUB，GLOO等与上述某一点说明类似，不再一一罗列。</p>
 <p>Dependencies.cmake中有很多库是作为生成caffe2库的依赖，比如QNNPACK，对这部分库添加到Caffe2_DEPENDENCY_LIBS（或Caffe2_PUBLIC_DEPENDENCY_LIBS，Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS），这个使用下面语句（位于caffe2/CMakeLists.txt）得到链接flag</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">target_link_libraries(caffe2 PRIVATE $&#123;Caffe2_DEPENDENCY_LIBS&#125;)</span><br></pre></td></tr></table></figure>
 
