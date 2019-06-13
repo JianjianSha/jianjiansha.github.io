@@ -28,17 +28,18 @@ $ git clone https://github/shajian/shajian.github.io.git
 $ cd shajian.github.io
 $ git checkout hexo
 $ git branch
-*hexo
- master
+* hexo
+  master
 ```
 将目录 shajian.github.io 内的所有文件/目录全部删除，然后将 path/to/myblog内的全部内容复制过来，
 ```
 $ rm -rf .
-$ cp path/to/myblog/* ./
+# do not use "cp -R path/to/myblog/* ./" which ignores hidden files/directories
+$ cp -R path/to/myblog/. ./
 ```
 然后可在使用
 ```
-hexo init "<title>"
+hexo new "<title>"
 ```
 写新文章或直接去source/_posts下修改已有文章，
 部署
@@ -74,3 +75,9 @@ $ git checkout hexo
 $ git pull origin hexo
 ```
 切换到 hexo 分支后，可以进行修改和新增文章了。
+
+由于 .depoly_git 下其实就是对应 master 主分支的内容，这也是一个git 仓库目录，内含 .git 文件夹，所以提交的时候无法提交 .deploy_git 内部的文件/目录，不过这个没关系，例如前面，在 computer B 上 clone 仓库后，执行
+```
+hexo g -d
+```
+由 hexo 向 .deploy_git 填充生成的文件/目录，而不需要在 hexo 分支上备份这些内容。
