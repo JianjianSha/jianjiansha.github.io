@@ -29,7 +29,7 @@ PyMODINIT_FUNC PyInit__C()   // 在python脚本中，import _C 时调用
   return initModule();
 }
 ```
-根据python3扩展库的规则可知，import torch._C ，调用PyInit__C函数（调用名为PyInit_<package>的函数），这个函数内部调用initModule，也就是说，具体的模块定义由initModule实现。看到extern知道initModule方法定义在外部，所以只能从shm和torch_python对应的源文件中寻找方法定义。
+根据python3扩展库的规则可知，`import torch._C` ，调用PyInit__C函数（调用名为PyInit_&lt;package>的函数），这个函数内部调用initModule，也就是说，具体的模块定义由initModule实现。看到extern知道initModule方法定义在外部，所以只能从shm和torch_python对应的源文件中寻找方法定义。
 
 shm库实现Domain Socket通信获得共享内存的句柄，解决多进程的内存分配问题，查看torch/CMakeLists.txt，发现生成shm相关语句为，
 ```
@@ -137,60 +137,60 @@ _dist_init_process_group
 ```
 - 生成模块torch._C 后再向其添加如下成员：
 
-a. 向torch._C添加类型_PtrWrapper，Generator，FatalError，Size，dtype，iinfo，layout，memory_format，device，_LegacyVariableBase，_TensorBase，_VariableFunctions，_FunctionBase，_EngineBase，JITException，IODescriptor，_THNN，_THCUNN。
+    - 向torch._C添加类型_PtrWrapper，Generator，FatalError，Size，dtype，iinfo，layout，memory_format，device，_LegacyVariableBase，_TensorBase，_VariableFunctions，_FunctionBase，_EngineBase，JITException，IODescriptor，_THNN，_THCUNN。
 
-torch._C._TensorBase这个类型具有属性
-```
-_cdata
-_version
-grad_fn
-_grad_fn
-is_leaf
-data
-_grad
-grad
-...
-device
-ndim
-```
-并且具有以下方法
-```
-# variable_methods, torch/csrc/autograd/generated/python_variable_methods.cpp
-__add__
-__radd__
-...
-apply_
-byte
-char
-contiguous
-...
-where
-zero_
-# extra_method
-_make_subclass
-```
-类型torch._C._FunctionBase， 这个类型具有方法和属性为
-```
-# method
-apply
-_do_forward
-_do_backward
-_register_hook_dict
-register_hook
-# property
-saved_tensors
-saved_variables
-...
-requires_grad
-metadata
-```
-不难知道_TensorBase是Tensor的基类，包含了Tensor的各种操作，_FunctionBase则包括了前后向传播方法，从这里能将深度学习中的一些概念与代码实现建立一点点联系了。
+        torch._C._TensorBase这个类型具有属性
+        ```
+        _cdata
+        _version
+        grad_fn
+        _grad_fn
+        is_leaf
+        data
+        _grad
+        grad
+        ...
+        device
+        ndim
+        ```
+        并且具有以下方法
+        ```
+        # variable_methods, torch/csrc/autograd/generated/python_variable_methods.cpp
+        __add__
+        __radd__
+        ...
+        apply_
+        byte
+        char
+        contiguous
+        ...
+        where
+        zero_
+        # extra_method
+        _make_subclass
+        ```
+        类型torch._C._FunctionBase， 这个类型具有方法和属性为
+        ```
+        # method
+        apply
+        _do_forward
+        _do_backward
+        _register_hook_dict
+        register_hook
+        # property
+        saved_tensors
+        saved_variables
+        ...
+        requires_grad
+        metadata
+        ```
+        不难知道_TensorBase是Tensor的基类，包含了Tensor的各种操作，_FunctionBase则包括了前后向传播方法，从这里能将深度学习中的一些概念与代码实现建立一点点联系了。
 
-b. 向torch._C中添加函数 _wrap_tensor_impl，_tensor_impl_raw_handle，_demangle，_log_api_usage_once，以_jit开头的一系列函数。
+    - 向torch._C中添加函数 _wrap_tensor_impl，_tensor_impl_raw_handle，_demangle，_log_api_usage_once，以_jit开头的一系列函数。
 
-c. 向torch._C添加模块， _nn，cpp，_onnx。
+    - 向torch._C添加模块， _nn，cpp，_onnx。
 
-d. 向torch._C添加属性 has_cudnn，has_openmp，has_mkl，has_lapack，has_cuda，has_mkldnn，_GLIBCXX_USE_CXX11_API，default_generator。
+    - 向torch._C添加属性 has_cudnn，has_openmp，has_mkl，has_lapack，has_cuda，has_mkldnn，_GLIBCXX_USE_CXX11_API，default_generator。
 
 # some installization w.r.t. torch._C
 ### THPxxxStorage_init
@@ -656,7 +656,7 @@ FloatStorageBase的methods, members, properties 参考generic/Storage.cpp中THPS
 ```
 函数定义位于文件torch/csrc/nn目录下的THNN.cpp和THCUNN.cpp文件中，这两个文件是生成 torch_python 这个TARGET时使用 tools/setup_helpers/generate_code.py这个脚本生成的，具体参见 torch/CMakeLists.txt。
 
-torch._C模块初始化过程到这里就完成了。回到 `torch/__init__.py`，继续看看 import torch时接下来做了哪些事情：
+`torch._C`模块初始化过程到这里就完成了。回到 `torch/__init__.py`，继续看看 import torch时接下来做了哪些事情：
 
 1. 定义了模块函数 typename，is_tensor，is_storage等
 2. 导入torch下其他子模块
