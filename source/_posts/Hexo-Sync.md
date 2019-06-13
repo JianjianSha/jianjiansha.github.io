@@ -40,16 +40,18 @@ $ cp path/to/myblog/* ./
 ```
 hexo init "<title>"
 ```
-写新文章或直接去source/_posts下修改已有文章，然后提交到仓库的hexo分支，
+写新文章或直接去source/_posts下修改已有文章，
+部署
+```
+hexo g -d
+```
+然后提交到仓库的hexo分支，进行备份
 ```
 $ git add .
 $ git commit -m "new post 'title'"
 $ git push origin hexo
 ```
-部署
-```
-hexo g -d
-```
+
 然后就可以去 https://shajian.github.io 浏览本地新增/修改文章内容了。
 
 在 computer B 上删除 path/to/myblog 目录，然后重新 clone 仓库，并切换到 hexo 分支，
@@ -57,6 +59,10 @@ hexo g -d
 $ git clone https://github/shajian/shajian.github.io.git
 $ cd shajian.github.io
 $ git checkout hexo
+```
+如果仓库有 .gitignore 文件且包含 node_modules 目录，则执行
+```
+$ npm install
 ```
 此时，要修改还是新增文章，步骤均与上面 computer A上的操作一致。
 
