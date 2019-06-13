@@ -1,7 +1,8 @@
 ---
 title: PyTorch-2
 date: 2019-06-13 10:19:52
-tags:
+tags: PyTorch
+category: DL Framework
 ---
 # torch installization
 依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是

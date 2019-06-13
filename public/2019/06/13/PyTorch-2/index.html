@@ -8,13 +8,14 @@
   <title>PyTorch-2 | SJJ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读torch/init.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载">
+<meta name="keywords" content="PyTorch">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PyTorch-2">
 <meta property="og:url" content="https://shajianjian.github.io/2019/06/13/PyTorch-2/index.html">
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读torch/init.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-06-13T03:39:53.449Z">
+<meta property="og:updated_time" content="2019-06-13T03:44:50.988Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PyTorch-2">
 <meta name="twitter:description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读torch/init.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载">
@@ -55,6 +56,10 @@
         <section id="main"><article id="post-PyTorch-2" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/DL-Framework/">DL Framework</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -295,6 +300,8 @@
       <a data-url="https://shajianjian.github.io/2019/06/13/PyTorch-2/" data-id="cjwu48imc00087wvc6n4olv9i" class="article-share-link">Share</a>
       
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PyTorch/">PyTorch</a></li></ul>
+
     </footer>
   </div>
   
