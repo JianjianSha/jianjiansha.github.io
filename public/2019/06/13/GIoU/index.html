@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression 摘要IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，">
+<meta name="keywords" content="object detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GIoU">
+<meta property="og:url" content="https://shajianjian.github.io/2019/06/13/GIoU/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression 摘要IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/fig1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/fig2.png">
+<meta property="og:updated_time" content="2019-06-14T13:09:25.161Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GIoU">
+<meta name="twitter:description" content="论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression 摘要IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/fig1.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://shajianjian.github.io/2019/06/13/GIoU/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>GIoU | SJJ</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SJJ</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/13/GIoU/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">GIoU
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-13 15:00:48" itemprop="dateCreated datePublished" datetime="2019-06-13T15:00:48+08:00">2019-06-13</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-14 21:09:25" itemprop="dateModified" datetime="2019-06-14T21:09:25+08:00">2019-06-14</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression</p>
+<h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p>IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，所以本文提出一种泛化版的Iou，名为 GIou。结合 GIoU 和 sota 目标检测框架，在流行的目标检测benchmarks例如 PASCAL VOC 和 MS COCO中，分别使用标准 IoU 和 GIoU 损失，我们发现性能一致得到提升。</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>在很多2D/3D 计算机视觉任务中，bbox 回归是最基本的组成之一。例如目标定位，多目标检测，目标跟踪以及实例分割，均依赖准确的bbox回归。提升性能的主流趋势是使用深度神经网络，然而，还有一种提升方法被广泛忽略，那就是使用基于 IoU 的指标损失来代替传统的回归损失如 $l_1, l_2$ 等。</p>
+<p>IoU 将要比较的目标的形状属性例如 bbox 的宽、高和位置等信息编码成区域属性，并基于面积（体积）计算出一个归一化的值。语义分割、目标检测和跟踪等任务中的性能测量均采用IoU作为测量指标。</p>
+<p>然而，最小化损失如$$l_n$$范数与提高IoU并不是强相关。考虑一个2D场景，如图1(a)，<br><img src="/images/fig1.png" alt></p>
+<!--  -->
+
+<p>预测box（黑矩形）和gt box（绿矩形）均由左上角和右下角坐标表示$(x_1,y_1,x_2,y_2)$，为简单起见，我们令两个box的其中一个corner的距离（例如$l_2$范数）固定，于是，以 gt box 另一个 corner 为圆心，某半径长的圆，无论预测 box 的另一个 corner 的坐标，只要其位于这个圆上，其 $l_2$ 距离均保持不变；然而IoU却不同。这个问题可以延伸到其他损失和bbox表示上，例如图1(b)。</p>
+<p>直觉而言，这些类型的损失的一个较好的局部最优解可能并非 IoU 的局部最优解。而且，与 IoU 不同的是，$l_n$ 不具有尺度不变性，相同重叠程度的几对 bbox，其损失值各不相同。另外，一些 bbox 的表示方法，由于没有对不同类型的表示参数进行正则处理，使得这个问题更加严重。例如在 center+size 表示法中，$(x_c,y_c)$ 是中心坐标，$(w,h)$ 是 box size。当表示参数变多时，如旋转度，复杂度继续上升。</p>
+<p>为了解决这些问题，sota 检测器引入了 anchor 的概念，并使用了非线性表示方法简单地处理尺度问题（例如，faster-rcnn中坐标偏差的计算）。但即使使用了这些手工设计，优化回归损失和IoU值依然存在偏差。</p>
+<p>本文探索了轴对齐矩形之间的IoU计算，以及轴对齐超矩形（$ndim \ge 2$）之间的IoU计算，此时IoU 有解析解，并且可反向传播，也就是说，IoU 可以直接用作目标函数进行优化，而优化Iou目标函数与优化某个损失函数之间，显然选择优化IoU目标函数，能与提高Iou指标强相关，但是这也导致一个问题：如果两个目标没有重叠，IoU则为0，无法知道两个目标距离有多远，IoU为0，其梯度也将为0，导致无法优化。</p>
+<p>我们将IoU这一概念延伸到无重叠情况下来解决上述问题。这种泛化：(a) 沿袭 IoU 能将被比较的目标的形状属性编码进区域属性；(b) 维持 IoU 的尺度不变性；(c) 在目标有重叠情况下与IoU强相关。这个泛化版的IoU，我们称为GIoU，将GIoU引入到 sota 目标检测框架，在流行的目标检测的benchmarks上，比较标准的IoU和GIoU，发现性能一致均得到提升。</p>
+<p>主要贡献如下：</p>
+<ul>
+<li>介绍了GIoU，作为比较两个任意形状差距的指标</li>
+<li>以GIoU作为轴对齐矩形或超矩形的损失时，使用解析解</li>
+<li>将GIoU引入sota 检测器如Faster R-CNN，Mask R-CNN和YOLO v3，并在标准目标检测benchmark上验证性能得到提升</li>
+</ul>
+<h1 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h1><p><b>目标检测准确性测量：</b>IoU作为评估指标在目标检测任务中广为使用，常用于确定预测box是真阳性还是假阳性。使用IoU时需要选择一个阈值。在PASCAL VOC上，计算mAP时选择 IoU阈值=0.5，但是随意选择的IoU阈值不能完全反映定位性能，所有定位准确性大于这个阈值的检测结果认为是真阳性，从而参与mAP的计算，IoU阈值的选择将直接影响mAP值。为了是性能测量对IoU阈值不敏感，MS COCO benchmark 则选择不同的IoU阈值计算多个mAP然后取平均。</p>
+<p><b>bbox表示和损失：</b>2D目标检测中，bbox参数非常重要。最近的文献提出多种不同bbox表示和损失：</p>
+<ol>
+<li>YOLO v1 直接回归 bbox 参数$(x_c,y_c,w,h)$，坐标损失使用平方差，计算损失时，为了降低目标scale对(w,h)损失项的影响，将这一损失项由$(w-\hat w)^2+(h-\hat h)^2$ 改为 $(\sqrt w - \sqrt {\hat w})^2+(\sqrt h - \sqrt {\hat h})^2$。</li>
+<li>R-CNN使用selective search先获得候选boxes，然后回归bbox中心点偏差（求差）和size的偏差（求商），为了降低scale敏感度，将size 偏差转换到对数空间（求log），然会对偏差使用$l_2$范数（最小均方差MSE）作为目标函数进行优化。</li>
+<li>Fast R-CNN对坐标偏差使用 $l_1$-smooth 损失，使得模型即使在异常值情况下也具有较好的鲁棒性（异常值情况一般指偏差非常大的情况，此时若使用 $l_2$ 范数的目标函数，其梯度比较大，使得模型训练初期非常不稳定）。</li>
+<li>Faster R-CNN使用密集anchor boxes，然后对其中心坐标和size的偏差进行回归，根据anchor boxes的得分（分类置信度）按正负例的一定比例（1:3）得到一个batch （数量为128）的proposals，然后再使用Fast R-CNN的分类和回归两个分支进行最终的预测。为了进一步解决正负例不平衡问题，RetinaNet 使用 focal loss。</li>
+</ol>
+<p>大部分目标检测器都是结合以上某种bbox表示和某种损失。这些努力推动目标检测有了明显的发展。我们的工作表明，使用GIoU 损失可以进一步提高目标定位，因为如前面所分析的那样 bbox 回归损失并不能够直接反映检测评估指标IoU。 </p>
+<p><b>使用近似或替代函数优化IoU：</b>在语义分割任务种，曾使用近似函数或替代损失优化IoU。类似地，目标检测任务中，最近的一些研究工作也尝试直接或间接利用IoU以更好地进行bbox回归，然而却在非重叠情况下优化IoU时遇到近似或梯度平坦问题。本文我们通过引入GIoU解决IoU在非重叠情况下的问题。</p>
+<h1 id="泛化IoU"><a href="#泛化IoU" class="headerlink" title="泛化IoU"></a>泛化IoU</h1><p>用于比较两个任意形状 $A,B \subseteq S \in \mathbb{R}^n$ 的 IoU 计算方法为：<br>$$IoU = \frac {|A \cap B|} {|A \cup B|} $$<br>两个显著特性使得这种相似性测量方法流行于评估2D/3D计算机视觉任务中：</p>
+<ol>
+<li>IoU作为距离即 $\mathcal L_{IoU}=1-IoU$，同时也作为评估指标。这意味着 $\mathcal L_{IoU}$ 满足 IoU 指标的所有性质，例如非负性，不可分的同一性，对称性和三角不等式</li>
+<li>IoU具有尺度不变性。这意味着，两个任意形状A B的相似度与它们在 S 空间的尺度无关</li>
+</ol>
+<p>但是，IoU的主要问题是：</p>
+<ol>
+<li>$|A \cap B|=0 \Rightarrow IoU(A,B)=0$，此时，IoU无法分辨两个形状A B是靠的非常近还是非常远</li>
+</ol>
+<p>为了解决这个问题，我们提出了泛化版IoU，即 GIoU。</p>
+<p>两个任意的凸形 $A, B \subseteq S \in \mathbb S^n$，首先在 S 空间中寻找包含 A 和 B 的最小凸形 C。如果比较两个具体类型的几何图形，C 可以也是这个具体类型，例如比较两个椭圆形，C 则是包含这两个椭圆形的最小椭圆形。然后我们计算 C 中扣掉 A 和 B 剩余部分的面积（体积）与 C 自身的面积（体积）的比例，这个比例代表了一种归一化的且注重 A 和 B 之间的空白部分面积（体积）的测量方法，然后，从 IoU 中减去这个比例就得到 GIoU。（面积/体积对应 2D/3D）</p>
+<p>整个计算过程总结如下算法1：</p>
+<hr>
+<p>算法1：GIoU</p>
+<hr>
+<p>输入： 两个任意凸形 $A,B \subseteq S \in \mathbb S^n$</p>
+<p>输出： GIoU</p>
+<ol>
+<li>在 S 空间中寻找包含 A B 的最小凸形 C</li>
+<li>$IoU=\frac {|A \cap B|} {|A \cup B|}$</li>
+<li>$GIoU = IoU - \frac {|C \setminus (A \cup B)|} {|C|}$</li>
+</ol>
+<hr>
+<p>作为新的指标，GIoU 具有性质：</p>
+<ol>
+<li>与 IoU 类似，GIoU 作为距离即 $\mathcal L_{GIoU} = 1-GIoU$，具有指标的所有性质：非负性，不可分的同一性，对称性和三角不等式。</li>
+<li>与 IoU 类似，GIoU 具有尺度不变性。</li>
+<li>$\forall A,B \subseteq \mathbb S, GIoU(A,B) \le IoU(A,B)$，当 A B越靠近且形状越相似，则 GIoU 越接近 IoU，即 $\lim_{A \rightarrow B} GIoU(A,B)=IoU(A,B)$</li>
+<li>$\forall A,B \subseteq \mathbb S, 0 \le IoU(A,B) \le 1$，但是 GIoU 的值域则关于零点对称，$-1 \le GIoU(A,B) \le 1$<ul>
+<li>与 IoU 相同，只有当 A B 完成重合的时候，即$|A \cup B|=|A \cap B|$，此时$GIoU =IoU=1$</li>
+<li>当 A B 两个形所占面积（体积）与 C 所在面积（体积）之比趋于 0，GIoU 趋于 -1，即$\lim_{\frac{|A \cup B|}{|C|}} GIoU(A,B)=-1$</li>
+</ul>
+</li>
+</ol>
+<p>综上，GIoU 保持了 IoU 的主要性质并避免了 IoU 的缺点，所以在2D/3D计算机视觉任务的性能测试中可以使用 GIoU 代替 IoU。本文我们侧重于 2D 目标检测，推导 GIoU 的解析解，GIoU 同时担当性能指标和损失。在非轴对齐 3D 场景下的 GIoU 则待以后的工作去研究。</p>
+<h2 id="GIoU用作BBox回归损失"><a href="#GIoU用作BBox回归损失" class="headerlink" title="GIoU用作BBox回归损失"></a>GIoU用作BBox回归损失</h2><p>我们已经介绍了 GIoU 可以作为任意两个形状的距离测量指标，但是与 IoU 一样，没有解析解计算两个任意形状的交，也没有解析解可以计算包含这俩形状的最小凸形。</p>
+<p>好在2D 目标检测任务中，bbox 是轴对齐的，此时 GIoU 有解析解。两个形状 A B 的交，以及包含 A B 的最小凸形均具为矩形，对 A B 的顶点坐标使用 min 或 max 操作可以求得它们的顶点坐标。为了确定 A B 是否重叠，还需要进行条件检查，比如 A B 的交，作为矩形，其左上顶点的 x 坐标必然比右下顶点的 x 坐标小即 $x^{tl} &lt; x^{br}$，而 $x^{tl}=\max (x_A^{tl}, x_B^{tl}), \ x^{br}=\min (x_A^{br},x_B^{br})$，所以有 $x_B^{tl} \le x_A^{tl}&lt;x_B^{br}$ 或 $x_A^{tl} \le x_B^{tl}&lt;x_A^{br}$。</p>
+<p>反向传播中，min、max和按位计算的线性函数如 ReLU 的梯度计算均是可行的，算法2 中每个部分均可以求导，故 IoU 和 GIoU 均可以直接用作损失即 $\mathcal L_{IoU}, \mathcal L_{GIoU}$ 来优化基于深度神经网络的目标检测器。</p>
+<hr>
+<p>算法2：IoU和GIoU用作BBox回归损失</p>
+<hr>
+<p>输入：预测框 $B^p$ 和 GT 框 $B^g$ 的坐标，$B^p=(x_1^p,y_1^p,x_2^p,y_2^p), \quad B^g=(x_1^g,y_1^g,x_2^g,y_2^g)$</p>
+<p>输出：$\mathcal L_{IoU}, \ \mathcal L_{GIoU}$</p>
+<ol>
+<li>因为预测框各个坐标是独立预测出来的，所以为了确保 $B^p$ 坐标有效即，$x_2^p&gt;x_1^p, \ y_2^p&gt;y_1^p$，故进行如下转换：<ul>
+<li>$\hat x_1^p=\min(x_1^p,x_2^p), \ \hat x_2^p=\max(x_1^p,x_2^p)$</li>
+<li>$\hat y_1^p=\min(y_1^p,y_2^p), \ \hat y_2^p=\max(y_1^p,y_2^p)$</li>
+</ul>
+</li>
+<li>计算 $B^g$ 面积：$A^g=(x_2^g-x_1^g)\times (y_2^g-y_1^g)$</li>
+<li>计算 $B^p$ 面积：$A^p=(x_2^p-x_1^p)\times (y_2^p-y_1^p)$</li>
+<li>计算交 $\mathcal I$：<ul>
+<li>$x_1^{\mathcal I}=\max(\hat x_1^p, x_1^g), \ x_2^{\mathcal I}=\min(\hat x_2^p,x_2^p)$</li>
+<li>$y_1^{\mathcal I}=\max(\hat y_1^p, y_1^g), \ y_2^{\mathcal I}=\min(\hat y_2^p,y_2^p)$</li>
+<li>$\mathcal I=\begin{cases} (x_2^{\mathcal I}-x_1^{\mathcal I})\times (y_2^{\mathcal I}-y_1^{\mathcal I}) &amp; x_2^{\mathcal I} &gt; x_1^{\mathcal I}, y_2^{\mathcal I} &gt; y_1^{\mathcal I} \ 0 &amp; \text{otherwise} \end{cases}$</li>
+</ul>
+</li>
+<li>计算最小包含凸形 $B^c$：<ul>
+<li>$x_1^c=\min(\hat x_1^p, x_1^g), \ \max(\hat x_2^p, x_2^g)$</li>
+<li>$y_1^c=\min(\hat y_1^p, y_1^g), \ \max(\hat y_2^p, y_2^g)$</li>
+</ul>
+</li>
+<li>计算 $B^c$ 的面积：$A^c=(x_2^c-x_1^c)\times (y_2^c-y_1^c)$</li>
+<li>$IoU = \frac {\mathcal I}{\mathcal U}$，其中 $\mathcal U = A^p+A^g-\mathcal I$</li>
+<li>$GIoU = IoU - \frac {A^c-\mathcal U} {A^c}$</li>
+<li>$\mathcal L_{IoU}=1-IoU, \ \mathcal L_{GIoU}=1-GIoU$</li>
+</ol>
+<hr>
+<p>根据指标检测性能时，以指标本身作为损失来优化显然是最佳选择，但是在bbox非重叠场景下，IoU=0，其梯度也为0，影响训练质量和收敛速度，相反，GIoU 则一直有有效梯度指导如何优化模型。另外，根据性质3，GIoU 与 IoU 强相关，在 IoU 较大时，这种强相关更加显著。图2 定性的分析了这种相关性，</p>
+<p><img src="/images/fig2.png" alt></p>
+<p>图2中，随机选择了1万组 2D 矩形pair，计算其 IoU 和 GIoU，观察发现，在重叠较小时，例如 $IoU \le 0.2, \ GIoU \le 0.2$，GIoU 可以比 IoU 变化更显著，而且在任何情况下，GIoU 的梯度都可以很陡，所以将 GIoU 作为损失$\mathcal L_{GIoU}$，比使用 IoU 作为损失$\mathcal L_{IoU}$，更有利于优化，并且最终的性能测量指标只要是基于IoU，无论使用哪种指标均可。</p>
+<h3 id="损失稳定性"><a href="#损失稳定性" class="headerlink" title="损失稳定性"></a>损失稳定性</h3><p>我们也考察了预测值为任意的情况下，损失是否会不稳定或者出现未定义情况（比如除数为0）。</p>
+<p>假设 GT box 是矩形，且面积大于0即，$A^g &gt; 0$，算法2中第1点和第4点分别确保了预测框和两个bbox的交均非负即，$A^p \ge 0, \ \mathcal I \ge 0, \forall B^p \in \mathbb R^4$，又根据$\mathcal U \ge A^g$，故 $\mathcal U &gt; 0$，所以 IoU 的分母为正非零。又 $\mathcal U \ge \mathcal I$，故 $0 \le IoU \le 1$，于是 IoU 损失范围为 $0 \le \mathcal L_{IoU} \le 1$</p>
+<p>检查 GIoU 的稳定性，需要考察项 $\frac {A^c-\mathcal U} {A^c}$，显然包含 A B 的最小凸形不小于 A B 的并，即 $A^c \ge \mathcal U &gt; 0$，所以 $\frac {A^c-\mathcal U} {A^c} \ge 0$。理论上来讲，$\frac {A^c-\mathcal U} {A^c} &lt;1$，且当 A B 中心点的几何距离比 A B 的 size 大很多时，即 A B 离得很远，此时 $\frac {A^c-\mathcal U} {A^c} \rightarrow 1$，故 $-1 &lt; GIoU \le 1$，为了对称，改写为 $-1 \le GIoU \le 1$。</p>
+<h3 id="IoU-0时-mathcal-L-GIoU-的行为"><a href="#IoU-0时-mathcal-L-GIoU-的行为" class="headerlink" title="IoU=0时$\mathcal L_{GIoU}$的行为"></a>IoU=0时$\mathcal L_{GIoU}$的行为</h3><p>GIoU 损失 $\mathcal L_{GIoU}=1-GIoU=1+\frac {A^c-\mathcal U} {A^c} - IoU$，当 $B^p$ 和 $B^g$ 不相交，即 $\mathcal I=0, IoU=0$，此时 GIoU 损失简化为 $\mathcal L_{GIoU}=1+\frac{A^c-\mathcal U}{A^c}=2-\frac {\mathcal U}{A^c}$，最小化 GIoU 损失则需要最大化 $\frac {\mathcal U}{A^c}$，这一项已经是归一化的，即 $0\le \frac {\mathcal U}{A^c} \le 1$，并且最大化这一项则需要最小化 $A^c$，同时最大化 $\mathcal U$，因为 $\mathcal I=0$，故此时 $\mathcal U=A^p+A^g$，由于 $A^g$ 已知且固定，所以需要最大化 $A^p$，也就是说，最小化 $A^c$ 且同时最大化 $A^p$，显然，这就使得 $B^p$ 趋于与 $B^g$ 重合。</p>
+<h1 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h1><p>引入 bbox 回归损失 $\mathcal L_{GIoU}$ 到2D目标检测器中如 Faster R-CNN、Mask R-CNN 和 YOLO v3，即，将原来 Faster R-CNN/Mask R-CNN 中的 $l_1$-smooth 损失和 YOLO v3 中的 MSE 损失替换为 $\mathcal L_{GIoU}$，并且我们还对比了 baseline 和使用 $\mathcal L_{IoU}$ 损失时的结果。记使用目标检测器原先的损失为 baseline。（具体实验数据和结果分析请参考原论文，这里省略）</p>
+<p><strong>数据集</strong> 使用PASCAL VOC 和 MS COCO 数据集，训练方案的细节和对应的评估见下文。</p>
+<p><strong>评估方案</strong> 本文采取 MS COCO 的性能测试方法，在所有分类上计算 mAP，计算在不同 IoU 阈值下的 mAP 值，IoU 阈值用于判断正负例（因为计算mAP需要知道正例数量），取阈值 $IoU={.5,.55,…,.95}$，计算这些 IoU 阈值下 mAP 值的平均，记为 <strong>AP</strong>，然后使用 GIoU 代替 IoU 来判断正负例，同样取阈值 $GIoU={.5,.55,…,.95}$，计算这些阈值下 mAP 的平均，<strong>AP</strong>，特别地，文中还报导了当 IoU 和 GIoU 阈值为 0.75 时的 mAP，记为 <strong>AP75</strong>。</p>
+<h2 id="YOLO-v3"><a href="#YOLO-v3" class="headerlink" title="YOLO v3"></a>YOLO v3</h2><p><strong>训练方案</strong> 使用 YOLO v3 的 Darknet 使用版本。为了得到 Baseline 结果（使用 MSE 损失），我们使用 DarkNet-608 作为 backbone，训练所使用的参数与 YOLO v3 中一致。使用 IoU 和 GIoU 损失训练 YOLO v3 时，我们仅仅将原先的 MSE 损失替换为 $\mathcal L_{IoU}, \mathcal L_{GIoU}$，考虑到 MSE 损失无边界，我们的新损失则是有边界的，而 YOLO v3 损失还包含了分类损失，所以需要针对分类损失将 bbox 回归损失进行正则处理。当然，我们做了一个极小的努力来进行正则处理。</p>
+<h2 id="Faster-R-CNN-和-Mask-R-CNN"><a href="#Faster-R-CNN-和-Mask-R-CNN" class="headerlink" title="Faster R-CNN 和 Mask R-CNN"></a>Faster R-CNN 和 Mask R-CNN</h2><p><strong>训练方案</strong> 使用最新的 Faster R-CNN/Mask R-CNN 的 PyTorch 实现。为了得到baseline结果（使用$l_1$-smooth损失），我们使用 ResNet-50 作为 backbone，其他训练所使用的参数与原先保持一致。当使用 IoU 和 GIoU 损失时，在最后的坐标改进阶段（而不是RPN阶段）使用 $\mathcal L_{IoU}, \mathcal L_{GIoU}$，与 YOLO v3 的情况一样，我们进行了极小的努力来进行正则处理。所有的实验中，简单的将 $\mathcal L_{IoU}, \mathcal L_{GIoU}$ 均乘以 10。</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>介绍了 GIoU 作为新的指标来测量两个任意形状的距离。GIoU 继承了 IoU 的优秀特性且避免了 IoU 的缺点（非重叠情况），所以在基于 IoU 作为指标的 2D/3D 的计算机视觉任务中，GIoU 是一个很好的选择。</p>
+<p>我们也提供了轴对齐的两个矩形之间 GIoU 的解析解。 GIoU 作为距离其导数/梯度可计算，故可以使用 GIoU 作为 bbox 回归损失。将 GIoU 损失结合进 sota 目标检测器，其检测性能在多个数据集上均一致得到提升。我们认为，指标自身就是针对指标的最优损失，GIoU 可以作为最佳 bbox 回归损失用于需要 2D bbox 回归的所有计算机视觉任务中。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>这篇文章主要是提出了一个新的损失来优化模型，文章通俗易懂，实在没什么可分析的，于是就写成了翻译，也算是一种阅读记录吧。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/13/PyTorch-2/" rel="next" title="PyTorch-2">
+                <i class="fa fa-chevron-left"></i> PyTorch-2
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shajianjian</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#摘要"><span class="nav-number">1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#相关工作"><span class="nav-number">3.</span> <span class="nav-text">相关工作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#泛化IoU"><span class="nav-number">4.</span> <span class="nav-text">泛化IoU</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#GIoU用作BBox回归损失"><span class="nav-number">4.1.</span> <span class="nav-text">GIoU用作BBox回归损失</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#损失稳定性"><span class="nav-number">4.1.1.</span> <span class="nav-text">损失稳定性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IoU-0时-mathcal-L-GIoU-的行为"><span class="nav-number">4.1.2.</span> <span class="nav-text">IoU=0时$\mathcal L_{GIoU}$的行为</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实验结果"><span class="nav-number">5.</span> <span class="nav-text">实验结果</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#YOLO-v3"><span class="nav-number">5.1.</span> <span class="nav-text">YOLO v3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Faster-R-CNN-和-Mask-R-CNN"><span class="nav-number">5.2.</span> <span class="nav-text">Faster R-CNN 和 Mask R-CNN</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">6.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">7.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
