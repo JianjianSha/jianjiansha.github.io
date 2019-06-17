@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="mAP目标检测中，不同比赛的评估指标通常也不相同，我们先以 PASCAL VOC 为例进行说明。-目标检测中常用的评价标准是 mAP（mean Average Precision），入坑目标检测的应该都知道 mAP 是 AP 的平均，即每个分类单独计算出一个 AP 值，然后对所有分类的 AP 值求平均就得到 mAP。 相关概念 Positive 表示检测结果 True Positive (TP):">
+<meta name="keywords" content="object detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mAP">
+<meta property="og:url" content="https://shajianjian.github.io/2019/06/16/mAP/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="mAP目标检测中，不同比赛的评估指标通常也不相同，我们先以 PASCAL VOC 为例进行说明。-目标检测中常用的评价标准是 mAP（mean Average Precision），入坑目标检测的应该都知道 mAP 是 AP 的平均，即每个分类单独计算出一个 AP 值，然后对所有分类的 AP 值求平均就得到 mAP。 相关概念 Positive 表示检测结果 True Positive (TP):">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/mAP_fig1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/mAP_fig2.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/mAP_fig3.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/mAP_fig4.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/mAP_fig5.png">
+<meta property="og:updated_time" content="2019-06-17T13:21:59.401Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mAP">
+<meta name="twitter:description" content="mAP目标检测中，不同比赛的评估指标通常也不相同，我们先以 PASCAL VOC 为例进行说明。-目标检测中常用的评价标准是 mAP（mean Average Precision），入坑目标检测的应该都知道 mAP 是 AP 的平均，即每个分类单独计算出一个 AP 值，然后对所有分类的 AP 值求平均就得到 mAP。 相关概念 Positive 表示检测结果 True Positive (TP):">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/mAP_fig1.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://shajianjian.github.io/2019/06/16/mAP/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>mAP | SJJ</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SJJ</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/16/mAP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">mAP
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-16 11:43:57" itemprop="dateCreated datePublished" datetime="2019-06-16T11:43:57+08:00">2019-06-16</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-17 21:21:59" itemprop="dateModified" datetime="2019-06-17T21:21:59+08:00">2019-06-17</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="mAP"><a href="#mAP" class="headerlink" title="mAP"></a>mAP</h1><p>目标检测中，不同比赛的评估指标通常也不相同，我们先以 PASCAL VOC 为例进行说明。<br>-目标检测中常用的评价标准是 mAP（mean Average Precision），入坑目标检测的应该都知道 mAP 是 AP 的平均，即每个分类单独计算出一个 AP 值，然后对所有分类的 AP 值求平均就得到 mAP。</p>
+<h2 id="相关概念"><a href="#相关概念" class="headerlink" title="相关概念"></a>相关概念</h2><ol start="0">
+<li>Positive 表示检测结果</li>
+<li>True Positive (TP): IoU 大于等于阈值的检测 box</li>
+<li>False Positive (FP): IoU 小于阈值的检测 box</li>
+<li>Precision = TP/(TP+FP) = TP/(所有检测)</li>
+<li>Recall = TP/(TP+FN) = TP/(所有gt)</li>
+</ol>
+<p>由于现在我们专注于目标检测这个场景，所以首先需要弄清楚目标检测中 TP,FP,TN,FN 这四个基本概念。（以下4点均基于个人理解，如有错误，请及时通知本人修改，若博客不支持评论，可在<a href="https://github.io/shajian/shajian.github.io" target="_blank" rel="noopener">项目</a>提 issue）：</p>
+<ol>
+<li><p>TP</p>
+<p>检测结果为P (Positive)，其中与 gt box 最大 IoU 超过阈值（$Threshold_{VOC}=0.5$）的检测为 TP</p>
+</li>
+<li><p>FP</p>
+<p>检测结果为P (Positive)，其中与 gt box 最大 IoU 低于阈值的检测为 FP。如果某个检测与某 gt box 有最大 IoU 且超过阈值，但是这个 gt box 已被另一个检测匹配（match），且另一个检测的 confidence 更高，则当前检测也被认为是 FP。用数学语言描述为：<br>$$GT_1=\underset{GT_i} \mathrm{argmax} \quad \text{IoU}(Det_a, GT_i) \\<br>GT_1=\underset{GT_i} \mathrm{argmax} \quad \text{IoU}(Det_b, GT_i) \\<br>\text{Conf}_a &gt; \text{Conf}_b$$</p>
+<p>$$ \Rightarrow Det_b \in FP$$</p>
+</li>
+<li><p>FN</p>
+<p>如果某个 gt box 未被检测到，即没有检测结果与这个 gt box 的 IoU 大于0，则认为这个 gt box 为 FN</p>
+</li>
+<li><p>TN</p>
+<p>目标检测中没有阴性预测，TN = 0。以二分类问题为例，则分类判断不是 Positive 就是 Negative，TN 表示判断为 Negative，而实际是 Positive。</p>
+</li>
+</ol>
+<p>VOC 使用阈值 <code>0.5</code>。</p>
+<h2 id="指标"><a href="#指标" class="headerlink" title="指标"></a>指标</h2><h3 id="PR-曲线"><a href="#PR-曲线" class="headerlink" title="PR 曲线"></a>PR 曲线</h3><p>每个预测 box 均有一个 score 表示 confidence，对这个 confidence 设置阈值，仅考虑大于等于这个阈值的预测 box，小于这个阈值的检测结果则忽略，于是每个不同的 confidence 阈值均对应一对 PR（Precision x Recall）值。实际计算中，按 confidence 降序排列，将预测数量从 1 增加到全部预测数量（从 rank=1 到全部预测数量），每次计算一对 PR 值，于是得到原始的 PR 曲线，对于召回率 R’ &gt;= R 选取最大的 P 值则得到插值 PR 曲线。我们使用一个例子予以说明（搬运自<a href="https://datascience.stackexchange.com/questions/25119/how-to-calculate-map-for-detection-task-for-the-pascal-voc-challenge" target="_blank" rel="noopener">stackexchange</a>）。</p>
+<p>给定目标分类 “Aeroplane”，假设检测结果如下,</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">BB  | confidence | GT</span><br><span class="line">----------------------</span><br><span class="line">BB1 |  0.9       | 1</span><br><span class="line">----------------------</span><br><span class="line">BB2 |  0.9       | 1</span><br><span class="line">----------------------</span><br><span class="line">BB3 |  0.7       | 0</span><br><span class="line">----------------------</span><br><span class="line">BB4 |  0.7       | 0</span><br><span class="line">----------------------</span><br><span class="line">BB5 |  0.7       | 1</span><br><span class="line">----------------------</span><br><span class="line">BB6 |  0.7       | 0</span><br><span class="line">----------------------</span><br><span class="line">BB7 |  0.7       | 0</span><br><span class="line">----------------------</span><br><span class="line">BB8 |  0.7       | 1</span><br><span class="line">----------------------</span><br><span class="line">BB9 |  0.7       | 1</span><br><span class="line">----------------------</span><br></pre></td></tr></table></figure>
+
+<p>（BB 表示检测结果所匹配 “match” 的 GT box）</p>
+<p>以上表格中已经按 confidence 降序排列，GT=1 表示 TP，GT=0 表示 FP，此外还有两个未检测到的 BBox，即 FN=2。TP=5 (BB1,BB2,BB5,BB8,BB9)，FP=5，其中有一个检测为 BB1，但是其 confidence 小于 0.9 而被抑制，故认为此检测是 FP，对应如下的 rank=3 这个 case，舍弃这个检测。这一点在 PASCAL VOC 主页的 Detection Task 的 <a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/devkit_doc.html#SECTION00054000000000000000" target="_blank" rel="noopener">Evaluation</a> 一节也进行了说明。GT box 数量为 TP+FN=5+2=7。计算所有点的 PR 值如下，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">rank=1  precision=1.00 and recall=0.14</span><br><span class="line">----------</span><br><span class="line">rank=2  precision=1.00 and recall=0.29</span><br><span class="line">----------</span><br><span class="line">rank=3  precision=0.66 and recall=0.29</span><br><span class="line">----------</span><br><span class="line">rank=4  precision=0.50 and recall=0.29</span><br><span class="line">----------</span><br><span class="line">rank=5  precision=0.40 and recall=0.29</span><br><span class="line">----------</span><br><span class="line">rank=6  precision=0.50 and recall=0.43</span><br><span class="line">----------</span><br><span class="line">rank=7  precision=0.43 and recall=0.43</span><br><span class="line">----------</span><br><span class="line">rank=8  precision=0.38 and recall=0.43</span><br><span class="line">----------</span><br><span class="line">rank=9  precision=0.44 and recall=0.57</span><br><span class="line">----------</span><br><span class="line">rank=10 precision=0.50 and recall=0.71</span><br><span class="line">----------</span><br></pre></td></tr></table></figure>
+
+<p>稍作解释：</p>
+<ol>
+<li>rank=1，检测数量为 1（此时其他检测结果均被舍弃），TP 仅 BB1 一个，没有 FP，故 P=1，R=1/7=0.14</li>
+<li>rank=2，检测数量为 2，TP 包括 BB1,BB2，没有 FP，故 P=1，R=2/7=0.29</li>
+<li>rank=3，检测数量为 3，TP 包括 BB1,BB2，FP 为 BB1，故 P=2/3=0.66，R=2/7=0.29</li>
+<li>…</li>
+</ol>
+<h3 id="AP"><a href="#AP" class="headerlink" title="AP"></a>AP</h3><p>VOC 在 2010 之前，选择固定的 11 个 R 值 等分点，即 R={0,0.1,…,1}，然后对 R’ &gt;= R 选择最大 P 值得到插值 PR 曲线。 AP 则是每个 R 阈值处的平均正确率（average precision）。VOC 2010 之后，仍然是对 R’ &gt;= R 选择最大 P 值，但是 R 是 [0,1] 之间的所有值（参考上一节内容 <strong>PR 曲线</strong> 中的计算过程），此时 AP 为 PR 曲线下方的面积 AUC （area under the curve）。两种计算方法如下：</p>
+<h4 id="11-点插值"><a href="#11-点插值" class="headerlink" title="11-点插值"></a>11-点插值</h4><p>取11个 R 值的 [0,1] 区间等分点计算平均正确率：<br>$$AP=\frac 1 {11} \sum_{r \in {0,0.1,…,1}} \rho_{interp(r)} \qquad(1) \\<br>\rho_{interp(r)}=\max_{\tilde r:\tilde r \ge r} \rho(\tilde r) \qquad(2) $$</p>
+<p>其中，$\rho(\tilde r)$ 为计算得到的正确率。<br>举个例子如图（完整例子请参考<a href="https://github.com/rafaelpadilla/Object-Detection-Metrics" target="_blank" rel="noopener">这里</a>），<br><img src="/images/mAP_fig1.png" alt></p>
+<p>蓝色折线的顶点为根据预测结果计算得到的 PR 值，红色点则是根据11个固定的 R 值进行插值得到的 PR 值，比如计算阈值 R=0.2 处的插值，根据式 (2)，大于等于 0.2 的 $\tilde r$ 值可取 {0.2,0.2666,0.3333,0.4,0.4666}，当 $\tilde r=0.4$ 时，显然 P 有最大值为 0.4285。根据 11-点插值，计算 AP：</p>
+<p>$AP=\frac 1 {11} \sum_{r \in {0,0.1,…,1}} \rho_{interp(r)}$</p>
+<p>$AP=\frac 1 {11}(1+0.6666+0.4285+0.4285+0.4285+0+0+0+0+0+0)$</p>
+<p>$AP=26.84%$</p>
+<h4 id="所有点插值"><a href="#所有点插值" class="headerlink" title="所有点插值"></a>所有点插值</h4><p>AP 计算式为，<br>$$AP=\sum_{r=0}^1(r_{n+1}-r_n) \rho_{interp}(r_{n+1}) \qquad(3) \\<br>\rho_{interp}(r_{n+1})=\max_{\tilde r: \tilde r \ge r_{n+1}} \rho(\tilde r) \qquad(4)$$<br>其中，$\rho (\tilde r)$ 为 Recall $\tilde r$ 处的正确率。这种 AP 计算方法首先插值得到每个召回率值的正确率，然后计算插值后 PR 曲线下的面积 AUC。<br>如下图，<br><img src="/images/mAP_fig2.png" alt></p>
+<p>蓝色折线顶点表示根据检测结果计算出来的 PR 值，红色虚线表示插值后的 RP 值，可将 AUC 划为 4 个区域，如下图，<br><img src="/images/mAP_fig3.png" alt></p>
+<p>于是计算 AP 为，</p>
+<p>$AP=A_1+A_2+A_3+A_4=(0.0666-0) \times 1+(0.1333-0.0666) \times 0.6666 \\ +(0.4-0.1333) \times 0.4285+(0.4666-0.4) \times 0.3043=24.56%$</p>
+<h1 id="ROC-曲线"><a href="#ROC-曲线" class="headerlink" title="ROC 曲线"></a>ROC 曲线</h1><h2 id="相关概念-1"><a href="#相关概念-1" class="headerlink" title="相关概念"></a>相关概念</h2><ol>
+<li><p>TPR (true positive rate)，又称灵敏度 (sensitivity)、召回率 (recall)：TPR = TP/(TP+FN)</p>
+</li>
+<li><p>TNR (true negative rate)，又称特异度 (specificity): TNR = TN/(FP+TN)</p>
+</li>
+<li><p>FNR (false negative rate)，又称漏诊率: FNR = 1 - TPR = FN/(TP+FN)</p>
+</li>
+<li><p>FPR (false positive rate)，又称误诊率: FPR = 1 - TNR = FP/(FP+TN)</p>
+</li>
+<li><p>LR+ (positive likelihood ratio):</p>
+<p>$LR^+=\frac {TPR} {FPR} = \frac {Sensitivily} {1-Specificity}$</p>
+</li>
+<li><p>LR- (negative likelihood ratio):</p>
+<p>$LR^-=\frac {FNR} {TNR} = \frac {1-Sensitivity} {Specificity}$</p>
+</li>
+<li><p>Youden index: Youden index = Sensitivity + Specificity - 1 = TPR - FPR</p>
+</li>
+</ol>
+<h2 id="ROC-曲线-1"><a href="#ROC-曲线-1" class="headerlink" title="ROC 曲线"></a>ROC 曲线</h2><p>ROC 是常见的评价分类器的指标。</p>
+<p>ROC 全称 <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic" target="_blank" rel="noopener">receiver operating characteristic</a>（以下很多内容均来自于这个维基百科词条）。</p>
+<p>根据不同的判别阈值（大于等于阈值为正，否则为负），得到一组 TPR-FPR 值，所画曲线就是 ROC 曲线。<br>如下图所示，<br><img src="/images/mAP_fig4.png" alt></p>
+<p>图中 (0,0) 和 (1,1) 两点分别对应：</p>
+<ol>
+<li>当阈值为 1 时，全部判断为 Negative，故 TP=FP=0，所以 TPR=FPR=0</li>
+<li>当阈值为 0 时，全部判断为 Positive，故 TN=FN=0，所以 TPR=FPR=1</li>
+</ol>
+<p>实际上，阈值可以位于范围 $(-\infty,0) \cup (1,+\infty)$，位于 $(-\infty,0)$ 是与第 2 点相同，位于 $(1,+\infty)$ 是与第 1 点相同。</p>
+<p>一个好的分类器其 ROC 曲线应该位于直线 y=x 的上方，直线 y=x 对应随机猜测的分类器，也就是说，不管选择什么阈值，都应该让真阳性率大于误诊率。理想情况下，TPR 接近 1，FPR 接近 0，故 ROC 曲线越接近 (0,1)，越偏离直线 y=x，就越好。</p>
+<h2 id="ROC-空间"><a href="#ROC-空间" class="headerlink" title="ROC 空间"></a>ROC 空间</h2><p>二分类中，每个实例的分类预测均基于一个连续随机变量 X，即实例对应的得分 score，例如逻辑回归中的概率。给定阈值 T，如果 X&gt;T，为正例，否则为负例。如果实例属于正例，那么 X 的概率密度为 $f_1(x)$，如果实例属于负例，那么 X 的概率密度为 $f_0(x)$。因此,<br>$$TPR=\int_T^{\infty} f_1(x)dx \<br>FPR = \int_T^{\infty} f_0(x)dx$$<br>两者均为阈值 T 的函数。</p>
+<ol>
+<li>TPR(T) 表示在该阈值下随机选择一个正例，判断该正例为正例的概率</li>
+<li>FPR(T) 表示在该阈值下随机选择一个负例，判断该负例为正例的概率。</li>
+</ol>
+<p>下图表示某分类器的分类情况，<br><img src="/images/mAP_fig5.png" alt="图 5"></p>
+<p>横轴为随机变量 X 的取值（表示计算得分 score），与纵轴的交点处为判断阈值，纵轴表示概率密度，越大则表示此 score 对应的实例越多。两个曲线相聚越远，则表示越容易区分正负例。</p>
+<h2 id="AUC"><a href="#AUC" class="headerlink" title="AUC"></a>AUC</h2><p>通常使用 ROC 曲线下方的面积 AUC 来评价一个分类器的好坏。</p>
+<p>AUC 等于一个概率值：当随机选择一个正例和随机选择一个负例时，分类器计算正例的 Score 大于计算负例的 Score 的概率。根据ROC 曲线，可以将 TPR 看作是 FPR 的函数，而实际上这两者均是判断阈值 T 的函数，所以有<br>$$TPR(T): T \rightarrow y(x) \\<br>FPR(T): T \rightarrow x$$<br>于是，<br>$$<br>A =\int_0^1 y(x) \ dx  =\int_0^1 TPR[FPR^{-1}(x)] \ dx \\ \stackrel{x=FPR(T)} =\int_{-\infty}^{+\infty} TPR(T) \ d[FPR(T)] =\int_{-\infty}^{+\infty} TPR(T) \cdot FPR \ ‘(T) \ dT \\ = \int_{-\infty}^{+\infty} \left( \int_T^{+\infty}  f_1(T’) \ dT’ \right) f_0(T) \ dT \\ =\int_{-\infty}^{+\infty}\int_T^{+\infty}  f_1(T’)f_0(T) \ dT’ dT \\ = P(X_1&gt;X_0)<br>$$<br>其中，$X_1$ 表示正例的得分，$X_0$表示负例的得分。</p>
+<p>最后一个等号可能不容易理解，我们将 $X_1$ 和 $X_0$ 均看作随机变量，其分布函数为:<br>$$F_1(x)=\int_{-\infty}^{x} f_1(x) dx \\<br>F_0(x)=\int_{-\infty}^{x} f_1(x) dx$$<br>概率密度分别为 $f_1,f_0$。</p>
+<p>由于$X_1, X_0$ 互相独立，二维随机变量 $(X_1,X_0)$ 的联合概率密度为 $f(x_1,x_0)=f_1(x_1) f_0(x_0)$，于是 $X_0 &lt; X_1$ 的概率为：<br>$$P(X_1&gt;X_0)=\iint_{G} f(x_1,x_0) dx_1 dx_0=\int_{-\infty}^{+\infty}\int_{x_0}^{+\infty}f_1(x_1) f_0(x_0) \ dx_1 dx_0$$<br>与上面的计算式形式完全一样，证毕。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/13/GIoU/" rel="next" title="GIoU">
+                <i class="fa fa-chevron-left"></i> GIoU
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shajianjian</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#mAP"><span class="nav-number">1.</span> <span class="nav-text">mAP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#相关概念"><span class="nav-number">1.1.</span> <span class="nav-text">相关概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#指标"><span class="nav-number">1.2.</span> <span class="nav-text">指标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PR-曲线"><span class="nav-number">1.2.1.</span> <span class="nav-text">PR 曲线</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AP"><span class="nav-number">1.2.2.</span> <span class="nav-text">AP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#11-点插值"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">11-点插值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#所有点插值"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">所有点插值</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ROC-曲线"><span class="nav-number">2.</span> <span class="nav-text">ROC 曲线</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#相关概念-1"><span class="nav-number">2.1.</span> <span class="nav-text">相关概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ROC-曲线-1"><span class="nav-number">2.2.</span> <span class="nav-text">ROC 曲线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ROC-空间"><span class="nav-number">2.3.</span> <span class="nav-text">ROC 空间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AUC"><span class="nav-number">2.4.</span> <span class="nav-text">AUC</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

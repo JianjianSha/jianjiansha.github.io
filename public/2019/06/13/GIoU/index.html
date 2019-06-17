@@ -104,13 +104,13 @@
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression 摘要IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://shajianjian.github.io/images/fig1.png">
-<meta property="og:image" content="https://shajianjian.github.io/images/fig2.png">
-<meta property="og:updated_time" content="2019-06-14T13:09:25.161Z">
+<meta property="og:image" content="https://shajianjian.github.io/images/GIoU_fig1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/GIoU_fig2.png">
+<meta property="og:updated_time" content="2019-06-17T02:16:44.080Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GIoU">
 <meta name="twitter:description" content="论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression 摘要IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，">
-<meta name="twitter:image" content="https://shajianjian.github.io/images/fig1.png">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/GIoU_fig1.png">
 
 
 
@@ -404,7 +404,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-14 21:09:25" itemprop="dateModified" datetime="2019-06-14T21:09:25+08:00">2019-06-14</time>
+                <time title="修改时间：2019-06-17 10:16:44" itemprop="dateModified" datetime="2019-06-17T10:16:44+08:00">2019-06-17</time>
               
             
           </span>
@@ -442,7 +442,7 @@
 <h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p>IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，所以本文提出一种泛化版的Iou，名为 GIou。结合 GIoU 和 sota 目标检测框架，在流行的目标检测benchmarks例如 PASCAL VOC 和 MS COCO中，分别使用标准 IoU 和 GIoU 损失，我们发现性能一致得到提升。</p>
 <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>在很多2D/3D 计算机视觉任务中，bbox 回归是最基本的组成之一。例如目标定位，多目标检测，目标跟踪以及实例分割，均依赖准确的bbox回归。提升性能的主流趋势是使用深度神经网络，然而，还有一种提升方法被广泛忽略，那就是使用基于 IoU 的指标损失来代替传统的回归损失如 $l_1, l_2$ 等。</p>
 <p>IoU 将要比较的目标的形状属性例如 bbox 的宽、高和位置等信息编码成区域属性，并基于面积（体积）计算出一个归一化的值。语义分割、目标检测和跟踪等任务中的性能测量均采用IoU作为测量指标。</p>
-<p>然而，最小化损失如$$l_n$$范数与提高IoU并不是强相关。考虑一个2D场景，如图1(a)，<br><img src="/images/fig1.png" alt></p>
+<p>然而，最小化损失如$l_n$范数与提高IoU并不是强相关。考虑一个2D场景，如图1(a)，<br><img src="/images/GIoU_fig1.png" alt></p>
 <!--  -->
 
 <p>预测box（黑矩形）和gt box（绿矩形）均由左上角和右下角坐标表示$(x_1,y_1,x_2,y_2)$，为简单起见，我们令两个box的其中一个corner的距离（例如$l_2$范数）固定，于是，以 gt box 另一个 corner 为圆心，某半径长的圆，无论预测 box 的另一个 corner 的坐标，只要其位于这个圆上，其 $l_2$ 距离均保持不变；然而IoU却不同。这个问题可以延伸到其他损失和bbox表示上，例如图1(b)。</p>
@@ -456,25 +456,36 @@
 <li>以GIoU作为轴对齐矩形或超矩形的损失时，使用解析解</li>
 <li>将GIoU引入sota 检测器如Faster R-CNN，Mask R-CNN和YOLO v3，并在标准目标检测benchmark上验证性能得到提升</li>
 </ul>
-<h1 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h1><p><b>目标检测准确性测量：</b>IoU作为评估指标在目标检测任务中广为使用，常用于确定预测box是真阳性还是假阳性。使用IoU时需要选择一个阈值。在PASCAL VOC上，计算mAP时选择 IoU阈值=0.5，但是随意选择的IoU阈值不能完全反映定位性能，所有定位准确性大于这个阈值的检测结果认为是真阳性，从而参与mAP的计算，IoU阈值的选择将直接影响mAP值。为了是性能测量对IoU阈值不敏感，MS COCO benchmark 则选择不同的IoU阈值计算多个mAP然后取平均。</p>
-<p><b>bbox表示和损失：</b>2D目标检测中，bbox参数非常重要。最近的文献提出多种不同bbox表示和损失：</p>
+<h1 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h1><p><strong>目标检测准确性测量：</strong> IoU作为评估指标在目标检测任务中广为使用，常用于确定预测box是真阳性还是假阳性。使用IoU时需要选择一个阈值。在PASCAL VOC上，计算mAP时选择 IoU阈值=0.5，但是随意选择的IoU阈值不能完全反映定位性能，所有定位准确性大于这个阈值的检测结果认为是真阳性，从而参与mAP的计算，IoU阈值的选择将直接影响mAP值。为了是性能测量对IoU阈值不敏感，MS COCO benchmark 则选择不同的IoU阈值计算多个mAP然后取平均。</p>
+<p><strong>bbox表示和损失：</strong> 2D目标检测中，bbox参数非常重要。最近的文献提出多种不同bbox表示和损失：</p>
 <ol>
-<li>YOLO v1 直接回归 bbox 参数$(x_c,y_c,w,h)$，坐标损失使用平方差，计算损失时，为了降低目标scale对(w,h)损失项的影响，将这一损失项由$(w-\hat w)^2+(h-\hat h)^2$ 改为 $(\sqrt w - \sqrt {\hat w})^2+(\sqrt h - \sqrt {\hat h})^2$。</li>
-<li>R-CNN使用selective search先获得候选boxes，然后回归bbox中心点偏差（求差）和size的偏差（求商），为了降低scale敏感度，将size 偏差转换到对数空间（求log），然会对偏差使用$l_2$范数（最小均方差MSE）作为目标函数进行优化。</li>
-<li>Fast R-CNN对坐标偏差使用 $l_1$-smooth 损失，使得模型即使在异常值情况下也具有较好的鲁棒性（异常值情况一般指偏差非常大的情况，此时若使用 $l_2$ 范数的目标函数，其梯度比较大，使得模型训练初期非常不稳定）。</li>
-<li>Faster R-CNN使用密集anchor boxes，然后对其中心坐标和size的偏差进行回归，根据anchor boxes的得分（分类置信度）按正负例的一定比例（1:3）得到一个batch （数量为128）的proposals，然后再使用Fast R-CNN的分类和回归两个分支进行最终的预测。为了进一步解决正负例不平衡问题，RetinaNet 使用 focal loss。</li>
+<li><p>YOLO v1</p>
+<p>YOLO v1 直接回归 bbox 参数$(x_c,y_c,w,h)$，坐标损失使用平方差。计算损失时，为了降低目标scale对(w,h)损失项的影响，将这一损失项由$(w-\hat w)^2+(h-\hat h)^2$ 改为 $(\sqrt w - \sqrt {\hat w})^2+(\sqrt h - \sqrt {\hat h})^2$。</p>
+</li>
+<li><p>R-CNN</p>
+<p>R-CNN使用selective search先获得候选boxes，然后回归bbox中心点偏差（求差）和size的偏差（求商），为了降低scale敏感度，将size 偏差转换到对数空间（求log），然会对偏差使用$l_2$范数（最小均方差MSE）作为目标函数进行优化。</p>
+</li>
+<li><p>Fast R-CNN</p>
+<p>Fast R-CNN对坐标偏差使用 $l_1$-smooth 损失，使得模型即使在异常值情况下也具有较好的鲁棒性（异常值情况一般指偏差非常大的情况，此时若使用 $l_2$ 范数的目标函数，其梯度比较大，使得模型训练初期非常不稳定）。</p>
+</li>
+<li><p>Faster R-CNN</p>
+<p>Faster R-CNN使用密集anchor boxes，然后对其中心坐标和size的偏差进行回归，根据anchor boxes的得分（分类置信度）按正负例的一定比例（1:3）得到一个batch （数量为128）的proposals，然后再使用Fast R-CNN的分类和回归两个分支进行最终的预测。为了进一步解决正负例不平衡问题，RetinaNet 使用 focal loss。</p>
+</li>
 </ol>
 <p>大部分目标检测器都是结合以上某种bbox表示和某种损失。这些努力推动目标检测有了明显的发展。我们的工作表明，使用GIoU 损失可以进一步提高目标定位，因为如前面所分析的那样 bbox 回归损失并不能够直接反映检测评估指标IoU。 </p>
-<p><b>使用近似或替代函数优化IoU：</b>在语义分割任务种，曾使用近似函数或替代损失优化IoU。类似地，目标检测任务中，最近的一些研究工作也尝试直接或间接利用IoU以更好地进行bbox回归，然而却在非重叠情况下优化IoU时遇到近似或梯度平坦问题。本文我们通过引入GIoU解决IoU在非重叠情况下的问题。</p>
+<p><strong>使用近似或替代函数优化IoU：</strong> 在语义分割任务种，曾使用近似函数或替代损失优化IoU。类似地，目标检测任务中，最近的一些研究工作也尝试直接或间接利用IoU以更好地进行bbox回归，然而却在非重叠情况下优化IoU时遇到近似或梯度平坦问题。本文我们通过引入GIoU解决IoU在非重叠情况下的问题。</p>
 <h1 id="泛化IoU"><a href="#泛化IoU" class="headerlink" title="泛化IoU"></a>泛化IoU</h1><p>用于比较两个任意形状 $A,B \subseteq S \in \mathbb{R}^n$ 的 IoU 计算方法为：<br>$$IoU = \frac {|A \cap B|} {|A \cup B|} $$<br>两个显著特性使得这种相似性测量方法流行于评估2D/3D计算机视觉任务中：</p>
-<ol>
-<li>IoU作为距离即 $\mathcal L_{IoU}=1-IoU$，同时也作为评估指标。这意味着 $\mathcal L_{IoU}$ 满足 IoU 指标的所有性质，例如非负性，不可分的同一性，对称性和三角不等式</li>
-<li>IoU具有尺度不变性。这意味着，两个任意形状A B的相似度与它们在 S 空间的尺度无关</li>
-</ol>
+<ul>
+<li><p>IoU作为距离同时也作为评估指标。</p>
+<p>IoU距离即 $\mathcal L_{IoU}=1-IoU$，这意味着 $\mathcal L_{IoU}$ 满足 IoU 指标的所有性质，例如非负性，不可分的同一性，对称性和三角不等式</p>
+</li>
+<li><p>IoU具有尺度不变性。这意味着，两个任意形状A B的相似度与它们在 S 空间的尺度无关</p>
+</li>
+</ul>
 <p>但是，IoU的主要问题是：</p>
-<ol>
+<ul>
 <li>$|A \cap B|=0 \Rightarrow IoU(A,B)=0$，此时，IoU无法分辨两个形状A B是靠的非常近还是非常远</li>
-</ol>
+</ul>
 <p>为了解决这个问题，我们提出了泛化版IoU，即 GIoU。</p>
 <p>两个任意的凸形 $A, B \subseteq S \in \mathbb S^n$，首先在 S 空间中寻找包含 A 和 B 的最小凸形 C。如果比较两个具体类型的几何图形，C 可以也是这个具体类型，例如比较两个椭圆形，C 则是包含这两个椭圆形的最小椭圆形。然后我们计算 C 中扣掉 A 和 B 剩余部分的面积（体积）与 C 自身的面积（体积）的比例，这个比例代表了一种归一化的且注重 A 和 B 之间的空白部分面积（体积）的测量方法，然后，从 IoU 中减去这个比例就得到 GIoU。（面积/体积对应 2D/3D）</p>
 <p>整个计算过程总结如下算法1：</p>
@@ -483,23 +494,36 @@
 <hr>
 <p>输入： 两个任意凸形 $A,B \subseteq S \in \mathbb S^n$</p>
 <p>输出： GIoU</p>
-<ol>
-<li>在 S 空间中寻找包含 A B 的最小凸形 C</li>
-<li>$IoU=\frac {|A \cap B|} {|A \cup B|}$</li>
-<li>$GIoU = IoU - \frac {|C \setminus (A \cup B)|} {|C|}$</li>
-</ol>
+<ul>
+<li><p>在 S 空间中寻找包含 A B 的最小凸形 C</p>
+</li>
+<li><p>计算 IoU</p>
+<p>$IoU=\frac {|A \cap B|} {|A \cup B|}$</p>
+</li>
+<li><p>计算 GIoU</p>
+<p>$GIoU = IoU - \frac {|C \setminus (A \cup B)|} {|C|}$</p>
+</li>
+</ul>
 <hr>
 <p>作为新的指标，GIoU 具有性质：</p>
-<ol>
-<li>与 IoU 类似，GIoU 作为距离即 $\mathcal L_{GIoU} = 1-GIoU$，具有指标的所有性质：非负性，不可分的同一性，对称性和三角不等式。</li>
-<li>与 IoU 类似，GIoU 具有尺度不变性。</li>
-<li>$\forall A,B \subseteq \mathbb S, GIoU(A,B) \le IoU(A,B)$，当 A B越靠近且形状越相似，则 GIoU 越接近 IoU，即 $\lim_{A \rightarrow B} GIoU(A,B)=IoU(A,B)$</li>
-<li>$\forall A,B \subseteq \mathbb S, 0 \le IoU(A,B) \le 1$，但是 GIoU 的值域则关于零点对称，$-1 \le GIoU(A,B) \le 1$<ul>
+<ul>
+<li><p>与 IoU 类似，GIoU 作为距离具有指标的所有性质：非负性，不可分的同一性，对称性和三角不等式</p>
+<p>IoU 距离即 $\mathcal L_{GIoU} = 1-GIoU$。</p>
+</li>
+<li><p>与 IoU 类似，GIoU 具有尺度不变性。</p>
+</li>
+<li><p>GIoU 上限为 IoU</p>
+<p>$\forall A,B \subseteq \mathbb S, GIoU(A,B) \le IoU(A,B)$，当 A B越靠近且形状越相似，则 GIoU 越接近 IoU，即 $\lim_{A \rightarrow B} GIoU(A,B)=IoU(A,B)$。</p>
+</li>
+<li><p>IoU 和 GIoU 的值域</p>
+<p>$\forall A,B \subseteq \mathbb S, 0 \le IoU(A,B) \le 1$，但是 GIoU 的值域则关于零点对称，$-1 \le GIoU(A,B) \le 1$。</p>
+<p>我们看下如何获得边界值：</p>
+<ul>
 <li>与 IoU 相同，只有当 A B 完成重合的时候，即$|A \cup B|=|A \cap B|$，此时$GIoU =IoU=1$</li>
 <li>当 A B 两个形所占面积（体积）与 C 所在面积（体积）之比趋于 0，GIoU 趋于 -1，即$\lim_{\frac{|A \cup B|}{|C|}} GIoU(A,B)=-1$</li>
 </ul>
 </li>
-</ol>
+</ul>
 <p>综上，GIoU 保持了 IoU 的主要性质并避免了 IoU 的缺点，所以在2D/3D计算机视觉任务的性能测试中可以使用 GIoU 代替 IoU。本文我们侧重于 2D 目标检测，推导 GIoU 的解析解，GIoU 同时担当性能指标和损失。在非轴对齐 3D 场景下的 GIoU 则待以后的工作去研究。</p>
 <h2 id="GIoU用作BBox回归损失"><a href="#GIoU用作BBox回归损失" class="headerlink" title="GIoU用作BBox回归损失"></a>GIoU用作BBox回归损失</h2><p>我们已经介绍了 GIoU 可以作为任意两个形状的距离测量指标，但是与 IoU 一样，没有解析解计算两个任意形状的交，也没有解析解可以计算包含这俩形状的最小凸形。</p>
 <p>好在2D 目标检测任务中，bbox 是轴对齐的，此时 GIoU 有解析解。两个形状 A B 的交，以及包含 A B 的最小凸形均具为矩形，对 A B 的顶点坐标使用 min 或 max 操作可以求得它们的顶点坐标。为了确定 A B 是否重叠，还需要进行条件检查，比如 A B 的交，作为矩形，其左上顶点的 x 坐标必然比右下顶点的 x 坐标小即 $x^{tl} &lt; x^{br}$，而 $x^{tl}=\max (x_A^{tl}, x_B^{tl}), \ x^{br}=\min (x_A^{br},x_B^{br})$，所以有 $x_B^{tl} \le x_A^{tl}&lt;x_B^{br}$ 或 $x_A^{tl} \le x_B^{tl}&lt;x_A^{br}$。</p>
@@ -510,32 +534,48 @@
 <p>输入：预测框 $B^p$ 和 GT 框 $B^g$ 的坐标，$B^p=(x_1^p,y_1^p,x_2^p,y_2^p), \quad B^g=(x_1^g,y_1^g,x_2^g,y_2^g)$</p>
 <p>输出：$\mathcal L_{IoU}, \ \mathcal L_{GIoU}$</p>
 <ol>
-<li>因为预测框各个坐标是独立预测出来的，所以为了确保 $B^p$ 坐标有效即，$x_2^p&gt;x_1^p, \ y_2^p&gt;y_1^p$，故进行如下转换：<ul>
+<li><p>因为预测框各个坐标是独立预测出来的，所以需要确保 预测 box 坐标有效即，</p>
+<p>$x_2^p&gt;x_1^p, \ y_2^p&gt;y_1^p$，故进行如下转换：</p>
+<ul>
 <li>$\hat x_1^p=\min(x_1^p,x_2^p), \ \hat x_2^p=\max(x_1^p,x_2^p)$</li>
 <li>$\hat y_1^p=\min(y_1^p,y_2^p), \ \hat y_2^p=\max(y_1^p,y_2^p)$</li>
 </ul>
 </li>
-<li>计算 $B^g$ 面积：$A^g=(x_2^g-x_1^g)\times (y_2^g-y_1^g)$</li>
-<li>计算 $B^p$ 面积：$A^p=(x_2^p-x_1^p)\times (y_2^p-y_1^p)$</li>
-<li>计算交 $\mathcal I$：<ul>
+<li><p>计算 GT box 面积：</p>
+<p>$A^g=(x_2^g-x_1^g)\times (y_2^g-y_1^g)$</p>
+</li>
+<li><p>计算预测 box 面积：</p>
+<p>$A^p=(x_2^p-x_1^p)\times (y_2^p-y_1^p)$</p>
+</li>
+<li><p>计算交：</p>
+<ul>
 <li>$x_1^{\mathcal I}=\max(\hat x_1^p, x_1^g), \ x_2^{\mathcal I}=\min(\hat x_2^p,x_2^p)$</li>
 <li>$y_1^{\mathcal I}=\max(\hat y_1^p, y_1^g), \ y_2^{\mathcal I}=\min(\hat y_2^p,y_2^p)$</li>
 <li>$\mathcal I=\begin{cases} (x_2^{\mathcal I}-x_1^{\mathcal I})\times (y_2^{\mathcal I}-y_1^{\mathcal I}) &amp; x_2^{\mathcal I} &gt; x_1^{\mathcal I}, y_2^{\mathcal I} &gt; y_1^{\mathcal I} \ 0 &amp; \text{otherwise} \end{cases}$</li>
 </ul>
 </li>
-<li>计算最小包含凸形 $B^c$：<ul>
+<li><p>计算最小包含凸形 c：</p>
+<ul>
 <li>$x_1^c=\min(\hat x_1^p, x_1^g), \ \max(\hat x_2^p, x_2^g)$</li>
 <li>$y_1^c=\min(\hat y_1^p, y_1^g), \ \max(\hat y_2^p, y_2^g)$</li>
 </ul>
 </li>
-<li>计算 $B^c$ 的面积：$A^c=(x_2^c-x_1^c)\times (y_2^c-y_1^c)$</li>
-<li>$IoU = \frac {\mathcal I}{\mathcal U}$，其中 $\mathcal U = A^p+A^g-\mathcal I$</li>
-<li>$GIoU = IoU - \frac {A^c-\mathcal U} {A^c}$</li>
-<li>$\mathcal L_{IoU}=1-IoU, \ \mathcal L_{GIoU}=1-GIoU$</li>
+<li><p>计算 c 的面积：</p>
+<p>$A^c=(x_2^c-x_1^c)\times (y_2^c-y_1^c)$</p>
+</li>
+<li><p>计算 IoU：</p>
+<p>$IoU = \frac {\mathcal I}{\mathcal U}$，其中 $\mathcal U = A^p+A^g-\mathcal I$</p>
+</li>
+<li><p>计算 GIoU：</p>
+<p>$GIoU = IoU - \frac {A^c-\mathcal U} {A^c}$</p>
+</li>
+<li><p>计算 GIoU 损失：</p>
+<p>$\mathcal L_{IoU}=1-IoU, \ \mathcal L_{GIoU}=1-GIoU$</p>
+</li>
 </ol>
 <hr>
 <p>根据指标检测性能时，以指标本身作为损失来优化显然是最佳选择，但是在bbox非重叠场景下，IoU=0，其梯度也为0，影响训练质量和收敛速度，相反，GIoU 则一直有有效梯度指导如何优化模型。另外，根据性质3，GIoU 与 IoU 强相关，在 IoU 较大时，这种强相关更加显著。图2 定性的分析了这种相关性，</p>
-<p><img src="/images/fig2.png" alt></p>
+<p><img src="/images/GIoU_fig2.png" alt></p>
 <p>图2中，随机选择了1万组 2D 矩形pair，计算其 IoU 和 GIoU，观察发现，在重叠较小时，例如 $IoU \le 0.2, \ GIoU \le 0.2$，GIoU 可以比 IoU 变化更显著，而且在任何情况下，GIoU 的梯度都可以很陡，所以将 GIoU 作为损失$\mathcal L_{GIoU}$，比使用 IoU 作为损失$\mathcal L_{IoU}$，更有利于优化，并且最终的性能测量指标只要是基于IoU，无论使用哪种指标均可。</p>
 <h3 id="损失稳定性"><a href="#损失稳定性" class="headerlink" title="损失稳定性"></a>损失稳定性</h3><p>我们也考察了预测值为任意的情况下，损失是否会不稳定或者出现未定义情况（比如除数为0）。</p>
 <p>假设 GT box 是矩形，且面积大于0即，$A^g &gt; 0$，算法2中第1点和第4点分别确保了预测框和两个bbox的交均非负即，$A^p \ge 0, \ \mathcal I \ge 0, \forall B^p \in \mathbb R^4$，又根据$\mathcal U \ge A^g$，故 $\mathcal U &gt; 0$，所以 IoU 的分母为正非零。又 $\mathcal U \ge \mathcal I$，故 $0 \le IoU \le 1$，于是 IoU 损失范围为 $0 \le \mathcal L_{IoU} \le 1$</p>
@@ -597,6 +637,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/16/mAP/" rel="prev" title="mAP">
+                mAP <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -665,7 +709,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
