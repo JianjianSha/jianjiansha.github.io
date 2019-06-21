@@ -109,7 +109,7 @@
 <meta property="og:image" content="https://shajianjian.github.io/images/mAP_fig3.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/mAP_fig4.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/mAP_fig5.png">
-<meta property="og:updated_time" content="2019-06-17T13:21:59.401Z">
+<meta property="og:updated_time" content="2019-06-21T07:02:21.616Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mAP">
 <meta name="twitter:description" content="mAP目标检测中，不同比赛的评估指标通常也不相同，我们先以 PASCAL VOC 为例进行说明。-目标检测中常用的评价标准是 mAP（mean Average Precision），入坑目标检测的应该都知道 mAP 是 AP 的平均，即每个分类单独计算出一个 AP 值，然后对所有分类的 AP 值求平均就得到 mAP。 相关概念 Positive 表示检测结果 True Positive (TP):">
@@ -407,7 +407,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-17 21:21:59" itemprop="dateModified" datetime="2019-06-17T21:21:59+08:00">2019-06-17</time>
+                <time title="修改时间：2019-06-21 15:02:21" itemprop="dateModified" datetime="2019-06-21T15:02:21+08:00">2019-06-21</time>
               
             
           </span>
@@ -455,8 +455,8 @@
 <p>检测结果为P (Positive)，其中与 gt box 最大 IoU 超过阈值（$Threshold_{VOC}=0.5$）的检测为 TP</p>
 </li>
 <li><p>FP</p>
-<p>检测结果为P (Positive)，其中与 gt box 最大 IoU 低于阈值的检测为 FP。如果某个检测与某 gt box 有最大 IoU 且超过阈值，但是这个 gt box 已被另一个检测匹配（match），且另一个检测的 confidence 更高，则当前检测也被认为是 FP。用数学语言描述为：<br>$$GT_1=\underset{GT_i} \mathrm{argmax} \quad \text{IoU}(Det_a, GT_i) \\<br>GT_1=\underset{GT_i} \mathrm{argmax} \quad \text{IoU}(Det_b, GT_i) \\<br>\text{Conf}_a &gt; \text{Conf}_b$$</p>
-<p>$$ \Rightarrow Det_b \in FP$$</p>
+<p>检测结果为P (Positive)，其中与 gt box 最大 IoU 低于阈值的检测为 FP。如果某个检测与某 gt box 有最大 IoU 且超过阈值，但是这个 gt box 已被另一个检测匹配（match），且另一个检测的 confidence 更高，则当前检测也被认为是 FP。用数学语言描述为：</p>
+<p>$$\left. \begin{array}{} GT_1=\underset{GT_i} {\text{argmax}} \quad \text{IoU}(Det_a, GT_i) \\<br>GT_1=\underset{GT_i} {\text{argmax}} \quad \text{IoU}(Det_b, GT_i) \\<br>\text{Conf}_a &gt; \text{Conf}_b \end{array} \right] \Rightarrow Det_b \in FP$$</p>
 </li>
 <li><p>FN</p>
 <p>如果某个 gt box 未被检测到，即没有检测结果与这个 gt box 的 IoU 大于0，则认为这个 gt box 为 FN</p>
@@ -580,6 +580,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2019/06/18/PyTorch-3/" rel="prev" title="PyTorch-3">
+                PyTorch-3 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -647,7 +651,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-count">6</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

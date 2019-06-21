@@ -104,7 +104,7 @@
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读torch/init.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-06-14T13:20:26.852Z">
+<meta property="og:updated_time" content="2019-06-20T10:25:17.453Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PyTorch-2">
 <meta name="twitter:description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读torch/init.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载">
@@ -401,7 +401,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-14 21:20:26" itemprop="dateModified" datetime="2019-06-14T21:20:26+08:00">2019-06-14</time>
+                <time title="修改时间：2019-06-20 18:25:17" itemprop="dateModified" datetime="2019-06-20T18:25:17+08:00">2019-06-20</time>
               
             
           </span>
@@ -459,7 +459,7 @@
 <p>于是阅读torch/<strong>init</strong>.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载torch._C然后再恢复动态加载模式，</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">old_flags=sys.getdlopenflags()</span><br><span class="line">sys.setdlopenflags(_dl_flags.RTDL_GLOBAL | _dl_flags.RTLD_LAZY)</span><br><span class="line">from torch._C import *</span><br><span class="line">__all__ += [name for name in dir(_C)</span><br><span class="line">            if name[0] != &apos;_&apos; and</span><br><span class="line">            not name.endswith(&apos;Base&apos;)]</span><br><span class="line">sys.setdlopenflags(old_flags)</span><br></pre></td></tr></table></figure>
 
-<p><b>将torch._C中（不包括_开头和Base结尾）的属性导出到当前域。</b></p>
+<p><strong>将torch._C中（不包括_开头和Base结尾）的属性导出到当前域。</strong></p>
 <p><strong>init</strong>.py除了import torch._C，还import了同目录下其他module，以及同目录下的package。首先看torch._C导入时做了什么， torch._C的源文件只有torch/csrc/stub.cpp，链接库为shm和torch_python，stub.cpp中仅仅是初始化模块，</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">extern PyObject* initModule();</span><br><span class="line">PyMODINIT_FUNC PyInit__C()   // 在python脚本中，import _C 时调用</span><br><span class="line">&#123;</span><br><span class="line">  return initModule();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -796,7 +796,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-count">6</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

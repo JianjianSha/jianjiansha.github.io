@@ -104,7 +104,7 @@
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="安装一直以来就对深度学习的框架源码有着浓厚兴趣，但是由于涉及到的领域较多，C++，python，CUDA，数学等，加上时间也比较零碎，就耽搁至今，后来意识到我不可能等完全弄明白之后再来写博客记录，毕竟能力不足，所以还是边看源码边记录，不求完全搞明白，但求能从整体上有个大致的理解，如果还能整明白一些数学计算上的代码实现，那就再好不过了。 当前最流行的深度学习框架就是tensorflow和pytorc">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-06-14T13:20:21.107Z">
+<meta property="og:updated_time" content="2019-06-20T10:07:49.801Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PyTorch-1">
 <meta name="twitter:description" content="安装一直以来就对深度学习的框架源码有着浓厚兴趣，但是由于涉及到的领域较多，C++，python，CUDA，数学等，加上时间也比较零碎，就耽搁至今，后来意识到我不可能等完全弄明白之后再来写博客记录，毕竟能力不足，所以还是边看源码边记录，不求完全搞明白，但求能从整体上有个大致的理解，如果还能整明白一些数学计算上的代码实现，那就再好不过了。 当前最流行的深度学习框架就是tensorflow和pytorc">
@@ -401,7 +401,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-14 21:20:21" itemprop="dateModified" datetime="2019-06-14T21:20:21+08:00">2019-06-14</time>
+                <time title="修改时间：2019-06-20 18:07:49" itemprop="dateModified" datetime="2019-06-20T18:07:49+08:00">2019-06-20</time>
               
             
           </span>
@@ -468,7 +468,7 @@
 
 <p>查看这个方法的定义，发现build_caffe2做了如下几件事：</p>
 <ol>
-<li>run_cmake。执行cmake，这个命令的选项这里省略不展开，注意执行cmake这个命令的工作目录为$ROOD_DIR/build， cmake的Source Tree为$ROOD_DIR，这个 目录下存在top level的CMakeLists.txt</li>
+<li>run_cmake。执行cmake，这个命令的选项这里省略不展开，注意执行cmake这个命令的工作目录为<code>$ROOD_DIR/build</code>， cmake的Source Tree为$ROOD_DIR，这个 目录下存在top level的CMakeLists.txt</li>
 <li>在$ROOT_DIR/build下编译并安装，使用make install或者 ninja install（cmake生成的Makefile中install这个target包含了build这个步骤）</li>
 <li>将build/caffe2/proto下的所有.py文件 拷贝到caffe2/proto/下，这些.py文件是根据caffe2/proto/下的.proto文件生成</li>
 </ol>
@@ -479,13 +479,13 @@
 <p>另外，top level 中CMakeLists.txt中有这么一行</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include(cmake/Dependencies.cmake)</span><br></pre></td></tr></table></figure>
 
-<p>这个Dependencies.cmake指明安装Caffe2所依赖的各种库，其中一些库位于本项目中如$ROOT_DIR/third_party或$ROOT_DIR/caffe2，还有一些库则是需要预先手动安装的，举个例子：</p>
+<p>这个Dependencies.cmake指明安装Caffe2所依赖的各种库，其中一些库位于本项目中如<code>$ROOT_DIR/third_party</code>或$ROOT_DIR/caffe2，还有一些库则是需要预先手动安装的，举个例子：</p>
 <ol>
 <li>非本项目的公共库，比如添加BLAS库依赖，假设最开始设置了环境变量BLAS=OpenBLAS（环境变量的设置可参考setup.py文件头部注释）, 那么选择添加OpenBLAS库依赖，在Dependencies.cmake中代码为<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">elseif(BLAS STREQUAL &quot;OpenBLAS&quot;)</span><br><span class="line">  find_package(OpenBLAS REQUIRED)</span><br><span class="line">  include_directories(SYSTEM $&#123;OpenBLAS_INCLUDE_DIR&#125;)</span><br><span class="line">  list(APPEND Caffe2_PUBLIC_DEPENDENCY_LIBS $&#123;OpenBLAS_LIB&#125;)</span><br></pre></td></tr></table></figure>
 
 </li>
 </ol>
-<p>这个find_package告诉我们去查看$ROOT_DIR/cmake/Modules/FindOpenBLAS.cmake，好的我们跳过去看一下这个.cmake文件，发现其定义了OpenBLAS的头文件和库文件的搜索路径，然后根据这些搜索路径分别搜索头文件cblas.h所在目录以及库名openblas， 分别使用变量OpenBLAS_INCLUDE_DIR和OpenBLAS_LIB保存，从上面的代码片段，我们知道搜索到的库名被添加到Caffe2_PUBLIC_DEPENDENCY_LIBS中，而我们再跳至$ROOT_DIR/caffe2/CMakeLists.txt发现其中有</p>
+<p>这个find_package告诉我们去查看<code>$ROOT_DIR/cmake/Modules/FindOpenBLAS.cmake</code>，好的我们跳过去看一下这个.cmake文件，发现其定义了OpenBLAS的头文件和库文件的搜索路径，然后根据这些搜索路径分别搜索头文件cblas.h所在目录以及库名openblas， 分别使用变量OpenBLAS_INCLUDE_DIR和OpenBLAS_LIB保存，从上面的代码片段，我们知道搜索到的库名被添加到Caffe2_PUBLIC_DEPENDENCY_LIBS中，而我们再跳至$ROOT_DIR/caffe2/CMakeLists.txt发现其中有</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">target_link_libraries(caffe2 PUBLIC $&#123;Caffe2_PUBLIC_DEPENDENCY_LIBS&#125;)</span><br></pre></td></tr></table></figure>
 
 <p>这就相当于能生成-lopenblas这样的链接选项。</p>
@@ -510,7 +510,7 @@
 <li>cmdclass，重写了build_ext, clean, install这几个action，这个action用在python setup.py <action> 命令中。install动作跟默认一致。 clean是清除编译过程中产生的临时文件，这些临时文件的pattern在.gitignore中给定。我们重点看一下build_ext这个动作对应的类build_ext，其中方法包含</action></li>
 </ol>
 <ul>
-<li>create_compile_commands这是一个自定义方法，用于将compile_commands.json中的gcc编译器改为g++，修改原因代码注释写的很清楚，使用gcc编译s时不会include c++的头文件目录。 文件compile_commands.json是根据$ROOT_DIR/CMakeLists.txt中的set(CMAKE_EXPORT_COMPILE_COMMAND ON)这句代码而生成，所以位于$ROOT_DIR/build目录下，这个json文件中指明了编译各个文件时的工作路径（working directory），编译指令（command）以及被编译的原文件，格式如下<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">&#123;</span><br><span class="line">  &quot;directory&quot;:&quot;&lt;path/to/root&gt;build/third_party/protobuf/cmake&quot;,</span><br><span class="line">  &quot;command&quot;: &quot;/usr/bin/c++ ... -I&lt;path/to/root&gt;/third_party/protobuf/src ... </span><br><span class="line">                -o CMakeFiles/libprotobuf.dir/__/src/google/protobuf/arena.cc.o ...&quot;,</span><br><span class="line">  &quot;file&quot;: &quot;&lt;path/to/root&gt;/third_party/protobuf/src/google/protobuf/arena.cc&quot;</span><br><span class="line">&#125;,</span><br><span class="line">...</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<li>create_compile_commands这是一个自定义方法，用于将compile_commands.json中的gcc编译器改为g++，修改原因代码注释写的很清楚，使用gcc编译s时不会include c++的头文件目录。 文件compile_commands.json是根据<code>$ROOT_DIR/CMakeLists.txt中的set(CMAKE_EXPORT_COMPILE_COMMAND ON)</code>这句代码而生成，所以位于$ROOT_DIR/build目录下，这个json文件中指明了编译各个文件时的工作路径（working directory），编译指令（command）以及被编译的原文件，格式如下<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">&#123;</span><br><span class="line">  &quot;directory&quot;:&quot;&lt;path/to/root&gt;build/third_party/protobuf/cmake&quot;,</span><br><span class="line">  &quot;command&quot;: &quot;/usr/bin/c++ ... -I&lt;path/to/root&gt;/third_party/protobuf/src ... </span><br><span class="line">                -o CMakeFiles/libprotobuf.dir/__/src/google/protobuf/arena.cc.o ...&quot;,</span><br><span class="line">  &quot;file&quot;: &quot;&lt;path/to/root&gt;/third_party/protobuf/src/google/protobuf/arena.cc&quot;</span><br><span class="line">&#125;,</span><br><span class="line">...</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
 
 </li>
 </ul>
@@ -520,7 +520,7 @@
 <li>build_extensions 生成由ext_modules指定的python扩展库所用的方法</li>
 </ul>
 <p>ext_modules中添加了5个扩展，后三个扩展在build_deps()中已经生成并安装，当然，caffe2_pybind11_state_gpu和caffe2_pybind11_state_hip是根据配置决定是否生成，配置了CUDA则生成前者，配置了ROCM则生成后者，如果均未配置，则这两个扩展均不生成。既然在build_deps()中已经生成并安装，所以这里将其从ext_modules中删除，于是build_extensions实际上只生成torch._C, torch._dl这两个扩展库。</p>
-<p>然而，除了build_deps()方法还有其他方法可用于生成ext_modules中 的后三个扩展库，生成路径为$ROOT_DIR/torch/lib/python3.7/site-packages/caffe2/python/，所以需要判断在这个路径下是否存在后三个扩展库，若不在（此时就是前面所说的使用build_deps()生成），则将扩展库名称从ext_modules中予以删除， 若存在，则还需则将其拷贝到生成目录$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/下，并修改拷贝后的文件名称，以caffe2.python.caffe2_pybind11_state为例说明，两级前缀表示目录所以最终的目录为$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/caffe2/python/，剩余的caffe2_pybind11_state表示扩展库的文件名，还需要添加后缀名，这个后缀名由系统平台和python版本，我这里是.cpython-37m-x86_64-linux-gnu.so，于是拷贝后得到文件$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/caffe2/python/caffe2_pybind11_state.cpython-37m-x86_64-linux-gnu.so ，这样使用基类的build_extensions()方法才能将其进一步安装到 python的site-packages目录下，我这里是…/miniconda3/lib/python3.7/site-packages/caffe2/python/目录。</p>
+<p>然而，除了build_deps()方法还有其他方法可用于生成ext_modules中 的后三个扩展库，生成路径为<code>$ROOT_DIR/torch/lib/python3.7/site-packages/caffe2/python/</code>，所以需要判断在这个路径下是否存在后三个扩展库，若不在（此时就是前面所说的使用build_deps()生成），则将扩展库名称从ext_modules中予以删除， 若存在，则还需则将其拷贝到生成目录<code>$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/</code>下，并修改拷贝后的文件名称，以caffe2.python.caffe2_pybind11_state为例说明，两级前缀表示目录所以最终的目录为<code>$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/caffe2/python/</code>，剩余的caffe2_pybind11_state表示扩展库的文件名，还需要添加后缀名，这个后缀名由系统平台和python版本，我这里是.cpython-37m-x86_64-linux-gnu.so，于是拷贝后得到文件$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/caffe2/python/caffe2_pybind11_state.cpython-37m-x86_64-linux-gnu.so ，这样使用基类的build_extensions()方法才能将其进一步安装到 python的site-packages目录下，我这里是…/miniconda3/lib/python3.7/site-packages/caffe2/python/目录。</p>
 <ol start="3">
 <li>packages 指定安装到python 的site-packages下的包<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">packages = find_packages(exclude=[&apos;tools&apos;, &apos;tools.*&apos;])</span><br></pre></td></tr></table></figure>
 
@@ -554,7 +554,7 @@
 
 <p>有关的库依赖，分为预装库和本项目（pytorch）内包含的库，CMake生成规则位于cmake/Dependencies.cmake文件中，仔细查看该文件发现：</p>
 <ul>
-<li>预先装的库依赖，这些库名存在Caffe2_PUBLIC_DEPENDENCY_LIBS中。如上文所举例子OpenBLAS 那样添加g++的链接flag和 -I<include dir>flag。</include></li>
+<li>预先装的库依赖，这些库名存在Caffe2_PUBLIC_DEPENDENCY_LIBS中。如上文所举例子OpenBLAS 那样添加g++的链接flag和 <code>-I&lt;include dir&gt;flag</code>。</li>
 <li>本项目内包含的库。包括：<br>(1) tbb<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_subdirectory($&#123;CMAKE_SOURCE_DIR&#125;/aten/src/ATen/cpu/tbb)    # 添加tbb库</span><br></pre></td></tr></table></figure>
 
 </li>
@@ -737,7 +737,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-count">6</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

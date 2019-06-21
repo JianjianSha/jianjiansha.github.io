@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="在 PyTorch-2 我们已经了解了 torch 包的初始化过程，接下来便可以愉快查看这个 package 包含哪些字段（包含函数和类）了，再参照 PyTorch 的官方文档，了解其中各个函数的具体实现。 torch 包从 torch/__init__.py 中可以查看所有的 torch 包的所有字段，包括：  直接在此文件中定义的函数/字段，如 typename, is_tensor, is_">
+<meta name="keywords" content="PyTorch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyTorch-3">
+<meta property="og:url" content="https://shajianjian.github.io/2019/06/18/PyTorch-3/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="在 PyTorch-2 我们已经了解了 torch 包的初始化过程，接下来便可以愉快查看这个 package 包含哪些字段（包含函数和类）了，再参照 PyTorch 的官方文档，了解其中各个函数的具体实现。 torch 包从 torch/__init__.py 中可以查看所有的 torch 包的所有字段，包括：  直接在此文件中定义的函数/字段，如 typename, is_tensor, is_">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-21T06:59:54.781Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PyTorch-3">
+<meta name="twitter:description" content="在 PyTorch-2 我们已经了解了 torch 包的初始化过程，接下来便可以愉快查看这个 package 包含哪些字段（包含函数和类）了，再参照 PyTorch 的官方文档，了解其中各个函数的具体实现。 torch 包从 torch/__init__.py 中可以查看所有的 torch 包的所有字段，包括：  直接在此文件中定义的函数/字段，如 typename, is_tensor, is_">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://shajianjian.github.io/2019/06/18/PyTorch-3/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>PyTorch-3 | SJJ</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SJJ</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/18/PyTorch-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PyTorch-3
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-18 16:44:44" itemprop="dateCreated datePublished" datetime="2019-06-18T16:44:44+08:00">2019-06-18</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-21 14:59:54" itemprop="dateModified" datetime="2019-06-21T14:59:54+08:00">2019-06-21</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/DL-Framework/" itemprop="url" rel="index"><span itemprop="name">DL Framework</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在 <a href="PyTorch-2">PyTorch-2</a> 我们已经了解了 torch 包的初始化过程，接下来便可以愉快查看这个 package 包含哪些字段（包含函数和类）了，再参照 PyTorch 的<a href="https://pytorch.org/docs/stable/torch.html" target="_blank" rel="noopener">官方文档</a>，了解其中各个函数的具体实现。</p>
+<h1 id="torch-包"><a href="#torch-包" class="headerlink" title="torch 包"></a>torch 包</h1><p>从 <code>torch/__init__.py</code> 中可以查看所有的 torch 包的所有字段，包括：</p>
+<ol>
+<li><p>直接在此文件中定义的函数/字段，如 typename, is_tensor, is_storage, _storage_classes 等</p>
+</li>
+<li><p>从 torch 包的模块中导入的函数/类，如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">from .random import set_rng_state, get_rng_state, manual_seed, initial_seed</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>从 torch._C 中导入的字段/函数/类</p>
+</li>
+<li><p>从 torch._C._VariableFunctions 导入的字段/函数</p>
+</li>
+</ol>
+<p>PyTorch 官方文档中 torch 包有很多函数。这里举几个例子进行说明。</p>
+<h2 id="torch-empty"><a href="#torch-empty" class="headerlink" title="torch.empty"></a>torch.empty</h2><p>这个函数实际上来自于 torch._C._VariableFunctions 这个类。文件 torch/csrc/Module.cpp 中调用函数 THPVariable_initModule，跳转到 torch/csrc/autograd/python_variable.cpp 查看函数定义，其定义体中调用 torch::autograd::initTorchFunctions，而这个函数定义位于 torch/csrc/autograd/generated/python_torch_functions.cpp，这个文件是安装 PyTorch 过程中生成的，按以下步骤查看这个文件的生成过程：</p>
+<ol>
+<li><p>caffe2/CMakeLists.txt 中的文件生成语句为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">set(GENERATED_CXX_PYTHON</span><br><span class="line">  ...</span><br><span class="line">  &quot;$&#123;TORCH_SRC_DIR&#125;/csrc/autograd/generated/python_torch_functions.cpp&quot;</span><br><span class="line">  ...)</span><br><span class="line">...</span><br><span class="line">add_custom_command(</span><br><span class="line">    OUTPUT</span><br><span class="line">    $&#123;TORCH_GENERATED_CODE&#125;</span><br><span class="line">    COMMAND</span><br><span class="line">    &quot;$&#123;PYTHON_EXECUTABLE&#125;&quot; tools/setup_helpers/generate_code.py</span><br><span class="line">     ...</span><br><span class="line">    DEPENDS</span><br><span class="line">    ...)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行 tools/setup_helpers/generate_code.py。在函数 generate_code 中调用了以下四个函数生成文件，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">generate_nn_wrappers</span><br><span class="line">gen_autograd_python</span><br><span class="line">gen_autograd</span><br><span class="line">gen_jit_dispatch</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>这四个函数的实现都是非常繁琐的，这里以生成 torch/csrc/autograd/generated/python_torch_functions.cpp 为例，实际上是将模板文件 tools/autograd/templates/python_torch_functions.cpp 中的 ${py_methods} 和 ${py_method_defs} 分别替换为对应的方法实现和方法签名，这些方法来自于 torch/share/ATen/Declarations.yaml, tools/autograd/deprecated.yaml, tools/autograd/derivatives.yaml，其中第一个文件又需要动态生成，过程为：</p>
+<ol>
+<li><p>在 caffe2/CMakeLists.txt 中有语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include(../cmake/Codegen.cmake)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在文件 cmake/Codegen.cmake 中调用 <code>gen.py</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SET(GEN_COMMAND</span><br><span class="line">    &quot;$&#123;PYTHON_EXECUTABLE&#125;&quot; $&#123;CMAKE_CURRENT_LIST_DIR&#125;/../aten/src/ATen/gen.py</span><br><span class="line">    --source-path $&#123;CMAKE_CURRENT_LIST_DIR&#125;/../aten/src/ATen</span><br><span class="line">    --install_dir $&#123;CMAKE_BINARY_DIR&#125;/aten/src/ATen</span><br><span class="line">    $&#123;GEN_ROCM_FLAG&#125;</span><br><span class="line">    $&#123;cwrap_files&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>（在 aten/src/ATen/native/native_functions.yaml 找到 <code>empty</code> 的函数签名）</p>
+</li>
+<li><p>aten/src/ATen/gen.py 中的 generate_outputs 函数生成 Declarations.yaml 文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file_manager.write(&quot;Declarations.yaml&quot;, format_yaml(output_declarations))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>根据第 2 点，install_dir 为 build/aten/src/ATen，所以 Declarations.yaml 生成路径此时为 build/aten/src/ATen，根据以下步骤安装此文件</p>
+<ul>
+<li>CMakeLists.txt 中的 add_subdirectory(caffe2)</li>
+<li>caffe2/CMakeLists.txt 中的 add_subdirectory(../aten aten)</li>
+<li>aten/CMakeLists.txt 中的 add_subdirectory(src/ATen)</li>
+<li>aten/src/ATen/CMakeLists.txt 中有，<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">INSTALL(FILES $&#123;CMAKE_BINARY_DIR&#125;/aten/src/ATen/Declarations.yaml</span><br><span class="line">  DESTINATION $&#123;AT_INSTALL_SHARE_DIR&#125;/ATen)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>事实上，除了这里的 Declarations.yaml，在 aten/src/ATen/CMakeLists.txt 中还安装了很多头文件，其中就包括下文将提到的 build/aten/src/ATen/Functions.h，具体参见 aten/src/ATen/CMakeLists.txt 中其他 INSTALL 指令调用。</p>
+</li>
+</ol>
+<p>找到这些函数来源后，通过 tools/autograd/gen_python_functions.py 中的函数 create_python_bindings 生成 ${py_methods} 和 ${py_method_defs} 的内容，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">PY_VARIABLE_METHOD_VARARGS = CodeTemplate(&quot;&quot;&quot;\</span><br><span class="line">static PyObject * $&#123;pycname&#125;(PyObject* self_, PyObject* args, PyObject* kwargs)</span><br><span class="line">&#123;</span><br><span class="line">    HANDLE_TH_ERRORS</span><br><span class="line">    static PythonArgsParser parser(&#123;</span><br><span class="line">        $&#123;signatures&#125;</span><br><span class="line">    &#125;, /*traceable=*/$&#123;traceable&#125;);</span><br><span class="line">    $&#123;unpack_self&#125;</span><br><span class="line">    ParserArgs&lt;$&#123;max_args&#125;&gt; parsed_args;</span><br><span class="line">    auto r = parser.parse(args, kwargs, parsed_args);</span><br><span class="line">    $&#123;declare_namedtuple_return_types&#125;</span><br><span class="line">    $&#123;dispatch&#125;</span><br><span class="line">    Py_RETURN_NONE;</span><br><span class="line">    END_HANDLE_TH_ERRORS</span><br><span class="line">&#125;</span><br><span class="line">&quot;&quot;&quot;)</span><br><span class="line">...</span><br><span class="line">def create_python_bindings(python_functions, has_self, is_module=False):</span><br><span class="line">    def process_function(name, declarations):</span><br><span class="line">        ...</span><br><span class="line">        env = &#123;</span><br><span class="line">            &apos;name&apos;: name,</span><br><span class="line">            &apos;dispatch_name&apos;: &apos;dispatch_&#123;&#125;&apos;.format(name),</span><br><span class="line">            &apos;pycname&apos;: &apos;THPVariable_&#123;&#125;&apos;.format(name),</span><br><span class="line">            &apos;signature&apos;: [],</span><br><span class="line">            &apos;max_args&apos;: max(len(o[&apos;arguments&apos;])+len(o[&apos;python_binding_arguments&apos;]) for o in declarations),</span><br><span class="line">            &apos;unpack_self&apos;: [],</span><br><span class="line">            &apos;dispatch&apos;: [],</span><br><span class="line">            &apos;declare_namedtuple_return_types&apos;: &apos;&apos;,</span><br><span class="line">        &#125;</span><br><span class="line">        ... // 向 env 增加 key-value pair or 更新 env 中已有 key 的 value</span><br><span class="line">        if len(declarations) == 1 and len(declarations[0][&apos;args&apos;]) == 1 and has_self:</span><br><span class="line">            ...</span><br><span class="line">        else:</span><br><span class="line">            tmpl = PY_VARIABLE_METHOD_VARARGS</span><br><span class="line">            env[&apos;flags&apos;] = &apos;METH_VARARGS | METH_KEYWORDS&apos;</span><br><span class="line">        if not is_module and not has_self:</span><br><span class="line">            env[&apos;flags&apos;] += &apos; | METH_STATIC&apos;</span><br><span class="line">        </span><br><span class="line">        py_methods.append(tmpl.substitute(env))</span><br><span class="line">        py_methods_defs.append(PY_VARIABLE_METHOD_DEF.substitute(env))</span><br></pre></td></tr></table></figure>
+
+<p>通过以上代码片段可知，对于函数定义的生成，使用一个函数定义模板 PY_VARIABLE_METHOD_VARARGS，然后对每个函数，来自于 Declarations.yaml, deprecated.yaml, derivatives.yaml，抽取有关字段的值存储到 env 字典中，然后将 PY_VARIABLE_METHOD_VARARGS 中的占位符使用 env 中相应 key 的值替换，就得到这个函数的定义。</p>
+<h2 id="empty-定义"><a href="#empty-定义" class="headerlink" title="empty 定义"></a>empty 定义</h2><p>我们看生成后的 empty 函数定义（位于文件 torch/csrc/autograd/generated/python_torch_function.cpp）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">static PyObject * THPVariable_empty(PyObject* self_, PyObject* args, PyObject* kwargs)</span><br><span class="line">&#123;</span><br><span class="line">    HANDLE_TH_ERRORS</span><br><span class="line">    static PythonArgParser parser(&#123;</span><br><span class="line">        &quot;empty(IntList size, *, Tensor out=None, ScalarType dtype=None, Layout layout=torch.strided, Device device=None, bool requires_grad=False)&quot;,</span><br><span class="line">    &#125;, /*tracebalbe*/true); // 大括号初始化器，得到函数签名的vector</span><br><span class="line">    ParseArgs&lt;6&gt; parsed_args;</span><br><span class="line">    auto r = parser.parse(args, kwargs, parseed_args);</span><br><span class="line">    if (r.idx == 0) &#123;       // 函数签名在vector中的下标</span><br><span class="line">        if (r.isNone(1)) &#123;  // parameter &apos;out&apos; is None</span><br><span class="line">            auto size = r.intlist(0);</span><br><span class="line">            auto dtype = r.scalartype(2);</span><br><span class="line">            auto device = r.device(4);</span><br><span class="line">            const auto options = TensorOptions()</span><br><span class="line">                .dtype(dtype)</span><br><span class="line">                .device(device)</span><br><span class="line">                .layout(r.layout(3).layout)</span><br><span class="line">                .requires_grad(r.toBool(5));</span><br><span class="line">            return wrap(dispatch_empty(size, options));</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            check_out_type_matches(r.tensor(1), r.scalartype(2), r.isNone(2),</span><br><span class="line">                                   r.layout(3), r.isNone(3),</span><br><span class="line">                                   r.device(4), r.isNone(4));</span><br><span class="line">            return wrap(dispatch_empty(r.intlist(0), r.tensor(1)).set_requires_grad(r.toBool(5)));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    Py_RETURN_NONE;</span><br><span class="line">    END_HANDLE_TH_ERRORS</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从以上代码中可见，要创建一个 empty 的 Tensor，首先检查调用者是否提供了一个 Tensor，如未提供，则先创建一个 Tensor：</p>
+<ol>
+<li><code>out</code> 参数为None，则需要根据参数 dtype, device, layout 和 requires_grad 创建 Tensor</li>
+<li><code>out</code> 参数不为None, 则检查 <code>out</code> 这个 Tensor 与参数 dtype, layout, device 是否匹配，如果匹配，还需要将 <code>out</code> 的 requires_grad 属性重置为参数 requires_grad</li>
+</ol>
+<p>然后调用函数 dispatch_empty，这个函数总共有两个重载版本，位于 torch/csrc/autograd/generated/python_torch_functions_dispatch.h，这个文件与同目录下的 python_torch_function.cpp 一样也是动态生成的，生成逻辑也是一样的，将 tools/autograd/templates/python_torch_functions_dispatch.h 中的占位符替换掉，不再具体展开，可参见 tools/autograd/gen_python_functions.py 中的函数 gen_py_torch_functions。dispatch_empty 的两个重载版本为，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// empty 函数调用者提供了 Tensor &apos;out&apos;</span><br><span class="line">inline Tensor dispatch_empty(IntList size, Tensor result) &#123;</span><br><span class="line">    AutoNoGIL no_gil;</span><br><span class="line">    return at::empty_out(result, size);</span><br><span class="line">&#125;</span><br><span class="line">// empty 函数调用者未提供 Tensor &apos;out&apos;，需要根据参数 options 创建</span><br><span class="line">inline Tensor dispatch_empty(IntList size, const TensorOptions &amp; options) &#123;</span><br><span class="line">    maybe_initialize_cuda(options);</span><br><span class="line">    AutoNoGIL no_gil;</span><br><span class="line">    return torch::empty(size, options);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="有输出-Tensor"><a href="#有输出-Tensor" class="headerlink" title="有输出 Tensor"></a>有输出 Tensor</h3><p>我们看第一个重置版本的定义体，即，调用者提供了输出 Tensor，首先构造一个结构实例 AutoNoGIL，这个结构的构造函数为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AutoNoGIL() : save(PyEval_SaveThread()) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看出，先释放 GIL，因为下一句执行的 at::empty_out 可能会慢很多，为了防止程序使用多线程，但仍然被阻塞在这里，所以释放 GIL，待 at::empty_out 执行完毕，再重新获取 GIL，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">~AutoNoGIL() &#123;</span><br><span class="line">    PyEval_RestoreThread(save);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后 at::empty_out 函数位于 torch/lib/include/Aten/Functions.h，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">static inline Tensor &amp; empty_out(Tensor &amp; result, IntList size) &#123;</span><br><span class="line">    return detail::infer_type(result).empty_out(result, size);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在分析 at::empty_out 函数之前，我们需要知道这里的 Functions.h 也是动态生成的，在项目源码中稍作查询便知，在 aten/src/ATen/gen.py 中的 generate_outputs 函数中使用如下语句生成（与前面的 Declarations.yaml 文件的生成在同一处地方），</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file_manager.write(&apos;Functions.h&apos;, FUNCTIONS_H, top_env)</span><br></pre></td></tr></table></figure>
+
+<p>现在回到 at::empty_out 函数定义上来，首先 detail::infer_type(result) 根据调用用传入的 Tensor 实例 result 得到 TypeExtendedInference 类型实例，然后调用实例函数 empty_out。这里相关的结构、类为 TypeExtendedInferface，TypeDefault，位于文件 torch/lib/include/ATen/TypeExtendedInferface.h， torch/lib/include/ATen/TypeDefault.h，此外，TypeDefault类方法实现源文件为 build/aten/src/ATen/TypeDefault.cpp，接口方法 empty_out 的实现正是位于此文件中，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Tensor &amp; TypeDefault::empty_out(Tensor &amp; result, IntList size) const &#123;</span><br><span class="line">    return at::native::empty_out(/* native_actuals */ result, size);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先这三个文件是动态生成的（与 Declarations.yaml 相同）。然后我们看方法定义体中，直接调用另一个同名函数 at::native::empty_out 下，函数声明位于文件 torch/lib/include/ATen/NativeFunctions.h，此文件动态生成（与 Declarations.yaml 相同），函数实现位于 aten/src/ATen/native/TensorFactories.cpp，这个文件不是动态生成的（终于来了一个非动态生成的了），在此文件中查看函数定义，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">namespace at &#123;</span><br><span class="line">namespace native &#123;</span><br><span class="line">...</span><br><span class="line">Tensor&amp; empty_out(Tensor&amp; result, IntList size) &#123;</span><br><span class="line">    if (result.is_sparse()) &#123;</span><br><span class="line">        result.sparse_resize_and_clear_(size, size.size(), 0);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        result.resize_(size);</span><br><span class="line">    &#125;</span><br><span class="line">    return result;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>显然，根据输出 Tensor 是否是稀疏的进行不同的处理。</p>
+<ol>
+<li><p>输出 Tensor 是稀疏的</p>
+<p>对输出 Tensor 调用方法 sparse_resize_and_clear_，声明位于 torch/lib/include/ATen/core/Tensor.h，此文件动态生成，与 Declarations.yaml 相同，见于 aten/src/ATen/gen.py，但是实际上源码中存在 aten/src/ATen/core/Tensor.h，并且这俩文件完全一样，还有 TensorMethods.h 和 Type.h 均存在这个现象，这里暂时不清楚为啥会这样。sparse_resize_and_clear_ 的函数实现位于 torch/lib/include/ATen/core/TensorMethods.h，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">inline Tensor &amp; Tensor::sparse_resize_and_clear_(IntList size, int64_t sparse_dim, int64_t dense_dim) &#123;</span><br><span class="line">    return type().sparse_resize_and_clear_(*this, size, sparse_dim, dense_dim);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>先根据当前 Tensor 获取对应的 Type，然后调用 Type 类型的 sparse_resize_and_clear_ 方法，Type 这个结构是一个接口，其接口函数的具体实现见各个具体 Type 的 .cpp 文件，Type 是由数值类型（如 int,float,double 等）和 Backend（CPU,CUDA,SparseCPU, SparseCUDA 等）组合而成，比如 SparseCPUByteType.h 和 SparseCPUByteType.cpp，此函数的的定义为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Tensor &amp; SparseCPUByteType::sparse_resize_and_clear_(Tensor &amp; self, IntList size, int64_t sparse_dim, int64_t dense_dim) const &#123;</span><br><span class="line">    const OptionalDeviceGuard device_guard(device_of(self));</span><br><span class="line">    return at::native::sparse_resize_and_clear_(/* actuals */ self, size, sparse_dim, dense_dim);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 at::native::sparse_resize_and_clear_ 函数声明位于 torch/lib/include/ATen/NativeFunctions.h，函数实现位于 aten/src/ATen/native/sparse/SparseTensor.cpp，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SparseTensor&amp; sparse_resize_and_clear_(SparseTensor&amp; self, ArrayRef&lt;int64_t&gt; size, int64_t sparse_dim, int64_t dense_dim) &#123;</span><br><span class="line">    get_sparse_impl(self)-&gt;resize_and_clear_(sparse_dim, dense_dim, size);</span><br><span class="line">    return self;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据 Tensor 获取其底层实现 SparseTensorImpl 类对象，然后调用 SparseTensorImpl 的方法 resize_and_clear_。</p>
+</li>
+<li><p>输出 Tensor 是密集的</p>
+<p>Tensor 的 resize_ 方法定义见 TensorMethods.h，为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">inline Tensor &amp; Tensor::resize_(IntList size) &#123;</span><br><span class="line">    return type().resize_(*this, size);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用这个 Tensor 的类型方法 resize_，以 CPUByteType.cpp 为例，定义如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Tensor &amp; CPUByteType::resize_(Tensor &amp; self, IntList size) const &#123;</span><br><span class="line">    return at::native::resize_cpu_(/* actuals */ self, size);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可见，对 Tensor 按给定 size 进行 resize 操作，这个 resize_cpu_ 方法定义为，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Tensor&amp; resize_cpu_(Tensor&amp; self, IntList size) &#123;</span><br><span class="line">    auto* self = self.unsafeGetTensorImpl();         // 获取 Tensor 的底层实现类对象</span><br><span class="line">    // 按给定 size 大小对 Tensor 进行 resize，当 size 大小比 Tensor size 大时，才分配一个更大的内存块</span><br><span class="line">    resize_impl_cpu_(self_, size, c10::nullopt);     </span><br><span class="line">    self_-&gt;maybe_zero_dim(size.size()==0);</span><br><span class="line">    return self;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h3 id="无输出-Tensor"><a href="#无输出-Tensor" class="headerlink" title="无输出 Tensor"></a>无输出 Tensor</h3><p>直接按给定的 size 参数新建一个 Tensor，具体过程略。</p>
+<h1 id="PS"><a href="#PS" class="headerlink" title="PS"></a>PS</h1><p>好吧，主要是因为内容太多了，樯橹灰飞烟灭，先到此为止吧，就当是梳理了一下方法调用过程，等以后熟悉了整个代码框架，再回头重新整理一番。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/16/mAP/" rel="next" title="mAP">
+                <i class="fa fa-chevron-left"></i> mAP
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shajianjian</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#torch-包"><span class="nav-number">1.</span> <span class="nav-text">torch 包</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#torch-empty"><span class="nav-number">1.1.</span> <span class="nav-text">torch.empty</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#empty-定义"><span class="nav-number">1.2.</span> <span class="nav-text">empty 定义</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#有输出-Tensor"><span class="nav-number">1.2.1.</span> <span class="nav-text">有输出 Tensor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无输出-Tensor"><span class="nav-number">1.2.2.</span> <span class="nav-text">无输出 Tensor</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PS"><span class="nav-number">2.</span> <span class="nav-text">PS</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
