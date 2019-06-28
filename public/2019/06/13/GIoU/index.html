@@ -106,7 +106,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/GIoU_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/GIoU_fig2.png">
-<meta property="og:updated_time" content="2019-06-17T02:16:44.080Z">
+<meta property="og:updated_time" content="2019-06-25T09:10:09.665Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GIoU">
 <meta name="twitter:description" content="论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression 摘要IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，">
@@ -404,7 +404,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-17 10:16:44" itemprop="dateModified" datetime="2019-06-17T10:16:44+08:00">2019-06-17</time>
+                <time title="修改时间：2019-06-25 17:10:09" itemprop="dateModified" datetime="2019-06-25T17:10:09+08:00">2019-06-25</time>
               
             
           </span>
@@ -438,7 +438,7 @@
       
 
       
-        <p>论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression</p>
+        <p>论文 <a href="https://arxiv.org/abs/1902.09630" target="_blank" rel="noopener">Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression</a></p>
 <h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p>IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，所以本文提出一种泛化版的Iou，名为 GIou。结合 GIoU 和 sota 目标检测框架，在流行的目标检测benchmarks例如 PASCAL VOC 和 MS COCO中，分别使用标准 IoU 和 GIoU 损失，我们发现性能一致得到提升。</p>
 <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>在很多2D/3D 计算机视觉任务中，bbox 回归是最基本的组成之一。例如目标定位，多目标检测，目标跟踪以及实例分割，均依赖准确的bbox回归。提升性能的主流趋势是使用深度神经网络，然而，还有一种提升方法被广泛忽略，那就是使用基于 IoU 的指标损失来代替传统的回归损失如 $l_1, l_2$ 等。</p>
 <p>IoU 将要比较的目标的形状属性例如 bbox 的宽、高和位置等信息编码成区域属性，并基于面积（体积）计算出一个归一化的值。语义分割、目标检测和跟踪等任务中的性能测量均采用IoU作为测量指标。</p>
@@ -709,7 +709,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-count">11</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -751,7 +751,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">3</span>
+                      
+                    
+                    <span class="site-state-item-count">4</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

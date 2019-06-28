@@ -109,7 +109,7 @@
 <meta property="og:image" content="https://shajianjian.github.io/images/TridentNet_fig1(c).png">
 <meta property="og:image" content="https://shajianjian.github.io/images/TridentNet_fig2.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/TridentNet_fig3.png">
-<meta property="og:updated_time" content="2019-06-24T09:07:21.255Z">
+<meta property="og:updated_time" content="2019-06-27T12:17:29.335Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TridentNet">
 <meta name="twitter:description" content="论文：Scale-Aware Trident Networks for Object Detection 代码：TuSimple/simpledet 简介目标检测通常分为：  one stage，如 YOLO, SSD two stage，如 Faster R-CNN, R-FCN  这些方法在目标尺度变化范围较大时，均存在问题，尤其在目标尺度很小或很大时，性能较差。为了解决目标尺寸多变性的问题，">
@@ -407,7 +407,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-24 17:07:21" itemprop="dateModified" datetime="2019-06-24T17:07:21+08:00">2019-06-24</time>
+                <time title="修改时间：2019-06-27 20:17:29" itemprop="dateModified" datetime="2019-06-27T20:17:29+08:00">2019-06-27</time>
               
             
           </span>
@@ -454,9 +454,7 @@
 <li>利用网络中的不同分辨率的 feature maps，不同分辨率的 feature maps 负责检测不同尺度的目标，如 SSD</li>
 <li>2 方法中 low level 的 feature 注重于局部细节，而 high level 的 feature 因为感受野 RF 更大，则注重于整体（语义）为了补偿 low level 的 feature 所缺失的语义，FPN 在原有 bottom-up 的基础上增加 top-down pathway 和 径向连接，如图 1(b)。但是由于不同分辨率 features 来自网络不同的 layers，所以对不同尺度的目标的表征能力差异较大，所以 feature pyramids 不能认为是 image pyramids 的替代。</li>
 </ol>
-<p><img src="/images/TridentNet_fig1(a).png" alt="fig1(a)"></p>
-<p><img src="/images/TridentNet_fig1(b).png" alt="fig1(b)"></p>
-<p><img src="/images/TridentNet_fig1(c).png" alt="fig1(c)"></p>
+<p><img src="/images/TridentNet_fig1(a).png" alt> <center> fig1(a)</center><br><img src="/images/TridentNet_fig1(b).png" alt> <center> fig1(b)</center><br><img src="/images/TridentNet_fig1(c).png" alt="fig1(c)"> <center> fig1(c)</center></p>
 <p>本文提出的新网络结构能适应不同的目标尺度，如图 1(c)，使用 trident 块生成多个尺度相关的 feature maps。trident 块的各个分支结构相同，且共享权重参数，但是由于使用了空洞卷积（膨胀系数不同），所以具有不同的 RF，每个分支负责处理一定尺度范围的目标。由于参数共享，所以 inference 阶段，可以使用一个主分支来近似 TridentNet 。</p>
 <h1 id="感受野"><a href="#感受野" class="headerlink" title="感受野"></a>感受野</h1><p>backbone 中的影响最终目标检测的几个设计因素为：下采样率、网络深度和感受野。更深的网络和更低的下采样率会增加网络的复杂度，但往往也有益于检测。为了研究 RF 在检测中的作用，可以将 backbone 的一些卷积层的卷积改为空洞卷积。</p>
 <p>假设膨胀率为 $d_s$，那么一个膨胀后的 3x3 卷积的 RF 与 kernel size 为 $3+2(d_s-1)$ 卷积核的 RF 相当。记当前 feature map 相对于输入 image 的下采样率为 s，那么此时膨胀率为 $d_s$ 的卷积相较于普通卷积，其 RF 将增加 $2(d_s-1)s$，因此，如果将 n 个卷积改为空洞卷积，那么 RF 将增加 $2(d_s-1)sn$，其中，这 n 个卷积所作用的 feature map 相对于输入 image 的下采样率均为 s。</p>
@@ -649,6 +647,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2019/06/24/cv-mtds/" rel="prev" title="CV 中的常用方法总结">
+                CV 中的常用方法总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -716,7 +718,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-count">11</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -758,7 +760,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">3</span>
+                      
+                    
+                    <span class="site-state-item-count">4</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

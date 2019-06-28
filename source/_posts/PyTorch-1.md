@@ -1,8 +1,8 @@
 ---
-title: PyTorch_1
+title: PyTorch-1
 date: 2019-06-12 19:17:11
 tags: PyTorch
-category: DL Framework
+categories: DL Framework
 ---
 # 安装
 一直以来就对深度学习的框架源码有着浓厚兴趣，但是由于涉及到的领域较多，C++，python，CUDA，数学等，加上时间也比较零碎，就耽搁至今，后来意识到我不可能等完全弄明白之后再来写博客记录，毕竟能力不足，所以还是边看源码边记录，不求完全搞明白，但求能从整体上有个大致的理解，如果还能整明白一些数学计算上的代码实现，那就再好不过了。
@@ -29,7 +29,7 @@ pytorch底层计算使用C++实现，并提供了python调用接口，所以这�
 build_caffe2(...)
 ```
 查看这个方法的定义，发现build_caffe2做了如下几件事：
-1. run_cmake。执行cmake，这个命令的选项这里省略不展开，注意执行cmake这个命令的工作目录为$ROOD_DIR/build， cmake的Source Tree为$ROOD_DIR，这个 目录下存在top level的CMakeLists.txt
+1. run_cmake。执行cmake，这个命令的选项这里省略不展开，注意执行cmake这个命令的工作目录为`$ROOD_DIR/build`， cmake的Source Tree为$ROOD_DIR，这个 目录下存在top level的CMakeLists.txt
 2. 在$ROOT_DIR/build下编译并安装，使用make install或者 ninja install（cmake生成的Makefile中install这个target包含了build这个步骤）
 3. 将build/caffe2/proto下的所有.py文件 拷贝到caffe2/proto/下，这些.py文件是根据caffe2/proto/下的.proto文件生成
 
@@ -45,7 +45,7 @@ add_subdirectory(modules)
 ```
 include(cmake/Dependencies.cmake)
 ```
-这个Dependencies.cmake指明安装Caffe2所依赖的各种库，其中一些库位于本项目中如$ROOT_DIR/third_party或$ROOT_DIR/caffe2，还有一些库则是需要预先手动安装的，举个例子：
+这个Dependencies.cmake指明安装Caffe2所依赖的各种库，其中一些库位于本项目中如`$ROOT_DIR/third_party`或$ROOT_DIR/caffe2，还有一些库则是需要预先手动安装的，举个例子：
 1. 非本项目的公共库，比如添加BLAS库依赖，假设最开始设置了环境变量BLAS=OpenBLAS（环境变量的设置可参考setup.py文件头部注释）, 那么选择添加OpenBLAS库依赖，在Dependencies.cmake中代码为
 ```
 ...
@@ -54,7 +54,7 @@ elseif(BLAS STREQUAL "OpenBLAS")
   include_directories(SYSTEM ${OpenBLAS_INCLUDE_DIR})
   list(APPEND Caffe2_PUBLIC_DEPENDENCY_LIBS ${OpenBLAS_LIB})
 ```
-这个find_package告诉我们去查看$ROOT_DIR/cmake/Modules/FindOpenBLAS.cmake，好的我们跳过去看一下这个.cmake文件，发现其定义了OpenBLAS的头文件和库文件的搜索路径，然后根据这些搜索路径分别搜索头文件cblas.h所在目录以及库名openblas， 分别使用变量OpenBLAS_INCLUDE_DIR和OpenBLAS_LIB保存，从上面的代码片段，我们知道搜索到的库名被添加到Caffe2_PUBLIC_DEPENDENCY_LIBS中，而我们再跳至$ROOT_DIR/caffe2/CMakeLists.txt发现其中有
+这个find_package告诉我们去查看`$ROOT_DIR/cmake/Modules/FindOpenBLAS.cmake`，好的我们跳过去看一下这个.cmake文件，发现其定义了OpenBLAS的头文件和库文件的搜索路径，然后根据这些搜索路径分别搜索头文件cblas.h所在目录以及库名openblas， 分别使用变量OpenBLAS_INCLUDE_DIR和OpenBLAS_LIB保存，从上面的代码片段，我们知道搜索到的库名被添加到Caffe2_PUBLIC_DEPENDENCY_LIBS中，而我们再跳至$ROOT_DIR/caffe2/CMakeLists.txt发现其中有
 ```
 target_link_libraries(caffe2 PUBLIC ${Caffe2_PUBLIC_DEPENDENCY_LIBS})
 ```
@@ -84,7 +84,7 @@ setup方法（可以参考[setup()](https://docs.python.org/3/distutils/apiref.h
 
 2. cmdclass，重写了build_ext, clean, install这几个action，这个action用在python setup.py <action> 命令中。install动作跟默认一致。 clean是清除编译过程中产生的临时文件，这些临时文件的pattern在.gitignore中给定。我们重点看一下build_ext这个动作对应的类build_ext，其中方法包含
 
-- create_compile_commands这是一个自定义方法，用于将compile_commands.json中的gcc编译器改为g++，修改原因代码注释写的很清楚，使用gcc编译s时不会include c++的头文件目录。 文件compile_commands.json是根据$ROOT_DIR/CMakeLists.txt中的set(CMAKE_EXPORT_COMPILE_COMMAND ON)这句代码而生成，所以位于$ROOT_DIR/build目录下，这个json文件中指明了编译各个文件时的工作路径（working directory），编译指令（command）以及被编译的原文件，格式如下
+- create_compile_commands这是一个自定义方法，用于将compile_commands.json中的gcc编译器改为g++，修改原因代码注释写的很清楚，使用gcc编译s时不会include c++的头文件目录。 文件compile_commands.json是根据`$ROOT_DIR/CMakeLists.txt中的set(CMAKE_EXPORT_COMPILE_COMMAND ON)`这句代码而生成，所以位于$ROOT_DIR/build目录下，这个json文件中指明了编译各个文件时的工作路径（working directory），编译指令（command）以及被编译的原文件，格式如下
 ```
 [
 {
@@ -102,7 +102,7 @@ setup方法（可以参考[setup()](https://docs.python.org/3/distutils/apiref.h
 
 ext_modules中添加了5个扩展，后三个扩展在build_deps()中已经生成并安装，当然，caffe2_pybind11_state_gpu和caffe2_pybind11_state_hip是根据配置决定是否生成，配置了CUDA则生成前者，配置了ROCM则生成后者，如果均未配置，则这两个扩展均不生成。既然在build_deps()中已经生成并安装，所以这里将其从ext_modules中删除，于是build_extensions实际上只生成torch._C, torch._dl这两个扩展库。
 
-然而，除了build_deps()方法还有其他方法可用于生成ext_modules中 的后三个扩展库，生成路径为$ROOT_DIR/torch/lib/python3.7/site-packages/caffe2/python/，所以需要判断在这个路径下是否存在后三个扩展库，若不在（此时就是前面所说的使用build_deps()生成），则将扩展库名称从ext_modules中予以删除， 若存在，则还需则将其拷贝到生成目录$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/下，并修改拷贝后的文件名称，以caffe2.python.caffe2_pybind11_state为例说明，两级前缀表示目录所以最终的目录为$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/caffe2/python/，剩余的caffe2_pybind11_state表示扩展库的文件名，还需要添加后缀名，这个后缀名由系统平台和python版本，我这里是.cpython-37m-x86_64-linux-gnu.so，于是拷贝后得到文件$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/caffe2/python/caffe2_pybind11_state.cpython-37m-x86_64-linux-gnu.so ，这样使用基类的build_extensions()方法才能将其进一步安装到 python的site-packages目录下，我这里是.../miniconda3/lib/python3.7/site-packages/caffe2/python/目录。
+然而，除了build_deps()方法还有其他方法可用于生成ext_modules中 的后三个扩展库，生成路径为`$ROOT_DIR/torch/lib/python3.7/site-packages/caffe2/python/`，所以需要判断在这个路径下是否存在后三个扩展库，若不在（此时就是前面所说的使用build_deps()生成），则将扩展库名称从ext_modules中予以删除， 若存在，则还需则将其拷贝到生成目录`$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/`下，并修改拷贝后的文件名称，以caffe2.python.caffe2_pybind11_state为例说明，两级前缀表示目录所以最终的目录为`$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/caffe2/python/`，剩余的caffe2_pybind11_state表示扩展库的文件名，还需要添加后缀名，这个后缀名由系统平台和python版本，我这里是.cpython-37m-x86_64-linux-gnu.so，于是拷贝后得到文件$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/caffe2/python/caffe2_pybind11_state.cpython-37m-x86_64-linux-gnu.so ，这样使用基类的build_extensions()方法才能将其进一步安装到 python的site-packages目录下，我这里是.../miniconda3/lib/python3.7/site-packages/caffe2/python/目录。
 
 3. packages 指定安装到python 的site-packages下的包
 ```
@@ -163,7 +163,7 @@ add_subdirectory(${LIBSHM_SRCDIR})
 ADD_LIBRARY(shm SHARED core.cpp)
 ```
 有关的库依赖，分为预装库和本项目（pytorch）内包含的库，CMake生成规则位于cmake/Dependencies.cmake文件中，仔细查看该文件发现：
-- 预先装的库依赖，这些库名存在Caffe2_PUBLIC_DEPENDENCY_LIBS中。如上文所举例子OpenBLAS 那样添加g++的链接flag和 -I<include dir>flag。
+- 预先装的库依赖，这些库名存在Caffe2_PUBLIC_DEPENDENCY_LIBS中。如上文所举例子OpenBLAS 那样添加g++的链接flag和 `-I<include dir>flag`。
 - 本项目内包含的库。包括：
 (1) tbb
 ```

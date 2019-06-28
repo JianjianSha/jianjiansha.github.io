@@ -2,7 +2,7 @@
 title: PyTorch-2
 date: 2019-06-13 10:19:52
 tags: PyTorch
-category: DL Framework
+categories: DL Framework
 ---
 # torch installization
 依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是
@@ -19,7 +19,7 @@ __all__ += [name for name in dir(_C)
             not name.endswith('Base')]
 sys.setdlopenflags(old_flags)
 ```
-<b>将torch._C中（不包括_开头和Base结尾）的属性导出到当前域。</b>
+__将torch._C中（不包括_开头和Base结尾）的属性导出到当前域。__
 
 __init__.py除了import torch._C，还import了同目录下其他module，以及同目录下的package。首先看torch._C导入时做了什么， torch._C的源文件只有torch/csrc/stub.cpp，链接库为shm和torch_python，stub.cpp中仅仅是初始化模块，
 ```

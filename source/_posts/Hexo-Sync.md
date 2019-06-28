@@ -1,7 +1,7 @@
 ---
 title: Hexo Sync
 date: 2019-06-13 9:57:11
-tag: tool
+tags: tool
 ---
 
 场景：
