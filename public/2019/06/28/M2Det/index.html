@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="论文：M2Det: A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network Introduction我们知道在目标检测任务中目标尺度的变化一直是一个具有挑战的问题，通常有两种解决思路：image pyramid 和 feature pyramid。前者在训练阶段其实可以看作是一种数据增强，优点是可以让网络">
+<meta name="keywords" content="object detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="M2Det">
+<meta property="og:url" content="https://shajianjian.github.io/2019/06/28/M2Det/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="论文：M2Det: A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network Introduction我们知道在目标检测任务中目标尺度的变化一直是一个具有挑战的问题，通常有两种解决思路：image pyramid 和 feature pyramid。前者在训练阶段其实可以看作是一种数据增强，优点是可以让网络">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/M2Det_fig1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/M2Det_fig2.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/M2Det_fig4.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/M2Det_fig3.png">
+<meta property="og:updated_time" content="2019-06-29T09:51:12.212Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="M2Det">
+<meta name="twitter:description" content="论文：M2Det: A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network Introduction我们知道在目标检测任务中目标尺度的变化一直是一个具有挑战的问题，通常有两种解决思路：image pyramid 和 feature pyramid。前者在训练阶段其实可以看作是一种数据增强，优点是可以让网络">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/M2Det_fig1.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://shajianjian.github.io/2019/06/28/M2Det/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>M2Det | SJJ</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SJJ</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/28/M2Det/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">M2Det
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-28 17:59:08" itemprop="dateCreated datePublished" datetime="2019-06-28T17:59:08+08:00">2019-06-28</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-29 17:51:12" itemprop="dateModified" datetime="2019-06-29T17:51:12+08:00">2019-06-29</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>论文：<a href="https://arxiv.org/abs/1811.04533" target="_blank" rel="noopener">M2Det: A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network</a></p>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>我们知道在目标检测任务中目标尺度的变化一直是一个具有挑战的问题，通常有两种解决思路：image pyramid 和 feature pyramid。前者在训练阶段其实可以看作是一种数据增强，优点是可以让网络学习到统一的特征表达能力，缺点是测试阶段计算量和内存占用均增大，因为不同 size 的 image 需要分别通过网络预测，然后再合并预测结果。后者是从输入 image 中抽取不同 level 的 feature （不同scale 的 feature maps）形成 feature pyramid，相比于前者，降低了计算量和内存占用，但是不足之处在于构造 feature pyramid 时使用 backbone 网络中固有的 multi-scale feature maps，虽然这些 feature maps 可以形成 feature pyramid，但是其本是为了分类任务而设计的。如图 1，<br><img src="/images/M2Det_fig1.png" alt></p>
+<p>SSD 使用 backbone 的两个 layers，然后在此基础上再以步幅 2 连续构造 4 个卷积 layers，这 6 个 layers 的输出构成 feature pyramid；STDN 使用 DenseNet 的最后一个 block 并通过 pooling 和 scale-transfer 操作来构造出 feature pyramid；FPN 以 top-down 方式并增加一个横向连接，融合高层和底层特征，从而构造出 feature pyramid。通常来说，以上方法均存在以下两点不足：</p>
+<ol>
+<li>pyramid 中的 feature 用于目标检测的表征能力还不够，因为是从 backbone 中抽取出来的，而 backbone 是为分类任务设计的。</li>
+<li>pyramid 中每个 level 的 feature 用于检测相应某个 scale 范围内的目标，而 feature 主要（FPN 这类）或者仅仅（除 FPN 这类以外的）由 backbone 的单一 layer 生成，故 feature 主要或仅仅包含单一 level 的信息。</li>
+</ol>
+<p>一般而言，高层特征由于包含更多的语义信息对于分类任务更具有判别力，而低层特征保持了局部信息所以更适合目标定位任务。并且，低层特征适合描述具有简单外观的目标，而高层特征则适合描述具有复杂外观的目标。实际上，size 相差无几的目标其外观很可能差别非常大，例如交通信号灯和一个远处的人，两者 size 差不多，但是人的外观显然更加复杂，因此，用同一 level 的 feature maps 预测这两者，检测性能不是最优。</p>
+<p>本文构造出一个更加有效的 feature pyramid 用于检测不同 scale 的目标，并能解决上述问题。如图 2，<br><img src="/images/M2Det_fig2.png" alt></p>
+<p>首先融合 backbone 的 multi-level features（来自于多 layers 输出）作为 base feature，将这个 base feature 喂给一个交替连接 Thinned U-shape Modules(TUM) 和 Feature Fusion Modules(FFM) 的 block（如图 2 中红色框），从而得到更具表征能力的 multi-level multi-scale features，multi-leve 是指 shallow, medium, deep 等 level，multi-scale 是指每个 level 均具有多尺度 features。值得注意的是，每个 U 型模块中的解码层深度相同，这是为了在下一步 Scale-wise Feature Aggregation Module（SFAM） 中，将每个 level 中 scale 相同的特征聚合起来构成最终的 feature pyramid，这个 SFAM 操作相当于将 multi-level multi-scale 变成 multi-scale multi-level，也就是说，用于检测每个 scale 范围目标的 feature 均包含浅层特征和深层特征。显然，用于生成最终 feature pyramid 的解码层特征比原先 backbone 中的 layers 更深，所以也就更具有表征能力。我们称此 feature pyramid 模块为 Multi-Level Feature Pyramid Network（MLFPN）。</p>
+<p>为了评估 MLFPN 的有效性，我们设计并训练了一个端到端的 one-stage 目标检测器称为 M2Det，这是将 MLFPN 合并入 SSD 得到的检测器。M2Det 获得了新 SOTA 结果，使用单尺度 inference 时，FPS=11.8，AP=41.0，而使用多尺度 inference 时，AP 高达 44.2，超过 MS-COCO 上其他 one-stage 检测结果。</p>
+<h1 id="Method"><a href="#Method" class="headerlink" title="Method"></a>Method</h1><p>M2Det 网络结构如图 2，使用 backbone 和 MLFPN 得到 feature pyramid，其他网络部分与 SSD 类似，生成密集预测 bbox 以及分类得分，然后使用 NMS 得到最后的检测结果。MLFPN 包含：FFM, TUM 以及 SFAM。FFMv1 丰富了 base feature 中的语义信息，因为融合了 backbone 多级 feature maps。每个 TUM 均生成一组多尺度特征，每一个尺度用于检测对应尺度范围的目标。交替连接 TUM 和 FFMv2 以抽取 multi-level multi scale features。此外，SFAM 按 scale 聚合多个 level 的 features（concatenate features）。关于这三个核心模块的细节以及 M2Det 的配置介绍如下。</p>
+<h2 id="MLFPN"><a href="#MLFPN" class="headerlink" title="MLFPN"></a>MLFPN</h2><p>如图 2，首先，FFMv1 融合了浅层和深层的特征得到 base feature，例如，融合 VGG 中 conv4_3 和 conv5_3 的特征。然后，交替连接 TUM 和 FFMv2，每个 TUM 生成不同 scale 的 feature maps，FFMv2 则融合 base feature 和上一 TUM 中最大 scale 的 feature，融合后的 feature maps 作为下一 TUM 的输入。注意第一个 TUM 仅从 base feature 中学习。输出的 multi-level multi-scale features 按如下方式计算：<br>$$[x_1^l,…x_i^l]=\begin{cases} \mathbf T_l(\mathbf X_{base}) &amp; l=1<br>\\ \mathbf T_l(\mathbf F (\mathbf X_{base}, \mathbf x_i^{l-1})) &amp; l=2,…L \end{cases}$$<br>其中，$\mathbf X_{base}$ 表示 base feature，$x_i^l$ 表示第 $l$ 个 TUM 中第 $i$ 个 scale 的 feature，L 表示 TUM 数量，$\mathbf T_l$ 表示 第 $l$ 个 TUM 处理，$\mathbf F$ 表示 FFMv2 融合过程。</p>
+<h3 id="FFM"><a href="#FFM" class="headerlink" title="FFM"></a>FFM</h3><p>FFM 是如何融合多个 feature 的呢？使用 1x1 卷积压缩这些 features，然后使用 concatenation 操作聚合这些 features。由于 FFMv1 将 backbone 中不同 scale 的两个 features 作为输入，所以需要将其中深层特征 upsample 使得与浅层特征的 scale 相同，然后再执行 concatenation 操作。TUM 的网络结构是 <strong>对称</strong> 的，所以 FFMv2 的两个输入 base feature 与 上一 TUM 的最大的输出 feature 具有相同的 scale，故直接 concatenate 起来作为下一 TUM 的输入。FFMv1 和 FFMv2 的结构如图 4 (a)(b)。<br><img src="/images/M2Det_fig4.png" alt> <center>Fig 4 (a) FFMv1. (b) FFMv2. (c) TUM。每个 block 中数字分别表示：输入通道，卷积核 size，步幅，输出通道</center></p>
+<h3 id="TUM"><a href="#TUM" class="headerlink" title="TUM"></a>TUM</h3><p>TUM 是一个 Thin U-shape 结构，如图 4(c)，encoder 是一系列的 stride=2 的 3x3 卷积，decoder 将这些卷积层的输出作为 feature maps 的参考集合，而 FPN 则使用 backbone 中的 layer 输出。此外，我们在 upsample 和 element-wise sum 操作之后增加了一个 1x1 卷积，以增强学习能力并保持特征的平滑。所有 TUM 的 decoder 输出形成 multi-level multi-scale features，其中，靠前的 TUM 生成浅层的 multi-scale features，中间的 TUM 生成中层的 multi-scale features，而靠后的 TUM 生成深层的 multi-scale features。</p>
+<h3 id="SFAM"><a href="#SFAM" class="headerlink" title="SFAM"></a>SFAM</h3><p>SFAM 用于聚合所有 TUM 输出的 multi-level multi-scale features，如图 3，<br><img src="/images/M2Det_fig3.png" alt><center>Fig 3 SFAM 结构。第一阶段是按 scale 沿 channel 维度 concatenate 特征，第二阶段使用 SE attention 以适应的方式聚合特征</center></p>
+<p>第一阶段是将 scale 相等的 features 沿通道方向 concatenate，聚合后的 feature pyramid 可表示为<br>$$\mathbf X=[\mathbf X_1,…,\mathbf X_i]$$<br>其中 $\mathbf X_i=Concat(x_i^1,…x_i^L) \in \mathcal R^{W_i \times H_i \times C}$ 表示第 $i$ 个 scale 的（由浅层到深层）特征，$W_i \times H_i$ 表示第 $i$ 个 scale 的 feature map 的 size，这里所有 scale 所有 level 的 feature maps 的通道 $C$ 均相等，如图 4 中 $C=128$。但是仅仅 concatenate 这些 features，其适应性还不足（有点生硬），所以第二阶段，我们采用了通道注意力模块使得 features 专注于那些能从中获得最大收益的通道。参考 SE block，在 squeeze 这一步，我们使用全局平均池化（global average pooling）按通道生成统计量 $\mathbf z \in \mathcal R^C$，然后再 excitation 这一步，使用两个 fc 层学习注意力机制以获得通道依赖性，<br>$$\mathbf s = \mathbf F_{ex}(\mathbf {z,W})=\sigma (\mathbf W_2 \delta(\mathbf W_1 \mathbf z))$$<br>其中，$\sigma$ 表示 ReLu，$\delta$ 表示 sigmoid，$\mathbf W_1 \in \mathcal R^{\frac C r \times C}, \ \mathbf W_2 \in \mathcal R^{C \times \frac C r}$， r 是缩小比例（实验中 r=16），然后重新对特征按通道加权得到最终的特征，<br>$$\hat \mathbf X_i^c=\mathbf F_{scale}(\mathbf X_i^c, s_c)=s_c \cdot \mathbf X_i^c$$<br>最后的特征为 $\hat \mathbf X_i=[\hat \mathbf X_i^1,…,\hat \mathbf X_i^C]$。</p>
+<h3 id="网络配置"><a href="#网络配置" class="headerlink" title="网络配置"></a>网络配置</h3><p>分别使用 VGG 和 ResNet 作为 M2Det 的 backbone，backbone 使用 ImageNet2012 进行预训练。MLFPN 包含 8 个 TUM，每个 TUM 包含 5 个 convs 和 5 个上采样操作，故共输出 6 个 scale 的 features。为了降低参数量，TUM 的每个 scale 的特征仅使用 256 个通道，参见图 4 (c) 中最上面一排。整个网络的输入大小遵循原始的 SSD, RefineDet 和 RetinaNet，分别为 320, 512 和 800。</p>
+<p>MLFPN 之后，得到 6 组 pyramid features，scale 分别为 1x1，3x3，5x5，10x10，20x20，40x40，我们为每个 scale 的 pyramid features 分别增加两个卷积层，用于定位回归和分类。6 组 pyramid features 上 anchor(prior) box 的默认 scale （不考虑 aspect ratio）与原始 SSD 中保持一致，稍微回顾一下这一点，假设共 m 组 features（这里 m = 6），第 k 组 features 上的 anchor box 的默认 scale 为<br>$$s_k=s_{min}+\frac {s_{max}-s_{min}} {m-1} (k-1)$$<br>其中，$s_{min}=0.2, \ s_{max}=0.9$（当然，还需要乘上每组 features 相对于输入 image 的步幅（下采样率）才是最终的 anchor 的默认 scale）。</p>
+<p>在 pyramidal features 上每个像素点位置，设置 6 个 anchors，包含 3 个 aspect ratios（参考 SSD）。使用阈值 0.05 过滤掉较低得分的检测，然后使用线性核函数的 <a href="/2019/06/24/cv-mtds">soft-NMS</a> 进一步处理检测结果。</p>
+<h1 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h1><p>实验略，请阅读原文以获取详细信息</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>提出了 MLFPN 以解决目标检测中 multi-scale 问题。构造 M2Det 目标检测器取得了 SOTA 的 one-stage 检测结果。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/28/BBox-Reg-Uncertainty/" rel="next" title="BBox-Reg-Uncertainty">
+                <i class="fa fa-chevron-left"></i> BBox-Reg-Uncertainty
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shajianjian</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Method"><span class="nav-number">2.</span> <span class="nav-text">Method</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MLFPN"><span class="nav-number">2.1.</span> <span class="nav-text">MLFPN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FFM"><span class="nav-number">2.1.1.</span> <span class="nav-text">FFM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TUM"><span class="nav-number">2.1.2.</span> <span class="nav-text">TUM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SFAM"><span class="nav-number">2.1.3.</span> <span class="nav-text">SFAM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网络配置"><span class="nav-number">2.1.4.</span> <span class="nav-text">网络配置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实验"><span class="nav-number">3.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">4.</span> <span class="nav-text">结论</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

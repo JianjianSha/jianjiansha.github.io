@@ -1,0 +1,67 @@
+---
+title: M2Det
+date: 2019-06-28 17:59:08
+tags: object detection
+mathjax: true
+---
+论文：[M2Det: A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network](https://arxiv.org/abs/1811.04533)
+
+# Introduction
+我们知道在目标检测任务中目标尺度的变化一直是一个具有挑战的问题，通常有两种解决思路：image pyramid 和 feature pyramid。前者在训练阶段其实可以看作是一种数据增强，优点是可以让网络学习到统一的特征表达能力，缺点是测试阶段计算量和内存占用均增大，因为不同 size 的 image 需要分别通过网络预测，然后再合并预测结果。后者是从输入 image 中抽取不同 level 的 feature （不同scale 的 feature maps）形成 feature pyramid，相比于前者，降低了计算量和内存占用，但是不足之处在于构造 feature pyramid 时使用 backbone 网络中固有的 multi-scale feature maps，虽然这些 feature maps 可以形成 feature pyramid，但是其本是为了分类任务而设计的。如图 1，
+![](/images/M2Det_fig1.png)
+
+SSD 使用 backbone 的两个 layers，然后在此基础上再以步幅 2 连续构造 4 个卷积 layers，这 6 个 layers 的输出构成 feature pyramid；STDN 使用 DenseNet 的最后一个 block 并通过 pooling 和 scale-transfer 操作来构造出 feature pyramid；FPN 以 top-down 方式并增加一个横向连接，融合高层和底层特征，从而构造出 feature pyramid。通常来说，以上方法均存在以下两点不足：
+1. pyramid 中的 feature 用于目标检测的表征能力还不够，因为是从 backbone 中抽取出来的，而 backbone 是为分类任务设计的。
+2. pyramid 中每个 level 的 feature 用于检测相应某个 scale 范围内的目标，而 feature 主要（FPN 这类）或者仅仅（除 FPN 这类以外的）由 backbone 的单一 layer 生成，故 feature 主要或仅仅包含单一 level 的信息。
+
+一般而言，高层特征由于包含更多的语义信息对于分类任务更具有判别力，而低层特征保持了局部信息所以更适合目标定位任务。并且，低层特征适合描述具有简单外观的目标，而高层特征则适合描述具有复杂外观的目标。实际上，size 相差无几的目标其外观很可能差别非常大，例如交通信号灯和一个远处的人，两者 size 差不多，但是人的外观显然更加复杂，因此，用同一 level 的 feature maps 预测这两者，检测性能不是最优。
+
+本文构造出一个更加有效的 feature pyramid 用于检测不同 scale 的目标，并能解决上述问题。如图 2，
+![](/images/M2Det_fig2.png)
+
+首先融合 backbone 的 multi-level features（来自于多 layers 输出）作为 base feature，将这个 base feature 喂给一个交替连接 Thinned U-shape Modules(TUM) 和 Feature Fusion Modules(FFM) 的 block（如图 2 中红色框），从而得到更具表征能力的 multi-level multi-scale features，multi-leve 是指 shallow, medium, deep 等 level，multi-scale 是指每个 level 均具有多尺度 features。值得注意的是，每个 U 型模块中的解码层深度相同，这是为了在下一步 Scale-wise Feature Aggregation Module（SFAM） 中，将每个 level 中 scale 相同的特征聚合起来构成最终的 feature pyramid，这个 SFAM 操作相当于将 multi-level multi-scale 变成 multi-scale multi-level，也就是说，用于检测每个 scale 范围目标的 feature 均包含浅层特征和深层特征。显然，用于生成最终 feature pyramid 的解码层特征比原先 backbone 中的 layers 更深，所以也就更具有表征能力。我们称此 feature pyramid 模块为 Multi-Level Feature Pyramid Network（MLFPN）。
+
+为了评估 MLFPN 的有效性，我们设计并训练了一个端到端的 one-stage 目标检测器称为 M2Det，这是将 MLFPN 合并入 SSD 得到的检测器。M2Det 获得了新 SOTA 结果，使用单尺度 inference 时，FPS=11.8，AP=41.0，而使用多尺度 inference 时，AP 高达 44.2，超过 MS-COCO 上其他 one-stage 检测结果。
+
+# Method
+M2Det 网络结构如图 2，使用 backbone 和 MLFPN 得到 feature pyramid，其他网络部分与 SSD 类似，生成密集预测 bbox 以及分类得分，然后使用 NMS 得到最后的检测结果。MLFPN 包含：FFM, TUM 以及 SFAM。FFMv1 丰富了 base feature 中的语义信息，因为融合了 backbone 多级 feature maps。每个 TUM 均生成一组多尺度特征，每一个尺度用于检测对应尺度范围的目标。交替连接 TUM 和 FFMv2 以抽取 multi-level multi scale features。此外，SFAM 按 scale 聚合多个 level 的 features（concatenate features）。关于这三个核心模块的细节以及 M2Det 的配置介绍如下。
+
+## MLFPN
+如图 2，首先，FFMv1 融合了浅层和深层的特征得到 base feature，例如，融合 VGG 中 conv4_3 和 conv5_3 的特征。然后，交替连接 TUM 和 FFMv2，每个 TUM 生成不同 scale 的 feature maps，FFMv2 则融合 base feature 和上一 TUM 中最大 scale 的 feature，融合后的 feature maps 作为下一 TUM 的输入。注意第一个 TUM 仅从 base feature 中学习。输出的 multi-level multi-scale features 按如下方式计算：
+$$[x_1^l,...x_i^l]=\begin{cases} \mathbf T_l(\mathbf X_{base}) & l=1
+\\\\ \mathbf T_l(\mathbf F (\mathbf X_{base}, \mathbf x_i^{l-1})) & l=2,...L \end{cases}$$
+其中，$\mathbf X_{base}$ 表示 base feature，$x_i^l$ 表示第 $l$ 个 TUM 中第 $i$ 个 scale 的 feature，L 表示 TUM 数量，$\mathbf T_l$ 表示 第 $l$ 个 TUM 处理，$\mathbf F$ 表示 FFMv2 融合过程。
+
+### FFM
+FFM 是如何融合多个 feature 的呢？使用 1x1 卷积压缩这些 features，然后使用 concatenation 操作聚合这些 features。由于 FFMv1 将 backbone 中不同 scale 的两个 features 作为输入，所以需要将其中深层特征 upsample 使得与浅层特征的 scale 相同，然后再执行 concatenation 操作。TUM 的网络结构是 __对称__ 的，所以 FFMv2 的两个输入 base feature 与 上一 TUM 的最大的输出 feature 具有相同的 scale，故直接 concatenate 起来作为下一 TUM 的输入。FFMv1 和 FFMv2 的结构如图 4 (a)(b)。
+![](/images/M2Det_fig4.png) <center>Fig 4 (a) FFMv1. (b) FFMv2. (c) TUM。每个 block 中数字分别表示：输入通道，卷积核 size，步幅，输出通道</center>
+
+### TUM
+TUM 是一个 Thin U-shape 结构，如图 4(c)，encoder 是一系列的 stride=2 的 3x3 卷积，decoder 将这些卷积层的输出作为 feature maps 的参考集合，而 FPN 则使用 backbone 中的 layer 输出。此外，我们在 upsample 和 element-wise sum 操作之后增加了一个 1x1 卷积，以增强学习能力并保持特征的平滑。所有 TUM 的 decoder 输出形成 multi-level multi-scale features，其中，靠前的 TUM 生成浅层的 multi-scale features，中间的 TUM 生成中层的 multi-scale features，而靠后的 TUM 生成深层的 multi-scale features。
+
+### SFAM
+SFAM 用于聚合所有 TUM 输出的 multi-level multi-scale features，如图 3，
+![](/images/M2Det_fig3.png)<center>Fig 3 SFAM 结构。第一阶段是按 scale 沿 channel 维度 concatenate 特征，第二阶段使用 SE attention 以适应的方式聚合特征</center>
+
+第一阶段是将 scale 相等的 features 沿通道方向 concatenate，聚合后的 feature pyramid 可表示为 
+$$\mathbf X=[\mathbf X_1,...,\mathbf X_i]$$
+其中 $\mathbf X_i=Concat(x_i^1,...x_i^L) \in \mathcal R^{W_i \times H_i \times C}$ 表示第 $i$ 个 scale 的（由浅层到深层）特征，$W_i \times H_i$ 表示第 $i$ 个 scale 的 feature map 的 size，这里所有 scale 所有 level 的 feature maps 的通道 $C$ 均相等，如图 4 中 $C=128$。但是仅仅 concatenate 这些 features，其适应性还不足（有点生硬），所以第二阶段，我们采用了通道注意力模块使得 features 专注于那些能从中获得最大收益的通道。参考 SE block，在 squeeze 这一步，我们使用全局平均池化（global average pooling）按通道生成统计量 $\mathbf z \in \mathcal R^C$，然后再 excitation 这一步，使用两个 fc 层学习注意力机制以获得通道依赖性，
+$$\mathbf s = \mathbf F_{ex}(\mathbf {z,W})=\sigma (\mathbf W_2 \delta(\mathbf W_1 \mathbf z))$$
+其中，$\sigma$ 表示 ReLu，$\delta$ 表示 sigmoid，$\mathbf W_1 \in \mathcal R^{\frac C r \times C}, \ \mathbf W_2 \in \mathcal R^{C \times \frac C r}$， r 是缩小比例（实验中 r=16），然后重新对特征按通道加权得到最终的特征，
+$$\hat \mathbf X_i^c=\mathbf F_{scale}(\mathbf X_i^c, s_c)=s_c \cdot \mathbf X_i^c$$
+最后的特征为 $\hat \mathbf X_i=[\hat \mathbf X_i^1,...,\hat \mathbf X_i^C]$。
+
+### 网络配置
+分别使用 VGG 和 ResNet 作为 M2Det 的 backbone，backbone 使用 ImageNet2012 进行预训练。MLFPN 包含 8 个 TUM，每个 TUM 包含 5 个 convs 和 5 个上采样操作，故共输出 6 个 scale 的 features。为了降低参数量，TUM 的每个 scale 的特征仅使用 256 个通道，参见图 4 (c) 中最上面一排。整个网络的输入大小遵循原始的 SSD, RefineDet 和 RetinaNet，分别为 320, 512 和 800。
+
+MLFPN 之后，得到 6 组 pyramid features，scale 分别为 1x1，3x3，5x5，10x10，20x20，40x40，我们为每个 scale 的 pyramid features 分别增加两个卷积层，用于定位回归和分类。6 组 pyramid features 上 anchor(prior) box 的默认 scale （不考虑 aspect ratio）与原始 SSD 中保持一致，稍微回顾一下这一点，假设共 m 组 features（这里 m = 6），第 k 组 features 上的 anchor box 的默认 scale 为
+$$s_k=s_{min}+\frac {s_{max}-s_{min}} {m-1} (k-1)$$
+其中，$s_{min}=0.2, \ s_{max}=0.9$（当然，还需要乘上每组 features 相对于输入 image 的步幅（下采样率）才是最终的 anchor 的默认 scale）。
+
+在 pyramidal features 上每个像素点位置，设置 6 个 anchors，包含 3 个 aspect ratios（参考 SSD）。使用阈值 0.05 过滤掉较低得分的检测，然后使用线性核函数的 [soft-NMS](/2019/06/24/cv-mtds) 进一步处理检测结果。
+
+# 实验
+实验略，请阅读原文以获取详细信息
+
+# 结论
+提出了 MLFPN 以解决目标检测中 multi-scale 问题。构造 M2Det 目标检测器取得了 SOTA 的 one-stage 检测结果。
