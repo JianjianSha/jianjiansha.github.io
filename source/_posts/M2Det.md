@@ -48,8 +48,10 @@ $$\mathbf X=[\mathbf X_1,...,\mathbf X_i]$$
 其中 $\mathbf X_i=Concat(x_i^1,...x_i^L) \in \mathcal R^{W_i \times H_i \times C}$ 表示第 $i$ 个 scale 的（由浅层到深层）特征，$W_i \times H_i$ 表示第 $i$ 个 scale 的 feature map 的 size，这里所有 scale 所有 level 的 feature maps 的通道 $C$ 均相等，如图 4 中 $C=128$。但是仅仅 concatenate 这些 features，其适应性还不足（有点生硬），所以第二阶段，我们采用了通道注意力模块使得 features 专注于那些能从中获得最大收益的通道。参考 SE block，在 squeeze 这一步，我们使用全局平均池化（global average pooling）按通道生成统计量 $\mathbf z \in \mathcal R^C$，然后再 excitation 这一步，使用两个 fc 层学习注意力机制以获得通道依赖性，
 $$\mathbf s = \mathbf F_{ex}(\mathbf {z,W})=\sigma (\mathbf W_2 \delta(\mathbf W_1 \mathbf z))$$
 其中，$\sigma$ 表示 ReLu，$\delta$ 表示 sigmoid，$\mathbf W_1 \in \mathcal R^{\frac C r \times C}, \ \mathbf W_2 \in \mathcal R^{C \times \frac C r}$， r 是缩小比例（实验中 r=16），然后重新对特征按通道加权得到最终的特征，
-$$\hat \mathbf X_i^c=\mathbf F_{scale}(\mathbf X_i^c, s_c)=s_c \cdot \mathbf X_i^c$$
-最后的特征为 $\hat \mathbf X_i=[\hat \mathbf X_i^1,...,\hat \mathbf X_i^C]$。
+
+$$\tilde {\mathbf X_i^c}=\mathbf F_{scale}(\mathbf X_i^c, s_c)=s_c \cdot \mathbf X_i^c$$
+
+最后的特征为 $\tilde {\mathbf X_i}=[\tilde {\mathbf X_i^1},...,\tilde {\mathbf X_i^C]}$。
 
 ### 网络配置
 分别使用 VGG 和 ResNet 作为 M2Det 的 backbone，backbone 使用 ImageNet2012 进行预训练。MLFPN 包含 8 个 TUM，每个 TUM 包含 5 个 convs 和 5 个上采样操作，故共输出 6 个 scale 的 features。为了降低参数量，TUM 的每个 scale 的特征仅使用 256 个通道，参见图 4 (c) 中最上面一排。整个网络的输入大小遵循原始的 SSD, RefineDet 和 RetinaNet，分别为 320, 512 和 800。
