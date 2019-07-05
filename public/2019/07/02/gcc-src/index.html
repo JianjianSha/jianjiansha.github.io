@@ -96,13 +96,18 @@
 
 
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="SJJ">
-<meta property="og:url" content="https://shajianjian.github.io/tags/CV/index.html">
+  <meta name="description" content="多阅读 c++ 标准库源码，才能更好的理解 c++ 标准库。 以 ubuntu 为例，gcc 版本为 7.3.0，目录 /usr/include/c++/7/ 包含了大多数标准库（头）文件，标准库的大多数的实现逻辑也在这些头文件中，如要获取完整的源码，则可以去  gcc-mirror/gcc clone 这个位于 github 的远程仓库 GNU Mirror List 选择一个镜像网址，直接下载">
+<meta name="keywords" content="c++">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gcc-src">
+<meta property="og:url" content="https://shajianjian.github.io/2019/07/02/gcc-src/index.html">
 <meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="多阅读 c++ 标准库源码，才能更好的理解 c++ 标准库。 以 ubuntu 为例，gcc 版本为 7.3.0，目录 /usr/include/c++/7/ 包含了大多数标准库（头）文件，标准库的大多数的实现逻辑也在这些头文件中，如要获取完整的源码，则可以去  gcc-mirror/gcc clone 这个位于 github 的远程仓库 GNU Mirror List 选择一个镜像网址，直接下载">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-07-02T06:30:36.701Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="SJJ">
+<meta name="twitter:title" content="gcc-src">
+<meta name="twitter:description" content="多阅读 c++ 标准库源码，才能更好的理解 c++ 标准库。 以 ubuntu 为例，gcc 版本为 7.3.0，目录 /usr/include/c++/7/ 包含了大多数标准库（头）文件，标准库的大多数的实现逻辑也在这些头文件中，如要获取完整的源码，则可以去  gcc-mirror/gcc clone 这个位于 github 的远程仓库 GNU Mirror List 选择一个镜像网址，直接下载">
 
 
 
@@ -110,7 +115,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/tags/CV/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/07/02/gcc-src/">
 
 
 
@@ -120,7 +125,7 @@
   };
 </script>
 
-  <title>标签: CV | SJJ</title>
+  <title>gcc-src | SJJ</title>
   
 
 
@@ -168,7 +173,7 @@
     
   
 
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left ">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -240,7 +245,7 @@
         
         
           
-          <li class="menu-item menu-item-tags menu-item-active">
+          <li class="menu-item menu-item-tags">
 
     
     
@@ -316,83 +321,190 @@
           
             
 
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
-
           
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block tag">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>CV<small>标签</small>
-        </h1>
-      </div>
+  
 
-      
-        
+  
+  
+  
+
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/02/gcc-src/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
         
-          <a class="post-title-link" href="/2019/06/24/cv-mtds/" itemprop="url">
-            
-              <span itemprop="name">CV 中的常用方法总结</span>
-            
-          </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">gcc-src
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-24T17:33:22+08:00" content="2019-06-24">
-          06-24
-        </time>
-      </div>
+              
+            
+          </h1>
+        
 
-    </header>
-  </article>
+        <div class="post-meta">
+          <span class="post-time">
 
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-02 13:49:38 / 修改时间：14:30:36" itemprop="dateCreated datePublished" datetime="2019-07-02T13:49:38+08:00">2019-07-02</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>多阅读 c++ 标准库源码，才能更好的理解 c++ 标准库。</p>
+<p>以 ubuntu 为例，gcc 版本为 7.3.0，目录 /usr/include/c++/7/ 包含了大多数标准库（头）文件，标准库的大多数的实现逻辑也在这些头文件中，如要获取完整的源码，则可以去</p>
+<ol>
+<li><a href="https://github.com/gcc-mirror/gcc" target="_blank" rel="noopener">gcc-mirror/gcc</a> clone 这个位于 github 的远程仓库</li>
+<li><a href="http://www.gnu.org/prep/ftp.html" target="_blank" rel="noopener">GNU Mirror List</a> 选择一个镜像网址，直接下载 gcc 源码</li>
+</ol>
 
       
     </div>
 
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/c/" rel="tag"># c++</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/28/M2Det/" rel="next" title="M2Det">
+                <i class="fa fa-chevron-left"></i> M2Det
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/03/libra-rcnn/" rel="prev" title="libra-rcnn">
+                libra-rcnn <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+  </div>
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
@@ -631,6 +743,10 @@
 
 
   
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
 
   
 
@@ -646,6 +762,8 @@
 
   
 
+
+  
 
 
   

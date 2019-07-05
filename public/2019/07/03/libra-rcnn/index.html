@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="论文 Libra R-CNN: Towards Balanced Learning for Object Detection Introduction当前大多数目标检测器无论是 one-stage 还是 two-stage，其训练范式都是 image 上区域选择（以下使用原英文单词 Region 表示），从 region 抽取特征，以及联合目标分类和定位的多任务目标函数优化。基于此训练范式，有如下">
+<meta name="keywords" content="object detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="libra-rcnn">
+<meta property="og:url" content="https://shajianjian.github.io/2019/07/03/libra-rcnn/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="论文 Libra R-CNN: Towards Balanced Learning for Object Detection Introduction当前大多数目标检测器无论是 one-stage 还是 two-stage，其训练范式都是 image 上区域选择（以下使用原英文单词 Region 表示），从 region 抽取特征，以及联合目标分类和定位的多任务目标函数优化。基于此训练范式，有如下">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/libra-rcnn_fig1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/libra-rcnn_figa.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/libra-rcnn_fig2.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/libra-rcnn_fig3.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/libra-rcnn_fig4.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/libra-rcnn_fig5.png">
+<meta property="og:updated_time" content="2019-07-05T12:31:39.903Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="libra-rcnn">
+<meta name="twitter:description" content="论文 Libra R-CNN: Towards Balanced Learning for Object Detection Introduction当前大多数目标检测器无论是 one-stage 还是 two-stage，其训练范式都是 image 上区域选择（以下使用原英文单词 Region 表示），从 region 抽取特征，以及联合目标分类和定位的多任务目标函数优化。基于此训练范式，有如下">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/libra-rcnn_fig1.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://shajianjian.github.io/2019/07/03/libra-rcnn/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>libra-rcnn | SJJ</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SJJ</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/03/libra-rcnn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">libra-rcnn
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-03 20:07:44" itemprop="dateCreated datePublished" datetime="2019-07-03T20:07:44+08:00">2019-07-03</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-05 20:31:39" itemprop="dateModified" datetime="2019-07-05T20:31:39+08:00">2019-07-05</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>论文 <a href>Libra R-CNN: Towards Balanced Learning for Object Detection</a></p>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>当前大多数目标检测器无论是 one-stage 还是 two-stage，其训练范式都是 image 上区域选择（以下使用原英文单词 Region 表示），从 region 抽取特征，以及联合目标分类和定位的多任务目标函数优化。基于此训练范式，有如下三点关于训练是否成功：</p>
+<ol>
+<li>所选 region 是否具有代表性</li>
+<li>抽取的特征是否被充分利用</li>
+<li>设计的目标函数是否最优</li>
+</ol>
+<p>如图 1，很多训练过程均存在以上三点问题，<br><img src="/images/libra-rcnn_fig1.png" alt> <center> 不平衡包括 a. 样本级别；b. 特征级别；c. 目标函数级别 </center></p>
+<p>由于以上三个不平衡问题的存在，即使一个设计良好的模型，也可能最终训练出来的性能不佳。以下我们具体讨论这三个不平衡问题：</p>
+<h2 id="样本不平衡"><a href="#样本不平衡" class="headerlink" title="样本不平衡"></a>样本不平衡</h2><p>为了避免模型倾向于预测为负，很多训练过程设置了一个训练批次中正负样本的比例（如 1:3）。训练目标检测器时，困难样例更具有价值，可以加快训练收敛速度，有效提高检测性能，然而事实上随机选择的 region 主要都是简单负样例，这些简单负样例贡献不了什么有用的特征，于是有了在线难负例发掘方法 OHEM [1]，这个 OHEM 对于噪声标签非常敏感，因为噪声标签会使得误分类为负也就是难负例筛选不准确，此外 OHEM 显然提高了内存占用并增加了计算量。通过进一步降低分类正确的那部分损失，Focal loss 也可以缓和样本不平衡这个问题，但是 Focal loss 通常用在 one-stage 模型中，在 two-stage 模型中则作用不明显，因为大部分的简单负例在 first stage 已经被过滤掉了（正如前面所说的正负样本比例为 1:3），此时若再使用 Focal loss 则会使得正负例样本所产生的梯度不平衡，较小的梯度淹没在较大的梯度里，难以起到梯度优化指导作用。</p>
+<h2 id="特征不平衡"><a href="#特征不平衡" class="headerlink" title="特征不平衡"></a>特征不平衡</h2><p>深度高层的特征具有更丰富的语义信息，而浅层特征则保留了更多的视觉内容描述（局部细节信息）。近年来，FPN 和 PANet 则通过 top-down 结构和 横向连接来进行特征整合，提高了目标检测性能，这说明高底层的特征对于目标检测的作用确实是互补的。但是，如何最佳地整合特征？前面提高的特征整合方法，feature pyramid 中每一层的特征整合更多的是关注邻近的特征（直接相连），而很少关注其他非邻近特征（非直接相连），非邻近特征需要经过一个或多个中间层才能到达本层特征，显然非近邻特征的语义信息被稀释的非常淡。如下图所示，<br><img src="/images/libra-rcnn_figa.png" alt><center>FPN</center></p>
+<p>从上图可知，融合后的 a’ 特征，其来自于 b,c 层的特征信息不是均衡的。</p>
+<h2 id="优化目标不平衡"><a href="#优化目标不平衡" class="headerlink" title="优化目标不平衡"></a>优化目标不平衡</h2><p>目标检测器是多任务的：分类和定位。两者的目标函数加起来作为最终的优化目标，如果这两者之间不均衡，会导致次优的结果，较小的梯度会淹没在较大的梯度里，起不到优化指导作用。这个情况与训练中样本导致的梯度不平衡的情况是相同的，均会限制模型进一步的性能调优。</p>
+<p>我们提出 Libra R-CNN（天秤 R-CNN），以平衡以上三个问题，Libra R-CNN 框架包含三个创新组件：</p>
+<ol>
+<li>IoU 均衡采样，根据与 gt box 的 IoU 来挖掘难例</li>
+<li>均衡的 feature pyramid，使用 <strong>相同深度</strong> 合并到一起的均衡语义特征进行强化</li>
+<li>均衡的 L1 loss，提升关键的梯度从而平衡 1)分类 2) 大致定位 3) 准确定位 这三者</li>
+</ol>
+<h1 id="Methodology"><a href="#Methodology" class="headerlink" title="Methodology"></a>Methodology</h1><p>Libra R-CNN 结构如图 2，<br><img src="/images/libra-rcnn_fig2.png" alt></p>
+<p>其中所有组件的详细介绍如下。</p>
+<h2 id="IoU-balanced-Sampling"><a href="#IoU-balanced-Sampling" class="headerlink" title="IoU-balanced Sampling"></a>IoU-balanced Sampling</h2><p>首先一个基本问题是：训练样本 region 和其对应的 gt box 之间的重合与此样本的难易程度是否有关联？图 3 显示了三种 region 采样的 IoU 分布，<br><img src="/images/libra-rcnn_fig3.png" alt></p>
+<p>我们仅考虑难负例，因为难负例是上文我们分析的关键三点之一。从图 3 中可见超过 60% 的难负例有大于 0.05 的 IoU（因为图 3 中橙色部分 IoU 低于 0.05 的占比大约为 37%），而随机采样时仅仅有大约 30% 的训练样本其 IoU 大于 0.05，这意味着如果随机采样会得到很多 IoU 位于 [0,0.05) 区间的样本，而分布在这个区间的难负例样本较少，所以随机采样会得到很多简单样本。</p>
+<p>受以上结论启发，我们提出 IoU-balanced 采样：既然难负例分布在各个 IoU 区间，那么我们就对各个 IoU 区间分别采样。假设从 M 个候选中选出 N 个负样本，随机采样下每个样本被选择的概率为<br>$$p=\frac N M$$</p>
+<p>为了提高选择难负例的概率，根据 IoU 将采样区间等分成 K 个桶，从每个桶中选择 N/K 个负样本，于是在 IoU-balanced sampling 下，第 k 个桶中每个样本被选择的概率为<br>$$p_k=\frac N K \cdot \frac 1 {M_k}, \ k \in [0,K)$$<br>其中，$M_k$ 是第 k 个桶中的样例候选数量。实验中 K=3。</p>
+<p>IoU-balanced sampling 结果如图 3，可以看到使用这种采样方式得到的训练样本分布与难负例的分布非常接近。采样候选数量不足，这种采样方法难以扩展到正例采样，为了得到均衡采样过程，使用一种替换方案：对每个 gt box 我们进行数量相等的采样。</p>
+<h3 id="SOURCE-CODE"><a href="#SOURCE-CODE" class="headerlink" title="SOURCE CODE"></a>SOURCE CODE</h3><p>经过阅读源码，本人总结 IoU balanced sampling 负例采样过程为：</p>
+<ol>
+<li><p>获取所有 proposals 的最大 IoU，记为 <code>max_overlaps</code></p>
+</li>
+<li><p>获取所有 proposals 的最大 IoU 的最大值，<code>max_iou=max_overlaps.max()</code></p>
+</li>
+<li><p>设置阈值下限 <code>floor_thr</code>，对 <code>(floor_thr, max_iou)</code> 范围内的 proposals 进行 IoU balanced sampling</p>
+</li>
+<li><p>设置桶（bin）数量 K，假设所需要的负例数量为 N，对每个桶采样数量为 N/K，每个桶的 IoU 范围跨度为 <code>(max_iou-floor_thr)/K</code></p>
+</li>
+<li><p>对于第 k 个桶，计算对应的 IoU 范围，记为 <code>[sk,ek)</code></p>
+</li>
+<li><p>获取第 k 个桶内的 proposals 的 index</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmp_set = np.where(np.logical_and(max_overlaps&gt;=sk, max_overlaps&lt;ek))[<span class="number">0</span>]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取第 k 个桶内的负例的 index</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmp_inds = list(tmp_set &amp; full_set) <span class="comment"># full_set 为 floor_thr&lt;iou&lt;0.5  proposals 的 index</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>从第 7 步中得到的第 k 个桶中所有负例的 index，在随机抽取 N/K 个负例</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">random_choice(tmp_inds, N/K)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>IoU balanced sampling 正例采样过程：</p>
+<ol>
+<li><p>获取正例 proposals 所对应的 gt 的 index，记为 <code>gt_inds</code></p>
+</li>
+<li><p>将第 1 步的结果去重，<code>unique_gt_inds=gt_inds.unique()</code>，得到所有 gt 的 index</p>
+<p>为什么说是所有 gt 呢？因为所有 gt 均作为正例被添加到正例 proposals 中</p>
+</li>
+<li><p>所有 gt 的数量为 <code>num_gts=len(unique_gt_indx)</code>，假设总共要采样 N 个正例，以每个 gt 为中心，均需要采样 <code>num_per_gt=N/num_gts</code> 个正例</p>
+</li>
+<li><p>对于第 i 个 gt，获取与其匹配的所有正例，并从中随机选择 <code>num_per_gt</code> 个正例</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">inds = torch.nonzero(assign_result.gt_inds == i.item())</span><br><span class="line">inds = random_choice(inds, num_per_gt)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>以上采样过程均经过简化，如需彻底理解细节问题则直接阅读源码</p>
+<h2 id="Balanced-Feature-Pyramid"><a href="#Balanced-Feature-Pyramid" class="headerlink" title="Balanced Feature Pyramid"></a>Balanced Feature Pyramid</h2><p>使用 <strong>相同深度</strong> 合并到一起的均衡语义特征来加强 multi-level features，如图 4，特征经过四个步骤：尺度缩放、整合、精修和加强。<br><img src="/images/libra-rcnn_fig4.png" alt></p>
+<h3 id="获取均衡语义特征"><a href="#获取均衡语义特征" class="headerlink" title="获取均衡语义特征"></a>获取均衡语义特征</h3><p>记 l 层级的特征为 $C_l$，层级数量为 L。最低层和最高层分别记为 $l_{min}, l_{max}$。如图 4，将所有层级的特征 ${C_2,C_3,C_4,C_5}$ resize 到一个中间大小即 $C_4$ 的大小，resize 操作使用插值或者最大值池化实现，所有特征经过尺度缩放后，均衡语义特征可由下式获得，<br>$$C=\frac 1 L \sum_{l_{min}}^{l_{max}} C_l$$</p>
+<p>这个均衡语义特征可经过相反的 rescale 操作来加强各自原始特征（图 4 中的 Identity）。</p>
+<h3 id="精修均衡语义特征"><a href="#精修均衡语义特征" class="headerlink" title="精修均衡语义特征"></a>精修均衡语义特征</h3><p>进一步精修均衡语义特征使其更具判别力。使用嵌入的高斯 non-local 注意力机制[2]精修均衡语义特征。</p>
+<p>Balanced feature pyramid ${P_2,P_3,P_4,P_5}$ 可用于目标检测，检测网络结构与 FPN 的一致。</p>
+<h2 id="Balanced-L1-Loss"><a href="#Balanced-L1-Loss" class="headerlink" title="Balanced L1 Loss"></a>Balanced L1 Loss</h2><p>遵循 Fast R-CNN 中的分类和目标定位的损失，定义如下，<br>$$L_{p,u,t^u,v}=L_{cls}(p,u) + \lambda [u\ge 1] L_{loc}(t^u,v)$$<br>上式为单个样本的损失，其中，预测和 target 分别记为 p 和 u。t<sup>u</sup> 表示回归预测，v 表示回归 target。$\lambda$ 为平衡系数。我们称损失大于等于 1.0 的样本为外点 outliers，损失小于 1.0 的样本为内点 inliers。</p>
+<p>由于回归 target 值是无界的，如果直接增大 $\lambda$ 会使得模型对 outliers 更为敏感，outliers 可以视作困难样本（困难样本可以认为是误差较大的样本），由于较大的损失使得梯度也较大，这对训练过程是不利的。Inliers 可以看作简单样本，与 outliers 相比，其梯度贡献较小，具体而言，inliers 平均每个样本仅贡献了 30% 的梯度，基于这些考虑，我们提出均衡 L1 损失，从传统的 smooth L1 损失演变而来，记为 $L_b$。设置一个拐点分离 inliers 和 outliers，并使用最大值 1.0 来剃平 outliers 的较大梯度，如图 5(a) 所示,<br><img src="/images/libra-rcnn_fig5.png" alt><center>横坐标 regression error 为 |x|，参见下文中的说明</center></p>
+<p>均衡 L1 损失的核心思想是提升关键的回归梯度，也就是来自 inliers 的梯度，使得所有样本的所有任务的梯度达到平衡。使用均衡 L1 损失的定位损失为，<br>$$L_{loc}=\sum_{i \in {x,y,w,h}} L_b (t_i^u-v_i)$$<br>相关的梯度满足，<br>$$\frac {\partial L_{loc}} {\partial w} \propto \frac {\partial L_b} {\partial t_i^u} \propto \frac {L_b} x$$<br>上式中，w 表示网络权重参数（我是这么认为的），x 表示 $t_i^u - v_i$，因为 smooth L1 损失就是这么表示的，回顾一下 smooth L1 损失，其定义如下，<br>$$L_{loc}(t^u, v) = \sum_{x,y,w,h} smooth_{L_1} (t_i^u-v_i)$$<br>其中，<br>$$smooth_{L_1}(x)=\begin{cases} 0.5 x^2 &amp; |x|&lt;1<br>\\ |x|-0.5 &amp; otherwise \end{cases}$$<br>于是 smooth L1 损失对应的梯度为，<br>$$\frac {\partial L_1} {\partial |x|} = \begin{cases} |x| &amp; |x|&lt;1<br>\\ 1 &amp; |x| \ge 1 \end{cases}$$<br>我们将 |x| 看作是回归误差（regression error），显然误差总是非负的。现在，我们要想提升 inliers 的梯度，也就是 |x|&lt;1  的梯度（因为 |x|&lt;1 表示样本损失较小），首先对于 smooth L1 损失在 |x|&lt;1 范围内的梯度为 $\nabla_{|x|} L = |x|$ 也就是一条经过 (0,0) 和 (1,1) 的线段，要提高这个范围内的梯度，很自然的想法是位于直线 y=x 上方的曲线，当然曲线必须要经过原点(0,0)，表示预测与 target 相等即误差为零时损失也为零，为了与 $|x| \ge 1$ 的梯度保持连续，梯度曲线仍然经过 (1,1) 点，同时还要保持单调递增，这说明曲线是 <strong>上凹</strong> 的，满足这些特性的一组曲线其函数为，<br>$$\frac {\partial L_b} {\partial x} = \begin{cases} \alpha \ln (b|x|+1) &amp; |x|&lt;1<br>\\ \gamma &amp; otherwise \end{cases}$$<br>其中 $\alpha$ 越小，对 inliers 的梯度提升越大，$\gamma$ 控制 outliers 的梯度，或者说整个梯度的上限，$\gamma$ 参数用于平衡回归损失和分类损失，平衡后的梯度曲线如图 5(a)所示。参数 b 则用于确保损失在 |x|=1 处连续，对梯度积分得到损失函数为，<br>$$L_b(x)=\begin{cases} \frac \alpha b (b|x|+1) \ln (b|x|+1) - \alpha |x| &amp; |x| &lt; 1<br>\\ \gamma |x| + C &amp; otherwise \end{cases}$$<br>根据损失在 |x|=1 处连续，得到<br>$$\frac \alpha b (b+1) \ln (b+1) - \alpha=(\alpha + \frac \alpha b) \ln(b+1) -\alpha = \gamma + C$$<br>由于 C 可以是任意常数，所以可令 $C=\frac \alpha b \ln(b+1) -\alpha$，于是有<br>$$\alpha \ln (b+1)=\gamma$$<br>解得，<br>$$b=e^{\gamma / \alpha} -1<br>\\ C=\gamma/b-\alpha$$</p>
+<p>损失函数曲线如图 5(b) 所示。</p>
+<h1 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h1><p>实验部分略</p>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>提出了 Libra R-CNN，包含三点：</p>
+<ol>
+<li>IoU balanced sampling</li>
+<li>balanced feature pyramid</li>
+<li>balanced L1 loss</li>
+</ol>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li>Training Region-based Object Detectors with Online Hard Example Mining. Abhinav Shrivastava</li>
+<li>Non-local neural networks. Xiaolong Wang</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/02/gcc-src/" rel="next" title="gcc-src">
+                <i class="fa fa-chevron-left"></i> gcc-src
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shajianjian</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#样本不平衡"><span class="nav-number">1.1.</span> <span class="nav-text">样本不平衡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特征不平衡"><span class="nav-number">1.2.</span> <span class="nav-text">特征不平衡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优化目标不平衡"><span class="nav-number">1.3.</span> <span class="nav-text">优化目标不平衡</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Methodology"><span class="nav-number">2.</span> <span class="nav-text">Methodology</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#IoU-balanced-Sampling"><span class="nav-number">2.1.</span> <span class="nav-text">IoU-balanced Sampling</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SOURCE-CODE"><span class="nav-number">2.1.1.</span> <span class="nav-text">SOURCE CODE</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Balanced-Feature-Pyramid"><span class="nav-number">2.2.</span> <span class="nav-text">Balanced Feature Pyramid</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#获取均衡语义特征"><span class="nav-number">2.2.1.</span> <span class="nav-text">获取均衡语义特征</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#精修均衡语义特征"><span class="nav-number">2.2.2.</span> <span class="nav-text">精修均衡语义特征</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Balanced-L1-Loss"><span class="nav-number">2.3.</span> <span class="nav-text">Balanced L1 Loss</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiments"><span class="nav-number">3.</span> <span class="nav-text">Experiments</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">4.</span> <span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

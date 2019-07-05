@@ -51,7 +51,7 @@ $$\mathbf s = \mathbf F_{ex}(\mathbf {z,W})=\sigma (\mathbf W_2 \delta(\mathbf W
 
 $$\tilde {\mathbf X_i^c}=\mathbf F_{scale}(\mathbf X_i^c, s_c)=s_c \cdot \mathbf X_i^c$$
 
-最后的特征为 $\tilde {\mathbf X_i}=[\tilde {\mathbf X_i^1},...,\tilde {\mathbf X_i^C]}$。
+最后的特征为 $\tilde {\mathbf X_i}=[\tilde {\mathbf X_i^1},...,\tilde {\mathbf X_i^C}]$。
 
 ### 网络配置
 分别使用 VGG 和 ResNet 作为 M2Det 的 backbone，backbone 使用 ImageNet2012 进行预训练。MLFPN 包含 8 个 TUM，每个 TUM 包含 5 个 convs 和 5 个上采样操作，故共输出 6 个 scale 的 features。为了降低参数量，TUM 的每个 scale 的特征仅使用 256 个通道，参见图 4 (c) 中最上面一排。整个网络的输入大小遵循原始的 SSD, RefineDet 和 RetinaNet，分别为 320, 512 和 800。
