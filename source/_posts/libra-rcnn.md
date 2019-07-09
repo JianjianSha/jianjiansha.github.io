@@ -4,7 +4,7 @@ date: 2019-07-03 20:07:44
 tags: object detection
 mathjax: true
 ---
-论文 [Libra R-CNN: Towards Balanced Learning for Object Detection]()
+论文 [Libra R-CNN: Towards Balanced Learning for Object Detection](https://arxiv.org/abs/1904.02701)
 
 # Introduction
 当前大多数目标检测器无论是 one-stage 还是 two-stage，其训练范式都是 image 上区域选择（以下使用原英文单词 Region 表示），从 region 抽取特征，以及联合目标分类和定位的多任务目标函数优化。基于此训练范式，有如下三点关于训练是否成功：

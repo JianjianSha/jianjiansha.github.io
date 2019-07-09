@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="论文 DSOD: Learning Deeply Supervised Object Detectors from Scratch Introduction近几年来提出了很多新型 CNN 网络结构，如 Inception、ResNet 以及 DenseNet 等，带动了包括目标检测在内的诸多 CV 任务的发展。通常来讲，目标检测都是在 backbone 后增加检测子网络，backbone 在分类">
+<meta name="keywords" content="object detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DSOD">
+<meta property="og:url" content="https://shajianjian.github.io/2019/07/08/DSOD/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="论文 DSOD: Learning Deeply Supervised Object Detectors from Scratch Introduction近几年来提出了很多新型 CNN 网络结构，如 Inception、ResNet 以及 DenseNet 等，带动了包括目标检测在内的诸多 CV 任务的发展。通常来讲，目标检测都是在 backbone 后增加检测子网络，backbone 在分类">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/DSOD_fig1.png">
+<meta property="og:updated_time" content="2019-07-09T11:04:37.970Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DSOD">
+<meta name="twitter:description" content="论文 DSOD: Learning Deeply Supervised Object Detectors from Scratch Introduction近几年来提出了很多新型 CNN 网络结构，如 Inception、ResNet 以及 DenseNet 等，带动了包括目标检测在内的诸多 CV 任务的发展。通常来讲，目标检测都是在 backbone 后增加检测子网络，backbone 在分类">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/DSOD_fig1.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://shajianjian.github.io/2019/07/08/DSOD/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>DSOD | SJJ</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SJJ</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/08/DSOD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">DSOD
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-08 09:14:40" itemprop="dateCreated datePublished" datetime="2019-07-08T09:14:40+08:00">2019-07-08</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-09 19:04:37" itemprop="dateModified" datetime="2019-07-09T19:04:37+08:00">2019-07-09</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>论文 <a href="https://arxiv.org/abs/1708.01241" target="_blank" rel="noopener">DSOD: Learning Deeply Supervised Object Detectors from Scratch</a></p>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>近几年来提出了很多新型 CNN 网络结构，如 Inception、ResNet 以及 DenseNet 等，带动了包括目标检测在内的诸多 CV 任务的发展。通常来讲，目标检测都是在 backbone 后增加检测子网络，backbone 在分类 benchmark 如 ImageNet 进行预训练，然后使用目标检测数据集对整个网络进行 fine-tune，也就是所谓的迁移学习。但是这种设计范式具有三个不足之处：</p>
+<ol>
+<li>有限的结构设计空间。基于 ImageNet 预训练的 backbone 通常是较为庞大的网络，参数量巨大，所以用在目标检测时，不容易调整网络结构。</li>
+<li>学习偏向性。由于分类和目标检测任务两者的损失函数以及分类分布情况均不相同，导致不同的搜索/优化空间，对目标检测任务而言，模型学习可能偏向一个局部最优解。</li>
+<li>领域不匹配。fine-tuning 虽然可以缓和不同数据集的不同分类分布，但是当源域（ImageNet）与目标域（深度图像，医学图像等）有着严重不匹配时，这依然是个问题。</li>
+</ol>
+<p>于是我们考虑两个问题：目标检测网络是否可以 train from scratch？如果可以，是否存在一些网络结构设计原则使得保持高检测准确率的同时让网络轻量？我们提出深度监督目标检测器 DSOD 以满足以上两个问题。</p>
+<h1 id="DSOD"><a href="#DSOD" class="headerlink" title="DSOD"></a>DSOD</h1><h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>DSOD 与 SSD 类似，是一个多尺度的无 proposal（one-stage）的目标检测网络。DSOD 结构分为两部分：用于抽取特征的 backbone 子网络，以及在多尺度响应图（response maps）上预测子网络（这里也称前端子网络）。backbone 是深度监督的 DenseNet 的变体（深度监督指的是对网络隐藏层和输出层直接使用目标检测数据集监督训练，而不是先使用 ImageNet 预训练，再使用目标检测数据集 fine-tune），这个 DenseNet 组成包括一个 stem block，四个 dense block，两个 transition layer 以及两个不带池化层的 transition layer。前端子网络使用一个dense结构融合了多尺度预测响应，如图 1 展示了 DSOD 前端子网络，以及 SSD 中使用的朴素多尺度预测 maps 结构。<br><img src="/images/DSOD_fig1.png" alt><center>Fig 1: 预测子网络。左边是 SSD 中所用的朴素结构；右边是 dense 结构</center></p>
+<p>整个 DSOD 网络结构如表 1 所示。</p>
+<table>
+<thead>
+<tr>
+<th align="center">Layers</th>
+<th align="center">Output Size (Input 3x100x100)</th>
+<th align="center">DSOD</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Stem Convolution</td>
+<td align="center">64x150x150</td>
+<td align="center">3x3 conv, stride 2</td>
+</tr>
+<tr>
+<td align="center">Stem Convolution</td>
+<td align="center">64x150x150</td>
+<td align="center">3x3 conv, stride 1</td>
+</tr>
+<tr>
+<td align="center">Stem Convolution</td>
+<td align="center">128x150x150</td>
+<td align="center">3x3 conv, stride 1</td>
+</tr>
+<tr>
+<td align="center">Stem Convolution</td>
+<td align="center">128x75x75</td>
+<td align="center">2x2 max pool, stride 2</td>
+</tr>
+<tr>
+<td align="center">Dense Block (1)</td>
+<td align="center">416x75x75</td>
+<td align="center">$\begin{bmatrix} 1 \times 1 &amp; conv \ 3 \times 3 &amp; conv\end{bmatrix} \times 6$</td>
+</tr>
+<tr>
+<td align="center">Transition Layer (1)</td>
+<td align="center">416x75x75 <br> 416x38x38</td>
+<td align="center">1x1 conv <br> 2x2 max pool, stride 2</td>
+</tr>
+<tr>
+<td align="center">Dense Block (2)</td>
+<td align="center">800x38x38</td>
+<td align="center">$\begin{bmatrix} 1 \times 1 &amp; conv \ 3 \times 3 &amp; conv\end{bmatrix} \times 8$</td>
+</tr>
+<tr>
+<td align="center">Transition Layer (2)</td>
+<td align="center">800x38x38 <br> 800x19x19</td>
+<td align="center">1x1 conv <br> 2x2 max pool, stride 2</td>
+</tr>
+<tr>
+<td align="center">Dense Block (3)</td>
+<td align="center">1184x19x19</td>
+<td align="center">$\begin{bmatrix} 1 \times 1 &amp; conv \ 3 \times 3 &amp; conv\end{bmatrix} \times 8$</td>
+</tr>
+<tr>
+<td align="center">Transition w/o Pooling Layer (1)</td>
+<td align="center">1184x19x19</td>
+<td align="center">1x1 conv</td>
+</tr>
+<tr>
+<td align="center">Dense Block (4)</td>
+<td align="center">1568x19x19</td>
+<td align="center">$\begin{bmatrix} 1 \times 1 &amp; conv \ 3 \times 3 &amp; conv\end{bmatrix} \times 8$</td>
+</tr>
+<tr>
+<td align="center">Transition w/o Pooling Layer (2)</td>
+<td align="center">1568x19x19</td>
+<td align="center">1x1 conv</td>
+</tr>
+<tr>
+<td align="center">DSOD Prediction Layers</td>
+<td align="center">-</td>
+<td align="center">Plain/Dense</td>
+</tr>
+</tbody></table>
+<center>Table 1: DSOD 结构 </center>
+
+<p>DSOD 设计原则如下：</p>
+<h3 id="无-Proposal"><a href="#无-Proposal" class="headerlink" title="无 Proposal"></a>无 Proposal</h3><p>我们调查了如下三类 SOTA 的目标检测器：</p>
+<ol>
+<li>R-CNN 和 Fast R-CNN，使用外部目标 proposal 生成器如 selective search。</li>
+<li>Faster R-CNN 和 R-FCN 使用 RPN 生成 region proposals</li>
+<li>YOLO 和 SSD，属于 single-shot 不生成 proposals（proposal-free），直接回归得到目标位置。</li>
+</ol>
+<p>发现仅第三类（proposal-free）方法可以在没有预训练模型的情况下收敛成功。我们猜测这是由于前两类方法中的 RoI pooling 从每个 region proposal 中生成特征，这个 pooling 阻碍了梯度从 region 到 conv feature 的平滑反向传播。基于 proposal 的方法在有预训练的情况下工作良好是因为 RoI pooling 之前的 layers 的参数初始化足够好，而在 train from scratch 时由于没有预训练，所以那些 layers 参数初始化不够好，并在训练过程中梯度无法平法的反向传播过去，导致无法很好的更新这部分 layers 的参数。</p>
+<p>于是，第一个设计原则为：training from scratch 需要 proposal-free 网络。</p>
+<h3 id="深度监督"><a href="#深度监督" class="headerlink" title="深度监督"></a>深度监督</h3><p>中心思想是使用统一的目标函数对网络最初的隐藏层进行直接监督。这里我们使用密集层间连接如同 DenseNets 中那样来增强深度监督，即在一个 block 中当前 layer 与前面所有 layers 均有直接连接（也称 dense block），DenseNet 中初始的 layers 可通过 skip connections 得到来自目标函数的额外监督，所以只需要一个位于网络顶层的目标函数即可实现深度监督，并且能缓和梯度消失的问题。在 DenseNet 中，每个 transition layer 均包含池化层，所以要维持相同尺度的输出并增加网络深度，那么只能在 dense block 内部增加 layers，而我们所用的 Transition w/o pooling layer 由于不带有池化层，故消除了这种限制。</p>
+<h3 id="Stem-Block"><a href="#Stem-Block" class="headerlink" title="Stem Block"></a>Stem Block</h3><p>Stem block 包含三个 3x3 卷积以及一个 2x2 最大值池化，其中第一个卷积步幅为 2。这个 stem block 明显提高了我们实验性能，相比较于 DenseNet 中的原始设计（7x7 卷积步幅为 2，后跟一个步幅为 2 的 3x3 最大值池化），stem block 可以降低输入 image 中的信息损失。</p>
+<h3 id="密集预测结构"><a href="#密集预测结构" class="headerlink" title="密集预测结构"></a>密集预测结构</h3><p>图 1 展示了两种预测子结构：1. 朴素结构（源于 SSD）以及 2. 我们提出的密集结构。输入 image 大小为 300x300，6 种不同尺度的 feature maps 用于预测目标，其中 Scale-1 feature maps 来自 backbone 中间层，此 feature maps 尺度最大，为 38x38，用于小目标预测，其余五个尺度的 feature maps 来自于 backbone 之后的子结构。这个子结构构造方法为：如图 1 右边仅靠中心竖线的虚线框，相邻两个尺度 feature maps 之间使用 transition layer 连接起来，这个 transition layer 具有 bottleneck 结构：一个 1x1 卷积用于降低 previous scale 的 feature maps 的通道数，以及一个 3x3 卷积下采样得到 next scale 的 feature maps。</p>
+<p>在图 1 中所示的 SSD 原始预测子结构中，每个尺度的特征均由上一个尺度的特征直接转变而来。我们提出的预测子结构是一个密集结构，融合了多尺度特征。为简单起见，限制每个尺度输出相等通道的 feature maps 用于预测。在 DSOD 中，除 scale-1 之外的每个尺度中，feature maps 有一半是通过一系列的 conv 从上一尺度中学习而来，这一系列的 conv 即图 1 右边仅靠中心竖线的虚线框所标注，剩余的一半 feature maps 则直接从相邻的高分辨率的 feature maps 中降采样得到，图 1 中最右边的虚线框标注，这个降采样包含 2x2 步幅为 2 的 max pooling，以及一个 1x1 步幅为 1 的 conv，其中 max pooling 是为了两边的 feature maps 的分辨率匹配从而能够 concatenate 起来，而 1x1 conv 则是为了将 feature maps 的通道数降为一半。max pooling 层位于 1x1 conv 之前可以降低计算损害。对每个 scale 而言，仅学习一半的新 feature maps，并重新利用一半的 previous feature maps。</p>
+<h1 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h1><p>实验部分略，可阅读原文以获取详细信息。</p>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>提出 DSOD 用于 training from scratch，而这总训练方式适合 single-shot 的目标检测器，在 SSD 基础上，使用 DenseNet 作为 backbone，同时预测子网络也采用类似 DenseNet 的密集连接网络，实现了深度监督。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/03/libra-rcnn/" rel="next" title="libra-rcnn">
+                <i class="fa fa-chevron-left"></i> libra-rcnn
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/08/mask-rcnn/" rel="prev" title="mask-rcnn">
+                mask-rcnn <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shajianjian</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DSOD"><span class="nav-number">2.</span> <span class="nav-text">DSOD</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#结构"><span class="nav-number">2.1.</span> <span class="nav-text">结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#无-Proposal"><span class="nav-number">2.1.1.</span> <span class="nav-text">无 Proposal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#深度监督"><span class="nav-number">2.1.2.</span> <span class="nav-text">深度监督</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stem-Block"><span class="nav-number">2.1.3.</span> <span class="nav-text">Stem Block</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#密集预测结构"><span class="nav-number">2.1.4.</span> <span class="nav-text">密集预测结构</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiments"><span class="nav-number">3.</span> <span class="nav-text">Experiments</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">4.</span> <span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
