@@ -246,13 +246,13 @@ Tensor& empty_out(Tensor& result, IntList size) {
    }
    ```
    调用这个 Tensor 的类型方法 resize_，以 CPUByteType.cpp 为例，定义如下
-   ```
+   ```c++
    Tensor & CPUByteType::resize_(Tensor & self, IntList size) const {
        return at::native::resize_cpu_(/* actuals */ self, size);
    }
    ```
-   可见，对 Tensor 按给定 size 进行 resize 操作，这个 resize_cpu_ 方法定义为，
-   ```
+   可见，对 Tensor 按给定 size 进行 resize 操作，这个位于 aten/src/ATen/native/Resize.cpp 中的 resize_cpu_ 方法定义为，
+   ```c++
    Tensor& resize_cpu_(Tensor& self, IntList size) {
        auto* self = self.unsafeGetTensorImpl();         // 获取 Tensor 的底层实现类对象
        // 按给定 size 大小对 Tensor 进行 resize，当 size 大小比 Tensor size 大时，才分配一个更大的内存块
@@ -261,6 +261,95 @@ Tensor& empty_out(Tensor& result, IntList size) {
        return self;
    }
    ```
+   上面这个代码片段中，resize_impl_cpu_ 表示以 cpu 实现方式进行内存 resize 操作，此函数定义位于 aten/src/ATen/native/Resize.h 下，
+   ```c++
+   inline TensorImpl* resize_impl_cpu_(
+       TensorImpl* self,
+       IntList size,
+       c10::optional<IntList> stride) {
+       if (self->sizes() == size && (!stride || self->strides() == stride)) {
+           // 如果当前 size 与将要重新分配 size 相等，且未指定新的步幅，或者当前数据步幅与新的步幅相等，那么无需重新分配内存
+           // size 是整型列表，size 相等意味着列表元素数量相等，且对应位置的元素均相等
+           return self;
+       }
+       int64_t storage_size = 1;
+       ...
+       if(!stride){     // 未指定步幅，则数据布局是近邻的，连续的，即，stride=1
+           self->set_sizes_contiguous(size);    // 设置当前 size 为新的 size
+           storage_size = self->numel();        // 设置 size 之后，计算元素数量，例如 size 为 (n1,n2,n3)，那么元素数量为 n1 * n2 * n3
+       }
+       maybe_resize_storage_cpu(self, storage_size);    // resize 操作
+   }
+   
+   static inline void maybe_resize_storage_cpu(TensorImpl* self, int64_t new_size) {
+       ...
+       if (new_size+self->storage_offset() > self->storage().numel()) {
+           // self->storage_offset() 通常返回 0
+           // 只有需要更多的元素数量时，才重新分配内存
+           THStorage_resize(THTensor_getStoragePtr(self), new_size+self->storage_offset());
+       }
+   }
+   ```
+   我们再来看位于 aten/src/TH/THStorageFunctions.cpp 中的 THStorage_resize 函数定义，
+   ```c++
+   void THStorage_resize(THStorage* storage, ptrdiff_t size) {
+       if (storage->resizable()) {
+           at::DataPtr new_data;
+           if (size != 0) {
+               new_data = storage->allocator()->allocate(storage->itemsize()*size);
+           }
+           // 旧数据为 Tensor 已经存储的数据，新数据为上一步新分配的内存
+           // 设置 Tensor 内部存储指向新数据，同时返回旧数据
+           at::DataPtr old_data = storage->set_data_ptr(std::move(new_data));
+           ptrdiff_t old_size = storage->numel();   // 旧数据 size，元素数量
+           storage->set_numel(size);                // 设置新的元素熟路
+           if (old_data != nullptr) {
+               ptrdiff_t copy_size = old_size;
+               if (storage->numel() < copy_size) {
+                   copy_size = storage_numel();
+               }
+               if (copy_size > 0) {                 // 内存数据考虑
+                   memcpy(
+                       storage->data(),
+                       old_data.get(),
+                       storage->itemsize() * copy_size);
+               }
+           }
+       }
+       ...
+   }
+   ```
+   从上面的代码片段可见整个 resize 过程，假设原先元素数量为 N1，resize 后的元素数量为 N2，那么
+   1. N1 >= N2，不重新分配内存，仅仅设置新的 size，标记原来 N1 个元素中前 N2 个元素处于当前使用中
+   2. N1 < N2，重新分配内存，并将原来 N1 个元素值拷贝到新内存中前 N1 个位置上，剩余的元素值由 Tensor 内部存储的内存分配器 allocator 决定。
+
+实验验证上述 torch.empty 过程，代码如下，
+```python
+import torch
+
+x=torch.rand(3,4)
+print(x)
+torch.empty(4,5,out=x)  # resize 到一个较大的 size
+print(x)
+torch.empty(1,2,out=x)  # resize 到一个较小的 size
+print(x)
+torch.empty(4,4,out=x)  # 再次 resize 到一个较大的 size
+```
+本次输出如下，从以下结果可以看出是符合上述过程的。
+```
+tensor([[0.0446, 0.1545, 0.5059, 0.6027],
+        [0.4872, 0.4557, 0.1010, 0.2962],
+        [0.0576, 0.1087, 0.3033, 0.4694]])
+tensor([[4.4638e-02, 1.5454e-01, 5.0591e-01, 6.0266e-01, 4.8720e-01],
+        [4.5573e-01, 1.0103e-01, 2.9619e-01, 5.7569e-02, 1.0874e-01],
+        [3.0331e-01, 4.6944e-01, 0.0000e+00, 0.0000e+00,        nan],
+        [0.0000e+00, 1.4013e-45, 0.0000e+00, 1.4013e-45, 0.0000e+00]])
+tensor([[0.0446, 0.1545]])
+tensor([[0.0446, 0.1545, 0.5059, 0.6027],
+        [0.4872, 0.4557, 0.1010, 0.2962],
+        [0.0576, 0.1087, 0.3033, 0.4694],
+        [0.0000, 0.0000,    nan, 0.0000]])
+```
 ### 无输出 Tensor
 直接按给定的 size 参数新建一个 Tensor，具体过程略。
 
