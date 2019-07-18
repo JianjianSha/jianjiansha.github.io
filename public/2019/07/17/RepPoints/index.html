@@ -96,22 +96,21 @@
 
 
 
-  <meta name="description" content="论文 Mask R-CNN Introduction这是一篇实例分割的文章。实例分割结合了目标检测和语义分割，这看似是需要一个复杂的模型才能完成的任务，实际上本文提出的 Mask R-CNN 出奇的简单灵活且高效。   Mask R-CNN 是对 Faster R-CNN 的扩展，增加了一个分支用于预测每个 RoI 的分割掩模（segmentation masks），如图 1，这个分支与原先的分类">
+  <meta name="description" content="论文 RepPoints: Point Set Representation for Object Detection 大多数目标检测器使用 bbox 表示目标的位置，但是本文认为 bbox 对目标的位置描述较为粗糙，所以提出了一种新型的更加精确的目标表示方法 RepPoints（representative points），RepPoints 使用一组采样点进行目标定位和识别。通过训练给定目标的">
 <meta name="keywords" content="object detection">
 <meta property="og:type" content="article">
-<meta property="og:title" content="mask-rcnn">
-<meta property="og:url" content="https://shajianjian.github.io/2019/07/08/mask-rcnn/index.html">
+<meta property="og:title" content="RepPoints">
+<meta property="og:url" content="https://shajianjian.github.io/2019/07/17/RepPoints/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="论文 Mask R-CNN Introduction这是一篇实例分割的文章。实例分割结合了目标检测和语义分割，这看似是需要一个复杂的模型才能完成的任务，实际上本文提出的 Mask R-CNN 出奇的简单灵活且高效。   Mask R-CNN 是对 Faster R-CNN 的扩展，增加了一个分支用于预测每个 RoI 的分割掩模（segmentation masks），如图 1，这个分支与原先的分类">
+<meta property="og:description" content="论文 RepPoints: Point Set Representation for Object Detection 大多数目标检测器使用 bbox 表示目标的位置，但是本文认为 bbox 对目标的位置描述较为粗糙，所以提出了一种新型的更加精确的目标表示方法 RepPoints（representative points），RepPoints 使用一组采样点进行目标定位和识别。通过训练给定目标的">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://shajianjian.github.io/images/mask-rcnn_fig1.png">
-<meta property="og:image" content="https://shajianjian.github.io/images/mask-rcnn_fig3.png">
-<meta property="og:image" content="https://shajianjian.github.io/images/mask-rcnn_fig4.png">
-<meta property="og:updated_time" content="2019-07-09T10:57:27.936Z">
+<meta property="og:image" content="https://shajianjian.github.io/images/RepPoints_fig1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/RepPoints_fig2.png">
+<meta property="og:updated_time" content="2019-07-18T11:22:42.079Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="mask-rcnn">
-<meta name="twitter:description" content="论文 Mask R-CNN Introduction这是一篇实例分割的文章。实例分割结合了目标检测和语义分割，这看似是需要一个复杂的模型才能完成的任务，实际上本文提出的 Mask R-CNN 出奇的简单灵活且高效。   Mask R-CNN 是对 Faster R-CNN 的扩展，增加了一个分支用于预测每个 RoI 的分割掩模（segmentation masks），如图 1，这个分支与原先的分类">
-<meta name="twitter:image" content="https://shajianjian.github.io/images/mask-rcnn_fig1.png">
+<meta name="twitter:title" content="RepPoints">
+<meta name="twitter:description" content="论文 RepPoints: Point Set Representation for Object Detection 大多数目标检测器使用 bbox 表示目标的位置，但是本文认为 bbox 对目标的位置描述较为粗糙，所以提出了一种新型的更加精确的目标表示方法 RepPoints（representative points），RepPoints 使用一组采样点进行目标定位和识别。通过训练给定目标的">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/RepPoints_fig1.png">
 
 
 
@@ -119,7 +118,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/2019/07/08/mask-rcnn/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/07/17/RepPoints/">
 
 
 
@@ -129,7 +128,7 @@
   };
 </script>
 
-  <title>mask-rcnn | SJJ</title>
+  <title>RepPoints | SJJ</title>
   
 
 
@@ -345,7 +344,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/08/mask-rcnn/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/17/RepPoints/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="shajianjian">
@@ -362,7 +361,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">mask-rcnn
+          <h1 class="post-title" itemprop="name headline">RepPoints
 
               
             
@@ -388,7 +387,7 @@
                 
               
 
-              <time title="创建时间：2019-07-08 17:39:57" itemprop="dateCreated datePublished" datetime="2019-07-08T17:39:57+08:00">2019-07-08</time>
+              <time title="创建时间：2019-07-17 16:05:41" itemprop="dateCreated datePublished" datetime="2019-07-17T16:05:41+08:00">2019-07-17</time>
             
 
             
@@ -405,7 +404,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-07-09 18:57:27" itemprop="dateModified" datetime="2019-07-09T18:57:27+08:00">2019-07-09</time>
+                <time title="修改时间：2019-07-18 19:22:42" itemprop="dateModified" datetime="2019-07-18T19:22:42+08:00">2019-07-18</time>
               
             
           </span>
@@ -439,42 +438,37 @@
       
 
       
-        <p>论文 <a href="https://arxiv.org/abs/1703.06870" target="_blank" rel="noopener">Mask R-CNN</a></p>
-<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>这是一篇实例分割的文章。实例分割结合了目标检测和语义分割，这看似是需要一个复杂的模型才能完成的任务，实际上本文提出的 Mask R-CNN 出奇的简单灵活且高效。  </p>
-<p>Mask R-CNN 是对 Faster R-CNN 的扩展，增加了一个分支用于预测每个 RoI 的分割掩模（segmentation masks），如图 1，这个分支与原先的分类和回归分支并列。mask 分支在 RoI 上以 pixel-to-pixel 方式预测得到一个 segmentation mask，有语义分割背景的话，不难想象 mask 分支应是一个全卷积网络 FCN。如何构建这个 mask 分支则至关重要。<br><img src="/images/mask-rcnn_fig1.png" alt></p>
-<p>Faster R-CNN 的网络输入和输出之间不是点与点对齐，这是由于 RoIPool 层在抽取特征时使用了离散化空间坐标（坐标值必须为整数，RoI 坐标从输入 image 平面映射到 feature map 时，坐标变为原来的 1/16，并四舍五入取整），而 mask 分支是 pixel-wise 的，所以必须要解决这个不对齐问题，为此我们提出了 RoIAlign 层以保持准确的空间位置，这个改动虽小，但效果却十分明显：提高了大约 10%~50% 的 mask 准确度。  </p>
-<p>另外，有必要将分类预测和 binary mask 预测解耦，每个分类独立进行 binary mask 预测，并根据 RoI 分类分支来确定目标分类。相反在语义分割 FCN 方法中，每个像素位置均进行多分类，这就耦合了分割和分类，如果用在实例分割任务中则表现较差。</p>
-<h1 id="Mask-R-CNN"><a href="#Mask-R-CNN" class="headerlink" title="Mask R-CNN"></a>Mask R-CNN</h1><p>Faster R-CNN 中每个候选区域均对应两个输出：分类标签和坐标偏差。Mask R-CNN 则在此基础上增加第三个输出：目标 binary mask，与前两个输出不同的是，此输出需要非常精确的目标空间位置，这是 Mask R-CNN 的关键点之一。</p>
-<p><strong>Faster R-CNN:</strong> 简单的回顾一下 Faster R-CNN，这是一个 two-stage 目标检测器，其中第一个 stage 为 RPN，用于生成 proposals，第二个 stage 其本质就是 Fast R-CNN，使用 RoIPooling 从每个 proposal 中提取固定长度的特征并进行分类和 bbox 回归。</p>
-<p><strong>Mask R-CNN:</strong> 在 Faster R-CNN 基础上增加第二个 stage 的输出，即为每个 RoI 生成 binary mask。</p>
-<p>训练时，每个 RoI 的损失为 $L=L_{cls}+L_{box}+L_{mask}$，其中分类损失 $L_{cls}$ 和回归损失 $L_{box}$ 均与 Fast/Faster R-CNN 中相同，<br>$$L_{cls}=L_{cls}(p,u)=-\log p_u$$<br>上式为 log loss，proposal 对应的 gt 分类为 u，$p_u$ 为 proposal 分类为 u 对应的置信度（分类得分）。<br>$$L_{loc}=L_{loc}(t^u,v)=\sum_{i \in {x,y,w,h}} smooth_{L_1}(t_i^u,v_i)$$<br>上式为 smooth L1 loss，$t_u$ 为在分类 u 下的 bbox 的四个偏移值，v 表示 gt box 相对 proposal 的偏移 target。<br>mask 分支会为每个 RoI 生成 $Km^2$ 维输出向量，然后对这个输出向量应用 pixel-wise sigmoid，表示 K 个 binary mask，每个 mask 分辨率为 $m \times m$，这里 K 表示所有分类数量，定义 $L_{mark}$ 为平均二值交叉熵损失，记 RoI 的 gt 分类为 k，$L_{mark}$ 仅由第 k 个 binary mask 计算得到，其他 K-1 个 binary mask 均不参与 $L_{mark}$ 的计算，<br>$$L_{mark}=-\frac 1{m^2} \sum_{i=1}^{m^2} \sum_{j=0}^1 [t_i=j] \cdot \log f(s_i^j)=-\frac 1{m^2} \sum_{i=1}^{m^2} [t_i \cdot \log f(s_i) + (1-t_i) \cdot \log (1-f(s_i))]$$<br>其中 $f(\cdot)$ 表示 sigmoid。</p>
-<p><strong>Mask Representation:</strong> 对单个 RoI 而言，无论其大小，对应的分类和 bbox 偏移这两个输出都是固定长度，可由 fc 层输出得到，而 mask 则以 pixel-to-pixel 方式表征 RoI 中目标的空间布局，所以适合使用卷积。事实上，我们正是使用了全卷积网络 FCN 来为每个 RoI 生成 $m \times m$ 空间尺寸的 mask。然而需要注意的是，pixel-to-pixel 的方式要求 RoI 特征能如实地保留每个像素的空间对应关系，于是我们提出 RoIAlign 来解决这个问题。</p>
-<p><strong>RoIAlign:</strong> RoIPool 是从 RoI 中抽取固定长度特征（例如 7x7）的标准方法，首先将浮点数 RoI 量化成整数粒度的 feature map，然后将量化后的 RoI 切分得到一系列空间 bins，每个空间 bin 的大小也是浮点数，所以每个空间 bin 的位置也需要量化，然后将其中的像素值聚合得到这个空间 bin 的值，一般使用最大值池化进行聚合。</p>
-<p>可见前后有两次量化过程，第一次量化是在将 RoI 的坐标 x 从输入 image 平面上映射到特征平面上，在 Faster R-CNN 中，这个特征的 stride 为 16，所以 RoI 在特征平面上的坐标为 $[x/16]$，其中 $[\cdot]$ 表示四舍五入成整数；第二次量化是在计算空间 bin 位置时，假设 RoI 为 $(x_1,y_1,x_2,y_2)$（通常均为浮点数，因为 RPN 中对 anchor 位置进行偏移得到 RoI），一共将 RoI 划分为 7x7 个空间 bins，经过第一次量化后特征平面上 RoI 表示为，<br>$$x_1’=[x_1/16] \quad y_1’=[y_1/16]<br>\quad x_2’=[x_2/16]<br>\quad y_2’=[y_2/16]$$<br>RoI 的大小 和 空间 bin 的大小分别为<br>$$w’=x_2’-x_1’+1<br>\quad h’=y_2’-y_1’+1<br>\\ w^b=w’/7 \quad h^b=h’/7$$<br>对于第 (i,j) 个 bin，其位置为<br>$$x_1^b=\lfloor j \cdot w^b\rfloor \quad y_1^b=\lfloor i \cdot h^b\rfloor \quad x_2^b=\lceil (j+1) \cdot w^b\rceil \quad y_1^b=\lceil (i+1) \cdot h^b\rceil$$</p>
-<p>其中 $0 \le i&lt;7, \ 0\le j&lt;7$。（当然还需要对 bin 的位置十分越界进行检查，这里略）</p>
-<p>两次量化使得 RoI 与抽取到的特征不对齐，这对 pixel-to-pixel 的 mask 而言是非常不利的，所幸 RoIAlign 可以解决这个问题。使用 RoIAlign 代替 RoIPool，避免量化操作，如图 3，<br><img src="/images/mask-rcnn_fig3.png" alt></p>
-<p>特征平面上的 RoI 的位置为 $x/16$，其中每个 bin 采样 4 个位置点，采样位置处的值通过双线性插值计算得到，然后每个 bin 的值使用这四个采样位置的值进行聚合得到（max 或者 average 聚合）。整个过程没有任何量化操作。实验的最终结果对采样位置不敏感，对采样位置的数量也不敏感。</p>
-<p><strong>Network Architecture:</strong> Mask R-CNN 网络组成包括 1. 用于抽取特征的 backbone，2. network head，用于 bbox 分类和回归，以及 mask 预测。</p>
-<p>Backbone 网络的命名法：我们使用了 ResNet 和 ResNeXt（深度为 50 或101）。Faster R-CNN 中使用 ResNet 的 4-th stage 的最后一个 conv 的输出作为特征，这里记为 C4。于是，当 ResNet 为 ResNet-50 时，我们称 backbone 为 ResNet-50-C4。</p>
-<p>我们也研究了其他的 backbone 例如 FPN，FPN 使用 top-down 结构以及横向连接生成 feature pyramid。使用 ResNet-FPN 作为 backbone 时，Mask R-CNN 的准确率以及响应速度均有提升。</p>
-<p>对于 Network head，如图 4，<br><img src="/images/mask-rcnn_fig4.png" alt></p>
-<p>ResNet-C4 作为 backbone 时，后面的 head 结构包含 ResNet 的 5-th stage（即，具有 9 个 conv 的 res5）。ResNet-FPN 作为 backbone 时，由于 backbone 已经包含了 res5，故后面的 head 结构较为简单高效。<br>图 4 左边部分，res5 表示 ResNet 的 5-th stage，为简单起见，作用到 7x7 的 RoI feature maps 上的第一个 conv 的 stride 为 1，而原始 ResNet 中对应的这个 conv 由于作用在（conv4_x 输出的）14x14 feature maps 上，这个 conv 的 stride 为 2，这一点有所不同。</p>
-<h1 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h1><p>实验部分略，请阅读原文。</p>
-<h1 id="Appendix"><a href="#Appendix" class="headerlink" title="Appendix"></a>Appendix</h1><p>有关 mask 分支，这里详细说明一下处理过程。如图 4，mask 分支输出大小为 $(R,K,m,m)$，根据 bbox 回归得到预测 box 的坐标数据，数据块大小为 $(R,4)$，其中 R 为检测到的所有预测 box 的数量，K 为目标分类数量，mxm 为 mask 的空间大小。对于第 i 个 目标，$0 \le i &lt; R$，记预测 box 位置为 $(x_1,y_1,x_2,y_2)$，对于第 k 个分类，记对应的 mask map 为 $M_i^k$，</p>
+        <p>论文 <a href="https://arxiv.org/abs/1904.11490" target="_blank" rel="noopener">RepPoints: Point Set Representation for Object Detection</a></p>
+<p>大多数目标检测器使用 bbox 表示目标的位置，但是本文认为 bbox 对目标的位置描述较为粗糙，所以提出了一种新型的更加精确的目标表示方法 RepPoints（representative points），RepPoints 使用一组采样点进行目标定位和识别。通过训练给定目标的 gt 位置和分类，RepPoints 可以学习自动排布这些点使得这些点能勾画出目标边缘并在语义上确定目标所在区域。这是一种 anchor-free 的目标检测器，避开了 anchor 导致的搜索空间大和 anchor 难于设计等缺点。</p>
+<p>如图 1，<br><img src="/images/RepPoints_fig1.png" alt></p>
+<p>RepPoints 使用一个点集，这个点集中各点位于目标边缘，并且语义上表明了目标所在的局部区域。<del>RepPoints 与其他非矩阵表示的目标检测器区别在于其他目标检测器采用 bottom-up 的方式确定一些独立的点（比如角点或极点），然后依靠手工设计的聚合方法聚合这些点以获得预测 box，而 RepPoints 则是 top-down 的方式从输入 image/目标特征中学习并且能够端到端的训练。</del></p>
+<h1 id="RepPoints"><a href="#RepPoints" class="headerlink" title="RepPoints"></a>RepPoints</h1><h2 id="BBox-表示"><a href="#BBox-表示" class="headerlink" title="BBox 表示"></a>BBox 表示</h2><p>目标 bbox 可表示为 $\mathcal B=(x,y,w,h)$。我们回归一下 multi-stage 目标检测器，每经过一个 stage，目标定位都会得到调整，过程如下，</p>
+<p>bbox anchors -(bbox reg)-&gt;  bbox proposals (S1)<br>             -(bbox reg)-&gt;  bbox proposals (S2)<br>             …<br>             -(bbox reg)-&gt;  bbox object targets</p>
+<p>开始时使用多个具有不同 scale 和 aspect ratio 的 anchors。anchor 中心处的特征（向量）用于预测目标分类的得分（二值分类，前景/背景），以及预测坐标偏差。调整后的 bbox 称为 proposal (S1)。在第二 stage，从 S1 中继续抽取特征，通常是 RoIpooling/RoIAlign，对于 two-stage 目标检测器，S1 中抽取的特征将用于最终的 box 的分类预测和坐标偏差预测。对于 multi-stage 目标检测器，S1 中抽取的特征用于预测生成 S2，逐次进行此过程，直到最后一个 stage 用于预测最终的 bbox target。</p>
+<p>坐标回归预测为一个 4-d 向量 $(\Delta x_p, \Delta y_p, \Delta w_p, \Delta h_p)$，再结合 bbox proposal 的坐标 $\mathcal B_p=(x_p,y_p,w_p,h_p)$ 可解码出调整后的预测 bbox，<br>$$\mathcal B_r=(x_p+w_p \Delta x_p, \ y_p+h_p\Delta y_p, \ w_p e^{\Delta w_p}, \ h_p e^{\Delta h_p})$$</p>
+<p>记目标的 gt 位置为 $\mathcal B_t=(x_t,y_t,w_t,h_t)$，gt 坐标偏差（gt target）为，<br>$$\hat {\mathcal F}(\mathcal B_p, \mathcal B_t)=(\frac {x_t-x_p} {w_p},\ \frac {y_t-y_p} {h_p},\ \log \frac {w_t} {w_p}, \ \log \frac {h_t} {h_p})$$</p>
+<p>回归损失使用 smooth L1 损失。</p>
+<h2 id="RepPoints-1"><a href="#RepPoints-1" class="headerlink" title="RepPoints"></a>RepPoints</h2><p>前文提到，4-d bbox 是一种比较粗糙的目标位置表示，不能反映目标的性质、姿势以及语义上的区域。RepPoints 能够解决这些问题，使用一组自适应采样点，<br>$$\mathcal R = {(x_k,y_k)}_{k=1}^n$$<br>其中 n 为采样点数量，本文设置为 9。</p>
+<p>RepPoints 的坐标调整可表示为，<br>$$\mathcal R_r = {(x_k+\Delta x_k,\ y_k+\Delta y_k)}<em>{k=1}^n \qquad (5)$$<br>其中 ${(\Delta x_k,\ \Delta y_k)}</em>{k=1}^n$ 表示新采样点与旧采样点之间的偏差，refine 旧采样点之后得到新采样点。</p>
+<p><strong>RepPoints 变换到 gt box:</strong> $\mathcal {T: R}_P \rightarrow \mathcal B_P$，其中 $\mathcal R_P$ 表示目标 P 的 RepPoints，$\mathcal T(\mathcal R_p)$ 表示伪 box，变换函数考虑以下三种，</p>
 <ol>
-<li><p>计算第 i 个 box 的宽高<br>$w=x_2-x_1, \ h=y_2-y_1$</p>
+<li><p>Min-max function<br>$\mathcal {T=T_1}$：根据所有 RepPoints 确定横轴和纵轴上的最小最大值，以得到 $\mathcal B_p$</p>
 </li>
-<li><p>将 mask map resize 到 box 宽高的大小  </p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mask=cv2.resize(M_i_k, (w,h))</span><br></pre></td></tr></table></figure>
+<li><p>Partial min-max function<br>$\mathcal {T=T_2}$：根据部分 RepPoints 确定横轴和纵轴上的最小最大值，以得到 $\mathcal B_p$</p>
 </li>
-<li><p>将 mask map 二值化，因为 mask 是 pixel-wise sigmoid 之后的值，介于 (0,1) 之间，所以需要二值化处理  </p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mask=np.array(mask&gt;<span class="number">0.5</span>)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>将 binary mask 映射到原始输入 image 平面。记原始输入 image 的宽高为 (W,H)，于是得到分割 mask  </p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">im_mask=np.zero((H,W), dtype=np.uint8)</span><br><span class="line">im_mask[y1:y2,x1:x2]=mask</span><br></pre></td></tr></table></figure>
-
+<li><p>Moment-based function<br>$\mathcal {T=T_3}$：使用 RepPoints 的期望值和二阶矩（方差）来计算 $\mathcal B_p$ 的中心和 scale，其中 scale 需要乘上全局共享的可学习系数 $\lambda_x, \ \lambda_y$。使用坐标的均值作为 box 的中心，这一点不难理解，RepPoints 为目标边缘的点，故目标越大，RepPoints 坐标的方差越大，两者应该成正比，所以将方差乘以系数可得到目标 size。考虑到任意目标的 RepPoint 都不是固定的，所以系数可以全局共享，并且可通过 point loss 学习得到。</p>
 </li>
 </ol>
+<p><strong>RepPoints 的学习</strong> 学习过程由目标定位损失和目标分类损失驱动。对于定位损失，首先使用上述某个转换函数将 RepPoints 转换为 pseudo box，然后计算与 gt box 之间的距离，这里使用左上角和右下角的 smooth L1 距离作为定位损失。</p>
+<h1 id="RPDet"><a href="#RPDet" class="headerlink" title="RPDet"></a>RPDet</h1><p>类似地，multi-stage 中使用 RepPoints 的目标表示演进过程为，</p>
+<p>object centers -(RP refine)-&gt; RepPoints proposals(S1) -(RP refine)-&gt; RepPoints proposals(S2) … -(RP refine)-&gt; RepPoints object targets</p>
+<p>RPDet (RepPoints Detector) 结构如图 2，<br><img src="/images/RepPoints_fig2.png" alt></p>
+<p>其中 N 表示 RepPoints 的数量。</p>
+<p>采用 FPN backbone，得到的 feature maps，一支经过 3x3 卷积得到 offset field，这是一个与输入 feature maps 相同 spatial size 的 2N-channel 的特征，每个空间位置的 feature vector 是 2N-d 的，表示这个位置处的 offsets，offsets 是用于 deformable conv，同时也是 RepPoints，相当于给 deformable conv 的 offsets 赋予了物理含义，变换这个 offsets 得到 pseudo box，与 gt box 之间的左上和右下两点的 point loss（smooth L1 损失）用于优化这一分支。</p>
+<p>得到的 offsets 用于 deformable conv，然后再经过卷积得到第二组的 offsets，根据 (5) 式得到 refinement 之后的 RepPoints（也就是说第二组的 offsets 其实是 $\Delta x, \Delta y$？），表示最终的目标定位，另一分支经过卷积得到目标分类 score maps。</p>
+<h2 id="与可变形-RoI-pooling-的关系"><a href="#与可变形-RoI-pooling-的关系" class="headerlink" title="与可变形 RoI pooling 的关系"></a>与可变形 RoI pooling 的关系</h2><p>可变形卷积和可变形 RoI pooling 用于改善特征抽取，而 RepPoints 是一种灵活的目标几何表示方式，可以抽取语义特征，从而准确地定位目标。作者认为，可变形 RoI pooling 无法学习到表示目标精确位置的采样点，原因为：假设可以学习到目标位置的几何表示，那么对于同一目标的两个靠的很近的 proposals，可变形 RoI pooling 将生成相同的特征，这表示目标检测器会失败；然而，可变形 RoI pooling 已经通过实验证明可以区分两个靠的很近的 proposals，这说明，可变形 RoI pooling 无法学习到目标的准确位置表示。</p>
+<h1 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h1><p>略</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>本文比较晦涩难懂，需要多读几遍，并且期待作者放出源码。</p>
 
       
     </div>
@@ -514,8 +508,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/07/08/DSOD/" rel="next" title="DSOD">
-                <i class="fa fa-chevron-left"></i> DSOD
+              <a href="/2019/07/17/DetNet/" rel="next" title="DetNet">
+                <i class="fa fa-chevron-left"></i> DetNet
               </a>
             
           </div>
@@ -523,10 +517,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/07/11/cpp-aux-tools/" rel="prev" title="cpp-aux-tools">
-                cpp-aux-tools <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -679,7 +669,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mask-R-CNN"><span class="nav-number">2.</span> <span class="nav-text">Mask R-CNN</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiments"><span class="nav-number">3.</span> <span class="nav-text">Experiments</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Appendix"><span class="nav-number">4.</span> <span class="nav-text">Appendix</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RepPoints"><span class="nav-number">1.</span> <span class="nav-text">RepPoints</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BBox-表示"><span class="nav-number">1.1.</span> <span class="nav-text">BBox 表示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RepPoints-1"><span class="nav-number">1.2.</span> <span class="nav-text">RepPoints</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RPDet"><span class="nav-number">2.</span> <span class="nav-text">RPDet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#与可变形-RoI-pooling-的关系"><span class="nav-number">2.1.</span> <span class="nav-text">与可变形 RoI pooling 的关系</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实验"><span class="nav-number">3.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">4.</span> <span class="nav-text">结论</span></a></li></ol></div>
             
 
           </div>

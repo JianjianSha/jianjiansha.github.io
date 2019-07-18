@@ -26,13 +26,13 @@ DSOD 与 SSD 类似，是一个多尺度的无 proposal（one-stage）的目标�
 | Stem Convolution | 64x150x150                    | 3x3 conv, stride 1|
 | Stem Convolution | 128x150x150                   | 3x3 conv, stride 1|
 | Stem Convolution | 128x75x75                     | 2x2 max pool, stride 2|
-| Dense Block (1)  | 416x75x75                     | $\begin{bmatrix} 1 \times 1 & conv \\ 3 \times 3 & conv\end{bmatrix} \times 6$|
+| Dense Block (1)  | 416x75x75                     | $\begin{bmatrix} 1 \times 1 & conv \\\\ 3 \times 3 & conv\end{bmatrix} \times 6$|
 | Transition Layer (1)| 416x75x75 <br> 416x38x38   | 1x1 conv <br> 2x2 max pool, stride 2|
-| Dense Block (2)  | 800x38x38                     | $\begin{bmatrix} 1 \times 1 & conv \\ 3 \times 3 & conv\end{bmatrix} \times 8$|
+| Dense Block (2)  | 800x38x38                     | $\begin{bmatrix} 1 \times 1 & conv \\\\ 3 \times 3 & conv\end{bmatrix} \times 8$|
 | Transition Layer (2)| 800x38x38 <br> 800x19x19   | 1x1 conv <br> 2x2 max pool, stride 2|
-| Dense Block (3)  | 1184x19x19                    | $\begin{bmatrix} 1 \times 1 & conv \\ 3 \times 3 & conv\end{bmatrix} \times 8$|
+| Dense Block (3)  | 1184x19x19                    | $\begin{bmatrix} 1 \times 1 & conv \\\\ 3 \times 3 & conv\end{bmatrix} \times 8$|
 | Transition w/o Pooling Layer (1)| 1184x19x19     | 1x1 conv          |
-| Dense Block (4)  | 1568x19x19                    | $\begin{bmatrix} 1 \times 1 & conv \\ 3 \times 3 & conv\end{bmatrix} \times 8$|
+| Dense Block (4)  | 1568x19x19                    | $\begin{bmatrix} 1 \times 1 & conv \\\\ 3 \times 3 & conv\end{bmatrix} \times 8$|
 | Transition w/o Pooling Layer (2)| 1568x19x19     | 1x1 conv          |
 | DSOD Prediction Layers | -                       | Plain/Dense       |
 
