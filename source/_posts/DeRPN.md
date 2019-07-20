@@ -2,6 +2,7 @@
 title: DeRPN
 date: 2019-07-15 15:04:18
 tags: object detection
+mathjax: true
 ---
 论文 [DeRPN: Taking a further step toward more general object detection](https://arxiv.org/abs/1811.06700)
 
@@ -13,9 +14,9 @@ DeRPN 通过分离宽度和高度来分解检测维度（维度分解）。利�
 # 方法论
 ## 建模
 我们知道目标检测网络通常都是一个 CNN 网络用于抽取特征，记抽取到的特征为 $\mathbf x$，然后经过两个并行的检测分支：回归和分类，其中回归是在 anchor box （$B_a$）基础上进行回归得到目标位置，而分类分支则在最后的预测值上应用 sigmoid（二分类）或 softmax（多分类），记此函数为 $\sigma$，从而得到 bbox 的分类置信度（概率），用数学语言描述则为：
-$$\mathbf {t = W_t x+b_r}
+$$\mathbf t = \mathbf {W}_t \mathbf x+ \mathbf {b}_r
 \\\\ B(x,y,w,h)=\psi(\mathbf t, B_a(x_a,y_a,w_a,h_a))
-\\\\ P_B=\sigma(\mathbf {W_c x + b_c})$$
+\\\\ P_B=\sigma (\mathbf {W}_c \mathbf x + \mathbf {b}_c)$$
 其中 $\mathbf {W_r, b_r}$ 表示回归分支的权重和偏置，$\mathbf {W_c, b_c}$ 表示分类分支的权重和偏置，$\psi$ 表示预测 box 的位置解码，例如 Faster R-CNN 中根据位置偏差 $\mathbf t$ 和 region proposals 的坐标计算出预测 box 的坐标。
 
 显然由于目标形状的多样性，anchor 的数量会非常大，这不利于训练，而且我们也很难设计出合适的 anchor 形状，所以当 anchor 严重偏离 gt box 时，检测性能下降! 目标检测的维度分解具体是指分离宽度和高度，以减轻目标不同尺度带来的影响。我们引入 anchor string，$(S_a^w(x_a,w_a), S_a^h(y_a,h_a))$，各自分别作为目标宽度和高度的回归参照，anchor string 分别独立预测 $(S_w(x,w), S_h(y,h))$ 以及对应的分类概率 $(P_s^w, P_s^h)$，此过程的数学语言描述为，

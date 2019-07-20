@@ -106,7 +106,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/DetNet_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/DetNet_fig2.png">
-<meta property="og:updated_time" content="2019-07-17T07:20:45.979Z">
+<meta property="og:updated_time" content="2019-07-20T10:39:37.332Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="DetNet">
 <meta name="twitter:description" content="论文 DetNet: A Backbone network for Object Detection 本文创作动机是当前大多数的目标检测器都是在 ImageNet 上预训练后 finetune 到目标检测集，目标检测器的 backbone 原本是为了图像分类任务而设计的，这样的 backbone 显然不是最佳的，较大的下采样率带来较大的感受野 RF，这对图像分类是有益的，对目标检测尤其是小目标而言">
@@ -387,12 +387,24 @@
                 
               
 
-              <time title="创建时间：2019-07-17 10:05:50 / 修改时间：15:20:45" itemprop="dateCreated datePublished" datetime="2019-07-17T10:05:50+08:00">2019-07-17</time>
+              <time title="创建时间：2019-07-17 10:05:50" itemprop="dateCreated datePublished" datetime="2019-07-17T10:05:50+08:00">2019-07-17</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-20 18:39:37" itemprop="dateModified" datetime="2019-07-20T18:39:37+08:00">2019-07-20</time>
               
             
           </span>
@@ -440,7 +452,41 @@
 <li>直接为目标检测量身定制 stage 的数量</li>
 <li>即使 stage 的数量很多，如 6~7 个 stage，对于 deep layer，在保持较大感受野（有利于分类）的同时有较大的分辨率（有利于目标定位）。</li>
 </ol>
-<h2 id="DetNet-设计"><a href="#DetNet-设计" class="headerlink" title="DetNet 设计"></a>DetNet 设计</h2><p>使用 ResNet-50 作为 baseline。在 ResNet-50 的基础之上构建 DetNet-59（类似地也可以在 ResNet-101 基础上构建 DetNet，在本文中这不是重点）。DetNet 的 stage 1,2,3,4 与 ResNet-50 的 stage 1,2,3,4 完全相同。这里给出 ResNet-50 前四个 stage 的结构描述，<br>|   ResNet        | output size | 50-layer             |<br>|:——–:       | :——:    |   :——-:          |<br>| conv1           | 112x112     | 7x7,64, stride 2     |<br>|   maxpool       | 56x56       | 3x3, stride 2        |<br>| conv2_x         | 56x56       | $\begin{bmatrix} 1 \times 1, 64 \\ 3 \times 3, 64 \\ 1 \times 1, 256\end{bmatrix} \times 3$|<br>|conv3_x          | 28x28       | $\begin{bmatrix} 1 \times 1, 128 \\ 3 \times 3, 128 \\ 1 \times 1, 512\end{bmatrix} \times 4$|<br>|conv4_x          | 14x14       | $\begin{bmatrix} 1 \times 1, 256 \\ 3 \times 3, 256 \\ 1 \times 1, 1024\end{bmatrix} \times 6$|</p>
+<h2 id="DetNet-设计"><a href="#DetNet-设计" class="headerlink" title="DetNet 设计"></a>DetNet 设计</h2><p>使用 ResNet-50 作为 baseline。在 ResNet-50 的基础之上构建 DetNet-59（类似地也可以在 ResNet-101 基础上构建 DetNet，在本文中这不是重点）。DetNet 的 stage 1,2,3,4 与 ResNet-50 的 stage 1,2,3,4 完全相同。这里给出 ResNet-50 前四个 stage 的结构描述，</p>
+<table>
+<thead>
+<tr>
+<th align="center">ResNet</th>
+<th align="center">output size</th>
+<th align="center">50-layer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">conv1</td>
+<td align="center">112x112</td>
+<td align="center">7x7,64, stride 2</td>
+</tr>
+<tr>
+<td align="center">maxpool</td>
+<td align="center">56x56</td>
+<td align="center">3x3, stride 2</td>
+</tr>
+<tr>
+<td align="center">conv2_x</td>
+<td align="center">56x56</td>
+<td align="center">$\begin{bmatrix} 1 \times 1 &amp; 64 \\ 3 \times 3 &amp; 64 \\ 1 \times 1 &amp; 256\end{bmatrix} \times 3$</td>
+</tr>
+<tr>
+<td align="center">conv3_x</td>
+<td align="center">28x28</td>
+<td align="center">$\begin{bmatrix} 1 \times 1 &amp; 128 \\ 3 \times 3 &amp; 128 \\ 1 \times 1 &amp; 512\end{bmatrix} \times 4$</td>
+</tr>
+<tr>
+<td align="center">conv4_x</td>
+<td align="center">14x14</td>
+<td align="center">$\begin{bmatrix} 1 \times 1 &amp; 256 \\ 3 \times 3 &amp; 256 \\ 1 \times 1 &amp; 1024\end{bmatrix} \times 6$</td>
+</tr>
+</tbody></table>
 <p>从第五个 stage 开始介绍 DetNet，如图 2 D 所示，DetNet-59 的设计细节如下：<br><img src="/images/DetNet_fig2.png" alt><center>fig 2. DetNet 的结构细节</center></p>
 <ol>
 <li>从上图中可见，我们在 backbone 中引入了 extra stage，即 P6，与 FPN 中一样，也是用于目标检测，只不过，从 stage 4 开始，我们就固定了步幅 16，即每个 stage 的输出空间大小。</li>
@@ -569,7 +615,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

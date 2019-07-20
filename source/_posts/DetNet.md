@@ -24,13 +24,14 @@ DetNet 经过如下设计可解决以上问题：
 
 ## DetNet 设计
 使用 ResNet-50 作为 baseline。在 ResNet-50 的基础之上构建 DetNet-59（类似地也可以在 ResNet-101 基础上构建 DetNet，在本文中这不是重点）。DetNet 的 stage 1,2,3,4 与 ResNet-50 的 stage 1,2,3,4 完全相同。这里给出 ResNet-50 前四个 stage 的结构描述，
+
 |   ResNet        | output size | 50-layer             |
 |:--------:       | :------:    |   :-------:          |
 | conv1           | 112x112     | 7x7,64, stride 2     |
 |   maxpool       | 56x56       | 3x3, stride 2        |
-| conv2_x         | 56x56       | $\begin{bmatrix} 1 \times 1, 64 \\\\ 3 \times 3, 64 \\\\ 1 \times 1, 256\end{bmatrix} \times 3$|
-|conv3_x          | 28x28       | $\begin{bmatrix} 1 \times 1, 128 \\\\ 3 \times 3, 128 \\\\ 1 \times 1, 512\end{bmatrix} \times 4$|
-|conv4_x          | 14x14       | $\begin{bmatrix} 1 \times 1, 256 \\\\ 3 \times 3, 256 \\\\ 1 \times 1, 1024\end{bmatrix} \times 6$|
+| conv2_x         | 56x56       | $\begin{bmatrix} 1 \times 1 & 64 \\\\ 3 \times 3 & 64 \\\\ 1 \times 1 & 256\end{bmatrix} \times 3$|
+|conv3_x          | 28x28       | $\begin{bmatrix} 1 \times 1 & 128 \\\\ 3 \times 3 & 128 \\\\ 1 \times 1 & 512\end{bmatrix} \times 4$|
+|conv4_x          | 14x14       | $\begin{bmatrix} 1 \times 1 & 256 \\\\ 3 \times 3 & 256 \\\\ 1 \times 1 & 1024\end{bmatrix} \times 6$|
 
 从第五个 stage 开始介绍 DetNet，如图 2 D 所示，DetNet-59 的设计细节如下：
 ![](/images/DetNet_fig2.png)<center>fig 2. DetNet 的结构细节</center>

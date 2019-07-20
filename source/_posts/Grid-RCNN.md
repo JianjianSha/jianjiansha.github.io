@@ -1,0 +1,70 @@
+---
+title: Grid-RCNN
+date: 2019-07-19 17:44:19
+tags: object detection
+mathjax: true
+---
+# Grid R-CNN
+论文 [Grid R-CNN](https://arxiv.org/abs/1811.12030)
+
+## 1. 简介
+目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。
+![](/images/Grid-RCNN_fig1.png)
+
+这篇文章介绍了 Grid R-CNN，主要是修改了类 R-CNN 目标检测器的回归分支，与传统类 R-CNN 的区别主要如图 1 所示，即，使用 grid points 表示目标定位：在得到 RoI 特征后，使用全卷积 FCN 得到特征图，然后再通过某种方法得到 grid points。此修改有如下优点：
+1. FCN 保留了 RoI 的空间信息，二维（显然，之前的方法都是展平成了一维向量），所以可准确的得到 grid points
+2. 根据 grid points 可以更加精确的获得目标定位。以前的方法都是通过左上角和右下角坐标确定目标 bbox，这种方法显然较为粗糙，因为目标形状的任意性，角点可能位于目标形状之外的背景上，角点处的局部特征并不能反映目标的特征（ExtremeNet 中也提过 CornerNet 的这个问题），而 grid points 采用 3x3 的点作为监督，由于点数增多，可以降低其中某些不准确点对位置预测的负面影响。如图 1(b)，右上角的坐标不准确，但是中上（top-middle）点可以帮助校正最终的目标位置。
+
+利用 grid points 数量多这个优势，文中还提出一种信息融合方法，为每个 grid point 设计独立的一组 feature maps：对某个 grid point，聚集其邻近 grid point 的 feature maps 并进行融合成，作为当前这个 grid point 的 feature map，这个合成的 feature map 则用于预测当前 grid point 的位置。这种空间信息互补的方法可以使得位置预测更加准确。
+
+## 2. Grid R-CNN
+网络的整体结构如图 2 所示，基于 region proposals，使用 RoIAlign 抽取出 RoI 特征，然后分为两支，其中一支用于目标分类预测，另一支经过 FCN 得到 feature maps，然后经过 sigmoid 得到概率热图（probability heatmap），注意不是传统的坐标偏差，heatmaps 可由 target map 监督，从这个概率热图上我们可以通过某种方法得到 grid points（下文 2.1 一节会介绍这种方法），再经过上述的空间信息融合方法（2.2 一节会介绍），最后得到准确的目标定位。接下来我们将整个问题分而治之进行介绍。
+![](/images/Grid-RCNN_fig2.png)
+
+### 2.1 Grid Guided Localization
+一般地， NxN 的 grid points 位列 bbox 之上。以上文提到的 3x3 的 grid points 为例，共四个角点，四条边的中点，以及 bbox 的中心点。
+
+我们简单地描述一下坐标预测分支：使用 RoIAlign 抽取 RoI 得到空间尺度固定为 14x14 的 feature，然后跟着是 8 个 3x3 的空洞卷积，目的是为了增大感受野，接着是两个 2x 反卷积，得到空间尺度为 56x56 的 feature，其通道数为 NxN，然后应用 pixel-wise 的 sigmoid 函数，得到 NxN 个概率热图 heatmap，注意 heatmap 与 feature map 两者是不同的，每个热图对应一个 grid point，且对应一个 supervision map，在这个 supervision map 上以 target grid point 为中心的可以组成十字型的 5 个像素点标记为正 $t_i=1$，其他像素位置处表示为负 $t_i=0$（target grid point 在 supervision map 上的位置在 2.3 一节介绍），然后使用 binary cross-entropy loss $CE=\sum_{i=1}^{56 \times 56} [-t_i\log p_i-(1-t_i)\log(1-p_i)]$进行优化，其中 $p_i$ 表示某个 pixel 处的概率。
+
+Inference 阶段，在每个 heatmap 上选择最高置信度的点，记为 $(H_x,H_y)$，经过简单的映射计算可以得到其在原始 image 平面上的坐标，记为 $(I_x,I_y)$，
+$$I_x=P_x+ \frac {H_x}{w_o} w_p
+\\\\ I_y=P_y+ \frac {H_y}{h_o} h_p$$
+其中 $(P_x,P_y)$ 为 region proposal 的左上角在原始 image 平面上的坐标，$(w_p,h_p)$ 表示 proposal 的宽高，$(w_o,h_o)$ 表示输出 heatmap 的宽高。 __注意：__ heatmap 与 proposal 尺度不一定相同！！！   
+有了预测的 grid points 之后就可以得到目标 bbox 的四个边的坐标，记为 $B=(x_l,y_u,x_r,y_b)$。第 j 个 grid point 记为 $g_j$，其坐标为 $(x_j,y_j)$，其概率为 $p_j$（第 j 个 heatmap 上置信度最高值），定义 $E_i$ 为位于第 i 个边（左上右下，其中一个）上的 grid points 的下标集合，即，如果 $g_j$ 位于 第 i 个边上，那么 $j \in E_i$，于是根据 grid points 集合可以计算 B，采用加权平均，如下，
+$$x_l=\frac 1 N \sum_{j \in E_1} x_j p_j, \quad y_u=\frac 1 N \sum_{j \in E_2} y_j p_j
+\\\\ x_r=\frac 1 N \sum_{j \in E_3} x_j p_j, \quad y_b=\frac 1 N \sum_{j \in E_4} y_j p_j$$
+
+### 2.2 Grid Points Feature Fusion
+由 FCN 得到得 heatmap 保留了 RoI 的空间信息，所以 grid points 之间存在某种联系，他们之间可以互相校正位置，通过一种空间信息融合方法得以实现。以 3x3 grid points 为例，要校正左上角 point，我们可以利用其他 grid points 对应的 feature maps 上左上角区域的特征。
+
+为了区分不同 grid points 的 feature maps，使用 NxN 不同的 filters 从最后的 feature map 上分别为这些 grid points 抽取特征，于是每个 feature map 与其对应的 grid point 有特殊的联系，称第 i 个 point 对应的 feature map 为 $F_i$。
+
+对于每个 grid point，与其 L1 距离为 1 的其他 points 参与融合过程，称这些 points 为 source points，记为 $S_i$，对于 $S_i$ 中的 point j，其 feature maps $F_j$ 经过三个连续的 5x5 卷积，记此过程为 $T_{j \rightarrow i}$，$S_i$ 中所有 source points 经过此过程后得到的 features 再与 $F_i$ 进行融合得到 $F_i'$，融合采用简单的求和操作，
+$$F_i'=F_i + \sum_{j \in S_i} T_{j \rightarrow i} (F_j)$$
+![](/images/Grid-RCNN_fig3.png)
+
+如图 3(a) 是左上角 point 的融合示意图。有了融合后的特征 $F_i'$ 后，还可进行二次融合，类似的，对 source point 的 $F_i'$ 特征应用变换函数 $T_{j \rightarrow i}^+$（几个连续的卷积），其参数不与第一个融合的过程共享，第二次融合后的特征记为 $F_i''$，用于输出最终的 heatmap，并从中根据前述方法取最大置信度得到 grid point 位置预测。第二次融合使得 L1 距离小于等于 2 的 points 的 features 对当前 grid point 均有贡献，如图 3(b)。
+
+__注意：__ 融合前后的两组 feature maps 均通过 sigmoid 计算得到两组 heatmaps，然后分别与 supervision maps 计算出前后两处 loss（作为位置预测损失），损失计算如上面所述均采用 Binary Cross-Entropy Loss。
+
+### 2.3 Extended Region Mapping
+Grid 预测模块输出的 heatmap 是固定尺度的，各 pixel 位置处的概率表示可能是 grid point 的概率。对 RoI 特征应用的是全卷积 FCN，所以空间信息得以保留，输出 heatmap 自然就对应 region proposal 在原 image 上的空间区域，但是，region proposal 不一定完全包含目标，这意味着 gt grid point 可能位于 region proposal 之外，导致无法在 supervision map 上标记 target grid point，这种缺失造成训练阶段训练样本的利用率低的问题，同时在 inference 阶段，简单地在 heatmap 上选择置信度最大的 pixel 作为 grid point，由于 region proposal 没有完全包含目标，可能会选择出一个错误的 grid point 位置，从而导致预测存在偏差。很多场合下有超过一半的 gt grid points 都没有被 region proposals 覆盖到，如图 4，proposal（最小白框）比 gt box 小，9 个 grid points 中有 7 个将会位于输出 heatmap 之外。
+
+解决上述问题的一个最自然的方法是增大 proposal，从而确保大部分 gt grid points 还是会被 proposal 包含进来，但是这同时也会包含 背景或其他目标 的特征，这些特征对于预测当前目标是冗余的，甚至是有害的。作者实验显示，简单的增大 proposal 确实没什么好处，在小目标检测上是有害的。作者采用的解决方法是修改输出 heatmap 和原 image 上 region 之间的关系：当给定 proposal 时，RoI 特征依然是从 feature map 上相同 region 中获取，此处不需要增大 proposal；但是重新定义输出 heatmap 所代表的区域为 region 的两倍大，这样大多数场合下，所有的 grid points 都被包含进来了，如图 4 中虚线框所示，但是 supervision map 与输出 heatmap 尺度相同的，这相当于将 gt box 缩小一倍然后映射到 supervision map 上从而进行标记，标记方法前文已经提到过，在以 gt grid point 为中心的十字型 pixels，即 gt grid point 和位于其上下左右四个最近邻 pixels，共 5 个 pixels 标记为正。
+![](/images/Grid-RCNN_fig4.png)
+
+扩展的区域映射使用公式表达如下，
+$$I_x'=P_x+\frac {4H_x-w_o}{2w_o}w_p
+\\\\ I_y'=P_y+\frac {4H_y-h_o}{2h_o}h_p$$
+
+以图 4 为例，推导一下上式的由来。  
+记 heatmap 对应到原 image 上两倍 region proposal 大小的区域为 R'，类似于 $(I_x,I_y)$ 地有，
+$$I_x'=P_x'+\frac {H_x}{w_o} 2 w_p, \quad I_y'=P_y'+\frac {H_y}{h_o} 2 h_p$$
+其中 $(P_x',P_y')$ 是 R' 的左上角在原 image 上的坐标，其与 proposal 的左上角坐标具有关系，
+$$2(x_c-P_x)=x_c-P_x'=w_p, \quad 2(y_c-P_y)=y_c-P_y'=h_p$$
+其中 $(x_c,y_c)$ 是 proposal 与 R' 共同的中心在原 image 上的坐标，综合上两式即可证明。
+
+### 2.4 Implementation Details
+
+# Grid R-CNN Plus
+论文 [Grid R-CNN](https://arxiv.org/abs/1906.05688)
