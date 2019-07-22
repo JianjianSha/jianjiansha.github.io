@@ -65,6 +65,42 @@ $$2(x_c-P_x)=x_c-P_x'=w_p, \quad 2(y_c-P_y)=y_c-P_y'=h_p$$
 其中 $(x_c,y_c)$ 是 proposal 与 R' 共同的中心在原 image 上的坐标，综合上两式即可证明。
 
 ### 2.4 Implementation Details
+实现细节和实验分析略，请阅读原文。
 
 # Grid R-CNN Plus
-论文 [Grid R-CNN](https://arxiv.org/abs/1906.05688)
+论文 [Grid R-CNN Plus: Faster and Better](https://arxiv.org/abs/1906.05688)
+
+前面讲到将 Grid R-CNN 模块引入到 two-stage 目标检测器中可以显著提升 mAP，然而 Grid R-CNN 的计算量较大导致 inference 时间较长，从而使其难以广泛应用，所以这篇文章提出 Grid R-CNN Plus，通过一些有效的改进使其成为更好更快的目标检测器。
+
+大概介绍一下 Grid R-CNN Plus：对于每个 grid point，Grid R-CNN 均使用相同的表示区域来生成 supervision map，显然这是低效的，例如，左上 grid point 不会出现在其对应 supervision map 的右部和底部，所以在 Grid R-CNN Plus 中，仅监督最有可能的 1/4 区域，这样就降低了 grid 分支中 feature maps 的尺度。另外，特征融合阶段的卷积层数量也减少了。如此，降低计算损耗的同时，由于更加专注 grid point 的表示区域（原来区域中最有可能的 1/4），grid point 定位也更加准确。
+
+在采用策略，归一化方法，NMS 策略和超参数上也进行了分析和优化。
+
+## 回顾 Grid R-CNN
+图 1 是 Grid R-CNN 的框架结构示意图。与一般 two-stage 检测器类似，Grid R-CNN 包含 RPN 和 R-CNN。基于 region propopsals，使用 RoIAlign 从 CNN backbone 的输出 feature maps 上 RoI 对应区域抽取特征，这个 RoI 特征用于预测分类和 bbox 定位。Grid R-CNN 与一般类 R-CNN 的不同之处在于使用 grid points 代替了坐标偏差。Grid 预测分支使用 FCN 结构输出保留空间信息的 heatmaps，从这些 heatmaps 中可以分别定位目标的 grid points。
+![](/images/Grid-RCNN-Plus_fig1.png)
+
+Grid R-CNN 使用 8 个 3x3 的卷积和两个 2x 反卷积得到 heatmap，这种分支结构比较重量级。降低计算量的一种方法是：首先从 RPN 中选择 1000 的 proposals，然后送入分类分支得到分类得分后，进行 NMS 之后然后选择其中 top 100 的 proposals，然后再送入 grid 分支，以降低计算耗时。
+
+为了提高准确性，还使用了特征融合机制和扩展区域映射，其中特征融合利用了 grid points 空间相关性互相进行校正，扩展区域映射则解决了 gt grid points 位于 proposal 之外的痛点。
+
+## Grid R-CNN Plus
+### Grid Point 专用表示区域
+因为只有 IoU > 0.5 的 proposals（正例）才可能会被选择送入 Grid 分支，所以 supervision map 上 gt grid point 被限制在一个较小的区域，如图 2 所示是各个 grid point 的 gt label 分布，以 3x3 grid points 为例说明，左上角 point 的 gt label 只可能出现在 supervision map 的左上角区域，所以，如果所有 grid points 的表示区域均相同（相同的 scale 和 center），那么大多数 pixel 的输出均不会被激活，这是很低效的，于是就有了 grid point 专用表示区域。
+![](/images/Grid-RCNN-Plus_fig2.png)
+
+原来每个 grid point 的表示区域的尺度是 56x56，现在降为 28x28，是原来区域中最有可能的 1/4，这样输出 heatmap 尺度降为一半。Grid point 专用表示区域也可以看作一种规范化过程，即，从原来的有偏分布到现在的规范化分布，如图 2 中，上左 point 和 中右 point 的 gt label 分布均以区域中心为中心。
+
+### Light Grid Head
+由于输出 heatmap 尺度变为一半，我们同时将 grid 分支中其中 features 的分辨率也降为一半（例如从 14x14 降为 7x7），这降低了计算损耗。具体而言，使用 RoIAlign 从 RoI 中抽取固定大小 14x14 的特征之后，使用一个 3x3 stride=2 的卷积层，使得特征 size 降为 7x7，在这之后，使用 7 个 3x3 stride=1 的卷积层，每层的输出特征大小均为 7x7，最终特征分为 N 组（默认为 9）每组特征对应一个 grid point。我们显式地将特征与 grid points 一一起来，然后使用 2 个 2x 反卷积生成 28x28 的 heatmaps。
+
+grid point 专用表示区域使得不同的 grid points 的特征之间更加联系紧密，所以不需要很多的卷积层来弥补不同 grid points 特征之间的差异，所以 Grid R-CNN Plus 仅使用一个 5x5 depth-wise 的卷积，depth-wise 表示一个卷积核负责一个通道（二维平面上的卷积），而 Grid R-CNN 则使用三个 5x5 的普通卷积。这个改进也使得 grid 分支更加轻量。
+
+### 跨越图像的采样策略
+grid branch 仅使用正例（IoU > 0.5 的 positive proposals）进行训练，那么不同训练批次如果具有不同数量的正例，会对最终性能产品影响，例如，某些图像只有极少数正例，而其他图像可能会包含成百上千的正例，这种情况会导致 grid 分支的特征分布不稳定。所以在 Grid R-CNN Plus 中采用跨越单个图像的采样策略：当某个图像中正例数量较小时，可以使用其他图像来填充正例的空缺。具体操作为，将原来单个图像采样 96 个正例改为每两个图像采样 192 个正例。这种改进使得训练更加稳定，性能也得到提升。
+
+### 仅一次 NMS
+Grid R-CNN 中，proposals 经过分类分支得到分类得分，然后使用 IoU 阈值 0.5 进行非极大抑制 NMS，之后取分类得分 top 125 的 proposals 送入 grid 分支进行定位预测，然后再次进行 NMS 以得到更加精确的结果。然而 NMS 是非常耗费计算量的，实验显示即使较少数量的 proposals，在 80 个分类（COCO 分类数量）上的 NMS 也很慢，所以 Grid R-CNN Plus 中移除了第二次 NMS。
+
+## 实验
+实验略。
