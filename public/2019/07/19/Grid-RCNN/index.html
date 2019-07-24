@@ -96,13 +96,13 @@
 
 
 
-  <meta name="description" content="Grid R-CNN论文 Grid R-CNN 1. 简介目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。 这篇文章介绍了 Grid R-CNN，主要是修改了类 R-CNN 目标检测器的回归分支">
+  <meta name="description" content="Grid R-CNN论文 Grid R-CNN 源码 Grid R-CNN 1. 简介目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。 这篇文章介绍了 Grid R-CNN，主要是修改了类 R-">
 <meta name="keywords" content="object detection">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Grid-RCNN">
 <meta property="og:url" content="https://shajianjian.github.io/2019/07/19/Grid-RCNN/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="Grid R-CNN论文 Grid R-CNN 1. 简介目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。 这篇文章介绍了 Grid R-CNN，主要是修改了类 R-CNN 目标检测器的回归分支">
+<meta property="og:description" content="Grid R-CNN论文 Grid R-CNN 源码 Grid R-CNN 1. 简介目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。 这篇文章介绍了 Grid R-CNN，主要是修改了类 R-">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/Grid-RCNN_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/Grid-RCNN_fig2.png">
@@ -110,10 +110,10 @@
 <meta property="og:image" content="https://shajianjian.github.io/images/Grid-RCNN_fig4.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/Grid-RCNN-Plus_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/Grid-RCNN-Plus_fig2.png">
-<meta property="og:updated_time" content="2019-07-22T04:05:01.251Z">
+<meta property="og:updated_time" content="2019-07-23T01:23:23.833Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Grid-RCNN">
-<meta name="twitter:description" content="Grid R-CNN论文 Grid R-CNN 1. 简介目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。 这篇文章介绍了 Grid R-CNN，主要是修改了类 R-CNN 目标检测器的回归分支">
+<meta name="twitter:description" content="Grid R-CNN论文 Grid R-CNN 源码 Grid R-CNN 1. 简介目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。 这篇文章介绍了 Grid R-CNN，主要是修改了类 R-">
 <meta name="twitter:image" content="https://shajianjian.github.io/images/Grid-RCNN_fig1.png">
 
 
@@ -408,7 +408,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-07-22 12:05:01" itemprop="dateModified" datetime="2019-07-22T12:05:01+08:00">2019-07-22</time>
+                <time title="修改时间：2019-07-23 09:23:23" itemprop="dateModified" datetime="2019-07-23T09:23:23+08:00">2019-07-23</time>
               
             
           </span>
@@ -443,6 +443,7 @@
 
       
         <h1 id="Grid-R-CNN"><a href="#Grid-R-CNN" class="headerlink" title="Grid R-CNN"></a>Grid R-CNN</h1><p>论文 <a href="https://arxiv.org/abs/1811.12030" target="_blank" rel="noopener">Grid R-CNN</a></p>
+<p>源码 <a href="https://github.com/STVIR/Grid-R-CNN" target="_blank" rel="noopener">Grid R-CNN</a></p>
 <h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p>目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。<br><img src="/images/Grid-RCNN_fig1.png" alt></p>
 <p>这篇文章介绍了 Grid R-CNN，主要是修改了类 R-CNN 目标检测器的回归分支，与传统类 R-CNN 的区别主要如图 1 所示，即，使用 grid points 表示目标定位：在得到 RoI 特征后，使用全卷积 FCN 得到特征图，然后再通过某种方法得到 grid points。此修改有如下优点：</p>
 <ol>
@@ -527,6 +528,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2019/07/23/GAN/" rel="prev" title="GAN">
+                GAN <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -594,7 +599,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-count">23</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -640,7 +645,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">5</span>
+                      
+                    
+                    <span class="site-state-item-count">6</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

@@ -7,6 +7,8 @@ mathjax: true
 # Grid R-CNN
 论文 [Grid R-CNN](https://arxiv.org/abs/1811.12030)
 
+源码 [Grid R-CNN](https://github.com/STVIR/Grid-R-CNN)
+
 ## 1. 简介
 目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。
 ![](/images/Grid-RCNN_fig1.png)
