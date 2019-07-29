@@ -106,7 +106,8 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/GAN_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/GAN_alg1.png">
-<meta property="og:updated_time" content="2019-07-24T12:35:08.198Z">
+<meta property="og:image" content="https://shajianjian.github.io/images/GAN_fig2.png">
+<meta property="og:updated_time" content="2019-07-29T09:00:16.059Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GAN">
 <meta name="twitter:description" content="论文 Generative Adversarial Nets GAN原理生成对抗网络 GAN：一个生成模型 G 和一个判别模型 D，G 尽可能模拟真实的数据分布，D 尽可能的区分样本是模型生成的还是真实的。下文以图像数据为例说明。 定义一个输入噪声随机变量 z，其分布为 $p_z(z)$，G 根据 z 生成图像 $G(z;\theta_g)$，我们假设 G 是一个多层感知机 MLP 网络，网络参数">
@@ -404,7 +405,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-07-24 20:35:08" itemprop="dateModified" datetime="2019-07-24T20:35:08+08:00">2019-07-24</time>
+                <time title="修改时间：2019-07-29 17:00:16" itemprop="dateModified" datetime="2019-07-29T17:00:16+08:00">2019-07-29</time>
               
             
           </span>
@@ -438,7 +439,7 @@
       
 
       
-        <p>论文 <a href>Generative Adversarial Nets</a></p>
+        <p>论文 <a href="https://arxiv.org/abs/1406.2661" target="_blank" rel="noopener">Generative Adversarial Nets</a></p>
 <h1 id="GAN"><a href="#GAN" class="headerlink" title="GAN"></a>GAN</h1><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>生成对抗网络 GAN：一个生成模型 G 和一个判别模型 D，G 尽可能模拟真实的数据分布，D 尽可能的区分样本是模型生成的还是真实的。下文以图像数据为例说明。</p>
 <p>定义一个输入噪声随机变量 z，其分布为 $p_z(z)$，G 根据 z 生成图像 $G(z;\theta_g)$，我们假设 G 是一个多层感知机 MLP 网络，网络参数为 $\theta_g$。D 也是一个 MLP $D(x;\theta_d)$ 输出是一个标量，表示 x 是真实图像的概率。训练 D 使其对输入 x 预测正确的概率最大化，即当 x 来自真实的训练数据时，$G(x)$ 尽可能大，当 x 来自 G 生成样本时，预测概率 $D(G(z))$ 尽可能小；而训练 G 目的是为了让 $D(G(x))$ 尽可能大，或者说让 $\log(1-D(G(z)))$ 尽可能小，于是目标函数为，</p>
 <p>$$\min_G \max_D V(D,G)=\Bbb E_{x \sim p_{data}(x)}[\log D(x)] + \Bbb E_{z \sim p_z(z)}[\log(1-D(G(z)))] \qquad (1)$$</p>
@@ -450,7 +451,7 @@
 <p>实际应用中，(1) 式可能无法提供足够的梯度来更新 G。训练初期，G 性能较差，生成样本与真实训练样本区别较大，所以 D 可以较高的置信度判别，此时，$\log (1-D(G(z)))$ 达到饱和（log 曲线右端较为平坦），于是我们改为训练 G 以最大化 $\log D(G(z))$，最终训练能到达相同的 G 和 D 的平衡点，但是训练初期的梯度较大（log 曲线的左端较为陡峭）。</p>
 <h2 id="理论分析"><a href="#理论分析" class="headerlink" title="理论分析"></a>理论分析</h2><p>已知噪声随机变量 z 的分布 $p_z$ 时，可以获得 G 的模型分布，根据算法 1，如果 G 模型的假设空间和训练时间足够，G 可以拟合真实数据分布 $p_{data}$。现在我们来证明 $p_g=p_{data}$ 是 (1) 式的全局最优解。</p>
 <h3 id="全局最优解"><a href="#全局最优解" class="headerlink" title="全局最优解"></a>全局最优解</h3><p><strong>Proposition 1.</strong> 对于任意的 G，D 的最优解为<br>$$D_G^{\ast}(x)=\frac {p_{data}(x)}{p_{data}(x)+p_g(x)} \qquad (2)$$<br><strong>证明：</strong>  给定任意 G，D 的训练准则是最大化 V(G,D)<br>$$\begin{aligned} V(G,D)&amp;=\int_x p_{data}(x) \log D(x) dx+\int_z p_z(z) \log (1-D(g(z))) dz<br>\\ &amp;=\int_x p_{data}(x) \log D(x)+p_g(x) \log(1-D(x))dx \end{aligned}$$<br>$\forall (a,b) \in \Bbb R^2 \setminus {0,0}$，函数 $y \rightarrow a \log y+b \log(1-y)$ 在 (0,1) 区间上当 $y=\frac a {a+b}$ 时有最大值（梯度为 0 求解得到），所以要使得 V(G,D) 最大，那么对于每个 x 值，都要使 D(x) 达到最大，即 (2) 式。证毕。</p>
-<p>D 的训练目标函数可以看作是条件概率 $P(Y=y|x)$ 的最大 log 似然函数（或者是 binary cross-entropy），其中当 x 来自 $p_{data}$ 时 y=1，当 x 来自 $p_g$ 时 y=0。得到 D 的最优解 $D_G^{\ast}$ 后 (1) 式变为，  </p>
+<p>D 的训练目标函数可以看作是条件概率 $P(Y=y|x)$ 的最大 log 似然函数（或者是最小化 binary cross-entropy），其中当 x 来自 $p_{data}$ 时 y=1，当 x 来自 $p_g$ 时 y=0。得到 D 的最优解 $D_G^{\ast}$ 后 (1) 式变为，  </p>
 <p>$$\begin{aligned} C(G)&amp;=\max_D V(G,D)<br>\\ &amp;=\Bbb E_{x \sim p_{data}}[\log D_G^{\ast}(x)] + \Bbb E_{z \sim p_z} [\log(1-D_G^{\ast}(G(z)))]<br>\\ &amp;=\Bbb E_{x \sim p_{data}}[\log D_G^{\ast}(x)] + \Bbb E_{x \sim p_g} [\log(1-D_G^{\ast}(x))]<br>\\ &amp;=\Bbb E_{x \sim p_{data}} \left[\log \frac {P_{data}(x)} {p_{data}(x)+p_g(x)} \right]+\Bbb E_{x \sim p_g} \left[\log \frac {p_g(x)} {p_{data}(x)+p_g(x)}\right] \qquad(4) \end{aligned}$$</p>
 <p><strong>Theorem 1.</strong> 当且仅当 $p_g=p_{data}$ 时， C(G) 有全局最优解 -log4。  </p>
 <p><strong>证明：</strong> </p>
@@ -489,8 +490,11 @@
 <p>生成样本 $S=\theta_g \cdot z$，损失对 $\theta_g$ 的梯度满足<br>$$\nabla_{\theta_g}L=\nabla_S L \cdot \frac {\partial S}{\partial \theta_g}$$</p>
 <p>记生成样本 S 经过 D 的输出为 y_0，即，$y_0=\theta_d \cdot S$，于是<br>$$\nabla_S L=\frac {dL}{dy_0}\cdot \theta_d$$<br>可以看出在计算损失对 G 模型参数的梯度之前，$\nabla_S L$ 这个梯度已经经过 D 中各层的传播：</p>
 <ol>
-<li>如果其 L2 范数大于 1，那么再经过 G 中各层反向传播时，极有可能出现梯度爆炸，即 $\nabla_{\theta_g}L$ 很大， 导致训练不稳定，所以需要将其进行 scale 缩小，缩小的比例正好能使 $\nabla_S L$ 的 L2 范数为指定值 <code>self.target_scale</code>（默认为1）</li>
-<li>如果其 L2 范数小于等于1，则对梯度不做 scale 缩小操作。</li>
+<li><p>如果其 L2 范数大于 1，那么再经过 G 中各层反向传播时，极有可能出现梯度爆炸，即 $\nabla_{\theta_g}L$ 很大， 导致训练不稳定，所以需要将其进行 scale 缩小，缩小的比例正好能使 $\nabla_S L$ 的 L2 范数为指定值 <code>self.target_scale</code>（默认为1）。<br>关于 G 模型参数的梯度过大导致训练不稳定，如下图，<br><img src="/images/GAN_fig2.png" alt><center>图来自于网络。左图表示 $G_0$ 时的 V(G,D) 曲线；右图表示 $G_1$ 时的 V(G,D) 曲线。（这个图我觉得有点奇怪，按道理不应该是凸函数吗，以及右图右边的红点不是说明存在合适的 $D_1^{\ast}$ 吗，用这个图能说明什么问题，我没有搞懂。相反，我倒觉得是用来说明不要更新 G 太多以便可以达到这个图中的效果。如我理解有误，恳请大佬指正~）</center></p>
+<p>上图表示在 $D_0^{\ast}$ 取得最大值 $\max_D V(G_0,D_0)=V(G_0,D_0^{\ast})$，然后更新 $G_0$ 为 $G_1$后，由于 G 的更新会降低 V(G,D)，故 $V(G_1,D_0^{\ast}) &lt; V(G_0,D_0^{\ast})$，但是此时更新 D 以最大化 V(G,D)，可能会出现 $V(G_1,D_1^{\ast}) &lt; V(G_0,D_0^{\ast})$，这意味着判别器 $D_1^{\ast}$ 的判别能力比之前的 $D_0^{\ast}$ 的判别能力差，而 G 伪装能力的增强是建立在 D 判别能力的增强这个基础上，否则更新 G 就达不到应该有的效果，所以降低损失对 G 模型参数的梯度，以便不要更新 G 太多，或者多次更新 D 与一次更新 G 交替进行。</p>
+</li>
+<li><p>如果其 L2 范数小于等于1，则对梯度不做 scale 缩小操作。</p>
+</li>
 </ol>
 <p>当然，还有其他损失实现类，具体请查阅源码，不再讨论。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>给定一个预先已知分布的噪声随机变量 z，G 根据 z 生成图像 G(z)，D 将 G(z) 与训练样本区分开来。训练过程根据 (1) 式交替优化 D 和 G，使得 G 尽可能拟合真实数据分布，而 D 提高判别能力，最终 G 分布与真实分布相同，D 无法判别模型分布和真实数据分布。</p>
@@ -542,6 +546,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/25/WGAN/" rel="prev" title="WGAN">
+                WGAN <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -610,7 +618,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">23</span>
+                    <span class="site-state-item-count">25</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

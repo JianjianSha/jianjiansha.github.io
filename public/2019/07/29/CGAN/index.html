@@ -96,21 +96,21 @@
 
 
 
-  <meta name="description" content="论文 RepPoints: Point Set Representation for Object Detection 大多数目标检测器使用 bbox 表示目标的位置，但是本文认为 bbox 对目标的位置描述较为粗糙，所以提出了一种新型的更加精确的目标表示方法 RepPoints（representative points），RepPoints 使用一组采样点进行目标定位和识别。通过训练给定目标的">
-<meta name="keywords" content="object detection">
+  <meta name="description" content="论文 Conditional Generative Adversarial Nets 在 GAN 中我们知道 GAN 经过训练，生成器 G 可以根据一个随机噪声输入生成与训练集样本非常相似的样本（判别器 D 无法判别），但是 G 生成样本的标签是无法控制的，以 mnist 数据集为例，给 G 一个随机噪声输入，G 生成的样本图像可能表示数字 1，也可能是其他数字，GAN 无法控制，GAN 只能做到">
+<meta name="keywords" content="GAN">
 <meta property="og:type" content="article">
-<meta property="og:title" content="RepPoints">
-<meta property="og:url" content="https://shajianjian.github.io/2019/07/17/RepPoints/index.html">
+<meta property="og:title" content="CGAN">
+<meta property="og:url" content="https://shajianjian.github.io/2019/07/29/CGAN/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="论文 RepPoints: Point Set Representation for Object Detection 大多数目标检测器使用 bbox 表示目标的位置，但是本文认为 bbox 对目标的位置描述较为粗糙，所以提出了一种新型的更加精确的目标表示方法 RepPoints（representative points），RepPoints 使用一组采样点进行目标定位和识别。通过训练给定目标的">
+<meta property="og:description" content="论文 Conditional Generative Adversarial Nets 在 GAN 中我们知道 GAN 经过训练，生成器 G 可以根据一个随机噪声输入生成与训练集样本非常相似的样本（判别器 D 无法判别），但是 G 生成样本的标签是无法控制的，以 mnist 数据集为例，给 G 一个随机噪声输入，G 生成的样本图像可能表示数字 1，也可能是其他数字，GAN 无法控制，GAN 只能做到">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://shajianjian.github.io/images/RepPoints_fig1.png">
-<meta property="og:image" content="https://shajianjian.github.io/images/RepPoints_fig2.png">
-<meta property="og:updated_time" content="2019-07-18T11:22:42.079Z">
+<meta property="og:image" content="https://shajianjian.github.io/images/CGAN_fig1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/CGAN_fig2.png">
+<meta property="og:updated_time" content="2019-07-29T12:17:41.171Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="RepPoints">
-<meta name="twitter:description" content="论文 RepPoints: Point Set Representation for Object Detection 大多数目标检测器使用 bbox 表示目标的位置，但是本文认为 bbox 对目标的位置描述较为粗糙，所以提出了一种新型的更加精确的目标表示方法 RepPoints（representative points），RepPoints 使用一组采样点进行目标定位和识别。通过训练给定目标的">
-<meta name="twitter:image" content="https://shajianjian.github.io/images/RepPoints_fig1.png">
+<meta name="twitter:title" content="CGAN">
+<meta name="twitter:description" content="论文 Conditional Generative Adversarial Nets 在 GAN 中我们知道 GAN 经过训练，生成器 G 可以根据一个随机噪声输入生成与训练集样本非常相似的样本（判别器 D 无法判别），但是 G 生成样本的标签是无法控制的，以 mnist 数据集为例，给 G 一个随机噪声输入，G 生成的样本图像可能表示数字 1，也可能是其他数字，GAN 无法控制，GAN 只能做到">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/CGAN_fig1.png">
 
 
 
@@ -118,7 +118,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/2019/07/17/RepPoints/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/07/29/CGAN/">
 
 
 
@@ -128,7 +128,7 @@
   };
 </script>
 
-  <title>RepPoints | SJJ</title>
+  <title>CGAN | SJJ</title>
   
 
 
@@ -344,7 +344,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/17/RepPoints/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/29/CGAN/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="shajianjian">
@@ -361,7 +361,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">RepPoints
+          <h1 class="post-title" itemprop="name headline">CGAN
 
               
             
@@ -387,24 +387,12 @@
                 
               
 
-              <time title="创建时间：2019-07-17 16:05:41" itemprop="dateCreated datePublished" datetime="2019-07-17T16:05:41+08:00">2019-07-17</time>
+              <time title="创建时间：2019-07-29 17:00:43 / 修改时间：20:17:41" itemprop="dateCreated datePublished" datetime="2019-07-29T17:00:43+08:00">2019-07-29</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-07-18 19:22:42" itemprop="dateModified" datetime="2019-07-18T19:22:42+08:00">2019-07-18</time>
               
             
           </span>
@@ -438,37 +426,20 @@
       
 
       
-        <p>论文 <a href="https://arxiv.org/abs/1904.11490" target="_blank" rel="noopener">RepPoints: Point Set Representation for Object Detection</a></p>
-<p>大多数目标检测器使用 bbox 表示目标的位置，但是本文认为 bbox 对目标的位置描述较为粗糙，所以提出了一种新型的更加精确的目标表示方法 RepPoints（representative points），RepPoints 使用一组采样点进行目标定位和识别。通过训练给定目标的 gt 位置和分类，RepPoints 可以学习自动排布这些点使得这些点能勾画出目标边缘并在语义上确定目标所在区域。这是一种 anchor-free 的目标检测器，避开了 anchor 导致的搜索空间大和 anchor 难于设计等缺点。</p>
-<p>如图 1，<br><img src="/images/RepPoints_fig1.png" alt></p>
-<p>RepPoints 使用一个点集，这个点集中各点位于目标边缘，并且语义上表明了目标所在的局部区域。<del>RepPoints 与其他非矩阵表示的目标检测器区别在于其他目标检测器采用 bottom-up 的方式确定一些独立的点（比如角点或极点），然后依靠手工设计的聚合方法聚合这些点以获得预测 box，而 RepPoints 则是 top-down 的方式从输入 image/目标特征中学习并且能够端到端的训练。</del></p>
-<h1 id="RepPoints"><a href="#RepPoints" class="headerlink" title="RepPoints"></a>RepPoints</h1><h2 id="BBox-表示"><a href="#BBox-表示" class="headerlink" title="BBox 表示"></a>BBox 表示</h2><p>目标 bbox 可表示为 $\mathcal B=(x,y,w,h)$。我们回归一下 multi-stage 目标检测器，每经过一个 stage，目标定位都会得到调整，过程如下，</p>
-<p>bbox anchors -(bbox reg)-&gt;  bbox proposals (S1)<br>             -(bbox reg)-&gt;  bbox proposals (S2)<br>             …<br>             -(bbox reg)-&gt;  bbox object targets</p>
-<p>开始时使用多个具有不同 scale 和 aspect ratio 的 anchors。anchor 中心处的特征（向量）用于预测目标分类的得分（二值分类，前景/背景），以及预测坐标偏差。调整后的 bbox 称为 proposal (S1)。在第二 stage，从 S1 中继续抽取特征，通常是 RoIpooling/RoIAlign，对于 two-stage 目标检测器，S1 中抽取的特征将用于最终的 box 的分类预测和坐标偏差预测。对于 multi-stage 目标检测器，S1 中抽取的特征用于预测生成 S2，逐次进行此过程，直到最后一个 stage 用于预测最终的 bbox target。</p>
-<p>坐标回归预测为一个 4-d 向量 $(\Delta x_p, \Delta y_p, \Delta w_p, \Delta h_p)$，再结合 bbox proposal 的坐标 $\mathcal B_p=(x_p,y_p,w_p,h_p)$ 可解码出调整后的预测 bbox，<br>$$\mathcal B_r=(x_p+w_p \Delta x_p, \ y_p+h_p\Delta y_p, \ w_p e^{\Delta w_p}, \ h_p e^{\Delta h_p})$$</p>
-<p>记目标的 gt 位置为 $\mathcal B_t=(x_t,y_t,w_t,h_t)$，gt 坐标偏差（gt target）为，<br>$$\hat {\mathcal F}(\mathcal B_p, \mathcal B_t)=(\frac {x_t-x_p} {w_p},\ \frac {y_t-y_p} {h_p},\ \log \frac {w_t} {w_p}, \ \log \frac {h_t} {h_p})$$</p>
-<p>回归损失使用 smooth L1 损失。</p>
-<h2 id="RepPoints-1"><a href="#RepPoints-1" class="headerlink" title="RepPoints"></a>RepPoints</h2><p>前文提到，4-d bbox 是一种比较粗糙的目标位置表示，不能反映目标的性质、姿势以及语义上的区域。RepPoints 能够解决这些问题，使用一组自适应采样点，<br>$$\mathcal R = {(x_k,y_k)}_{k=1}^n$$<br>其中 n 为采样点数量，本文设置为 9。</p>
-<p>RepPoints 的坐标调整可表示为，<br>$$\mathcal R_r = {(x_k+\Delta x_k,\ y_k+\Delta y_k)}<em>{k=1}^n \qquad (5)$$<br>其中 ${(\Delta x_k,\ \Delta y_k)}</em>{k=1}^n$ 表示新采样点与旧采样点之间的偏差，refine 旧采样点之后得到新采样点。</p>
-<p><strong>RepPoints 变换到 gt box:</strong> $\mathcal {T: R}_P \rightarrow \mathcal B_P$，其中 $\mathcal R_P$ 表示目标 P 的 RepPoints，$\mathcal T(\mathcal R_p)$ 表示伪 box，变换函数考虑以下三种，</p>
-<ol>
-<li><p>Min-max function<br>$\mathcal {T=T_1}$：根据所有 RepPoints 确定横轴和纵轴上的最小最大值，以得到 $\mathcal B_p$</p>
-</li>
-<li><p>Partial min-max function<br>$\mathcal {T=T_2}$：根据部分 RepPoints 确定横轴和纵轴上的最小最大值，以得到 $\mathcal B_p$</p>
-</li>
-<li><p>Moment-based function<br>$\mathcal {T=T_3}$：使用 RepPoints 的期望值和二阶矩（方差）来计算 $\mathcal B_p$ 的中心和 scale，其中 scale 需要乘上全局共享的可学习系数 $\lambda_x, \ \lambda_y$。使用坐标的均值作为 box 的中心，这一点不难理解，RepPoints 为目标边缘的点，故目标越大，RepPoints 坐标的方差越大，两者应该成正比，所以将方差乘以系数可得到目标 size。考虑到任意目标的 RepPoint 都不是固定的，所以系数可以全局共享，并且可通过 point loss 学习得到。</p>
-</li>
-</ol>
-<p><strong>RepPoints 的学习</strong> 学习过程由目标定位损失和目标分类损失驱动。对于定位损失，首先使用上述某个转换函数将 RepPoints 转换为 pseudo box，然后计算与 gt box 之间的距离，这里使用左上角和右下角的 smooth L1 距离作为定位损失。</p>
-<h1 id="RPDet"><a href="#RPDet" class="headerlink" title="RPDet"></a>RPDet</h1><p>类似地，multi-stage 中使用 RepPoints 的目标表示演进过程为，</p>
-<p>object centers -(RP refine)-&gt; RepPoints proposals(S1) -(RP refine)-&gt; RepPoints proposals(S2) … -(RP refine)-&gt; RepPoints object targets</p>
-<p>RPDet (RepPoints Detector) 结构如图 2，<br><img src="/images/RepPoints_fig2.png" alt></p>
-<p>其中 N 表示 RepPoints 的数量。</p>
-<p>采用 FPN backbone，得到的 feature maps，一支经过 3x3 卷积得到 offset field，这是一个与输入 feature maps 相同 spatial size 的 2N-channel 的特征，每个空间位置的 feature vector 是 2N-d 的，表示这个位置处的 offsets，offsets 是用于 deformable conv，同时也是 RepPoints，相当于给 deformable conv 的 offsets 赋予了物理含义，变换这个 offsets 得到 pseudo box，与 gt box 之间的左上和右下两点的 point loss（smooth L1 损失）用于优化这一分支。</p>
-<p>得到的 offsets 用于 deformable conv，然后再经过卷积得到第二组的 offsets，根据 (5) 式得到 refinement 之后的 RepPoints（也就是说第二组的 offsets 其实是 $\Delta x, \Delta y$？），表示最终的目标定位，另一分支经过卷积得到目标分类 score maps。</p>
-<h2 id="与可变形-RoI-pooling-的关系"><a href="#与可变形-RoI-pooling-的关系" class="headerlink" title="与可变形 RoI pooling 的关系"></a>与可变形 RoI pooling 的关系</h2><p>可变形卷积和可变形 RoI pooling 用于改善特征抽取，而 RepPoints 是一种灵活的目标几何表示方式，可以抽取语义特征，从而准确地定位目标。作者认为，可变形 RoI pooling 无法学习到表示目标精确位置的采样点，原因为：假设可以学习到目标位置的几何表示，那么对于同一目标的两个靠的很近的 proposals，可变形 RoI pooling 将生成相同的特征，这表示目标检测器会失败；然而，可变形 RoI pooling 已经通过实验证明可以区分两个靠的很近的 proposals，这说明，可变形 RoI pooling 无法学习到目标的准确位置表示。</p>
-<h1 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h1><p>略</p>
-<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>本文比较晦涩难懂，需要多读几遍，并且期待作者放出源码。</p>
+        <p>论文 <a href="https://arxiv.org/abs/1411.1784" target="_blank" rel="noopener">Conditional Generative Adversarial Nets</a></p>
+<p>在 <a href="2019/07/23/GAN">GAN</a> 中我们知道 GAN 经过训练，生成器 G 可以根据一个随机噪声输入生成与训练集样本非常相似的样本（判别器 D 无法判别），但是 G 生成样本的标签是无法控制的，以 mnist 数据集为例，给 G 一个随机噪声输入，G 生成的样本图像可能表示数字 1，也可能是其他数字，GAN 无法控制，GAN 只能做到 G 生成样本图像很逼近真实样本图像。然而，使用额外信息来限制模型则可以控制数据生成过程，这个额外信息可以是分类标签或是其他形式的数据，于是本文的 CGAN 应运而生。</p>
+<h2 id="Conditional-Adversarial-Nets"><a href="#Conditional-Adversarial-Nets" class="headerlink" title="Conditional Adversarial Nets"></a>Conditional Adversarial Nets</h2><p>GAN 中的 G 和 D 均使用额外信息 y 进行条件限制，则得到 CGAN。额外信息 y 可是是分类标签或者其他形式的数据。以 mnist 训练集为例，通常选择图像的分类标签作为额外信息 y。</p>
+<p>预先已知的输入噪声 z 和 图像分类标签 y 合并一起作为 G 的输入（这是本文所用的最简单的方法，这种处理方式可以很容易地使用传统的 GAN 网络而不需要重新设计网络）。训练样本数据 x 以及对应的图像分类标签 y 合并到一起作为 D 的输入。（G 和 D 的结构可以与 GAN 中保持一致，也可以将部分 fc 替换为 conv/deconv）</p>
+<p>训练目标函数为，<br>$$\min_G \max_D V(D,G)=\Bbb E_{x \sim p_{data}(x)} [\log D(x|y)] + \Bbb E_{z \sim p_z(z)}[1-\log (1-D(G(z|y)))]$$</p>
+<p>图 1 为 CGAN 过程示意图，<br><img src="/images/CGAN_fig1.png" alt></p>
+<p>这里引用一个代码片段来进行说明</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line">y_dim=<span class="number">10</span>    <span class="comment"># one-hot vector for mnist-label</span></span><br><span class="line">z_dim=<span class="number">100</span>   <span class="comment"># length of noise input vector</span></span><br><span class="line">y=tf.placeholder(tf.float32, shape=[<span class="literal">None</span>,y_dim], name=<span class="string">'label'</span>)</span><br><span class="line">x=tf.placeholder(tf.float32, shape=[<span class="literal">None</span>,<span class="number">28</span>,<span class="number">28</span>,<span class="number">1</span>], name=<span class="string">'real_img'</span>)</span><br><span class="line">z=tf.placeholder(tf.float32, shape=[<span class="literal">None</span>,z_dim], name=<span class="string">'noise'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># G 的输入由 noise 与 label 合并，单个输入 vector 长度由原来的 100 变成 110</span></span><br><span class="line">x_for_g=tf.concat([z,y], axis=<span class="number">1</span>)    <span class="comment"># [batch_size, 100+10]</span></span><br><span class="line"><span class="comment"># 然后与 GAN 中 G 的处理相同</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># D 的输入由 real_img 与 label 合并</span></span><br><span class="line">new_y=tf.reshape(y,[batch_size,<span class="number">1</span>,<span class="number">1</span>,y_dim])</span><br><span class="line">new_y=new_y*tf.ones([batch_size,<span class="number">28</span>,<span class="number">28</span>,y_dim])   <span class="comment"># [batch_size,28,28,10]</span></span><br><span class="line">x_for_d=tf.concat([x,new_y],axis=<span class="number">-1</span>)    <span class="comment"># [batch_size,28,28,1+10]</span></span><br><span class="line"><span class="comment"># 然后与 GAN 中 D 的处理相同</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><h3 id="Unimodal"><a href="#Unimodal" class="headerlink" title="Unimodal"></a>Unimodal</h3><p>使用 mnist 数据集，分类标签 y 使用长度为 10 的 one-hot 向量。CGAN 的结构和训练方法介绍略，这部分可以查看原文。图 2 显示了生成样本，每一行使用一个标签作为模型的限制条件。<br><img src="/images/CGAN_fig2.png" alt></p>
+<h3 id="Multimodal"><a href="#Multimodal" class="headerlink" title="Multimodal"></a>Multimodal</h3><p>对应一到多映射，即每个图像可以有多个不同的标签。例如 Flickr 数据集，包含图像和对应的 UGM（user-generated metadata）。UGM 通常更具有描述性，并且语义上与人类使用自然语言描述图像更为接近，而不仅仅是标记图中的目标。不同的用户可能使用不同的词汇来描述相同的概念，因此使用一个高效的方法来规范化这些标签显得尤其重要。概念词嵌入（word embedding）在此情况下非常有用，因为语义相似的词其词向量非常接近。</p>
+<p>根据图像特征，我们可以使用 CGAN 生成 tag-vectors 以进行对图像自动打标签。使用 AlexNet 在 ImageNet 上训练网络，网络的最后一个 fc 层输出单元为 4096 个，这个输出作为最终的图像表示。为了得到词表示，我们从 YFCC100M 数据集的 metadata 中收集 user-tags，title 和 descriptions 作为文本预料，经过预处理和文本清洗，使用 skip-gram 模型进行训练，得到长度为 200 的词向量，我们忽略词频低于 200 的词，最终得到的词典大小为 247465。生成器 G 生成样本为 tag 特征向量，额外信息 y 为图像特征（上述的 4096 向量）。</p>
+<p>实验使用 MIR Flickr 25000 数据集，使用上述卷积模型和语言模型（AlexNet，skip-gram）分布抽取图像特征和 tag 特征。数据集中前 15000 的样本作为训练集。训练阶段，数据集中没有 tag 的图像被忽略掉，而如果图像拥有多个 tag，那么对于每个 tag 均分别使用一次这个图像。</p>
+<p>evaluation 阶段，对于每个图像生成 100 个样本（tag 特征向量），然后对每个生成样本，使用余弦相似度计算词典中与样本最接近的 20 个词，然后再所有 100 个样本中（我理解的是在 2000 个词中）选择 top 10 最常见的词作为图像的 tags。由于这部分实验没有看到源码，故其余部分的介绍略过，详情可参考原论文。</p>
 
       
     </div>
@@ -495,7 +466,7 @@
         
         <div class="post-tags">
           
-            <a href="/tags/object-detection/" rel="tag"># object detection</a>
+            <a href="/tags/GAN/" rel="tag"># GAN</a>
           
         </div>
       
@@ -508,8 +479,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/07/17/DetNet/" rel="next" title="DetNet">
-                <i class="fa fa-chevron-left"></i> DetNet
+              <a href="/2019/07/25/WGAN/" rel="next" title="WGAN">
+                <i class="fa fa-chevron-left"></i> WGAN
               </a>
             
           </div>
@@ -517,10 +488,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/07/19/Grid-RCNN/" rel="prev" title="Grid-RCNN">
-                Grid-RCNN <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -675,7 +642,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RepPoints"><span class="nav-number">1.</span> <span class="nav-text">RepPoints</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BBox-表示"><span class="nav-number">1.1.</span> <span class="nav-text">BBox 表示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RepPoints-1"><span class="nav-number">1.2.</span> <span class="nav-text">RepPoints</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RPDet"><span class="nav-number">2.</span> <span class="nav-text">RPDet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#与可变形-RoI-pooling-的关系"><span class="nav-number">2.1.</span> <span class="nav-text">与可变形 RoI pooling 的关系</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实验"><span class="nav-number">3.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">4.</span> <span class="nav-text">结论</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Conditional-Adversarial-Nets"><span class="nav-number">1.</span> <span class="nav-text">Conditional Adversarial Nets</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验"><span class="nav-number">2.</span> <span class="nav-text">实验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Unimodal"><span class="nav-number">2.1.</span> <span class="nav-text">Unimodal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Multimodal"><span class="nav-number">2.2.</span> <span class="nav-text">Multimodal</span></a></li></ol></li></ol></div>
             
 
           </div>
