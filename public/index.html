@@ -337,7 +337,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/29/CGAN/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/08/01/ImprovedGAN/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="shajianjian">
@@ -357,7 +357,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/07/29/CGAN/" class="post-title-link" itemprop="url">CGAN</a>
+                <a href="/2019/08/01/ImprovedGAN/" class="post-title-link" itemprop="url">ImprovedGAN</a>
               
             
           </h1>
@@ -382,12 +382,24 @@
                 
               
 
-              <time title="创建时间：2019-07-29 17:00:43 / 修改时间：20:17:41" itemprop="dateCreated datePublished" datetime="2019-07-29T17:00:43+08:00">2019-07-29</time>
+              <time title="创建时间：2019-08-01 15:48:46" itemprop="dateCreated datePublished" datetime="2019-08-01T15:48:46+08:00">2019-08-01</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-08-02 17:31:30" itemprop="dateModified" datetime="2019-08-02T17:31:30+08:00">2019-08-02</time>
               
             
           </span>
@@ -424,8 +436,175 @@
         
           
             <p>
-              论文 Conditional Generative Adversarial Nets
-在 GAN 中我们知道 GAN 经过训练，生成器 G 可以根据一个随机噪声输入生成与训练集样本非常相似的样本（判别器 D 无法判别），但是 G 生成样本的标签是无法控制的，以 mnist 数据集为例，给 G 一个随机噪声输入，G 生成的样本图像可能表示数字 1，也可能是其他数字，GAN 无法控制，GAN 只能做到
+              标题 Improved Techniques for Training GANs
+源码 improved_gan
+简介GAN 是基于博弈论学习生成模型的一类方法总称。GAN 目的是训练一个生成网络其生成样本的分布可以拟合真实数据分布。虽然 DCGAN 在 GAN 中引入 conv+BN+ReLU 在一定程度上改善了生成器，但是我们认为 GAN 这个零和博弈问题具有高维参数且非凸，需要达到 Nash
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/08/01/ImprovedGAN/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/29/CGAN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/07/29/CGAN/" class="post-title-link" itemprop="url">CGAN/DCGAN</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-29 17:00:43" itemprop="dateCreated datePublished" datetime="2019-07-29T17:00:43+08:00">2019-07-29</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-31 17:47:17" itemprop="dateModified" datetime="2019-07-31T17:47:17+08:00">2019-07-31</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>
+              CGAN论文 Conditional Generative Adversarial Nets
+在 GAN 中我们知道 GAN 经过训练，生成器 G 可以根据一个随机噪声输入生成与训练集样本非常相似的样本（判别器 D 无法判别），但是 G 生成样本的标签是无法控制的，以 mnist 数据集为例，给 G 一个随机噪声输入，G 生成的样本图像可能表示数字 1，也可能是其他数字，GAN 无法控制，GAN 
               ...
             </p>
           <!--noindex-->
@@ -719,7 +898,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-07-29 17:00:16" itemprop="dateModified" datetime="2019-07-29T17:00:16+08:00">2019-07-29</time>
+                <time title="修改时间：2019-07-30 16:17:01" itemprop="dateModified" datetime="2019-07-30T16:17:01+08:00">2019-07-30</time>
               
             
           </span>
@@ -1816,173 +1995,6 @@ c++filt
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/08/mask-rcnn/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/07/08/mask-rcnn/" class="post-title-link" itemprop="url">mask-rcnn</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-07-08 17:39:57" itemprop="dateCreated datePublished" datetime="2019-07-08T17:39:57+08:00">2019-07-08</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-07-09 18:57:27" itemprop="dateModified" datetime="2019-07-09T18:57:27+08:00">2019-07-09</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>
-              论文 Mask R-CNN
-Introduction这是一篇实例分割的文章。实例分割结合了目标检测和语义分割，这看似是需要一个复杂的模型才能完成的任务，实际上本文提出的 Mask R-CNN 出奇的简单灵活且高效。  
-Mask R-CNN 是对 Faster R-CNN 的扩展，增加了一个分支用于预测每个 RoI 的分割掩模（segmentation masks），如图 1，这个分支与原先的分类
-              ...
-            </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/07/08/mask-rcnn/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2029,7 +2041,7 @@ Mask R-CNN 是对 Faster R-CNN 的扩展，增加了一个分支用于预测每�
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">25</span>
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

@@ -1,9 +1,10 @@
 ---
-title: CGAN
+title: CGAN/DCGAN
 date: 2019-07-29 17:00:43
 tags: GAN
 mathjax: true
 ---
+# CGAN
 论文 [Conditional Generative Adversarial Nets](https://arxiv.org/abs/1411.1784)
 
 在 [GAN](2019/07/23/GAN) 中我们知道 GAN 经过训练，生成器 G 可以根据一个随机噪声输入生成与训练集样本非常相似的样本（判别器 D 无法判别），但是 G 生成样本的标签是无法控制的，以 mnist 数据集为例，给 G 一个随机噪声输入，G 生成的样本图像可能表示数字 1，也可能是其他数字，GAN 无法控制，GAN 只能做到 G 生成样本图像很逼近真实样本图像。然而，使用额外信息来限制模型则可以控制数据生成过程，这个额外信息可以是分类标签或是其他形式的数据，于是本文的 CGAN 应运而生。
@@ -52,3 +53,8 @@ x_for_d=tf.concat([x,new_y],axis=-1)    # [batch_size,28,28,1+10]
 实验使用 MIR Flickr 25000 数据集，使用上述卷积模型和语言模型（AlexNet，skip-gram）分布抽取图像特征和 tag 特征。数据集中前 15000 的样本作为训练集。训练阶段，数据集中没有 tag 的图像被忽略掉，而如果图像拥有多个 tag，那么对于每个 tag 均分别使用一次这个图像。
 
 evaluation 阶段，对于每个图像生成 100 个样本（tag 特征向量），然后对每个生成样本，使用余弦相似度计算词典中与样本最接近的 20 个词，然后再所有 100 个样本中（我理解的是在 2000 个词中）选择 top 10 最常见的词作为图像的 tags。由于这部分实验没有看到源码，故其余部分的介绍略过，详情可参考原论文。
+
+# DCGAN
+论文 [Unsupervised Representation Learning With Deep Convolutional Generative Adversarial Networks](https://arxiv.org/abs/1511.06434)
+
+这篇文章主要是将卷积层、BN 以及 ReLU 引入 GAN 网络，没有官方代码，但是 github 上有很多实现，都非常简单易懂，例如 [DCGAN-tensorflow](https://github.com/carpedm20/DCGAN-tensorflow)。

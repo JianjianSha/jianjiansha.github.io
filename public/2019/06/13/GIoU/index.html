@@ -106,7 +106,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/GIoU_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/GIoU_fig2.png">
-<meta property="og:updated_time" content="2019-06-25T09:10:09.665Z">
+<meta property="og:updated_time" content="2019-08-01T06:24:28.166Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GIoU">
 <meta name="twitter:description" content="论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression 摘要IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，">
@@ -404,7 +404,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-25 17:10:09" itemprop="dateModified" datetime="2019-06-25T17:10:09+08:00">2019-06-25</time>
+                <time title="修改时间：2019-08-01 14:24:28" itemprop="dateModified" datetime="2019-08-01T14:24:28+08:00">2019-08-01</time>
               
             
           </span>
@@ -520,7 +520,7 @@
 <p>我们看下如何获得边界值：</p>
 <ul>
 <li>与 IoU 相同，只有当 A B 完成重合的时候，即$|A \cup B|=|A \cap B|$，此时$GIoU =IoU=1$</li>
-<li>当 A B 两个形所占面积（体积）与 C 所在面积（体积）之比趋于 0，GIoU 趋于 -1，即$\lim_{\frac{|A \cup B|}{|C|}} GIoU(A,B)=-1$</li>
+<li>当 A B 两个形所占面积（体积）与 C 所在面积（体积）之比趋于 0，GIoU 趋于 -1，即$\lim_{\frac{|A \cup B|}{|C|}\rightarrow 0} GIoU(A,B)=-1$</li>
 </ul>
 </li>
 </ul>
@@ -709,7 +709,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">25</span>
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
