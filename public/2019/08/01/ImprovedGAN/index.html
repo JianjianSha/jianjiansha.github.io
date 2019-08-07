@@ -105,7 +105,7 @@
 <meta property="og:description" content="标题 Improved Techniques for Training GANs 源码 improved_gan 简介GAN 是基于博弈论学习生成模型的一类方法总称。GAN 目的是训练一个生成网络其生成样本的分布可以拟合真实数据分布。虽然 DCGAN 在 GAN 中引入 conv+BN+ReLU 在一定程度上改善了生成器，但是我们认为 GAN 这个零和博弈问题具有高维参数且非凸，需要达到 Nash">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/ImprovedGAN_fig1.png">
-<meta property="og:updated_time" content="2019-08-02T09:31:30.323Z">
+<meta property="og:updated_time" content="2019-08-06T05:58:19.761Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ImprovedGAN">
 <meta name="twitter:description" content="标题 Improved Techniques for Training GANs 源码 improved_gan 简介GAN 是基于博弈论学习生成模型的一类方法总称。GAN 目的是训练一个生成网络其生成样本的分布可以拟合真实数据分布。虽然 DCGAN 在 GAN 中引入 conv+BN+ReLU 在一定程度上改善了生成器，但是我们认为 GAN 这个零和博弈问题具有高维参数且非凸，需要达到 Nash">
@@ -403,7 +403,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-08-02 17:31:30" itemprop="dateModified" datetime="2019-08-02T17:31:30+08:00">2019-08-02</time>
+                <time title="修改时间：2019-08-06 13:58:19" itemprop="dateModified" datetime="2019-08-06T13:58:19+08:00">2019-08-06</time>
               
             
           </span>
@@ -445,7 +445,7 @@
 <li>小批量特征</li>
 <li>虚拟批归一化</li>
 </ol>
-<h1 id="GAN-训练收敛"><a href="#GAN-训练收敛" class="headerlink" title="GAN 训练收敛"></a>GAN 训练收敛</h1><p>训练 GAN 意味着寻找二人非合作博弈中的 Nash 均衡，每个玩家希望最小化自己的损失函数，即生成器损失 $J^{(G)}(\mathbf {\theta}^{(D)}, \mathbf {\theta}^{G})$ 和判别器损失 $J^{(D)}(\mathbf {\theta}^{(D)}, \mathbf {\theta}^{G})$，Nash 均衡指 $J^{(D)}$ 关于 $\theta^{(D)}$ 最小，同时 $J^{(G)}$ 关于 $\theta^{(G)}$ 最小。寻找 Nash 均衡点是一个比较困难的问题，虽然某些特殊情况下有算法可以解决，但是由于这里损失函数非凸且参数维度很高，那些方法均不适用。以上 Nash 均衡的说明让我们从直觉上认为需要同时最小化 G 和 D 的损失。但是很不幸，更新 $\theta^{(D)}$ 降低 $J^{(D)}$ 却增大 $J^{(G)}$，更新 $\theta^{(G)}$ 以降低 $J^{(G)}$ 但是会增大 $J^{(D)}$。这就是导致梯度下降法难以收敛（往往是在一个椭圆轨道上一直反复，而不会到达最佳点）。例如一个玩家根据 x 来最小化 xy，另一个玩家根据 y 来最小化 -xy，梯度下降法更新会使得 x 和 y 值构成的点在一个椭圆上往复，而不会收敛到 x=y=0。本文介绍以下方法启发式的促使更新达到收敛。</p>
+<h1 id="GAN-训练收敛"><a href="#GAN-训练收敛" class="headerlink" title="GAN 训练收敛"></a>GAN 训练收敛</h1><p>训练 GAN 意味着寻找二人非合作博弈中的 Nash 均衡，每个玩家希望最小化自己的损失函数，即生成器损失 $J^{(G)}(\mathbf {\theta}^{(D)}, \mathbf {\theta}^{G})$ 和判别器损失 $J^{(D)}(\mathbf {\theta}^{(D)}, \mathbf {\theta}^{G})$，Nash 均衡指 $J^{(D)}$ 关于 $\theta^{(D)}$ 最小，同时 $J^{(G)}$ 关于 $\theta^{(G)}$ 最小。寻找 Nash 均衡点是一个比较困难的问题，虽然某些特殊情况下有算法可以解决，但是由于这里损失函数非凸且参数维度很高，那些方法均不适用。以上 Nash 均衡的说明让我们从直觉上认为需要同时最小化 G 和 D 的损失。但是很不幸，更新 $\theta^{(D)}$ 降低 $J^{(D)}$ 却增大 $J^{(G)}$，更新 $\theta^{(G)}$ 以降低 $J^{(G)}$ 但是会增大 $J^{(D)}$。这就是导致梯度下降法难以收敛（往往是在一个轨道上一直反复，而不会到达最佳点）。例如一个玩家根据 x 来最小化 xy，另一个玩家根据 y 来最小化 -xy，梯度下降法更新会使得 x 和 y 值构成的点在一个椭圆上往复，而不会收敛到 x=y=0。本文介绍以下方法启发式的促使更新达到收敛。</p>
 <h2 id="特征匹配"><a href="#特征匹配" class="headerlink" title="特征匹配"></a>特征匹配</h2><p>特征匹配使用新的生成器损失函数以解决 GAN 训练不稳定问题。新的目标函数不是直接最大化 D 的输出（G 原本的目标是让 D 对生成样本有越大越好的输出），而是让 G 生成的样本能够匹配真实数据的统计量，这是一种更直接的思想。具体而言，训练 G 以匹配特征的期望值，这个特征来自于 D 的网络中间层。令 $\mathbf {f(x)}$ 表示 D 网络中间层的激活响应，即前面所指的特征，那么 G 的新目标函数为<br>$$|\Bbb E_{\mathbf x \sim p_{data}} \mathbf {f(x)}-\Bbb E_{\mathbf z \sim p_{\mathbf z}}\mathbf f(G(\mathbf z))|_2^2$$<br>G 的训练目标就是最小化这个目标损失。</p>
 <h2 id="小批量判别"><a href="#小批量判别" class="headerlink" title="小批量判别"></a>小批量判别</h2><p>GAN 训练失败的原因之一是生成器训练时总是会陷入一组参数无法逃脱，我这里称其为“陷入点”，当临近“陷入点”时，生成器的输出点总是很相似，而这些相似的点会让判别器总是指向一个差不多的方向，由于判别器 <strong>独立处理</strong> 每个样本，这些样本对应的梯度相互之间无法合作，缺乏一种反馈机制去通知生成器让其输出相互之间尽可能不相似，生成器所有的输出都向同一个点竞争，这个点是为了让判别器判别为真实的数据，所以结果就是生成器陷入一组模型参数无法自拔，陷入之后，判别器通过学习又能够将这个点判别为来自生成器，但是梯度 <strong>无法区分</strong> 各个不同的输出，于是判别器的梯度会一直在空间中将生成器产生的这个“陷入点”推来推去，导致算法无法收敛。一种显然的解决办法是让判别器不独立处理每个样本，而是一次能看到多个样本的合并，这就是小批量判别方法。</p>
 <p>现在我们的实验建模瞄准于区分生成器的各个相互靠得很近得样本。小批量中样本之间接近程度按如下方法计算：<br>令 $\mathbf {f(x_i)} \in \Bbb R^A$ 表示输入 $\mathbf x_i$ 对应的特征向量，这个特征由 D 网络中间层产生，然后将特征向量乘以一个张量 $T \in \Bbb R^{A \times B \times C}$，结果是一个矩阵 $M_i \in \Bbb R^{B \times C}$，对于输入样本编号 $i \in {1,…,n}$，得到对应的矩阵 ${M_i |i=1,…,n}$，计算两两矩阵的各行向量之间的 L1 距离，然后应用负指数函数，<br>$$c_b(\mathbf x_i, \mathbf x_j)=\exp(-|M_{i,b}-M_{j,b}|<em>{L_1}) \in \Bbb R, \quad i,j \in {1,…,n}, \quad b \in {1,…,B}$$<br>其中下标 b 表示 row index。如图 1，minibatch layer 中样本 $\mathbf x_i$ 对应的输出定义为，<br>$$\begin{aligned} &amp;o(\mathbf x_i)_b = \sum</em>{j=1}^n c_b(\mathbf x_i, \mathbf x_j) \in \Bbb R<br>\\ &amp;o(\mathbf x_i)=\left[o(\mathbf x_i)_1,…o(\mathbf x_i)_B \right] \in \Bbb R^B<br>\\ &amp;o(\mathbf X) \in \Bbb R^{n \times B} \end{aligned}$$</p>
@@ -517,6 +517,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2019/08/07/DP1/" rel="prev" title="DP1">
+                DP1 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -584,7 +588,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-count">27</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -603,7 +607,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">1</span>
+                      
+                    
+                    <span class="site-state-item-count">2</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -632,7 +638,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">6</span>
+                      
+                    
+                    <span class="site-state-item-count">7</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
