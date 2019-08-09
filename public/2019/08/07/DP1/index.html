@@ -99,14 +99,14 @@
   <meta name="description" content="我计划开启一系列动态规划的方法介绍，主要参考 《Dynamic Programming · A Computational Tool》这本书。 简介动态规划用于解决一类优化问题，顺序地做出决策，每一次决策使得问题转变为对一个子问题的优化，直到问题解决，这个决策序列就是原始问题的最优解。我们也可以将 问题/子问题 看作状态，决策就是状态间的转移，问题得到解决就对应着结束状态。 优化原理 一个最优决策">
 <meta name="keywords" content="math, DP">
 <meta property="og:type" content="article">
-<meta property="og:title" content="DP1">
+<meta property="og:title" content="Dynamic Programming (1)">
 <meta property="og:url" content="https://shajianjian.github.io/2019/08/07/DP1/index.html">
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="我计划开启一系列动态规划的方法介绍，主要参考 《Dynamic Programming · A Computational Tool》这本书。 简介动态规划用于解决一类优化问题，顺序地做出决策，每一次决策使得问题转变为对一个子问题的优化，直到问题解决，这个决策序列就是原始问题的最优解。我们也可以将 问题/子问题 看作状态，决策就是状态间的转移，问题得到解决就对应着结束状态。 优化原理 一个最优决策">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-07T11:07:33.695Z">
+<meta property="og:updated_time" content="2019-08-09T10:55:26.136Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="DP1">
+<meta name="twitter:title" content="Dynamic Programming (1)">
 <meta name="twitter:description" content="我计划开启一系列动态规划的方法介绍，主要参考 《Dynamic Programming · A Computational Tool》这本书。 简介动态规划用于解决一类优化问题，顺序地做出决策，每一次决策使得问题转变为对一个子问题的优化，直到问题解决，这个决策序列就是原始问题的最优解。我们也可以将 问题/子问题 看作状态，决策就是状态间的转移，问题得到解决就对应着结束状态。 优化原理 一个最优决策">
 
 
@@ -125,7 +125,7 @@
   };
 </script>
 
-  <title>DP1 | SJJ</title>
+  <title>Dynamic Programming (1) | SJJ</title>
   
 
 
@@ -358,7 +358,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">DP1
+          <h1 class="post-title" itemprop="name headline">Dynamic Programming (1)
 
               
             
@@ -384,12 +384,24 @@
                 
               
 
-              <time title="创建时间：2019-08-07 17:29:56 / 修改时间：19:07:33" itemprop="dateCreated datePublished" datetime="2019-08-07T17:29:56+08:00">2019-08-07</time>
+              <time title="创建时间：2019-08-07 17:29:56" itemprop="dateCreated datePublished" datetime="2019-08-07T17:29:56+08:00">2019-08-07</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-08-09 18:55:26" itemprop="dateModified" datetime="2019-08-09T18:55:26+08:00">2019-08-09</time>
               
             
           </span>
@@ -446,13 +458,42 @@
 <h2 id="优化原理"><a href="#优化原理" class="headerlink" title="优化原理"></a>优化原理</h2><blockquote>
 <p>一个最优决策满足：无论问题初始状态和初始决策是什么，剩余的决策序列构成做出初始决策之后问题状态的最优解。</p>
 </blockquote>
-<p>这类似于最短路径算法：在一个指定了起点和终点的有权路径图中，无论之前选择了什么路径，我们必须保证从当前节点起，剩余的路径选择必须是最优的。这是一种递归的处理方式，要解这个问题，直觉告诉我们似乎可以采用逆推法，这个直觉很重要，因为下文将会用到它。<br><em>注：这里我们讲 “类似于” 是因为最短路径问题可以看作动态规划的一种特例，因为最短路径问题是有时序的，且问题的所有常规解（也包含最优解）对应的决策集中决策数量可能会有所不同</em></p>
+<p>以最短路径问题为例说明：在一个指定了起点和终点的有权路径图中，无论之前选择了什么路径，我们必须保证从当前节点起，剩余的路径选择必须是最优的。<del>这是一种递归的处理方式，要解这个问题，直觉告诉我们似乎可以采用逆推法（隐马尔可夫预测问题的求解），这个直觉很重要，因为下文将会用到它。</del></p>
 <h3 id="顺序决策过程"><a href="#顺序决策过程" class="headerlink" title="顺序决策过程"></a>顺序决策过程</h3><p>考虑具有如下形式的优化问题：$opt_{d \in \Delta} {H(d)}$，其中 d 为决策，决策空间为 $\Delta$，H 为目标函数，H(d) 的最优解记为 $d^{\ast}$：$d^{\ast}=\arg opt_d {H(d)}$。动态规划问题则要求寻找有序决策集 ${d_1,…,d_n}$，使得目标函数 $h(d_1,…,h_n)$ 取得最优 $H^{\ast}$。</p>
-<p>我们可以枚举 ${d_1,…,d_n}$ 所有可能的取值，然后代入目标函数进行计算，这就是 “暴力” 解法，但是这只在决策空间较小时有效，在决策空间很大时，这种方法效率非常低不可取，所以此时我们需要按顺序做出决策 $d_1,…,d_n$，使得<br>$$\begin{aligned}H^{\ast}&amp;=opt_{(d_1,…,d_n)\in \Delta} {h(d_1,…,d_n)}<br>\\ &amp;=opt_{d_1 \in D_1} {…{opt_{d_n \in D_n}{h(d_1,…,d_n)}}…} \quad(1.1)\end{aligned}$$</p>
-<p>其中 $(d_1,…,d_n) \in \Delta=D_1 \times … \times D_n$。通常，第 i 个决策空间依赖于前面所有的决策：$d_i \in D_i(d_1,…,d_{i-1})$，于是式 (1.1) 可改写为<br>$$\begin{aligned}H^{\ast}&amp;=opt_{(d_1,…,d_n)\in \Delta} {h(d_1,…,d_n)}<br>\\ &amp;=opt_{d_1 \in D_1} {…{opt_{d_n \in D_n(d_1,…,d_{n-1})}{h(d_1,…,d_n)}}…} \quad(1.2)\end{aligned}$$</p>
-<p>式 (1.2) 的优化操作是一个嵌套结构，根据前面所提的那个直觉，可以由内向外解决问题。解最内层的优化问题，此时前序所有决策均看作已知，可得到最优 $d_n$，记作 $d_n^{\ast}(d_1,…,d_{n-1})$。向外逆推，直到解出最外层优化问题 $opt_{d_1 \in D_1} {h(d_1,d_2^{\ast},…,d_n^{\ast} }$ 的解 $d_1^{\ast}$。</p>
-<p>如果改变决策顺序目标函数的最优解相同，如<br>$$\begin{aligned} &amp;opt_{d_1 \in D_1} {opt_{d_2 \in D_2(d_1)} {… {opt_{d_n \in D_n(d_1,…,d_{n-1})} {h(d_1,…,d_n)}}…}}<br>\\ = \ &amp; opt_{d_n \in D_n} {opt_{d_{n-1} \in D_{n-1}(d_n)} {… {opt_{d_1 \in D_n(d_2,…,d_n)} {h(d_1,…,d_n)}}…}} \end{aligned}$$</p>
+<p>我们可以枚举 ${d_1,…,d_n}$ 所有可能的取值，然后代入目标函数进行计算，这就是 “暴力” 解法，但是这只在决策空间较小时有效，在决策空间很大时，这种方法效率非常低不可取，所以此时我们需要按顺序做出决策 $d_1,…,d_n$，使得<br>$$\begin{aligned}H^{\ast}&amp;=opt_{(d_1,…,d_n)\in \Delta} {h(d_1,…,d_n)}<br>\\ &amp;=opt_{d_1 \in D_1} {opt_{d_2 \in D_2}{…{opt_{d_n \in D_n}{h(d_1,…,d_n)}}…}} \quad(1.1)\end{aligned}$$</p>
+<p>其中 $(d_1,…,d_n) \in \Delta=D_1 \times … \times D_n$。通常，第 i 个决策空间依赖于前面所有的决策：$d_i \in D_i(d_1,…,d_{i-1})$，于是式 (1.1) 可改写为<br>$$\begin{aligned}H^{\ast}&amp;=opt_{(d_1,…,d_n)\in \Delta} {h(d_1,…,d_n)}<br>\\ &amp;=opt_{d_1 \in D_1} {opt_{d_2 \in D_2(d_1)}{…{opt_{d_n \in D_n(d_1,…,d_{n-1})}{h(d_1,…,d_n)}}…}} \quad(1.2)\end{aligned}$$</p>
+<p>式 (1.2) 的优化操作是一个嵌套结构，可以由内向外解决问题，解最内层的优化问题，此时前序所有决策均看作已知，可得到最优 $d_n$，记作 $d_n^{\ast}(d_1,…,d_{n-1})$，可以将 $d_n^{\ast}$ 看作是其前序决策的函数。向外逆推，直到解出最外层优化问题 $opt_{d_1 \in D_1} {h(d_1,d_2^{\ast},…,d_n^{\ast} }$ 的解 $d_1^{\ast}$。</p>
+<p>如果改变决策顺序目标函数的最优解相同，如<br>$$\begin{aligned} &amp;opt_{d_1 \in D_1} {opt_{d_2 \in D_2(d_1)} {… {opt_{d_n \in D_n(d_1,…,d_{n-1})} {h(d_1,…,d_n)}}…}}<br>\\ = \ &amp; opt_{d_n \in D_n} {opt_{d_{n-1} \in D_{n-1}(d_n)} {… {opt_{d_1 \in D_n(d_2,…,d_n)} {h(d_1,…,d_n)}}…}} \quad(1.3) \end{aligned}$$</p>
 <p>那么决策空间 $D_i$ 可能会跟之前有所不同，因为此时 $D_i$ 依赖于 $(d_{i+1},…,d_n)$，所以问题求解的效率会随着决策顺序的变化而有所改变。</p>
+<p>回到前面式 (1.2)，假设我们暂时做出最外层决策 $d_1$，此时 $d_1$ 是否是最优决策还尚未可知，但是根据前面所说的优化原理，无论之前做出什么决策，之后的决策需要保证是最优的，所以有<br>$$\begin{aligned}H^{\ast}&amp;=opt_{d_1 \in D_1} {opt_{d_2 \in D_2(d_1)}{…{opt_{d_n \in D_n(d_1,…,d_{n-1})}{h(d_1,…,d_n)}}…}}<br>\\ &amp;=opt_{d_1 \in D_1}{h(d_1,d_2^{\ast}(d_1),…,d_n^{\ast}(d_1)} \qquad \qquad(1.4) \end{aligned}$$</p>
+<p>其中 $d_i^{\ast}(d_1), \ i&gt;1$ 可以看作是输入参数 $d_1$ 的偏函数（partial function）。最外层决策的最优解则为 $d_1^{\ast}=\arg opt_{d_1 \in D_1} {h(d_1,d_2^{\ast}(d_1),…,d_n^{\ast}(d_1))}$，可以看出，$d_1$ 与其后序的决策互相耦合，要解这样的问题还是有点棘手。</p>
+<h4 id="目标函数可分"><a href="#目标函数可分" class="headerlink" title="目标函数可分"></a>目标函数可分</h4><p>一种方法是将 $d_1$ 决策与 $d_2,…,d_n$ 决策独立开来，也就是说通过解决形如 $opt_{d_1 \in D_1}{H’(d_1)}$ 问题的最优解以得到 $d_1$ 的最佳决策，这是一种贪心算法，这种算法在局部最优 $opt_{d_1}{H’(d_1)}$ 与全局最优 $H^{\ast}$ 一致的情况下是有效的。我们先分析这种特殊情况，因为它足够简单：假设目标函数 h 强可分，即<br>$$h(d_1,…,d_n)=C_1(d_1) \circ C_2(d_2) \circ … \circ C_n(d_n) \qquad (1.5)$$<br>其中 $C_i$ 是决策 $d_i$ 关联的决策损失函数，$\circ$ 是某种关联二元操作（例如 加 或 乘）并具有属性<br>$$opt_d{a \circ C(d)}=a \circ opt_d{C(d)}$$<br>其中 a 不依赖于决策 d。在序列决策过程中，损失 $C_n$ 不仅依赖于 $d_n$，还依赖于当前问题所处的状态 $(d_1,d_2,…,d_{n-1})$，所以改写上式为<br>$$h(d_1,…,d_n)=C_1(d_1|\emptyset) \circ C_2(d_2|d_1) \circ … \circ C_n(d_n|d_1,…,d_{n-1}) \qquad(1.6)$$</p>
+<p>定义如果目标函数 h 满足<br>$$h(d_1,…,d_n)=C_1(d_1) \circ C_2(d_1,d_2) \circ … \circ C_n(d_1,…,d_n) \qquad(1.7)$$<br>那么称其弱可分（强可分是弱可分的一种特殊情况），此时有<br>$$\begin{aligned} &amp; opt_{d_1 \in D_1} {opt_{d_2 \in D_2(d_1)}{…{opt_{d_n \in D_n(d_1,…,d_{n-1})}{h(d_1,…,d_n)}}…}}<br>\\ = \ &amp; opt_{d_1 \in D_1} {opt_{d_2 \in D_2(d_1)}{…{opt_{d_n \in D_n(d_1,…,d_{n-1})}{C_1(d_1) \circ C_2(d_1,d_2) \circ … \circ C_n(d_1,…,d_n)}}…}}<br>\\ = \ &amp; opt_{d_1 \in D_1} {C_1(d_1|\emptyset) \circ opt_{d_2 \in D_2(d_1)}{C_2(d_1,d_2) \circ … \circ {opt_{d_n \in D_n(d_1,…,d_{n-1})}{C_n(d_1,…,d_n)}…}} \qquad(1.8) \end{aligned}$$<br>最后一个等式根据 $\circ$ 操作的属性推导。</p>
+<p>令 $f(d_1,…,d_n)$ 表示序列决策过程在已经做出决策 $d_1,…,d_{i-1}$ 时的最优解，即<br>$$f(d_1,…,d_{i-1})=opt_{d_i}{opt_{d_{i+1}}{… {opt_{d_n} {C_i(d_i|d_1,…,d_{i-1}) \circ C_{i+1}(d_{i+1}|d_1,…,d_i) \circ … \circ C_n(d_n|d_1,…,d_{n-1}) }}…}} \ (1.9)$$<br>其中因为篇幅起见省略了每个决策的取值空间 $D_i$。现在序列决策过程可表示为<br>$$\begin{aligned}f(\emptyset)&amp;=opt_{d_1}{opt_{d_2}{…{opt_{d_n}{C(d_1|\emptyset) \circ C_2(d_2|d_1) \circ … \circ C_n(d_n|d_1,…,d_{n-1})}}…}}<br>\\ &amp;opt_{d_1}{C_1(d_1|\emptyset) \circ opt_{d_2}{C(d_2|d_1) \circ…\circ opt_{d_n}{C_n(d_n|d_1,…,d_{n-1})}…}}<br>\\ &amp;opt_{d_1}{C_1(d_1|\emptyset) \circ f(d_1)}  \qquad \quad (1.10) \end{aligned}$$<br>一般地，我们有<br>$$f(d_1,…,d_{i-1})=opt_{d_i \in D_i(d_1,…,d_{i-1})}{C_i(d_i|d_1,…,d_{i-1})\circ f(d_1,…,d_i)} \qquad(1.11)$$</p>
+<p>于是我们得到问题的递归函数形式，这就是优化问题的动态规划函数方程（DPFE）。</p>
+<h3 id="DPFE"><a href="#DPFE" class="headerlink" title="DPFE"></a>DPFE</h3><p>求解 DPFE 中的 $f(d_1,…,d_{i-1})$，定义状态 $S=(d_1,…,d_{i-1})$，那么 $i=|S|+1=|{d_1,…,d_{i-1}}|+1$，于是可以改写 DPFE 为以下形式，<br>$$f(S)=opt_{d_i \in D_i(S)}{C_i(d_i|S) \circ f(S’)} \qquad (1.12)$$<br>其中 $S’=(d_1,…,d_i)$ 是下一状态，$\emptyset$ 是初始状态。记状态空间为 $\mathcal S$，由于 DPFE 是递归的，要终止递归，则要求具备一些基本情况（或称边界条件），例如 $f(S_0)=b, \ S_0 \in \mathcal S_{base}$，对于某个基本（终止）态 $S_0$，$f(S_0)$ 不使用 DPFE 计算其值，而是有一个给定的常数值 b，这就表示到达基本态时，递归结束。</p>
+<p>值得注意的是决策序列的长度 n 并非固定，当决策使得目标到达基本态时结束决策过程。前面我们定义状态 S 表示已经做过的决策，下一决策 d 则从 D(S) 中进行选择，但实际上为了表示方便，直接定义状态 S 为下一决策 d 的可选决策空间，即 $d \in S$，于是 DPFE 变为<br>$$f(S)=opt_{d \in S} {C(d|S) \circ f(S’)} \qquad (1.13)$$</p>
+<p>我们可以使用状态转移系统或者有向图对简单序列决策过程进行建模，状态 S 为节点，决策 d 使得状态从 S 转移到 S’，D(S) 表示处于状态 S 时的决策空间。考虑使用有向图建模，节点表示 DPFE 的状态，边表示状态间的转移，转移对应着决策，边标记为 b(S,S’)，表示决策 d 的损失 C(d|S)，其中下一状态 $S’=T(S,d), \ T: \mathcal S \times D \rightarrow \mathcal S$，T 是转移函数，于是 DPFE 转变为<br>$$f(S)=opt_S{b(S,S’) \circ f(S’)} \qquad(1.14) $$</p>
+<p>DPFE 的反转形式为<br>$$f’(S)=opt_{S’}{f’(S’) \circ b(S’,S)} \qquad(1.15) $$<br>其中 f’(S) 表示从基本态 $S_0$ 到状态 S 的最优解，注意与前面 f(S) 表示从状态 S 到基本态 $S_0$ 的最优解区分开来。式 (1.14) 为后向形式（backward），式 (1.15) 为前向形式（forward）。</p>
+<h3 id="动态规划的基本要素"><a href="#动态规划的基本要素" class="headerlink" title="动态规划的基本要素"></a>动态规划的基本要素</h3><p>动态规划的基本形式为<br>$$f(S)=opt_{d \in D(S)} {R(S,d) \circ f(T(S,d))}  \quad (1.16)$$<br>其中，S 表示状态空间 $\mathcal S$ 中的某个状态，d 是决策空间 D(S) 中的某个决策，R(S,d) 是收益函数（或称损失函数，记为 C(d|S)，收益对应最大化，损失对应最小化），T(S,d) 是转移函数，$\circ$ 是二元操作符。为简单起见，我们只考虑离散情况。</p>
+<h3 id="线性搜索"><a href="#线性搜索" class="headerlink" title="线性搜索"></a>线性搜索</h3><p>现在我们来看一个实际例子。问题是需要排列一个长度为 N 的数组 A 中的元素，元素 x 具有概率 $p_x$，通过最小化排列的损失来优化线性搜索过程，例如 A={a,b,c}，且 $p_a=0.2,p_b=0.5,p_c=0.3$，于是共有 6 中排列方式 abc,acb,bac,bca,cab,cba（注意：每个排列均代表一种决策序列），其中 bca 排列的损失为 1.7，计算如下：</p>
+<ol>
+<li>Strong separable，方法 S<br>$1p_b+2p_c+3p_a$</li>
+<li>Weak separable，方法 W<br>$(p_a+p_b+p_c)+(p_a+p_c)+(p_a)$</li>
+</ol>
+<p>最优排列问题可看作是序列决策过程，每个决策用于决定将 A 的元素置于排列后 A’ 的哪个位置上。决策的损失可互相独立（强可分），即方法 S 损失定义为：元素 x 的损失为 $ip_x$，其中 i 为 x 在 A’ 中位置；对于 W 方法，决策的损失依赖于决策的顺序，或者说依赖于决策空间，如果以从 A’ 的开始到最后这样的顺序进行决策，还以 bca 排列为例说明，第一次决策的空间为 {a,b,c}，第一次决策选择 b 置于 A’ 第一个位置，然后第二次决策空间为 {a,c}… 依次类推，决策损失与决策空间相关，定义为决策空间中各元素概率之和 $\sum_{x\in D_i} p_x$。</p>
+<p>假设决策顺序为 i=1,2,3，那么对应的决策空间为 $D_1=A,D_2=A-{d_1},D_3=A-{d_1,d_2}$，方法 S 的目标函数为 $h(d_1,d_2,d_3)=1p_{d_1}+2p_{d_2}+3p_{d_3}$，于是有<br>$$\begin{aligned}f(\emptyset)&amp;=\min_{d_1\in A}{\min_{d_2\in A-{d_1}}{\min_{d_3\in A-{d_1,d_2}}{1p_{d_1}+2p_{d_2}+3p_{d_3}}}}<br>\\ &amp;=\min_{d_1\in A}{1p_{d_1}+\min_{d_2 \in A-{d_1}}{2p_{d_2}+\min_{d_3\in A-{d_1,d_2}}{3p_{d_3}}}} \end{aligned}$$</p>
+<p>方法 W 的目标函数为 $h(d_1,d_2,d_3)=\sum_{x \in A}p_x+\sum_{x\in A-{d_1}}p_x+\sum_{x \in A-{d_1,d_2}}p_x$，于是有<br>$$\begin{aligned}f(\emptyset)&amp;=\min_{d_1\in A}{\min_{d_2\in A-{d_1}}{\min_{d_3\in A-{d_1,d_2}}{\sum_{x \in A}p_x+\sum_{x\in A-{d_1}}p_x+\sum_{x \in A-{d_1,d_2}}p_x}}}<br>\\ &amp;=\min_{d_1\in A}{\sum_{x \in A}p_x+\min_{d_2 \in A-{d_1}}{\sum_{x\in A-{d_1}}p_x+\min_{d_3\in A-{d_1,d_2}}{\sum_{x \in A-{d_1,d_2}}p_x}}} \end{aligned}$$</p>
+<p>有了损失的计算方法之后，<strong>线性搜索</strong> 就是依次计算并比较所有排列的损失，具有最小损失的就是最优排列。经过计算发现，bca 就是最佳排列。</p>
+<h3 id="问题的表示和解"><a href="#问题的表示和解" class="headerlink" title="问题的表示和解"></a>问题的表示和解</h3><p>上一小节中的例子可以使用 DP 求解。定义状态 S 为元素的集合，可从中选择决策来确定哪个元素应该放置在 A’ 中的哪个位置。DPFE 的形式如下<br>$$f(S)=\min_{x \in S} {C(x|S)+f(S-{x})}     \quad(1.17)$$<br>其中 $S \in 2^A$，$2^A$ 是 A 的幂集。基本态 $f(\emptyset)=0$，我们目标是要求出 $f(A)$。</p>
+<p>注意这是前向形式的 DPFE。要写成这是后向形式的 DPFE，则根据式 (1.15) 改写如下<br>$$f(S)=\min_{S’} {C(x|S’)+f(S’)}     \quad(1.18)$$<br>其中 $S \in 2^A$，此时我们目标是求 $f(\emptyset)$，基本态 $f(A)=0$。S’ 是 S 的前导状态，从前导状态 S’ 经过决策 x 到达状态 S。</p>
+<p>基于方法 W，损失函数为<br>$$C_W(x|S)=\sum_{y\in S}p_y$$<br>基于上一小节的讨论可知，当前的损失与当前决策 x 无关，而依赖于临决策之前的状态 S 有关，即 S 中各元素的概率和。</p>
+<p>基于方法 S，那么损失函数为<br>$$C_S(x|S)=(N+1-|S|)p_x$$<br>可见此时损失只与当前决策 x 以及决策的序号有关，其中与序号有关是假定了第一个决策确定某元素置于 A’ 的第一个位置，第二个决策确定 A’ 第二个位置上的元素…依次类推。如果决策顺序反过来，即第一个决策确定 A’ 最后一个位置上的元素，那么损失函数需要修改为 $C_S’(x|S)=|S|p_x$。如果将 S 中元素按概率降序排列，事实表明第一个元素（具有最大概率值）将会最小化 $C(x|S)+f(S-{x})$，这是一种贪心策略，即只求当前状态下的最优解。事实上确实存在一类 DP 问题用贪心策略也可解决，这个我们暂时不讨论。</p>
+<p>现在我们来看下如何解 DP 问题，以式 (1.17) 表示的 DPFE 为例进行说明：<br>$$\begin{aligned} f({a,b,c}) &amp;= \min{C(a|{a,b,c})+f({b,c}), C(b|{a,b,c})+f({a,c}), C(c|{a,b,c})+f({a,b})}<br>\\ f({b,c}) &amp;= \min{C(b|{b,c}+f({c}),C(c|{b,c}+f({b})}<br>\\ f({a,c}) &amp;= \min{C(a|{a,c}+f({c}),C(c|{a,c}+f({a})}<br>\\ f({a,b}) &amp;= \min{C(a|{a,b}+f({b}),C(c|{a,b}+f({a})}<br>\\ f({c}) &amp;= \min {C(c|{c})+f(\emptyset)}<br>\\ f({b}) &amp;= \min {C(b|{b})+f(\emptyset)}<br>\\ f({a}) &amp;= \min {C(a|{a})+f(\emptyset)}<br>\\ f(\emptyset) &amp;= 0 \end{aligned}$$<br>其中损失函数可以分别使用方法 S 和方法 W 进行代入计算，这里略。</p>
+<p>再以式 (1.18) 表示的 DPFE 进行说明：<br>$$\begin{aligned} f({a,b,c}) &amp;= 0<br>\\ f({b,c}) &amp;= \min{C(a|{a,b,c}+f({a,b,c})}\stackrel W=\min {1.0+0}=1.0<br>\\ f({a,c}) &amp;= \min{C(b|{a,a,c}+f({a,b,c})}\stackrel W=\min {1.0+0}=1.0<br>\\ f({a,b}) &amp;= \min{C(c|{a,b,c}+f({a,b,c})}\stackrel W=\min {1.0+0}=1.0<br>\\ f({c}) &amp;= \min {C(a|{a,c})+f({a,c}), C(b|{b,c})+f({b,c})}\stackrel W = \min {0.5+1.0,0.8+1.0}=1.5<br>\\ f({b}) &amp;= \min {C(a|{a,b})+f({a,b}), C(c|{b,c})+f({b,c})}\stackrel W = \min {0.7+1.0,0.8+1.0}=1.7<br>\\ f({a}) &amp;= \min {C(b|{a,b})+f({a,b}), C(c|{a,c})+f({a,c})}\stackrel W = \min {0.7+1.0,0.5+1.0}=1.5<br>\\ f(\emptyset) &amp;= \min {C(a|a)+f({a}), C(b|b)+f({b}), C(c|c)+f({c})}\stackrel W = \min {0.2+1.5,0.5+1.7,0.3+1.5}=1.7 \end{aligned}$$<br>以上式中 $\stackrel W=$ 之后部分均表示使用方法 W 进行计算，这是为了演示，方法 S 的代入计算略。</p>
+<h3 id="带阶决策"><a href="#带阶决策" class="headerlink" title="带阶决策"></a>带阶决策</h3><p>第一次决策记为阶 1，第二次决策记为阶 2… 依次类推。将阶号包含进状态 S 的定义中有时候会带来方便甚至是非常有必要的。还以前面的例子进行说明，DPFE 形式 (1.17) 可改写为<br>$$f(k,S)=\min_{x \in S} {C(x|k,S)+f(k+1,S-{x})} \quad(1.19)$$</p>
+<h3 id="Path-States"><a href="#Path-States" class="headerlink" title="Path-States"></a>Path-States</h3><p>状态 S 可以定义为当前已经做过的决策 $(d_1,…,d_{i-1})$，在有向图中用节点表示状态，状态 S 与初始态 $\emptyset$ 到状态 S 之间的路径有关联（其实这个路径也可以表示为 $(d_1,…,d_{i-1})$），需要特别注意的是，前面的状态 S 是无序的，比如 S={a,b}，表示当前已经做出了决策 a 和 b（或者说做出决策选择了 a 和 b，读者根据具体语境进行调整理解），至于决策 a 和 b 的顺序则未定义，而这里 Path-States 中的状态是有序的，S=(a,b)，表示当前已经做出两个决策，第一个决策是 a 且第二个决策是 b。于是此时 DPFE 的形式可写为<br>$$f(S)=\min_{x \notin S} {C(x|S)+f(S + (x))} \qquad(1.20)$$</p>
+<p>前面线性搜索一节中的例子计算过程为<br>$$\begin{aligned} f(\emptyset) &amp;= \min {C(a|\emptyset)+f(a),C(b|\emptyset)+f(b),C(c|\emptyset)+f(c)}\stackrel S= \min{0.2+1.9,0.5+1.2,0.3+1.6}=1.7<br>\\ f(a) &amp;= \min {C(b|a)+f(ab), C(c|a)+f(ac)}\stackrel S= \min{2<em>0.5+0.9,2</em>0.3+1.5}=1.9<br>\\ f(b) &amp;= \min {C(a|b)+f(ba), C(c|b)+f(bc)}\stackrel S= \min{2<em>0.2+0.9,2</em>0.3+0.6}=1.2<br>\\ f(c) &amp;= \min {C(a|c)+f(ca), C(b|c)+f(cb)}\stackrel S= \min{2<em>0.2+1.5,2</em>0.5+0.6}=1.6<br>\\ f(ab) &amp;= \min {C(c|ab)+f(abc)}\stackrel S= 3<em>0.3=0.9<br>\\ f(ac) &amp;= \min {C(b|ac)+f(acb)}\stackrel S= 3</em>0.5=1.5<br>\\ f(ba) &amp;= \min {C(c|ba)+f(bac)}\stackrel S= 3<em>0.3=0.9<br>\\ f(bc) &amp;= \min {C(a|bc)+f(bca)}\stackrel S= 3</em>0.2=0.6<br>\\ f(ca) &amp;= \min {C(b|ca)+f(cab)}\stackrel S= 3<em>0.5=1.5<br>\\ f(cb) &amp;= \min {C(a|cb)+f(cba)} \stackrel S= 3</em>0.2=0.6<br>\\ f(abc) &amp;= f(acb)=f(bac)=f(bca)=f(cab)=f(cba)=0 \end{aligned}$$<br>由于状态是有序的，所以共有 N! 个基本态，损失函数依然可以使用方法 S 和方法 W 计算，例如使用方法 S，损失 $C(c|ab)$ 表示第三次决策使用 c，那么根据方法 S 的定义有 $C(c|ab)=3p_c=3*0.3=0.9$。上面计算中 $\stackrel S=$ 之后部分均表示使用方法 S 进行计算。方法 W 的计算略。</p>
 
       
     </div>
@@ -659,7 +700,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优化原理"><span class="nav-number">1.1.</span> <span class="nav-text">优化原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#顺序决策过程"><span class="nav-number">1.1.1.</span> <span class="nav-text">顺序决策过程</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优化原理"><span class="nav-number">1.1.</span> <span class="nav-text">优化原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#顺序决策过程"><span class="nav-number">1.1.1.</span> <span class="nav-text">顺序决策过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#目标函数可分"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">目标函数可分</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DPFE"><span class="nav-number">1.1.2.</span> <span class="nav-text">DPFE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态规划的基本要素"><span class="nav-number">1.1.3.</span> <span class="nav-text">动态规划的基本要素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线性搜索"><span class="nav-number">1.1.4.</span> <span class="nav-text">线性搜索</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题的表示和解"><span class="nav-number">1.1.5.</span> <span class="nav-text">问题的表示和解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#带阶决策"><span class="nav-number">1.1.6.</span> <span class="nav-text">带阶决策</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Path-States"><span class="nav-number">1.1.7.</span> <span class="nav-text">Path-States</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
