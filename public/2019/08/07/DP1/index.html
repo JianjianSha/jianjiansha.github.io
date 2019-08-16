@@ -104,10 +104,12 @@
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="我计划开启一系列动态规划的方法介绍，主要参考 《Dynamic Programming · A Computational Tool》这本书。 简介动态规划用于解决一类优化问题，顺序地做出决策，每一次决策使得问题转变为对一个子问题的优化，直到问题解决，这个决策序列就是原始问题的最优解。我们也可以将 问题/子问题 看作状态，决策就是状态间的转移，问题得到解决就对应着结束状态。 优化原理 一个最优决策">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-09T10:55:26.136Z">
+<meta property="og:image" content="https://shajianjian.github.io/images/DP1_fig1.png">
+<meta property="og:updated_time" content="2019-08-15T10:20:01.628Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Dynamic Programming (1)">
 <meta name="twitter:description" content="我计划开启一系列动态规划的方法介绍，主要参考 《Dynamic Programming · A Computational Tool》这本书。 简介动态规划用于解决一类优化问题，顺序地做出决策，每一次决策使得问题转变为对一个子问题的优化，直到问题解决，这个决策序列就是原始问题的最优解。我们也可以将 问题/子问题 看作状态，决策就是状态间的转移，问题得到解决就对应着结束状态。 优化原理 一个最优决策">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/DP1_fig1.png">
 
 
 
@@ -401,7 +403,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-08-09 18:55:26" itemprop="dateModified" datetime="2019-08-09T18:55:26+08:00">2019-08-09</time>
+                <time title="修改时间：2019-08-15 18:20:01" itemprop="dateModified" datetime="2019-08-15T18:20:01+08:00">2019-08-15</time>
               
             
           </span>
@@ -493,7 +495,26 @@
 <p>再以式 (1.18) 表示的 DPFE 进行说明：<br>$$\begin{aligned} f({a,b,c}) &amp;= 0<br>\\ f({b,c}) &amp;= \min{C(a|{a,b,c}+f({a,b,c})}\stackrel W=\min {1.0+0}=1.0<br>\\ f({a,c}) &amp;= \min{C(b|{a,a,c}+f({a,b,c})}\stackrel W=\min {1.0+0}=1.0<br>\\ f({a,b}) &amp;= \min{C(c|{a,b,c}+f({a,b,c})}\stackrel W=\min {1.0+0}=1.0<br>\\ f({c}) &amp;= \min {C(a|{a,c})+f({a,c}), C(b|{b,c})+f({b,c})}\stackrel W = \min {0.5+1.0,0.8+1.0}=1.5<br>\\ f({b}) &amp;= \min {C(a|{a,b})+f({a,b}), C(c|{b,c})+f({b,c})}\stackrel W = \min {0.7+1.0,0.8+1.0}=1.7<br>\\ f({a}) &amp;= \min {C(b|{a,b})+f({a,b}), C(c|{a,c})+f({a,c})}\stackrel W = \min {0.7+1.0,0.5+1.0}=1.5<br>\\ f(\emptyset) &amp;= \min {C(a|a)+f({a}), C(b|b)+f({b}), C(c|c)+f({c})}\stackrel W = \min {0.2+1.5,0.5+1.7,0.3+1.5}=1.7 \end{aligned}$$<br>以上式中 $\stackrel W=$ 之后部分均表示使用方法 W 进行计算，这是为了演示，方法 S 的代入计算略。</p>
 <h3 id="带阶决策"><a href="#带阶决策" class="headerlink" title="带阶决策"></a>带阶决策</h3><p>第一次决策记为阶 1，第二次决策记为阶 2… 依次类推。将阶号包含进状态 S 的定义中有时候会带来方便甚至是非常有必要的。还以前面的例子进行说明，DPFE 形式 (1.17) 可改写为<br>$$f(k,S)=\min_{x \in S} {C(x|k,S)+f(k+1,S-{x})} \quad(1.19)$$</p>
 <h3 id="Path-States"><a href="#Path-States" class="headerlink" title="Path-States"></a>Path-States</h3><p>状态 S 可以定义为当前已经做过的决策 $(d_1,…,d_{i-1})$，在有向图中用节点表示状态，状态 S 与初始态 $\emptyset$ 到状态 S 之间的路径有关联（其实这个路径也可以表示为 $(d_1,…,d_{i-1})$），需要特别注意的是，前面的状态 S 是无序的，比如 S={a,b}，表示当前已经做出了决策 a 和 b（或者说做出决策选择了 a 和 b，读者根据具体语境进行调整理解），至于决策 a 和 b 的顺序则未定义，而这里 Path-States 中的状态是有序的，S=(a,b)，表示当前已经做出两个决策，第一个决策是 a 且第二个决策是 b。于是此时 DPFE 的形式可写为<br>$$f(S)=\min_{x \notin S} {C(x|S)+f(S + (x))} \qquad(1.20)$$</p>
-<p>前面线性搜索一节中的例子计算过程为<br>$$\begin{aligned} f(\emptyset) &amp;= \min {C(a|\emptyset)+f(a),C(b|\emptyset)+f(b),C(c|\emptyset)+f(c)}\stackrel S= \min{0.2+1.9,0.5+1.2,0.3+1.6}=1.7<br>\\ f(a) &amp;= \min {C(b|a)+f(ab), C(c|a)+f(ac)}\stackrel S= \min{2<em>0.5+0.9,2</em>0.3+1.5}=1.9<br>\\ f(b) &amp;= \min {C(a|b)+f(ba), C(c|b)+f(bc)}\stackrel S= \min{2<em>0.2+0.9,2</em>0.3+0.6}=1.2<br>\\ f(c) &amp;= \min {C(a|c)+f(ca), C(b|c)+f(cb)}\stackrel S= \min{2<em>0.2+1.5,2</em>0.5+0.6}=1.6<br>\\ f(ab) &amp;= \min {C(c|ab)+f(abc)}\stackrel S= 3<em>0.3=0.9<br>\\ f(ac) &amp;= \min {C(b|ac)+f(acb)}\stackrel S= 3</em>0.5=1.5<br>\\ f(ba) &amp;= \min {C(c|ba)+f(bac)}\stackrel S= 3<em>0.3=0.9<br>\\ f(bc) &amp;= \min {C(a|bc)+f(bca)}\stackrel S= 3</em>0.2=0.6<br>\\ f(ca) &amp;= \min {C(b|ca)+f(cab)}\stackrel S= 3<em>0.5=1.5<br>\\ f(cb) &amp;= \min {C(a|cb)+f(cba)} \stackrel S= 3</em>0.2=0.6<br>\\ f(abc) &amp;= f(acb)=f(bac)=f(bca)=f(cab)=f(cba)=0 \end{aligned}$$<br>由于状态是有序的，所以共有 N! 个基本态，损失函数依然可以使用方法 S 和方法 W 计算，例如使用方法 S，损失 $C(c|ab)$ 表示第三次决策使用 c，那么根据方法 S 的定义有 $C(c|ab)=3p_c=3*0.3=0.9$。上面计算中 $\stackrel S=$ 之后部分均表示使用方法 S 进行计算。方法 W 的计算略。</p>
+<p>前面线性搜索一节中的例子计算过程为<br>$$\begin{aligned} f(\emptyset) &amp;= \min {C(a|\emptyset)+f(a),C(b|\emptyset)+f(b),C(c|\emptyset)+f(c)}\stackrel S= \min{0.2+1.9,0.5+1.2,0.3+1.6}=1.7<br>\\ f(a) &amp;= \min {C(b|a)+f(ab), C(c|a)+f(ac)}\stackrel S= \min{2<em>0.5+0.9,2</em>0.3+1.5}=1.9<br>\\ f(b) &amp;= \min {C(a|b)+f(ba), C(c|b)+f(bc)}\stackrel S= \min{2<em>0.2+0.9,2</em>0.3+0.6}=1.2<br>\\ f(c) &amp;= \min {C(a|c)+f(ca), C(b|c)+f(cb)}\stackrel S= \min{2<em>0.2+1.5,2</em>0.5+0.6}=1.6<br>\\ f(ab) &amp;= \min {C(c|ab)+f(abc)}\stackrel S= 3<em>0.3=0.9<br>\\ f(ac) &amp;= \min {C(b|ac)+f(acb)}\stackrel S= 3</em>0.5=1.5<br>\\ f(ba) &amp;= \min {C(c|ba)+f(bac)}\stackrel S= 3<em>0.3=0.9<br>\\ f(bc) &amp;= \min {C(a|bc)+f(bca)}\stackrel S= 3</em>0.2=0.6<br>\\ f(ca) &amp;= \min {C(b|ca)+f(cab)}\stackrel S= 3<em>0.5=1.5<br>\\ f(cb) &amp;= \min {C(a|cb)+f(cba)} \stackrel S= 3</em>0.2=0.6<br>\\ f(abc) &amp;= f(acb)=f(bac)=f(bca)=f(cab)=f(cba)=0 \end{aligned}$$<br>由于状态是有序的，所以共有 $N!$ 个基本态，损失函数依然可以使用方法 S 和方法 W 计算，例如使用方法 S，损失 $C(c|ab)$ 表示第三次决策使用 c，那么根据方法 S 的定义有 $C(c|ab)=3p_c=3*0.3=0.9$。上面计算中 $\stackrel S=$ 之后部分均表示使用方法 S 进行计算。方法 W 的计算略。</p>
+<h3 id="松弛-Relaxation"><a href="#松弛-Relaxation" class="headerlink" title="松弛 Relaxation"></a>松弛 Relaxation</h3><p>松弛在数学中指通过某种迭代方法逐步得到更好的近似解。考虑一个有限集合 ${a_1,…,a_N}$，其最小值可以通过计算结对元素最小化来求解<br>$$x^{\ast}=\min{\min{…{\min{a_1,a_2},a_3},…},a_N}$$<br>偏最小化序列为 $x_1=a_1, x_2=\min{x_1,a_2},…$，为了表示的统一，可以令 $x_1=\min{x_0,a_1}, x_0=\infty$。序列 $x_1,x_2,…$ 逐步逼近并最终达到 $x^{\ast}$。松弛就是刻画这种逐步逼近的特性。借助松弛的思想，动态规划问题的 DPFE 可表示为<br>$$\begin{aligned} f(S)&amp;=\min_{x \in S} {C(x|S)+f(S_x’)}<br>\\ &amp;=\min{C(x_1|S)+f(S_{x_1}’), C(x_2|S)+f(S_{x_2}’),…,C(x_m|S)+f(S_{x_m}’)} \end{aligned}$$<br>其中 $S={x_1,x_2,…,x_m}$，$S_x’$ 是选择 x 之后的下一状态，与其计算所有的 $C(x|S)+f(S_x’)$ 值，我们不如逐步逼近最终值<br>$$f(S)=\min{\min{…\min{C(x_1|S)+f(S_{x_1}’), C(x_2|S)+f(S_{x_2}’)},…},C(x_m|S)+f(S_{x_m}’)} \quad (1.21)$$<br>注意 $C(x_i|S)$ 中状态全部是 S，并且所有的 $f(S_{x_i}’)$ 需要提前全部计算出来。</p>
+<p>带阶形式的 DPFE 为<br>$$f(k,S)=\min_x {C(x|k,S) + f(k-1,S_x’)} \qquad(1.22)$$<br>其中 k 表示阶段，这里 k 可能不太好理解，我们可以想象从状态 S 经过恰好 k 次变换到达终止态 T，下文最短路径问题中会借鉴式 (1.22)，彼时再回过头来理解可能更加容易些。序列 $f(0,S),f(1,S),…$ 近似于 $f(S)$，序列最小值为 $f(S)$，但这个序列不保证单调性（比如振荡逼近），所以 $f(S)=\min_k {f(k,S)}$，注意 $f(k,S)$ 不是 $f(k-1,S)$ 的函数，而是 $f(k-1,S_x’)$ 的函数。既然 $f(k,S)$ 序列不一定单调，我们定义一个新的序列 $F(k,S)$ 来保证单调性，<br>$$F(k,S)=\min{F(k-1,S), \min_x {C(x|k,S)+F(k-1,S_x’)}} \quad(1.23)$$<br>这里我们可以将 $F(k,S)$ 理解为从状态 S 到终止态 T 最多变换 k 次的损失，与式 (1.22) 中恰好变换 k 次是有区别的。 </p>
+<h3 id="最短路径问题"><a href="#最短路径问题" class="headerlink" title="最短路径问题"></a>最短路径问题</h3><p>在解决前述的线性搜索问题中，我们使用了状态转换图模型，不难发现解决这种线性搜索问题等价于在图中搜索最短路径。</p>
+<p>考虑到有环图的复杂性，我们先讨论无环图。对于一个无环图，从起点 s 到终点 t 的最短路径使用 DPFE 可表示为<br>$$f(p)=\min_q {b(p,q)+f(q)} \qquad(1.24)$$<br>其中 b(p,q) 表示从 p 到 q 的距离，q 是 p 的直接邻点，f(p) 表示从 p 到 t 的最短路径，基本态条件为 f(t)=0。如果 q 不是 p 的直接邻点，那么可以认为 $b(p,q)=\infty$。无环图中，要计算 f(p) 则需要先计算 f(q)。采用自底向上的方式计算，具体不展开。</p>
+<p>在有环图中，p 和 q 可能互为后继节点，f(p) 和 f(q) 互相依赖。为了方便，我们假定有环图中没有自环，这样假设是有原因的，如果有自环，即一条从 p 到 p 的分支，考虑以下三种情况：</p>
+<ol>
+<li>b(p,p) &gt; 0，这条分支会被忽略，因为会增加距离</li>
+<li>b(p,p) &lt; 0，问题本身不是定义良好的，可以不断的向路径中添加这条分支，从而一直缩短距离</li>
+<li>b(p,p) = 0，问题本身不是定义良好的，可以不断的向路径中添加这条分支，却不改变距离</li>
+</ol>
+<p>所以可以忽略掉自环，以下所讨论的有环图中均没有自环。对于一个有环图，DPFE 为<br>$$f(p) = \min_q {b(p,q)+f(q)} \qquad(1.25)$$<br>其中 f(q) 可能依赖于 f(p)，做特殊处理：初始时令 $f(p)=\infty, \forall p \ne t; \ f(t)=0$。式 (1.25) 与 (1.24) 一样，因为都是解最短路径模型，只是有环图中进行求解的时候需要做特殊处理。</p>
+<p>举例说明，如图 1.2，<br><img src="/images/DP1_fig1.png" alt></p>
+<p>根据式 (1.25) 计算过程如下<br>$$\begin{aligned}f(s)&amp;=\min {b(s,x)+f(x),b(s,y)+f(y),b(s,t)+f(t)}=\min {3+f(x),5+f(y),\infty+f(t)}<br>\\f(x)&amp;=\min {b(x,y)+f(y),b(x,t)+f(t)}=\min {1+f(y),8+f(t)}<br>\\f(y)&amp;=\min {b(y,x)+f(x),b(y,t)+f(t)}=\min {2+f(x),5+f(t)}<br>\\f(t)&amp;=0 \end{aligned}$$<br>显然 f(x) 与 f(y) 互相依赖。</p>
+<p>初始化时假设 $f(s)=f(x)=f(y)=\infty$，第一次迭代，<br>$$\begin{aligned}f(s)&amp;=\min {3+\infty,5+\infty,\infty+f(t)}=\infty<br>\\f(x)&amp;=\min {1+\infty,8+0}=8<br>\\f(y)&amp;=\min {2+\infty,5+0}=5<br>\\f(t)&amp;=0 \end{aligned}$$</p>
+<p>第二次迭代，<br>$$\begin{aligned}f(s)&amp;=\min {3+8,5+5,\infty+0}=10<br>\\f(x)&amp;=\min {1+5,8+0}=6<br>\\f(y)&amp;=\min {2+8,5+0}=5<br>\\f(t)&amp;=0 \end{aligned}$$<br>第三次迭代，<br>$$\begin{aligned}f(s)&amp;=\min {3+6,5+5,\infty+0}=9<br>\\f(x)&amp;=\min {1+5,8+0}=6<br>\\f(y)&amp;=\min {2+6,5+0}=5<br>\\f(t)&amp;=0 \end{aligned}$$<br>由于第三次迭代 $f(x),f(y),f(t)$ 均未改变，故第三次迭代后计算到的 f(s) 就是最终 f(s)。</p>
+<p>还可以利用带阶 Relaxation 解决有环图问题，仿照式 (1.22)，我们针对最短路径模型改为 DPFE 为<br>$$f(k,p)=\min_q {b(p,q)+f(k-1,q)} \qquad(1.26)$$<br>其中 f(k,p) 表示从 p 到 t 的最短距离，k 表示 p 到 t 的某个路径需要走恰好 k 步。于是基本条件为： $f(0,t)=0;f(k,t)=\infty, k&gt;0;f(0,p)=\infty, \forall p \ne t$，这表示 t 到 t 走 0 步，代价为 0，走大于 0 步，代价为 $\infty$，因为既然到了 t 点，我们不希望再继续走下去。p 到 t 走 0 步，代价为 $\infty$，这驱使我们从 p 点走出去。还以上面的例子说明，根据式 (1.26) 计算过程为<br>$$\begin{aligned}f(k,s)&amp;=\min {b(s,x)+f(k-1,x),b(s,y)+f(k-1,y),b(s,t)+f(k-1,t)}<br>\\f(k,x)&amp;=\min {b(x,y)+f(k-1,y),b(x,t)+f(k-1,t)}<br>\\f(k,y)&amp;=\min {b(y,x)+f(k-1,x),b(y,t)+f(k-1,t)}<br>\\f(k,t) \end{aligned}$$<br>根据基本条件，也就是 k=0 的初始条件，第一次迭代，<br>$$\begin{aligned}f(1,s)&amp;=\min {3+f(0,x),5+f(0,y),\infty+f(0,t)}=\infty<br>\\f(1,x)&amp;=\min {1+f(0,y),8+f(0,t)}=8<br>\\f(1,y)&amp;=\min {2+f(0,x),5+f(0,t)}=5<br>\\f(1,t)&amp;=\infty \end{aligned}$$<br>第二次迭代，<br>$$\begin{aligned}f(2,s)&amp;=\min {3+f(1,x),5+f(1,y),\infty+f(1,t)}=10<br>\\f(2,x)&amp;=\min {1+f(1,y),8+f(1,t)}=6<br>\\f(2,y)&amp;=\min {2+f(1,x),5+f(1,t)}=10<br>\\f(2,t)&amp;=\infty \end{aligned}$$<br>第三次迭代，<br>$$\begin{aligned}f(3,s)&amp;=\min {3+f(2,x),5+f(2,y),\infty+f(2,t)}=9<br>\\f(3,x)&amp;=\min {1+f(2,y),8+f(2,t)}=11<br>\\f(3,y)&amp;=\min {2+f(1,x),5+f(2,t)}=8<br>\\f(3,t)&amp;=\infty \end{aligned}$$<br>假设图中总共有 N 个节点，那么从任意一点 p 到 t 可以走恰好 k 步，k 取值为 {0,1,…,N-1}，k 不能大于等于 N，否则就存在某个节点经过两次，从而路径中存在环 circle，在任意两点路径均大于 0 的情况下，显然有环的路径不可能是最短路径。这里的例子中，N=4，所以 k 最大为 3，经过三次迭代后，就没必要再迭代下去了，否则路径中存在环，迭代下去的 f 值只会越来越大。于是根据 $f(p)=\min_k {f(k,p)}$ 得<br>$$\begin{aligned}f(s)&amp;=\min {\infty,\infty,10,9}=9<br>\\f(x)&amp;=\min {\infty,8,6,11}=6<br>\\f(y)&amp;=\min {\infty,5,10,8}=5<br>\\f(t)&amp;=\min {0,\infty,\infty,\infty}=0 \end{aligned}$$<br>从以上求解过程不难发现，迭代计算结果序列并不收敛，这也说明了式 (1.22) 中 $f(k,S)$ 序列不单调性。</p>
+<p>既然 $f(k,S)$ 序列不单调，我们参考式 (1.23) 为最短路径问题改写合适的 DPFE，如下<br>$$F(k,p)=\min {F(k-1,p), \ \min_q {b(p,q)+F(k-1,q)}} \qquad(1.27)$$</p>
+<p>其中 $F(k,p)$ 表示从 p 到 t 最多走 k 步的最短路径。显然要获得全局最短路径，我们必须考虑从 p 到 t 最多走 $N-1$ 步的最短路径，即目标是计算 $F(N-1,s)$，k 最大为 $N-1$，超过则路径出现环。基本条件不难得知为 $F(k,t)=0,k\ge 0; F(0,p)=\infty, p \ne t$，这个不用过多解释了，相信现在大家都能理解。</p>
+<p>还有其他形式的 DPFE，由于篇幅有限就不一一介绍，待后面分析具体例子的时候再穿插说明。</p>
 
       
     </div>
@@ -542,6 +563,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/14/DP2/" rel="prev" title="Dynamic Programming (2)">
+                Dynamic Programming (2) <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -610,7 +635,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">27</span>
+                    <span class="site-state-item-count">28</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -700,7 +725,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优化原理"><span class="nav-number">1.1.</span> <span class="nav-text">优化原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#顺序决策过程"><span class="nav-number">1.1.1.</span> <span class="nav-text">顺序决策过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#目标函数可分"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">目标函数可分</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DPFE"><span class="nav-number">1.1.2.</span> <span class="nav-text">DPFE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态规划的基本要素"><span class="nav-number">1.1.3.</span> <span class="nav-text">动态规划的基本要素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线性搜索"><span class="nav-number">1.1.4.</span> <span class="nav-text">线性搜索</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题的表示和解"><span class="nav-number">1.1.5.</span> <span class="nav-text">问题的表示和解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#带阶决策"><span class="nav-number">1.1.6.</span> <span class="nav-text">带阶决策</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Path-States"><span class="nav-number">1.1.7.</span> <span class="nav-text">Path-States</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优化原理"><span class="nav-number">1.1.</span> <span class="nav-text">优化原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#顺序决策过程"><span class="nav-number">1.1.1.</span> <span class="nav-text">顺序决策过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#目标函数可分"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">目标函数可分</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DPFE"><span class="nav-number">1.1.2.</span> <span class="nav-text">DPFE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态规划的基本要素"><span class="nav-number">1.1.3.</span> <span class="nav-text">动态规划的基本要素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线性搜索"><span class="nav-number">1.1.4.</span> <span class="nav-text">线性搜索</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题的表示和解"><span class="nav-number">1.1.5.</span> <span class="nav-text">问题的表示和解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#带阶决策"><span class="nav-number">1.1.6.</span> <span class="nav-text">带阶决策</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Path-States"><span class="nav-number">1.1.7.</span> <span class="nav-text">Path-States</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#松弛-Relaxation"><span class="nav-number">1.1.8.</span> <span class="nav-text">松弛 Relaxation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最短路径问题"><span class="nav-number">1.1.9.</span> <span class="nav-text">最短路径问题</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>

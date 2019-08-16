@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="上一篇文章 Dynamic Programming (1) 介绍了动态规划的原理，以及几种常见模型的 DPFE。这篇文章则主要介绍一些实际应用。 最佳分配问题 ALLOT最佳分配问题简称为 ALLOT，描述了如何讲有限资源分配给一些用户，损失（或者利益，损失对应最小化，利益对应最大化）与用户以及分配到的资源量有关。ALLOT 也可以看作是背包问题 KSINT 的一个变种。 假设有 M 单位的资源要">
+<meta name="keywords" content="math, DP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dynamic Programming (2)">
+<meta property="og:url" content="https://shajianjian.github.io/2019/08/14/DP2/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="上一篇文章 Dynamic Programming (1) 介绍了动态规划的原理，以及几种常见模型的 DPFE。这篇文章则主要介绍一些实际应用。 最佳分配问题 ALLOT最佳分配问题简称为 ALLOT，描述了如何讲有限资源分配给一些用户，损失（或者利益，损失对应最小化，利益对应最大化）与用户以及分配到的资源量有关。ALLOT 也可以看作是背包问题 KSINT 的一个变种。 假设有 M 单位的资源要">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-08-16T10:57:22.355Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dynamic Programming (2)">
+<meta name="twitter:description" content="上一篇文章 Dynamic Programming (1) 介绍了动态规划的原理，以及几种常见模型的 DPFE。这篇文章则主要介绍一些实际应用。 最佳分配问题 ALLOT最佳分配问题简称为 ALLOT，描述了如何讲有限资源分配给一些用户，损失（或者利益，损失对应最小化，利益对应最大化）与用户以及分配到的资源量有关。ALLOT 也可以看作是背包问题 KSINT 的一个变种。 假设有 M 单位的资源要">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://shajianjian.github.io/2019/08/14/DP2/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Dynamic Programming (2) | SJJ</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SJJ</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/08/14/DP2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Dynamic Programming (2)
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-08-14 14:36:05" itemprop="dateCreated datePublished" datetime="2019-08-14T14:36:05+08:00">2019-08-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-08-16 18:57:22" itemprop="dateModified" datetime="2019-08-16T18:57:22+08:00">2019-08-16</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上一篇文章 <a href="2019/08/07/DP1">Dynamic Programming (1)</a> 介绍了动态规划的原理，以及几种常见模型的 DPFE。这篇文章则主要介绍一些实际应用。</p>
+<h2 id="最佳分配问题-ALLOT"><a href="#最佳分配问题-ALLOT" class="headerlink" title="最佳分配问题 ALLOT"></a>最佳分配问题 ALLOT</h2><p>最佳分配问题简称为 ALLOT，描述了如何讲有限资源分配给一些用户，损失（或者利益，损失对应最小化，利益对应最大化）与用户以及分配到的资源量有关。ALLOT 也可以看作是背包问题 KSINT 的一个变种。</p>
+<p>假设有 M 单位的资源要分配给 N 个用户，记 C(k,d) 表示分配 d 单位资源给用户 k 时的损失，分配决策按阶段进行，即第一阶段分配 $d_1$ 单位资源给用户 1，第二阶段分配 $d_2$ 单位资源给用户 2，依次进行，定义状态 (k,m) 为阶段 k 时剩余 m 单位资源，阶段 k 分配之前的资源量为 m，阶段 k 的分配损失为 C(k,d)，下一阶段状态为 (k+1,m-d)，于是根据 <a href="2019/08/07/DP1">Dynamic Programming (1)</a> 中式 (1.19) 可知 DPFE 为<br>$$f(k,m)=\min_{d \in {0,…,m}} {C(k,d)+f(k+1,m-d)} \quad (2.1)$$<br>目标是求 f(1,M)，基本条件为 f(N+1,m)=0，其中 $m \ge 0$，这表示资源可以不用全部瓜分完。</p>
+<p>现在假设有 M=4，N=3，且<br>$$(C_{k,d})_{k\in {1,2,3};d\in {0,…,4}}=\begin{pmatrix}\infty &amp; 1.0 &amp; 0.8&amp; 0.4 &amp; 0.0 \\ \infty &amp; 1.0&amp; 0.5 &amp; 0.0 &amp; 0.0 \\ \infty &amp; 1.0 &amp; 0.6 &amp; 0.3 &amp; 0.0 \end{pmatrix}$$<br>那么，f(1,M)=1.0+0.5+1.0=2.5，最佳分配序列为 $d_1=1,d_2=2,d_3=1$。我们可以根据式 (2.1) 逐步展开计算，下面是代码实现，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">allot</span><span class="params">(cache=True)</span>:</span></span><br><span class="line">    M=<span class="number">4</span></span><br><span class="line">    N=<span class="number">3</span></span><br><span class="line">    max_float=<span class="number">1e8</span></span><br><span class="line">    cost=[[max_float, <span class="number">1.0</span>, <span class="number">0.8</span>, <span class="number">0.4</span>, <span class="number">0.0</span>],</span><br><span class="line">          [max_float, <span class="number">1.0</span>, <span class="number">0.5</span>, <span class="number">0.0</span>, <span class="number">0.0</span>],</span><br><span class="line">          [max_float, <span class="number">1.0</span>, <span class="number">0.6</span>, <span class="number">0.3</span>, <span class="number">0.0</span>]]</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> cache:</span><br><span class="line">        cache_dict = &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">allot_inner</span><span class="params">(k,m)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> cache <span class="keyword">and</span> (k,m) <span class="keyword">in</span> cache_dict:</span><br><span class="line">            <span class="keyword">return</span> cache_dict[(k,m)]</span><br><span class="line">        <span class="keyword">if</span> k&gt;= N: <span class="keyword">return</span> [], <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        min_f=max_float</span><br><span class="line">        min_ds = []</span><br><span class="line">        <span class="keyword">for</span> d <span class="keyword">in</span> range(m+<span class="number">1</span>):</span><br><span class="line">            ds,f=allot_inner(k+<span class="number">1</span>,m-d)</span><br><span class="line">            temp=cost[k][d]+f</span><br><span class="line">            <span class="keyword">if</span> min_f &gt; temp:</span><br><span class="line">                min_f = temp</span><br><span class="line">                min_ds = [d]+ds</span><br><span class="line">        <span class="keyword">if</span> cache <span class="keyword">and</span> k &gt; <span class="number">1</span>:</span><br><span class="line">            cache_dict[(k,m)]=(min_ds,min_f)</span><br><span class="line">        <span class="keyword">return</span> min_ds, min_f</span><br><span class="line">    ds, f=allot_inner(<span class="number">0</span>,M)</span><br><span class="line">    print(<span class="string">"min cost:"</span>,f,<span class="string">"opt allotments:"</span>, ds)</span><br></pre></td></tr></table></figure>
+
+<h2 id="所有结点对的最短路径问题-APSP"><a href="#所有结点对的最短路径问题-APSP" class="headerlink" title="所有结点对的最短路径问题 APSP"></a>所有结点对的最短路径问题 APSP</h2><p>在图中寻找从任一起点 s 到任一终点 t 之间的最短路径，记图中结点数量为 N，为简单起见，我们假设任意结点对之间没有非正长度的环，并且没有自环（self-loop）。</p>
+<p>可以利用 <a href="2019/08/07/DP1">Dynamic Programming (1)</a> 中的最短路径模型，将 (s,t) 看作变量，求得一系列的最短路径值，然后再求最小值即可，但是这其中肯定存在一些重复计算，所以这里我们讨论更高效率的计算方法。</p>
+<p><strong>Relaxation</strong> </p>
+<p>定义 F(k,p,q) 为从 p 到 q 之间的最短路径长度，k 表示从 p 到 q 最多走 k 步（从一个节点到下一个节点为一步）。借助 <a href="2019/08/07/DP1">Dynamic Programming (1)</a> 中式 (1.27)，DPFE 为<br>$$F(k,p,q)=\min {F(k-1,p,q), \min_{r \in succ(p)} {b(p,r)+F(k-1,r,q)}} \quad(2.2)$$<br>其中 r 是 p 的直接后继节点。基本条件为:</p>
+<ol>
+<li>$F(k,p,q)=0, k \ge 0, p=q$，表示当 p 就是 q 时，最多走 k 步，最短路径长度为 0。</li>
+<li>$F(0,p,q)=\infty, p \ne q$， 表示当 p 不为 q 时，最多走 0 步，最短路径长度为无穷大。</li>
+</ol>
+<p>虽然我们假定没有自环，但是我们依然可以令 $b(p,p)=0$（实际路径中我们可以去掉环即可），那么式 (2.2) 可简化为<br>$$\begin{aligned}F(k,p,q)&amp;=\min {F(k-1,p,q)+b(p,p), \min_{r \in succ(p)} {b(p,r)+F(k-1,r,q)}} \\ &amp;=\min_{r \in succ(p)\cup {p}} {b(p,r)+F(k-1,r,q)} \qquad(2.3) \end{aligned}$$</p>
+<p><strong>Floyd-Warshall</strong> </p>
+<p>式 (2.2) 这个 DPFE 是一种分而治之的思想：从 p 到 q 最多走 k 步的路径，可以分为从 p 走一步到 r 以及从 r 最多走 k-1 步到 q 两个子路径。还有一种替代方案是从 p 到 r 并且从 r 到 q，其中 p 到 r 的步数不再固定为 1，但是从 p 出发，到达 q 总共最多经过 k 个点，r 就是这 k 个中间点，不妨记这 k 个点为 ${1,2,…,k}$，那么求从 p 到 q 并使用 ${1,2,…,N}$ 作为可能的中间点的最短路径就是 p 到 q 的全局最短路径。DPFE 为<br>$$F(k,p,q)=\min {F(k-1,p,q), F(k-1,p,k)+F(k-1,k,q)} \qquad(2.4)$$</p>
+<p>为了便于理解，我们作如下说明：</p>
+<ol>
+<li>将 N 个节点编号为 $V={1,2,…,N}$，$p,q \in V$</li>
+<li>$F(k,p,q)$ 表示从 p 到 q 且以 ${1,2,…,k}$ 作为可能的中间节点</li>
+<li>问题的求解目标为 $F(N,p,q)$</li>
+<li>如何理解式 $(2.4)$？<ul>
+<li>p 到 q 的路径不经过中间点 k，即，使用 ${1,2,…,k-1}$ 作为可能的中间节点</li>
+<li>或者 p 到 q 的路径经过中间点 k，即，分为两个子路径 p 到 k 和 k 到 q，这两个子路径均使用 ${1,2,…,k-1}$ 作为可能的中间节点</li>
+</ul>
+</li>
+<li>式 $(2.4)$ 这个递归操作需要条件 k&gt;0。k=0 时为基本条件 $F(0,p,q)=0, p=q$，以及 $F(0,p,q)=b(p,q), p\ne q$。前者表示当 p q 为同一节点时，不使用任何中间节点，损失为 0；后者表示当 p q 不同时，不使用任何中间节点，损失为 $b(p,q)$，需要注意这里 q 是 p 的直接后继，如果不是，那么有 $F(0,p,q)=\infty, p \notin succ(p) \cup {p}$</li>
+<li>中间点序列 ${1,2,…,k}$ 可能会包含 p 和 q，如果包含了的话，由于我们假定所有的环都是正的，所以再求序列最小值的，带环的路径均会被过滤掉，而自环 $b(p,p)=0$，不会影响最短路径的长度，如果路径中出现自环，去掉即可（去掉连续重复的节点，只保留一个）。</li>
+</ol>
+<p>式 (2.2) 中 r 是 p 的后继节点，最多可取 $N-1$ 个节点（假设图中其他节点均为 p 的后继节点，就对应 $N-1$），k 最大为 $N-1$ 步，p 和 q 均各有 N 个取值，所以式 (2.2) 的时间复杂度为 $O(N^4)$，类似地，式 (2.4) 的时间复杂度为 $O(N^3)$。</p>
+<p>实际中要解决 APSP 问题，可以根据式 (2.2) 求出矩阵序列 ${F^{(1)},F^{(2)},…,F^{(N-1)}}$，任一矩阵 $F^{(k)}$ 维度为 $N \times N$，$F_{p,q}^{k}$ 表示从 p 到 q 最多走 k 步的最短路径长度，然后求 $\min_{p,q} F_{p,q}^{(N-1)}$ 就是 APSP 的解。</p>
+<p><strong>矩阵乘法</strong></p>
+<p>为了借鉴矩阵乘法的思想，我们首先将式 (2.2) 作变换，<br>$$\begin{aligned} F(k,p,q)&amp;=\min {F(k-1,p,q), \min_{r \in succ(p)} {b(p,r)+F(k-1,r,q)}}<br>\\ &amp;= \min_{r \in succ(p)} {b(p,p)+F(k-1,p,q), b(p,r)+F(k-1,r,q)}<br>\\ &amp;= \min_{r \in succ(p) \cup {p}} {b(p,r)+F(k-1,r,q)}<br>\\ &amp;= \min_{r \in {1,2,…,N}} {b(p,r)+F(k-1,r,q)} \qquad(2.5) \end{aligned}$$<br>其中，$b(p,r)$ 是事先给定的任意两节点之间的距离，若两节点之间没有边 edge 相连，则距离为 $\infty$，这里称所有节点对之间的距离组成的矩阵为权重矩阵 $W_{N \times N}$。根据式 (2.2) 的基本条件，不难得知 $F^{(0)}$ 矩阵对角线全 0，其余元素均为 $\infty$：</p>
+<p>$$F^{(0)}=\begin{bmatrix}0 &amp; \infty &amp; \cdots &amp; \infty<br>\\                    \infty &amp; 0  &amp; \cdots &amp; \infty<br>\\                    \vdots &amp; \vdots &amp; \ddots &amp; \vdots<br>\\                    \infty &amp; \infty &amp; \cdots &amp; 0 \end{bmatrix}_{N \times N}$$</p>
+<p>$$W=\begin{bmatrix}0 &amp; w_{12} &amp; \cdots &amp; w_{1N}<br>\\                    w_{21} &amp; 0  &amp; \cdots &amp; w_{2N}<br>\\                    \vdots &amp; \vdots &amp; \ddots &amp; \vdots<br>\\                    w_{N1} &amp; w_{N2} &amp; \cdots &amp; 0 \end{bmatrix}_{N \times N}$$</p>
+<p>根据式 (2.5)，已知 $F^{(k-1)}$ 求 $F^{(k)}$ 的代码为</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">F_k=[[<span class="literal">None</span>]*N]*N</span><br><span class="line"><span class="keyword">for</span> p <span class="keyword">in</span> range(<span class="number">0</span>,N):</span><br><span class="line">  <span class="keyword">for</span> q <span class="keyword">in</span> range(<span class="number">0</span>,N):</span><br><span class="line">    F_k[p][q]=sys.info.float_max</span><br><span class="line">    <span class="comment"># F_k[p][q]=0</span></span><br><span class="line">    <span class="keyword">for</span> r <span class="keyword">in</span> range(<span class="number">0</span>,N):</span><br><span class="line">      F_k[p][q]=min(F_k[p][q],W[p][r]+F_k_1[r][q])</span><br><span class="line">      <span class="comment"># F_k[p][q]=F_k[p][q]+W[p][r]*F_k_1[r][q])</span></span><br></pre></td></tr></table></figure>
+
+<p>从上面代码片段可见，与矩阵乘法（注释部分）完全一个模样，而我们的目的是为了计算 $F^{(N-1)}$，中间的其他 $F^{(k)}$ 矩阵如无必要，可以不用计算出来，比如下面，<br>$$\begin{aligned} F^{(1)}&amp;=W \circ F^{(0)}=W<br>\\ F^{(2)}&amp;=W \circ F^{(1)}=W^2<br>\\ F^{(3)}&amp;=W \circ F^{(2)}=W^3<br>\\ &amp;\vdots<br>\\ F^{(N-1)}&amp;=W \circ F^{(N-2)}=W^{(N-1)} \end{aligned} \quad(2.6)$$</p>
+<p>$\circ$ 表示某种运算符，比如矩阵乘法或者这里的最小值计算，我们改为如下序列计算，<br>$$\begin{aligned} F^{(1)}&amp;=W<br>\\ F^{(2)}&amp;=W^2=W \circ W<br>\\ F^{(4)}&amp;=W^4=W^2 \circ W^2<br>\\ &amp;\vdots<br>\\ F^{2^{\lceil log(N-1) \rceil}}&amp;=W^{2^{\lceil log(N-1) \rceil}} =W^{2^{\lceil log(N-1) \rceil-1}} \circ W^{2^{\lceil log(N-1) \rceil-1}} \end{aligned} \quad(2.7)$$<br>注意上面 $2^{\lceil log(N-1) \rceil}$ 中的向上取整 $\lceil \cdot \rceil$ 很重要，这保证了 $2^{\lceil log(N-1) \rceil} \ge N-1$，从而 $F^{2^{\lceil log(N-1) \rceil}} \le F^{(N-1)}$ （element-wise comparison）。</p>
+<p>因为结合顺序无关紧要，才使得我们可以从式 (2.6) 可以改写为式 (2.7)，例如<br>$$F^{(4)}=W \circ F^{(3)}=W \circ (W \circ F^{(2)})=\cdots =W \circ(W \circ (W \circ W)) \stackrel{*}=(W \circ W) \circ (W \circ W)=W^2 \circ W^2$$<br>将 $\circ$ 替换为 $\min$，即 $\min (W, \min(W, \min(W,W)))=\min(\min(W,W), \min(W,W))$，注意这里的 $\min$ 不是 element-wise operator，就跟矩阵乘法不是矩阵点乘一样。当然，以上内容只是帮助理解，不是式 (2.6) 可以变换为式 (2.7) 的严格证明。</p>
+<p>好了，有了式 (2.7) 就可以更快的计算出 $F^{(M)}, M \ge N-1$，由于 $F^{(k)}$ 单调减，并收敛于 $F^{(N-1)}$，于是 $F^{(M)}$ 就是全局最短路径长度矩阵。</p>
+<p>使用矩阵乘法加速的算法代码为</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fast_apsp</span><span class="params">()</span>:</span></span><br><span class="line">  k=<span class="number">1</span></span><br><span class="line">  F_prev=W</span><br><span class="line">  <span class="keyword">while</span> k&lt;N<span class="number">-1</span>:</span><br><span class="line">    F_next=[[sys.info.float_max]*N]*N</span><br><span class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> range(<span class="number">0</span>,N):</span><br><span class="line">      <span class="keyword">for</span> q <span class="keyword">in</span> range(<span class="number">0</span>,N):</span><br><span class="line">        <span class="keyword">for</span> r <span class="keyword">in</span> range(<span class="number">0</span>,N):</span><br><span class="line">          F_next[p][q]=min(F_next[p][q], F_prev[p][r]+F_prev[r][q])</span><br><span class="line">    F_prev=F_next</span><br><span class="line">    k*=<span class="number">2</span></span><br><span class="line">  <span class="keyword">return</span> F_prev</span><br></pre></td></tr></table></figure>
+
+<p><strong>Floyd-Warshall</strong> 的代码</p>
+<p>考虑式 (2.4)，注意 $F^{(k)}$ 中的 k 表示路径可以经过中间节点 ${1,2,…,k}$，所以 $F^{(0)}$ 表示不经过任何中间节点的两点之间最短路径长度矩阵，所以根据基本条件不难得到<br>$$F^{(0)}=W=\begin{bmatrix}0 &amp; w_{12} &amp; \cdots &amp; w_{1N}<br>\\                    w_{21} &amp; 0  &amp; \cdots &amp; w_{2N}<br>\\                    \vdots &amp; \vdots &amp; \ddots &amp; \vdots<br>\\                    w_{N1} &amp; w_{N2} &amp; \cdots &amp; 0 \end{bmatrix}_{N \times N}$$</p>
+<p>根据式 (2.4)，不难写出原始的 <strong>Floyd-Warshall</strong> 算法的代码为</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">F_prev=F_0</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">floyd_warshall</span><span class="params">()</span>:</span></span><br><span class="line">  <span class="keyword">for</span> k <span class="keyword">in</span> range(<span class="number">0</span>,N):</span><br><span class="line">    F_next=[[<span class="literal">None</span>]*N]*N</span><br><span class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> range(<span class="number">0</span>,N):</span><br><span class="line">      <span class="keyword">for</span> q <span class="keyword">in</span> range(<span class="number">0</span>,N):</span><br><span class="line">        F_next[p][q]=min(F_prev[p][q], F_prev[p][k]+F_prev[k][q])</span><br><span class="line">    F_prev=F_next</span><br><span class="line">  <span class="keyword">return</span> F_prev</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/math-DP/" rel="tag"># math, DP</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/07/DP1/" rel="next" title="Dynamic Programming (1)">
+                <i class="fa fa-chevron-left"></i> Dynamic Programming (1)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shajianjian</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#最佳分配问题-ALLOT"><span class="nav-number">1.</span> <span class="nav-text">最佳分配问题 ALLOT</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#所有结点对的最短路径问题-APSP"><span class="nav-number">2.</span> <span class="nav-text">所有结点对的最短路径问题 APSP</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
