@@ -351,7 +351,102 @@ tensor([[0.0446, 0.1545, 0.5059, 0.6027],
         [0.0000, 0.0000,    nan, 0.0000]])
 ```
 ### 无输出 Tensor
-直接按给定的 size 参数新建一个 Tensor，具体过程略。
+回到 torch/csrc/autograd/generated/python_torch_functions_dispatch.h 这个文件，无输出 tensor 的 dispatch_empty 函数直接调用 torch::empty，此函数位于 torch/csrc/autograd/generated/variable_factories.h，在此函数定义中，我们暂且忽略 jit 跟踪部分的代码（用于跟踪记录有关 Tensor 的操作），核心的实现代码为
+```c++
+inline at::Tensor empty(at::IntList size, const at::TensorOptions & options={}) {
+    ...     // jit tracing
+    at::Tensor tensor = at::empty(size, at::TensorOptions(options).is_variable(false));
+    auto result = autograd::make_variable(tensor, options.requires_grad()); // 将 Tensor 转为 Variable
+    ...     // jit tracing
+    return result
+}
+```
+其中 at::empty 位于安装时动态生成的源文件 Functions.h（见上文分析），这个函数定义为
+```c++
+static inline Tensor empty(IntList size, const TensorOptions & options) {
+    return at::getType(options).empty(size, options);
+}
+```
+与有输出 Tensor 的 empty 函数实现逻辑类似，这里 at::getType(options) 根据给定的 options 构造出 TypeExtendedInterface 接口的具体实现类的 instance，具体而言，根据 options.backend(), options.dtype() 和 options.is_variable() 获取具体类型实例，而类型实例是事先注册好的，以 CPU 为 backend 为例说明，在 aten/src/ATen/Context.cpp 中 Context 的构造函数中，执行函数 register_cpu_types(this) 进行注册，而 register_cpu_type(Context* context) 函数位于 build/aten/src/ATen/RegisterCPU.cpp 文件，此文件由 aten/src/ATen/gen.py 中的 generate_outputs 函数生成（关于 gen.py 文件，上文也有介绍），现在我们来看看 register_cpu_types 中注册哪些类型
+```
+CPUByteType
+CPUCharType
+CPUDoubleType
+CPUFloatType
+CPUIntType
+CPULongType
+CPUShortType
+...
+```
+我们随便选择一个类型，比如 CPUByteType，查看其中 empty 函数实现，
+```
+Tensor CPUByteType::empty(IntList size, const TensorOptions & options) const {
+    const DeviceGuard device_guard(options.device());   // 准备在指定 device 上构造 Tensor
+    return at::native::empty_cpu(size, options);
+}
+```
+以上 at::native::empty_cpu 函数位于 aten/src/ATen/native/TensorFactories.cpp 中，函数实现体的部分为
+```c++
+auto* allocator = at::getCPUAllocator();
+int64_t nelements = prod_intlist(size); // 连乘（各维度值），得到总元素数量
+auto dtype = options.dtype();
+auto storage_impl = c10::make_intrusive<StorageImpl>(
+    dtype,
+    nelements,
+    allocator->allocate(nelements*dtype.itemsize()),
+    allocator,
+    /*resizeable=*/true
+);
+auto tensor = detail::make_tensor<TensorImpl>(storage_impl, at::CPUTensorId(), false);
+```
+继续查看 c10::make_intrusive<StorageImpl> 函数定义，不难得知先进行 new StorageImpl(...)，然后 wrap 为 intrusive_ptr，在 [PyTorch-2](2019/06/13/PyTorch-2) 中，我们讨论过各种 Tensor 的底层实现都是 StorageImpl，所以 StorageImpl 对象可以通过 detail::make_tensor 转为对应的 Tensor。根据 at::getCPUAllocator 查看其定义得知获得的是 THDefaultAllocator 实例，其 allocate 方法调用 THAlloc 分配内存，THAlloc 内部调用 THAllocInternal 分配内存，而这个函数又使用 malloc（某些情况下也会使用 posix_memalign 申请对齐内存） 申请一块未初始化的内存。
+
+示例：
+```python
+import torch
+torch.empty(2,3)
+```
+结果为（每次执行结果可能不同，不固定）
+```
+tensor([[1.6504e-12,3.0637e-41,1.6588e-12],
+        [3.0637e-41,4.4842e-44,0.0000e+00]])
+```
+
+### Tensor 的由来
+这里我们讨论 torch.empty 函数是如何返回得到 torch.Tensor 对象的。一开始，在 `torch/__init__.py` 中 `import autograd`，继而查看 `torch/autograd/__init__.py`，发现如下调用
+```python
+if not torch._C._autograd_init():
+```
+_autograd_init 这个 python 函数在 torch/csrc/Module.cpp 中注册，其底层实现是由 THPAutograd_initExtension 完成，这个 c++ 函数声明位于头文件 torch/csrc/autograd/autograd.h 中，函数实现位于 torch/csrc/autograd/init.cpp 中，看下这个函数的部分定义
+```c++
+// 加载 torch/tensor.py 模块
+auto tensor_module = THPObjectPtr(PyImport_ImportModule("torch.tensor"));
+// 获取 torch/tensor.py 中的 Tensor 类型
+THPVariableClass = PyObject_GetAttrString(tensor_module, "Tensor");
+```
+要知道 `THPVariableClass` 这个类型对象声明位于 torch/csrc/autograd/python_variable.h 中
+```c++
+THP_API PyObject *THPVariableClass;
+```
+嗯，这是一个 extern 声明，其原本定义位于 torch/csrc/autograd/python_variable.cpp 中。好，现在回到 torch.empty 的底层 c++ 实现部分，即上文 THPVariable_empty 函数定义，在 dispatch_empty 返回一个 Variable 对象后，经过 wrap 包装为 PyObject，来看 wrap 的定义，位于 torch/csrc/autograd/utils/wrap_outputs.h 中，其内部调用 THPVariable_Wrap，这个函数也位于 torch/csrc/autograd/python_variable.cpp，与 THPVariableClass 定义在同一个文件中，前面我们已经知道 THPVariableClass 就是 torch/tensor.py 中的 Tensor 类型，而这里 THPVariable_Wrap 通过调用 THPVariable_NewWithVar 将 Variable 对象包装为 THPVariableClass 对象，即 Tensor 实例。THPVariable_NewWithVar 函数定义的部分代码为
+```c++
+static PyObject* THPVariable_NewWithVar(PyTypeObject* type, Variable var) {
+PyObject *obj=type->tp_alloc(type, 0);      // 申请 torch.Tensor 所需要的内存
+if(obj) {
+    auto v = (THPVariable*)obj; // cast 为 THPVariable 类型指针，即 torch.Tensor 的基类 torch._C._TensorBase 的指针
+    new(&v->cdata) Variable(std::move(var));    // 指定内存中，移动构造 Variable（C++ 版本的 Tensor）
+    v->cdata.set_pyobj(obj);
+    ...
+}
+return obj;
+}
+```
+
+示例
+```python
+>>> type(torch.empty(2,3))
+<class 'torch.Tensor'>
+```
 
 # PS
 好吧，主要是因为内容太多了，樯橹灰飞烟灭，先到此为止吧，就当是梳理了一下方法调用过程，等以后熟悉了整个代码框架，再回头重新整理一番。

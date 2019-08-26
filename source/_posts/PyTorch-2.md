@@ -9,7 +9,7 @@ categories: DL Framework
 ```
 import torch
 ```
-于是阅读torch/__init__.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载torch._C然后再恢复动态加载模式，
+于是阅读 `torch/__init__.py`，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载torch._C然后再恢复动态加载模式，
 ```
 old_flags=sys.getdlopenflags()
 sys.setdlopenflags(_dl_flags.RTDL_GLOBAL | _dl_flags.RTLD_LAZY)
@@ -21,7 +21,7 @@ sys.setdlopenflags(old_flags)
 ```
 __将torch._C中（不包括_开头和Base结尾）的属性导出到当前域。__
 
-__init__.py除了import torch._C，还import了同目录下其他module，以及同目录下的package。首先看torch._C导入时做了什么， torch._C的源文件只有torch/csrc/stub.cpp，链接库为shm和torch_python，stub.cpp中仅仅是初始化模块，
+`__init__.py`除了import torch._C，还import了同目录下其他module，以及同目录下的package。首先看torch._C导入时做了什么， torch._C的源文件只有torch/csrc/stub.cpp，链接库为shm和torch_python，stub.cpp中仅仅是初始化模块，
 ```
 extern PyObject* initModule();
 PyMODINIT_FUNC PyInit__C()   // 在python脚本中，import _C 时调用
@@ -184,6 +184,16 @@ _dist_init_process_group
         requires_grad
         metadata
         ```
+        类型 torch._C._VariableFunctions 包含方法
+        ```python
+        arange
+        as_tensor
+        ...
+        empty       # 出现我们这里所讨论的 torch.empty
+        empty_like
+        ...
+        ```
+
         不难知道_TensorBase是Tensor的基类，包含了Tensor的各种操作，_FunctionBase则包括了前后向传播方法，从这里能将深度学习中的一些概念与代码实现建立一点点联系了。
 
     - 向torch._C中添加函数 _wrap_tensor_impl，_tensor_impl_raw_handle，_demangle，_log_api_usage_once，以_jit开头的一系列函数。
@@ -214,7 +224,7 @@ CONFIGURE_FILE(THGeneral.h.in "${CMAKE_CURRENT_BINARY_DIR}/THGeneral.h")
 在THGeneral.h中有如下宏定义
 ```
 #define TH_CONCAT_4_EXPAND(x,y,z,w) x ## y ## z ## w
-#define TH_CONCAT_4(x,y,z,w) TH_CONCAT_4_EXPAND
+#define TH_CONCAT_4(x,y,z,w) TH_CONCAT_4_EXPAND(x,y,z,w)
 ```
 另一方面，torch/csrc/THP.h 中引用了#include <torch/src/Storage.h>，在这个Storage.h中有如下语句
 ```

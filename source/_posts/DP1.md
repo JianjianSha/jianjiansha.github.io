@@ -1,7 +1,9 @@
 ---
 title: Dynamic Programming (1)
 date: 2019-08-07 17:29:56
-tags: math, DP
+tags:
+    - math
+    - DP
 category: math
 mathjax: true
 ---

@@ -104,7 +104,7 @@
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="在 PyTorch-2 我们已经了解了 torch 包的初始化过程，接下来便可以愉快查看这个 package 包含哪些字段（包含函数和类）了，再参照 PyTorch 的官方文档，了解其中各个函数的具体实现。 torch 包从 torch/__init__.py 中可以查看所有的 torch 包的所有字段，包括：  直接在此文件中定义的函数/字段，如 typename, is_tensor, is_">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-07-10T08:03:21.154Z">
+<meta property="og:updated_time" content="2019-08-26T07:43:50.509Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PyTorch-3">
 <meta name="twitter:description" content="在 PyTorch-2 我们已经了解了 torch 包的初始化过程，接下来便可以愉快查看这个 package 包含哪些字段（包含函数和类）了，再参照 PyTorch 的官方文档，了解其中各个函数的具体实现。 torch 包从 torch/__init__.py 中可以查看所有的 torch 包的所有字段，包括：  直接在此文件中定义的函数/字段，如 typename, is_tensor, is_">
@@ -401,7 +401,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-07-10 16:03:21" itemprop="dateModified" datetime="2019-07-10T16:03:21+08:00">2019-07-10</time>
+                <time title="修改时间：2019-08-26 15:43:50" itemprop="dateModified" datetime="2019-08-26T15:43:50+08:00">2019-08-26</time>
               
             
           </span>
@@ -578,7 +578,43 @@
 <p>本次输出如下，从以下结果可以看出是符合上述过程的。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">tensor([[0.0446, 0.1545, 0.5059, 0.6027],</span><br><span class="line">        [0.4872, 0.4557, 0.1010, 0.2962],</span><br><span class="line">        [0.0576, 0.1087, 0.3033, 0.4694]])</span><br><span class="line">tensor([[4.4638e-02, 1.5454e-01, 5.0591e-01, 6.0266e-01, 4.8720e-01],</span><br><span class="line">        [4.5573e-01, 1.0103e-01, 2.9619e-01, 5.7569e-02, 1.0874e-01],</span><br><span class="line">        [3.0331e-01, 4.6944e-01, 0.0000e+00, 0.0000e+00,        nan],</span><br><span class="line">        [0.0000e+00, 1.4013e-45, 0.0000e+00, 1.4013e-45, 0.0000e+00]])</span><br><span class="line">tensor([[0.0446, 0.1545]])</span><br><span class="line">tensor([[0.0446, 0.1545, 0.5059, 0.6027],</span><br><span class="line">        [0.4872, 0.4557, 0.1010, 0.2962],</span><br><span class="line">        [0.0576, 0.1087, 0.3033, 0.4694],</span><br><span class="line">        [0.0000, 0.0000,    nan, 0.0000]])</span><br></pre></td></tr></table></figure>
 
-<h3 id="无输出-Tensor"><a href="#无输出-Tensor" class="headerlink" title="无输出 Tensor"></a>无输出 Tensor</h3><p>直接按给定的 size 参数新建一个 Tensor，具体过程略。</p>
+<h3 id="无输出-Tensor"><a href="#无输出-Tensor" class="headerlink" title="无输出 Tensor"></a>无输出 Tensor</h3><p>回到 torch/csrc/autograd/generated/python_torch_functions_dispatch.h 这个文件，无输出 tensor 的 dispatch_empty 函数直接调用 torch::empty，此函数位于 torch/csrc/autograd/generated/variable_factories.h，在此函数定义中，我们暂且忽略 jit 跟踪部分的代码（用于跟踪记录有关 Tensor 的操作），核心的实现代码为</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> at::<span class="function">Tensor <span class="title">empty</span><span class="params">(at::IntList size, <span class="keyword">const</span> at::TensorOptions &amp; options=&#123;&#125;)</span> </span>&#123;</span><br><span class="line">    ...     <span class="comment">// jit tracing</span></span><br><span class="line">    at::Tensor tensor = at::empty(size, at::TensorOptions(options).is_variable(<span class="literal">false</span>));</span><br><span class="line">    <span class="keyword">auto</span> result = autograd::make_variable(tensor, options.requires_grad()); <span class="comment">// 将 Tensor 转为 Variable</span></span><br><span class="line">    ...     <span class="comment">// jit tracing</span></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 at::empty 位于安装时动态生成的源文件 Functions.h（见上文分析），这个函数定义为</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> Tensor <span class="title">empty</span><span class="params">(IntList size, <span class="keyword">const</span> TensorOptions &amp; options)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> at::getType(options).empty(size, options);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>与有输出 Tensor 的 empty 函数实现逻辑类似，这里 at::getType(options) 根据给定的 options 构造出 TypeExtendedInterface 接口的具体实现类的 instance，具体而言，根据 options.backend(), options.dtype() 和 options.is_variable() 获取具体类型实例，而类型实例是事先注册好的，以 CPU 为 backend 为例说明，在 aten/src/ATen/Context.cpp 中 Context 的构造函数中，执行函数 register_cpu_types(this) 进行注册，而 register_cpu_type(Context* context) 函数位于 build/aten/src/ATen/RegisterCPU.cpp 文件，此文件由 aten/src/ATen/gen.py 中的 generate_outputs 函数生成（关于 gen.py 文件，上文也有介绍），现在我们来看看 register_cpu_types 中注册哪些类型</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">CPUByteType</span><br><span class="line">CPUCharType</span><br><span class="line">CPUDoubleType</span><br><span class="line">CPUFloatType</span><br><span class="line">CPUIntType</span><br><span class="line">CPULongType</span><br><span class="line">CPUShortType</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>我们随便选择一个类型，比如 CPUByteType，查看其中 empty 函数实现，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Tensor CPUByteType::empty(IntList size, const TensorOptions &amp; options) const &#123;</span><br><span class="line">    const DeviceGuard device_guard(options.device());   // 准备在指定 device 上构造 Tensor</span><br><span class="line">    return at::native::empty_cpu(size, options);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上 at::native::empty_cpu 函数位于 aten/src/ATen/native/TensorFactories.cpp 中，函数实现体的部分为</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span>* allocator = at::getCPUAllocator();</span><br><span class="line"><span class="keyword">int64_t</span> nelements = prod_intlist(size); <span class="comment">// 连乘（各维度值），得到总元素数量</span></span><br><span class="line"><span class="keyword">auto</span> dtype = options.dtype();</span><br><span class="line"><span class="keyword">auto</span> storage_impl = c10::make_intrusive&lt;StorageImpl&gt;(</span><br><span class="line">    dtype,</span><br><span class="line">    nelements,</span><br><span class="line">    allocator-&gt;allocate(nelements*dtype.itemsize()),</span><br><span class="line">    allocator,</span><br><span class="line">    <span class="comment">/*resizeable=*/</span><span class="literal">true</span></span><br><span class="line">);</span><br><span class="line"><span class="keyword">auto</span> tensor = detail::make_tensor&lt;TensorImpl&gt;(storage_impl, at::CPUTensorId(), <span class="literal">false</span>);</span><br></pre></td></tr></table></figure>
+
+<p>继续查看 c10::make_intrusive<storageimpl> 函数定义，不难得知先进行 new StorageImpl(…)，然后 wrap 为 intrusive_ptr，在 <a href="2019/06/13/PyTorch-2">PyTorch-2</a> 中，我们讨论过各种 Tensor 的底层实现都是 StorageImpl，所以 StorageImpl 对象可以通过 detail::make_tensor 转为对应的 Tensor。根据 at::getCPUAllocator 查看其定义得知获得的是 THDefaultAllocator 实例，其 allocate 方法调用 THAlloc 分配内存，THAlloc 内部调用 THAllocInternal 分配内存，而这个函数又使用 malloc（某些情况下也会使用 posix_memalign 申请对齐内存） 申请一块未初始化的内存。</storageimpl></p>
+<p>示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line">torch.empty(<span class="number">2</span>,<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
+<p>结果为（每次执行结果可能不同，不固定）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tensor([[1.6504e-12,3.0637e-41,1.6588e-12],</span><br><span class="line">        [3.0637e-41,4.4842e-44,0.0000e+00]])</span><br></pre></td></tr></table></figure>
+
+<h3 id="Tensor-的由来"><a href="#Tensor-的由来" class="headerlink" title="Tensor 的由来"></a>Tensor 的由来</h3><p>这里我们讨论 torch.empty 函数是如何返回得到 torch.Tensor 对象的。一开始，在 <code>torch/__init__.py</code> 中 <code>import autograd</code>，继而查看 <code>torch/autograd/__init__.py</code>，发现如下调用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> torch._C._autograd_init():</span><br></pre></td></tr></table></figure>
+
+<p>_autograd_init 这个 python 函数在 torch/csrc/Module.cpp 中注册，其底层实现是由 THPAutograd_initExtension 完成，这个 c++ 函数声明位于头文件 torch/csrc/autograd/autograd.h 中，函数实现位于 torch/csrc/autograd/init.cpp 中，看下这个函数的部分定义</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 加载 torch/tensor.py 模块</span></span><br><span class="line"><span class="keyword">auto</span> tensor_module = THPObjectPtr(PyImport_ImportModule(<span class="string">"torch.tensor"</span>));</span><br><span class="line"><span class="comment">// 获取 torch/tensor.py 中的 Tensor 类型</span></span><br><span class="line">THPVariableClass = PyObject_GetAttrString(tensor_module, <span class="string">"Tensor"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>要知道 <code>THPVariableClass</code> 这个类型对象声明位于 torch/csrc/autograd/python_variable.h 中</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">THP_API PyObject *THPVariableClass;</span><br></pre></td></tr></table></figure>
+
+<p>嗯，这是一个 extern 声明，其原本定义位于 torch/csrc/autograd/python_variable.cpp 中。好，现在回到 torch.empty 的底层 c++ 实现部分，即上文 THPVariable_empty 函数定义，在 dispatch_empty 返回一个 Variable 对象后，经过 wrap 包装为 PyObject，来看 wrap 的定义，位于 torch/csrc/autograd/utils/wrap_outputs.h 中，其内部调用 THPVariable_Wrap，这个函数也位于 torch/csrc/autograd/python_variable.cpp，与 THPVariableClass 定义在同一个文件中，前面我们已经知道 THPVariableClass 就是 torch/tensor.py 中的 Tensor 类型，而这里 THPVariable_Wrap 通过调用 THPVariable_NewWithVar 将 Variable 对象包装为 THPVariableClass 对象，即 Tensor 实例。THPVariable_NewWithVar 函数定义的部分代码为</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> PyObject* <span class="title">THPVariable_NewWithVar</span><span class="params">(PyTypeObject* type, Variable var)</span> </span>&#123;</span><br><span class="line">PyObject *obj=type-&gt;tp_alloc(type, <span class="number">0</span>);      <span class="comment">// 申请 torch.Tensor 所需要的内存</span></span><br><span class="line"><span class="keyword">if</span>(obj) &#123;</span><br><span class="line">    <span class="keyword">auto</span> v = (THPVariable*)obj; <span class="comment">// cast 为 THPVariable 类型指针，即 torch.Tensor 的基类 torch._C._TensorBase 的指针</span></span><br><span class="line">    <span class="keyword">new</span>(&amp;v-&gt;cdata) Variable(<span class="built_in">std</span>::move(var));    <span class="comment">// 指定内存中，移动构造 Variable（C++ 版本的 Tensor）</span></span><br><span class="line">    v-&gt;cdata.set_pyobj(obj);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> obj;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>示例</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>type(torch.empty(<span class="number">2</span>,<span class="number">3</span>))</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> '<span class="title">torch</span>.<span class="title">Tensor</span>'&gt;</span></span><br></pre></td></tr></table></figure>
+
 <h1 id="PS"><a href="#PS" class="headerlink" title="PS"></a>PS</h1><p>好吧，主要是因为内容太多了，樯橹灰飞烟灭，先到此为止吧，就当是梳理了一下方法调用过程，等以后熟悉了整个代码框架，再回头重新整理一番。</p>
 
       
@@ -700,7 +736,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-count">29</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -752,7 +788,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">7</span>
+                      
+                    
+                    <span class="site-state-item-count">8</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -790,7 +828,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#torch-包"><span class="nav-number">1.</span> <span class="nav-text">torch 包</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#torch-empty"><span class="nav-number">1.1.</span> <span class="nav-text">torch.empty</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#empty-定义"><span class="nav-number">1.2.</span> <span class="nav-text">empty 定义</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#有输出-Tensor"><span class="nav-number">1.2.1.</span> <span class="nav-text">有输出 Tensor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无输出-Tensor"><span class="nav-number">1.2.2.</span> <span class="nav-text">无输出 Tensor</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PS"><span class="nav-number">2.</span> <span class="nav-text">PS</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#torch-包"><span class="nav-number">1.</span> <span class="nav-text">torch 包</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#torch-empty"><span class="nav-number">1.1.</span> <span class="nav-text">torch.empty</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#empty-定义"><span class="nav-number">1.2.</span> <span class="nav-text">empty 定义</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#有输出-Tensor"><span class="nav-number">1.2.1.</span> <span class="nav-text">有输出 Tensor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无输出-Tensor"><span class="nav-number">1.2.2.</span> <span class="nav-text">无输出 Tensor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tensor-的由来"><span class="nav-number">1.2.3.</span> <span class="nav-text">Tensor 的由来</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PS"><span class="nav-number">2.</span> <span class="nav-text">PS</span></a></li></ol></div>
             
 
           </div>

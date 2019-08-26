@@ -27,10 +27,11 @@ GAN 训练失败的原因之一是生成器训练时总是会陷入一组参数�
 
 现在我们的实验建模瞄准于区分生成器的各个相互靠得很近得样本。小批量中样本之间接近程度按如下方法计算：  
 令 $\mathbf {f(x_i)} \in \Bbb R^A$ 表示输入 $\mathbf x_i$ 对应的特征向量，这个特征由 D 网络中间层产生，然后将特征向量乘以一个张量 $T \in \Bbb R^{A \times B \times C}$，结果是一个矩阵 $M_i \in \Bbb R^{B \times C}$，对于输入样本编号 $i \in \{1,...,n\}$，得到对应的矩阵 $\{M_i |i=1,...,n\}$，计算两两矩阵的各行向量之间的 L1 距离，然后应用负指数函数，
-$$c_b(\mathbf x_i, \mathbf x_j)=\exp(-\|M_{i,b}-M_{j,b}\|_{L_1}) \in \Bbb R, \quad i,j \in \{1,...,n\}, \quad b \in \{1,...,B\}$$
+$$c_b(\mathbf x_i, \mathbf x_j)=\exp(-\|M_{i,b}-M_{j,b}\| _ {L_1}) \in \Bbb R, \quad i,j \in \{1,...,n\}, \quad b \in \{1,...,B\}$$
+
 其中下标 b 表示 row index。如图 1，minibatch layer 中样本 $\mathbf x_i$ 对应的输出定义为，
-$$\begin{aligned} &o(\mathbf x_i)_b = \sum_{j=1}^n c_b(\mathbf x_i, \mathbf x_j) \in \Bbb R
-\\\\ &o(\mathbf x_i)=\left[o(\mathbf x_i)_1,...o(\mathbf x_i)_B \right] \in \Bbb R^B
+$$\begin{aligned} &o(\mathbf x_i) _ b = \sum_{j=1}^n c _ b(\mathbf x_i, \mathbf x_j) \in \Bbb R
+\\\\ &o(\mathbf x_i)=\left[o(\mathbf x_i) _ 1,...o(\mathbf x_i) _ B \right] \in \Bbb R^B
 \\\\ &o(\mathbf X) \in \Bbb R^{n \times B} \end{aligned}$$
 
 然后，将 minibatch layer 的输出 $o(\mathbf x_i)$ 与 minibatch layer 的输入 $\mathbf {f(x_i)}$ concatenate 起来，作为 D 的下一 layer 的输入。对生成样本和训练数据分别计算 minibatch layer 特征。

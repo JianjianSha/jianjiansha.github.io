@@ -96,18 +96,18 @@
 
 
 
-  <meta name="description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读torch/init.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载">
+  <meta name="description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读 torch/__init__.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY">
 <meta name="keywords" content="PyTorch">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PyTorch-2">
 <meta property="og:url" content="https://shajianjian.github.io/2019/06/13/PyTorch-2/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读torch/init.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载">
+<meta property="og:description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读 torch/__init__.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-06-20T10:25:17.453Z">
+<meta property="og:updated_time" content="2019-08-26T01:17:15.372Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PyTorch-2">
-<meta name="twitter:description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读torch/init.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载">
+<meta name="twitter:description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读 torch/__init__.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY">
 
 
 
@@ -401,7 +401,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-20 18:25:17" itemprop="dateModified" datetime="2019-06-20T18:25:17+08:00">2019-06-20</time>
+                <time title="修改时间：2019-08-26 09:17:15" itemprop="dateModified" datetime="2019-08-26T09:17:15+08:00">2019-08-26</time>
               
             
           </span>
@@ -456,11 +456,11 @@
         <h1 id="torch-installization"><a href="#torch-installization" class="headerlink" title="torch installization"></a>torch installization</h1><p>依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import torch</span><br></pre></td></tr></table></figure>
 
-<p>于是阅读torch/<strong>init</strong>.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载torch._C然后再恢复动态加载模式，</p>
+<p>于是阅读 <code>torch/__init__.py</code>，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载torch._C然后再恢复动态加载模式，</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">old_flags=sys.getdlopenflags()</span><br><span class="line">sys.setdlopenflags(_dl_flags.RTDL_GLOBAL | _dl_flags.RTLD_LAZY)</span><br><span class="line">from torch._C import *</span><br><span class="line">__all__ += [name for name in dir(_C)</span><br><span class="line">            if name[0] != &apos;_&apos; and</span><br><span class="line">            not name.endswith(&apos;Base&apos;)]</span><br><span class="line">sys.setdlopenflags(old_flags)</span><br></pre></td></tr></table></figure>
 
 <p><strong>将torch._C中（不包括_开头和Base结尾）的属性导出到当前域。</strong></p>
-<p><strong>init</strong>.py除了import torch._C，还import了同目录下其他module，以及同目录下的package。首先看torch._C导入时做了什么， torch._C的源文件只有torch/csrc/stub.cpp，链接库为shm和torch_python，stub.cpp中仅仅是初始化模块，</p>
+<p><code>__init__.py</code>除了import torch._C，还import了同目录下其他module，以及同目录下的package。首先看torch._C导入时做了什么， torch._C的源文件只有torch/csrc/stub.cpp，链接库为shm和torch_python，stub.cpp中仅仅是初始化模块，</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">extern PyObject* initModule();</span><br><span class="line">PyMODINIT_FUNC PyInit__C()   // 在python脚本中，import _C 时调用</span><br><span class="line">&#123;</span><br><span class="line">  return initModule();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>根据python3扩展库的规则可知，<code>import torch._C</code> ，调用PyInit__C函数（调用名为PyInit_&lt;package&gt;的函数），这个函数内部调用initModule，也就是说，具体的模块定义由initModule实现。看到extern知道initModule方法定义在外部，所以只能从shm和torch_python对应的源文件中寻找方法定义。</p>
@@ -491,6 +491,9 @@
 <p>  类型torch._C._FunctionBase， 这个类型具有方法和属性为</p>
   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># method</span><br><span class="line">apply</span><br><span class="line">_do_forward</span><br><span class="line">_do_backward</span><br><span class="line">_register_hook_dict</span><br><span class="line">register_hook</span><br><span class="line"># property</span><br><span class="line">saved_tensors</span><br><span class="line">saved_variables</span><br><span class="line">...</span><br><span class="line">requires_grad</span><br><span class="line">metadata</span><br></pre></td></tr></table></figure>
 
+<p>  类型 torch._C._VariableFunctions 包含方法</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">arange</span><br><span class="line">as_tensor</span><br><span class="line">...</span><br><span class="line">empty       <span class="comment"># 出现我们这里所讨论的 torch.empty</span></span><br><span class="line">empty_like</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
 <p>  不难知道_TensorBase是Tensor的基类，包含了Tensor的各种操作，_FunctionBase则包括了前后向传播方法，从这里能将深度学习中的一些概念与代码实现建立一点点联系了。</p>
 </li>
 <li><p>向torch._C中添加函数 _wrap_tensor_impl，_tensor_impl_raw_handle，_demangle，_log_api_usage_once，以_jit开头的一系列函数。</p>
@@ -511,7 +514,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CONFIGURE_FILE(THGeneral.h.in &quot;$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/THGeneral.h&quot;)</span><br></pre></td></tr></table></figure>
 
 <p>在THGeneral.h中有如下宏定义</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#define TH_CONCAT_4_EXPAND(x,y,z,w) x ## y ## z ## w</span><br><span class="line">#define TH_CONCAT_4(x,y,z,w) TH_CONCAT_4_EXPAND</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#define TH_CONCAT_4_EXPAND(x,y,z,w) x ## y ## z ## w</span><br><span class="line">#define TH_CONCAT_4(x,y,z,w) TH_CONCAT_4_EXPAND(x,y,z,w)</span><br></pre></td></tr></table></figure>
 
 <p>另一方面，torch/csrc/THP.h 中引用了#include &lt;torch/src/Storage.h&gt;，在这个Storage.h中有如下语句</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#define THPStorage_(NAME) TH_CONCAT_4(THP, Real, Storage_, NAME)</span><br><span class="line">...</span><br><span class="line">#include &lt;torch/csrc/generic/Storage.h&gt;</span><br><span class="line">#include &lt;TH/THGenerateAllType.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;torch/csrc/generic/Storage.h&gt;</span><br><span class="line">#include &lt;TH/THGenerateHalfType.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;torch/csrc/generic/Storage.h&gt;</span><br><span class="line">#include &lt;TH/THGenerateBoolType.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;torch/csrc/generic/Storage.h&gt;</span><br><span class="line">#include &lt;TH/THGenerateQTypes.h&gt;</span><br></pre></td></tr></table></figure>
@@ -796,7 +799,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-count">29</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -848,7 +851,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">7</span>
+                      
+                    
+                    <span class="site-state-item-count">8</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
