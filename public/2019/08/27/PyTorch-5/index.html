@@ -96,13 +96,18 @@
 
 
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="SJJ">
-<meta property="og:url" content="https://shajianjian.github.io/archives/2019/06/index.html">
+  <meta name="description" content="本篇主要分析 PyTorch 中自动求导是如何进行的。要使得能够自动求导，需要设置 Tensor 的 requires_grad=True，例如 1x=torch.ones(1, requires_grad=True)  根据前面 torch.empty 的底层 C++ 实现的分析，易知 torch.ones 的 C++ 底层实现由位于 torch/csrc/autograd/generated/">
+<meta name="keywords" content="PyTorch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyTorch-5">
+<meta property="og:url" content="https://shajianjian.github.io/2019/08/27/PyTorch-5/index.html">
 <meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="本篇主要分析 PyTorch 中自动求导是如何进行的。要使得能够自动求导，需要设置 Tensor 的 requires_grad=True，例如 1x=torch.ones(1, requires_grad=True)  根据前面 torch.empty 的底层 C++ 实现的分析，易知 torch.ones 的 C++ 底层实现由位于 torch/csrc/autograd/generated/">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-08-27T08:37:09.451Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="SJJ">
+<meta name="twitter:title" content="PyTorch-5">
+<meta name="twitter:description" content="本篇主要分析 PyTorch 中自动求导是如何进行的。要使得能够自动求导，需要设置 Tensor 的 requires_grad=True，例如 1x=torch.ones(1, requires_grad=True)  根据前面 torch.empty 的底层 C++ 实现的分析，易知 torch.ones 的 C++ 底层实现由位于 torch/csrc/autograd/generated/">
 
 
 
@@ -110,7 +115,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/archives/2019/06/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/08/27/PyTorch-5/">
 
 
 
@@ -120,7 +125,7 @@
   };
 </script>
 
-  <title>归档 | SJJ</title>
+  <title>PyTorch-5 | SJJ</title>
   
 
 
@@ -168,7 +173,7 @@
     
   
 
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-archive">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -274,7 +279,7 @@
         
         
           
-          <li class="menu-item menu-item-archives menu-item-active">
+          <li class="menu-item menu-item-archives">
 
     
     
@@ -316,488 +321,217 @@
           
             
 
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
-
           
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/08/27/PyTorch-5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PyTorch-5
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-08-27 14:07:27 / 修改时间：16:37:09" itemprop="dateCreated datePublished" datetime="2019-08-27T14:07:27+08:00">2019-08-27</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/DL-Framework/" itemprop="url" rel="index"><span itemprop="name">DL Framework</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-      <span class="archive-page-counter">
-        
-        
-         
-        
-        还行! 目前共计 31 篇日志。 继续努力。
-      </span>
       
 
       
+        <p>本篇主要分析 PyTorch 中自动求导是如何进行的。要使得能够自动求导，需要设置 Tensor 的 <code>requires_grad=True</code>，例如</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x=torch.ones(<span class="number">1</span>, requires_grad=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
 
-        
-        
-        
+<p>根据前面 torch.empty 的底层 C++ 实现的分析，易知 torch.ones 的 C++ 底层实现由位于 torch/csrc/autograd/generated/python_torch_functions.cpp 中的 THPVariable_ones 函数实现，此函数定义的部分代码为</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> size = r.intlist(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">auto</span> dtype = r.scalartype(<span class="number">2</span>);</span><br><span class="line"><span class="keyword">auto</span> device = r.device(<span class="number">4</span>);</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">auto</span> options = TensorOptions()</span><br><span class="line">    .dtype(dtype)</span><br><span class="line">    .device(device)</span><br><span class="line">    .layout(r.layout(<span class="number">3</span>).layout)</span><br><span class="line">    .requires_grad(r.toBool(<span class="number">5</span>));</span><br><span class="line"><span class="keyword">return</span> wrap(dispatch_ones(size, options));</span><br></pre></td></tr></table></figure>
 
+<p><code>wrap</code> 则是将 C++ 的 Tensor 包装为 python 的 Tensor 类型 <code>torch.Tensor</code>。dispatch_ones 函数其内部调用 torch::ones 函数，此函数定义的关键部分为</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">at::Tensor tensor = at::ones(size, at::TensorOptions(options).is_variable(<span class="literal">false</span>));</span><br><span class="line"><span class="keyword">auto</span> result = autograd::make_variable(tensor, options.requires_grad());</span><br></pre></td></tr></table></figure>
+
+<p>上面代码第一句是构造全 1 的 Tensor，第二句代码则是将 Tensor 转为 Variable。Variable 继承 Tensor，Tensor 内部有 c10::intrusive_ptr&lt;TensorImpl, UndefinedTensorImpl&gt; 类型字段 <code>impl_</code>，Variable::Impl 类型继承 TensorImpl，并且 Variable 的字段 <code>impl_</code> 实际上相当于指向 Variable::Impl 的指针类型，而 Variable::Impl 内部包含了字段 <code>requires_grad_</code> 记录了 Variable 是否支持自动求导。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y=torch.ones(<span class="number">1</span>) <span class="comment"># y.requires_grad False</span></span><br><span class="line">z=x+y           <span class="comment"># z.requires_grad True</span></span><br></pre></td></tr></table></figure>
+
+<p>torch.Tensor 的基类 torch._C._TensorBase 的方法位于 torch/csrc/autograd/generated/python_variable_methods.cpp 中的 variable_methods，其中我们发现重载运算符 <code>__add__</code> 的实现函数为 THPVariable_add，调用栈为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">THPVariable_add -&gt; dispatch_add -&gt; Tensor::add -&gt; TypeDefault::add -&gt; native::add -&gt; native::add_out</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
         
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2019">2019</h1>
+        
+        <div class="post-tags">
+          
+            <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/22/PyTorch-4/" rel="next" title="PyTorch-4">
+                <i class="fa fa-chevron-left"></i> PyTorch-4
+              </a>
+            
           </div>
-        
-        
 
-        
+          <span class="post-nav-divider"></span>
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/06/28/M2Det/" itemprop="url">
+          <div class="post-nav-prev post-nav-item">
             
-              <span itemprop="name">M2Det</span>
+              <a href="/2019/08/27/DP3/" rel="prev" title="Dynamic Programming (3)">
+                Dynamic Programming (3) <i class="fa fa-chevron-right"></i>
+              </a>
             
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-28T17:59:08+08:00" content="2019-06-28">
-          06-28
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
+          </div>
+        </div>
       
 
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/06/28/BBox-Reg-Uncertainty/" itemprop="url">
-            
-              <span itemprop="name">BBox-Reg-Uncertainty</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-28T09:23:16+08:00" content="2019-06-28">
-          06-28
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/06/27/FSAF/" itemprop="url">
-            
-              <span itemprop="name">FSAF</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-27T09:14:42+08:00" content="2019-06-27">
-          06-27
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/06/25/GA-RPN/" itemprop="url">
-            
-              <span itemprop="name">GA-RPN</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-25T17:01:57+08:00" content="2019-06-25">
-          06-25
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/06/24/cv-mtds/" itemprop="url">
-            
-              <span itemprop="name">CV 中的常用方法总结</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-24T17:33:22+08:00" content="2019-06-24">
-          06-24
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/06/21/TridentNet/" itemprop="url">
-            
-              <span itemprop="name">TridentNet</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-21T16:24:19+08:00" content="2019-06-21">
-          06-21
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/06/18/PyTorch-3/" itemprop="url">
-            
-              <span itemprop="name">PyTorch-3</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-18T16:44:44+08:00" content="2019-06-18">
-          06-18
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/06/16/mAP/" itemprop="url">
-            
-              <span itemprop="name">mAP</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-16T11:43:57+08:00" content="2019-06-16">
-          06-16
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/06/13/GIoU/" itemprop="url">
-            
-              <span itemprop="name">GIoU</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-13T15:00:48+08:00" content="2019-06-13">
-          06-13
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/06/13/PyTorch-2/" itemprop="url">
-            
-              <span itemprop="name">PyTorch-2</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-13T10:19:52+08:00" content="2019-06-13">
-          06-13
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/06/13/Hexo-Sync/" itemprop="url">
-            
-              <span itemprop="name">Hexo Sync</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-13T09:57:11+08:00" content="2019-06-13">
-          06-13
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/06/12/PyTorch-1/" itemprop="url">
-            
-              <span itemprop="name">PyTorch-1</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-06-12T19:17:11+08:00" content="2019-06-12">
-          06-12
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-    </div>
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+  </div>
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
@@ -1044,6 +778,10 @@
 
 
   
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
 
   
 
@@ -1059,6 +797,8 @@
 
   
 
+
+  
 
 
   
