@@ -21,4 +21,202 @@ mathjax: true
 
 DPFE 为
 $$f(k,S)=\min_{d \in S} \{p_d + f(\max (k-p_d,0)+q_d, S-\{d\})\}$$
-终止条件为 $f(k,\emptyset)=k$。要求的目标为 $f(0,S^{\ast})$，$S^{\ast}$ 为初始进程集合。
+终止条件为 $f(k,\emptyset)=k$。要求的目标为 $f(0,S^{\ast})$，$S^{\ast}$ 为初始进程集合。上面例子使用代码实现如下：
+```python
+i=[0,1,2,3]
+p=[3,4,8,10]
+q=[6,2,9,15]
+
+def flowshop(k,S)
+    if len(S)==0:
+        return k, []
+    m=1e8
+    for j in range(len(S)):
+        d=S[j]
+        m1, path1=flowshow(max(k-p[d],0)+q[d], S[:j]+S[j+1:])
+        m1+=p[d]
+        if m>m1:
+            m=m1
+            path=[s]+path1
+    return m, path
+
+m, path=flowshow(0,i)
+print(m)
+print(path)
+```
+
+## 汉诺塔问题 HANOI
+移动 N 个盘子（大小从上到下递增）从一个桩 x 到另一个桩 y 上，使用第三个桩 z 作为辅助，并保证每个桩上的盘子大小从上到下递增，总共需要移动的次数记为 $f(N)$，一次移动指将盘子从某桩移动到另一个桩上。显然有关系：
+$$f(i)=2f(i-1)+1$$
+这表明，从 x 移动 i 个盘子到 y 上，等价于从 x 移动 i-1 个盘子到 z 上，然后移动 x 的最后一个盘子到 y 上，最后从 z 上移动 i-1 个盘子到 y 上。基本态为 $f(1)=1$，于是递归可计算得 $f(2)=2 f(1)+1=3, \ f(3)=2f(2)+1=7, \ \cdots$
+
+上式仅给出了移动次数，然而我们还需要确定移动序列。
+### 非最优问题
+记从桩 x 移动一个盘子到桩 y 为 $<x,y>$，定义 $F(S)$ 为移动序列，与之前求最优问题中使用加法操作不同，这里使用连接操作（concatenation），那么有
+$$F(N,x,y)=F(N-1,x,z)F(1,x,y)F(N-1,z,y)$$
+其中状态 $S=(N,x,y)$，原理与上面一致。基本态为 $F(1,x,y)=<x,y>$。于是可一步步推导得到：
+$$\begin{aligned} F(2,x,y)&=F(1,x,z)F(1,x,y)F(1,z,y)=<x,z><x,y><z,y>
+\\\\F(3,x,y)&=F(2,x,z)F(1,x,y)F(2,z,y)
+\\\\ &=<x,y><x,z><y,z><x,y><z,x><z,y><x,y>\end{aligned}$$
+
+代码实现如下
+```python
+pegs = [1,2,3]
+def hanoi(n,i=1,j=2):
+    if n==1:
+        return [(i,j)]
+    k = pegs.difference({i,j}).pop()
+    return hanoi(n-1,i,k)+hanoi(1,i,j)+hanoi(n-1,k,j)
+
+if __name__ == '__main__':
+    s=hanoi(3)
+    print(s)
+```
+
+## 整型线性规划问题 ILP
+考虑如下形式的优化问题
+$$\max c^{\top}x
+\\\\ s.t. Ax \le b
+\\\\ x_1,...,x_n \in \mathbf N \cup \{0\}$$
+其中，矩阵 A 和向量 b, c 中的元素均为非负整数。这其实是一种很典型的 DP 问题，首先选择某个 $x_1$ 的值，当然无论 $x_1$ 是何值，一旦选定，就转化为 $\sum_{i=2}^n c_i x_i$ 这个子问题的最优解，由于 $x$ 向量的所有元素一起需要满足一组条件，所以在决策 $x_i$ 元素为何值时，需要知道 $x_1,...,x_{i-1}$ 这些已经决策过的元素的值，以保证它们满足条件，所以状态 S 需要包含已经决策过的元素值以及元素在向量中的位置下标，我们约定在阶段 j 时决策 $x_{j+1}$ 的值（这个不是唯一的，也可以约定来决策 $x_j$ 的值，DPFE 形式稍作调整即可），于是 DPFE 为
+$$f(j,S)=\begin{cases} \max_{x_{j+1} \in D} \{c_{j+1}x_{j+1}+f(j+1,S \cup \{(j+1,x_{j+1})\})\} & j < n
+\\\\ 0 & j=n \end{cases}$$
+决策空间 $D$ 由给定的条件以及状态 $S$ 决定。此问题的求解目标是 $f(0,\emptyset)$。
+
+以上是一种求解思路，还有一种思路。从给定的条件出发，已知
+$$Ax \le b$$
+记 $A$ 维度为 $m \times n$，于是上式表示一共有 m 个限制条件，每个限制条件形式为 
+$$A_{i,:}x \le b_i \Rightarrow \sum_{j=1}^n A_{i,j}x_j \le b_i$$
+每做一次决策决定一个 $x_j$ 的值，将决策后的 $x_j$ 的值移到式子右边，在阶段 j，与上面一样，将决策 $x_{j+1}$ 的值，决策后上式不等式改写为
+$$\sum_{k=j+2}^n A_{i,k}x_k \le b_i - A_{i,1}x_1 - \cdots A_{i,j+1}x_{j+1}$$
+也就是说，每次决策不等式右边部分均会变化，于是可定义状态 S 表示限制条件的不等式右侧部分，DPFE 如下
+$$f(j,(y_1,...,y_m))=\begin{cases} \max_{x_{j+1} \in D} \{c_{j+1}x_{j+1}+f(j+1,(y_1-A_{1,j+1}x_{j+1},...,y_m-A_{m,j+1}x_{j+1}))\} & j < n
+\\\\ 0 & j=n \end{cases}$$
+求解目标是 $f(0,(b_1,...,b_m))$。我们来看一下决策空间 $D$，在阶段 j，状态为 $S=(j,(y_1,...,y_m))$，由于限制条件为
+$$A_{1,j+1}x_{j+1} + A_{1,j+2}x_{j+2} + \cdots + A_{1,n}x_n \le y_1
+\\\\ \vdots
+\\\\ A_{m,j+1}x_{j+1} + A_{m,j+2}x_{j+2} + \cdots + A_{m,n}x_n \le y_m$$
+易知此时 $x_{j+1}$ 的决策空间为 
+$$\{0,...,\min \{\lfloor \frac{y_1}{A_{1,j+1}} \rfloor, ..., \lfloor \frac{y_m}{A_{m,j+1}} \rfloor\}\}$$
+
+注意，如果出现 $\frac {y_i} 0$，则解释为正无穷 $\infty$，表示第 i 个限制条件对 $x_{j+1}$ 没有上限。
+
+第一种解决方法中的决策空间 $D$ 也是类似求解，令 
+$$y_i=b_i-\sum_{p \in S} A_{i,p_1}p_2$$
+然后就与第二章解决方法中的决策空间的求解一样了。
+
+例：$c=(3,5), \ b=(4,12,18)$，$A=\begin{pmatrix} 1 & 0 \\\\ 0 & 2 \\\\ 3 & 2 \end{pmatrix}$，求解 $x=(x_1,x_2)$。
+代码如下
+```python
+c=[3,5]
+b=[4,12,18]
+a=[[1,0],
+   [0,2],
+   [3,2]]
+
+m,n=len(b),len(c)
+
+def d=(j,y):
+    return min([y[i]//a[i][j] if a[i][j] > 0 else 1e8 for i in range(m)])
+
+def ilp(j,y):
+    if j==n:
+        return 0, []
+    dm=d(j,y)
+    m_=-1
+    x_=None
+    for d_ in range(dm+1):
+        y_=[y[i]-a[i][j]*d_ for i in range(m)]
+        m1,x1=ilp(j+1,y_)
+        m1+=c[j]*d_
+        if m_ < m1:
+            m_ = m1
+            x_ = [d_]+x1
+    return m_, x_
+
+if __name__ == '__main__':
+    m_, x_ = ilp(0,b)
+    print(m_)   # 36
+    print(x_)   # [2,6]
+```
+
+## 背包型 ILP 问题 ILPKNAP
+假设有三类物体 n=3，每种物体的价值为 $(v_0,v_1,v_2)=(15,25,24)$，重量为 $(w_0,w_1,w_2)=(10,18,15)$，假设背包总共可装物体重量上限为 22，现在每种物体各选择多少个装包，使得价值最大？这个问题可以使用 ILP 模型解决，每种物体选择的数量为 $(x_0,x_1,x_2)$，系数向量为 $c=(v_0,v_1,v_2)$，限制条件的不等式左侧矩阵 $A=(w_0,w_1,w_2)$，右侧向量为 $b=(22)$，且 $x_0,x_1,x_2 \in \mathbf N \cup \{0\}$。
+
+## 区间调度问题 INTVL
+假设有 N 个进程，标号为 $P=\{0,...,N-1\}$，选择其中的一个子集，选中的进程放置在单处理器上执行，已知每个进程有区间 $(s_i,t_i)$ 表示起始时间和截止时间，在这个时间段内，进程 $i$ 得到运行，那么就获得收益 $w_i$，由于是单处理器，所以各进程执行时间不得重叠，求选择的子集，使得收益最大，DPFE 为
+$$f(p,q)=\max_{d \in P} \{f(p,s_d)+c(d|p,q)+f(t_d,q)\}$$
+其中 f(p,q) 表示时间段 $[p,q]$ 内的最大收益，上式是很显然，如果做出当前决策 d，那么理论上 $[s_d,t_d]$ 这个时间段用来执行进程 d，然后还剩两个区间 $[p,s_d]$ 和 $[t_d,q]$ 再继续做决策。当前决策 d 有收益当且仅当 $p \le s_d, t_d \le q$。基本态是 $f(p,q)=0, \ p \ge q$，求解目标是 $f(0,T)$，其中 $T \ge \max_i \{t_i\}$。
+
+根据上式，在当前决策之后的两个区间 $[p,s_d]$ 和 $[t_d,q]$ 求解最大收益 $f(p,s_d), \ f(t_d, q)$时，决策空间依然还是 $P$，虽然基本态 $f(p,q)=0, \ p \ge q$ 保证了递归过程可以退出，但显然决策空间应该缩小，这样可以减少递归次数，DPFE 为
+$$f(S,p,q)=\max_{d \in S} \{f(S_L,p,s_d)+c(d|p,q)+f(S_R,t_d,q)\}$$
+其中 $S_L, \ S_R \subset P$ 分别对应 $[p,s_d]$ 和 $[t_d,q]$ 两个区间内合适的进程集合，所谓合适，就是进程的 $(s_i,t_i)$ 包含在对应区间内。基本态是 $f(S,p,q)=0, \ p \ge q \text{ or } S=\emptyset$，求解目标是 $f(P,0,T)$，其中 $T \ge \max_i \{t_i\}$。代码如下，
+```python
+P=[0,1,2,3,4,5]
+s=[9,8,3,5,2,1]
+t=[12,11,10,7,6,4]
+w=[1,2,7,4,4,2]
+T=max(t)
+n=len(s)
+
+def get_S(prev_S, p, q):
+    return [i for i in prev_S if s[i]>=p and t[i]<=q]
+
+def intvl(S, p, q):
+    if len(S)==0 or p>=q:
+        return 0, []
+    m_=0
+    d_=None
+    for d in S:
+        m1, d1=intvl(get_S(S, p, s[d]), p, s[d])
+        m2, d2=intvl(get_S(S, t[d], q), t[d], q)
+        m=m1+m2+w[d]
+        if m_<m:
+            m_=m
+            d_=[d]+d1+d2
+    return m_, d_
+
+if __name__ == '__main__':
+    m, d= intvl(P, 0, T)
+    print(m)
+    print(d)
+```
+
+还有一种思路。我们将进程按其截止时间升序排列，排列后的进程序号为 $P$，进程数量为 N，然后从 $P$ 的后端到前端依次做决策，也就是第 i 个决策决定是否选择 $P$ 中第 N-i-1 个进程，例如第一个决策决定是否选择最后一个进程，第 N 个决策决定是否选择第一个进程，这样的话，假设第 N-1-i 个决策决定选择第 i 个进程，那么接下来只有 $D_i=\{j|t_j \le s_i\}$ 的进程集合可供选择，我们令 $\pi(i)=\max D_i$，因为决策是按进程序号从大到小进行的，所以下一次决策直接决定是否选择序号为 $\pi(i)$ 的进程，DPFE 为
+$$f(k)=\max\{w_k+f(\pi(k)), f(k-1)\}$$
+其中，k 所代表的进程下标从 1 开始编号（注意与程序中数组下标从 0 开始的区别）。理解上式也很简单，当前决策，要么选择进程 k，此时收益为 $w_k+f(\pi(k))$，要么不选择进程 k，此时收益为 $f(k-1)$，通过比较哪个收益大来决定是否选择进程 k。上式可改写为
+$$f(k)=\max_{d \in \{0,1\}} \{d\cdot(w_k+f(\pi (k-1)))+(1-d)\cdot f(k-1)\}$$
+代码实现如下，
+```python
+import numpy as np
+
+s=[9,8,3,5,2,1]
+t=[12,11,10,7,6,4]
+w=[1,2,7,4,4,2]
+
+P=np.argsort(t)
+t=np.sort(t)
+s=np.array(s)[P]
+w=np.array(w)[P]
+
+def pi(k):
+    for i in range(k-1,-1,-1):
+        if t[i]<=s[k]:
+            return i
+    return -1
+
+def intvl1(k):
+    if k==-1:
+        return 0, []
+    m1,d1=intvl1(pi(k))
+    m2,d2=intvl2(k-1)
+    if m1+w[k]>=m2:
+        return m1+w[k], [k]+d1
+    else:
+        return m2, d2
+
+if __name__ == '__main__':
+    m, d= intvl(P, 0, T)
+    print(m)
+    print(P[d])
+```
