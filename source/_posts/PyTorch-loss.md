@@ -111,10 +111,13 @@ $$L=-\sum_{i=1}^C y_i \log x_i = - y_c \log x_c $$
 
 
 ## 7. MultiLabelSoftMarginLoss
+
 这是 SoftMarginLoss 的多分类版本，即多标签多分类，标签数量小于等于分类数量，为了使 `target` 的向量长度一致，设置标签数量为分类数量，对于不存在的标签，则设置对应的 target 值为 -1，例如分析某电影数据，分类总共为 4 类，如下
+
 ```
 romance, comedy, horror, action
 ```
+
 那么，对于任意一部电影，其标签最多有 4 个，如果不足 4 个，那么缺失的分类设置标签 target 值为 0 或者 -1，这里使用 0 表示，例如某电影分类为 `comedy,action`，那么其 target 值按以上顺序为 `(-1, 1, -1, 1)`。
 
 MultiLabelSoftMarginLoss ，对某个样本而言，损失计算如下

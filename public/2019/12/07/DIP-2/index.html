@@ -96,18 +96,18 @@
 
 
 
-  <meta name="description" content="场景： 1在A, B两台电脑上同步Hexo博客  假设在 computer B 上已经初次建立hexo博客 https://shajian.github.io， computer B 本地的文件夹（hexo部署环境目录）为 path/to/myblog，其内部文件/目录如下： 123456789_config.ymldb.jsonnode_modulespackage.jsonpackage-lo">
-<meta name="keywords" content="tool">
+  <meta name="description" content="1. 空间滤波使用空间滤波器（也称空间掩模，核，窗口）直接作用于图像，得到当前位置的像素值，通过平移得到其他位置的像素值。熟悉深度学习中的卷积操作的话，不难理解这个概念。 1.1 平滑空间滤波用于模糊和降噪（通常是模糊后再阈值过滤）。例如以下线性滤波器，  均值滤波 加权均值滤波  又或者统计排序等非线性滤波器，  中值滤波 中值就是统计里面的排序后位于中间的值。中值滤波提供降噪的同时，对图像的模">
+<meta name="keywords" content="DIP">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hexo Sync">
-<meta property="og:url" content="https://shajianjian.github.io/2019/06/13/Hexo-Sync/index.html">
+<meta property="og:title" content="数字图像处理（二）">
+<meta property="og:url" content="https://shajianjian.github.io/2019/12/07/DIP-2/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="场景： 1在A, B两台电脑上同步Hexo博客  假设在 computer B 上已经初次建立hexo博客 https://shajian.github.io， computer B 本地的文件夹（hexo部署环境目录）为 path/to/myblog，其内部文件/目录如下： 123456789_config.ymldb.jsonnode_modulespackage.jsonpackage-lo">
+<meta property="og:description" content="1. 空间滤波使用空间滤波器（也称空间掩模，核，窗口）直接作用于图像，得到当前位置的像素值，通过平移得到其他位置的像素值。熟悉深度学习中的卷积操作的话，不难理解这个概念。 1.1 平滑空间滤波用于模糊和降噪（通常是模糊后再阈值过滤）。例如以下线性滤波器，  均值滤波 加权均值滤波  又或者统计排序等非线性滤波器，  中值滤波 中值就是统计里面的排序后位于中间的值。中值滤波提供降噪的同时，对图像的模">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-06-14T13:20:32.167Z">
+<meta property="og:updated_time" content="2019-12-07T10:43:13.595Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hexo Sync">
-<meta name="twitter:description" content="场景： 1在A, B两台电脑上同步Hexo博客  假设在 computer B 上已经初次建立hexo博客 https://shajian.github.io， computer B 本地的文件夹（hexo部署环境目录）为 path/to/myblog，其内部文件/目录如下： 123456789_config.ymldb.jsonnode_modulespackage.jsonpackage-lo">
+<meta name="twitter:title" content="数字图像处理（二）">
+<meta name="twitter:description" content="1. 空间滤波使用空间滤波器（也称空间掩模，核，窗口）直接作用于图像，得到当前位置的像素值，通过平移得到其他位置的像素值。熟悉深度学习中的卷积操作的话，不难理解这个概念。 1.1 平滑空间滤波用于模糊和降噪（通常是模糊后再阈值过滤）。例如以下线性滤波器，  均值滤波 加权均值滤波  又或者统计排序等非线性滤波器，  中值滤波 中值就是统计里面的排序后位于中间的值。中值滤波提供降噪的同时，对图像的模">
 
 
 
@@ -115,7 +115,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/2019/06/13/Hexo-Sync/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/12/07/DIP-2/">
 
 
 
@@ -125,7 +125,7 @@
   };
 </script>
 
-  <title>Hexo Sync | SJJ</title>
+  <title>数字图像处理（二） | SJJ</title>
   
 
 
@@ -341,7 +341,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/13/Hexo-Sync/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/12/07/DIP-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="shajianjian">
@@ -358,7 +358,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Hexo Sync
+          <h1 class="post-title" itemprop="name headline">数字图像处理（二）
 
               
             
@@ -384,24 +384,12 @@
                 
               
 
-              <time title="创建时间：2019-06-13 09:57:11" itemprop="dateCreated datePublished" datetime="2019-06-13T09:57:11+08:00">2019-06-13</time>
+              <time title="创建时间：2019-12-07 11:08:24 / 修改时间：18:43:13" itemprop="dateCreated datePublished" datetime="2019-12-07T11:08:24+08:00">2019-12-07</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-06-14 21:20:32" itemprop="dateModified" datetime="2019-06-14T21:20:32+08:00">2019-06-14</time>
               
             
           </span>
@@ -435,44 +423,28 @@
       
 
       
-        <p>场景：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在A, B两台电脑上同步Hexo博客</span><br></pre></td></tr></table></figure>
-
-<p>假设在 computer B 上已经初次建立hexo博客 <a href="https://shajian.github.io，" target="_blank" rel="noopener">https://shajian.github.io，</a> computer B 本地的文件夹（hexo部署环境目录）为 path/to/myblog，其内部文件/目录如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">_config.yml</span><br><span class="line">db.json</span><br><span class="line">node_modules</span><br><span class="line">package.json</span><br><span class="line">package-lock.json</span><br><span class="line">public</span><br><span class="line">scaffolds</span><br><span class="line">source</span><br><span class="line">themes</span><br></pre></td></tr></table></figure>
-
-<p>在github仓库 shajian.github.io 上新建branch，比如”hexo”，这样，”mater”主分支用于维护hexo生成的静态博客文件/目录，”hexo”分支用于维护hexo部署环境下的所有文件/目录。</p>
-<p>在 computer A 上 clone 这个仓库，并切换到 hexo 分支，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https://github/shajian/shajian.github.io.git</span><br><span class="line">$ cd shajian.github.io</span><br><span class="line">$ git checkout hexo</span><br><span class="line">$ git branch</span><br><span class="line">* hexo</span><br><span class="line">  master</span><br></pre></td></tr></table></figure>
-
-<p>将目录 shajian.github.io 内的所有文件/目录全部删除，然后将 path/to/myblog内的全部内容复制过来，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ rm -rf .</span><br><span class="line"># do not use &quot;cp -R path/to/myblog/* ./&quot; which ignores hidden files/directories</span><br><span class="line">$ cp -R path/to/myblog/. ./</span><br></pre></td></tr></table></figure>
-
-<p>然后可在使用</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo new &quot;&lt;title&gt;&quot;</span><br></pre></td></tr></table></figure>
-
-<p>写新文章或直接去source/_posts下修改已有文章，<br>部署</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo g -d</span><br></pre></td></tr></table></figure>
-
-<p>然后提交到仓库的hexo分支，进行备份</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git add .</span><br><span class="line">$ git commit -m &quot;new post &apos;title&apos;&quot;</span><br><span class="line">$ git push origin hexo</span><br></pre></td></tr></table></figure>
-
-<p>然后就可以去 <a href="https://shajian.github.io" target="_blank" rel="noopener">https://shajian.github.io</a> 浏览本地新增/修改文章内容了。</p>
-<p>在 computer B 上删除 path/to/myblog 目录，然后重新 clone 仓库，并切换到 hexo 分支，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https://github/shajian/shajian.github.io.git</span><br><span class="line">$ cd shajian.github.io</span><br><span class="line">$ git checkout hexo</span><br></pre></td></tr></table></figure>
-
-<p>如果仓库有 .gitignore 文件且包含 node_modules 目录，则执行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install</span><br></pre></td></tr></table></figure>
-
-<p>此时，要修改还是新增文章，步骤均与上面 computer A上的操作一致。</p>
-<p>computer A 和 B 本地均有仓库后，以后每次修改还是新增文章，首先需要将仓库更新到最新</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git checkout master</span><br><span class="line">$ git pull origin master</span><br><span class="line">$ git checkout hexo</span><br><span class="line">$ git pull origin hexo</span><br></pre></td></tr></table></figure>
-
-<p>切换到 hexo 分支后，可以进行修改和新增文章了。</p>
-<p>由于 .depoly_git 下其实就是对应 master 主分支的内容，这也是一个git 仓库目录，内含 .git 文件夹，所以提交的时候无法提交 .deploy_git 内部的文件/目录，不过这个没关系，例如前面，在 computer B 上 clone 仓库后，执行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo g -d</span><br></pre></td></tr></table></figure>
-
-<p>由 hexo 向 .deploy_git 填充生成的文件/目录，而不需要在 hexo 分支上备份这些内容。</p>
+        <h1 id="1-空间滤波"><a href="#1-空间滤波" class="headerlink" title="1. 空间滤波"></a>1. 空间滤波</h1><p>使用空间滤波器（也称空间掩模，核，窗口）直接作用于图像，得到当前位置的像素值，通过平移得到其他位置的像素值。熟悉深度学习中的卷积操作的话，不难理解这个概念。</p>
+<h2 id="1-1-平滑空间滤波"><a href="#1-1-平滑空间滤波" class="headerlink" title="1.1 平滑空间滤波"></a>1.1 平滑空间滤波</h2><p>用于模糊和降噪（通常是模糊后再阈值过滤）。例如以下线性滤波器，</p>
+<ol>
+<li>均值滤波</li>
+<li>加权均值滤波</li>
+</ol>
+<p>又或者统计排序等非线性滤波器，</p>
+<ol>
+<li><p>中值滤波</p>
+<p>中值就是统计里面的排序后位于中间的值。中值滤波提供降噪的同时，对图像的模糊程度要低</p>
+</li>
+</ol>
+<h2 id="1-2-锐化空间滤波"><a href="#1-2-锐化空间滤波" class="headerlink" title="1.2 锐化空间滤波"></a>1.2 锐化空间滤波</h2><p>前面平滑处理使用求和平均，求和可看作积分，锐化操作则相反，通过空间微分实现，目的是突出灰度过渡部分。<br>对于一维函数 $f(x)$，一阶微分为<br>$$\frac {\partial f} {\partial x} = f(x+1) - f(x)$$<br>二维函数 $f(x,y)$ 类似，分别沿两个轴微分。二阶微分为，<br>$$\frac {\partial^2 f} {\partial x^2} = f’(x) - f’(x-1) = f(x+1) + f(x-1) - 2f(x)$$</p>
+<p>以下为一些图像锐化增强的方法。</p>
+<h3 id="1-2-1-拉普拉斯算子"><a href="#1-2-1-拉普拉斯算子" class="headerlink" title="1.2.1 拉普拉斯算子"></a>1.2.1 拉普拉斯算子</h3><p>$$\nabla^2 f = \frac {\partial^2 f} {\partial x^2} + \frac {\partial^2 f} {\partial y^2} $$</p>
+<p>又
+$$\frac {\partial^2 f} {\partial x^2} = f(x+1,y)+f(x-1,y) - 2f(x,y)<br>\\ \frac {\partial^2 f} {\partial y^2} = f(x,y+1)+f(x,y-1) - 2f(x,y)$$<br>故
+$$\nabla^2 f = f(x+1,y)+f(x-1,y)+f(x,y+1)+f(x,y-1)-4f(x,y)$$</p>
+<p>还可以增加对角线方向的微分项，$f(x \pm 1,y \pm 1)$，以及 4 个 $-f(x,y)$，</p>
+<p>当然，以上我们还可以将微分乘以 -1，这表示微分的方向反过来，但是其增强效果是跟上面等效的。</p>
+<p>通常拉普拉斯算子增强得到将边线和突变点叠加到暗色背景中的图像，所以在叠加原图像，可以恢复背景并保持拉普拉斯锐化结果，如下：<br>$$g(x,y)=f(x,y)+c\left[ \nabla^2 f(x,y) \right]$$</p>
+<p>使用拉普拉斯算子后的图像可能存在负的像素值，此时可将负值转换为 0，超过 255 的值转换为 255（假设为 8 bit 灰度），但是这种处理方法显然过于草率，一种更好的方法是，记拉普拉斯图像为 <code>f</code>，然后<br>$$f_m = f-\min(f)<br>\\ f_s=(L-1)[f_m/\max(f_m)]$$<br>如此就能保证像素值位于 $[0,L-1]$ 之间。如果叠加原图像，则可能不需要做如此标定。</p>
 
       
     </div>
@@ -499,7 +471,7 @@
         
         <div class="post-tags">
           
-            <a href="/tags/tool/" rel="tag"># tool</a>
+            <a href="/tags/DIP/" rel="tag"># DIP</a>
           
         </div>
       
@@ -512,8 +484,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/06/12/PyTorch-1/" rel="next" title="PyTorch-1">
-                <i class="fa fa-chevron-left"></i> PyTorch-1
+              <a href="/2019/12/05/DIP-1/" rel="next" title="数字图像处理（一）">
+                <i class="fa fa-chevron-left"></i> 数字图像处理（一）
               </a>
             
           </div>
@@ -521,10 +493,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/06/13/PyTorch-2/" rel="prev" title="PyTorch-2">
-                PyTorch-2 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -568,8 +536,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -667,6 +644,23 @@
         </div>
       </div>
 
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-空间滤波"><span class="nav-number">1.</span> <span class="nav-text">1. 空间滤波</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-平滑空间滤波"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 平滑空间滤波</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-锐化空间滤波"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 锐化空间滤波</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-拉普拉斯算子"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.2.1 拉普拉斯算子</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
       
 
       
@@ -805,7 +799,7 @@
   
 
 
-  <script src="/js/next-boot.js?v=7.1.2"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script src="/js/next-boot.js?v=7.1.2"></script>
 
 
   
@@ -835,6 +829,46 @@
   
   
 
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
   
 
 

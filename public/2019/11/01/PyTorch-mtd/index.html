@@ -107,7 +107,8 @@
 <meta property="og:image" content="https://shajianjian.github.io/images/pytorch_mth_conv.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/pytorch_mtd_conv_t.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/pytorch_mtd_conv_t_1.png">
-<meta property="og:updated_time" content="2019-11-04T10:11:22.551Z">
+<meta property="og:image" content="https://shajianjian.github.io/images/pytorch_mtd_aligncorners.png">
+<meta property="og:updated_time" content="2019-11-05T04:05:46.210Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PyTorch 方法总结">
 <meta name="twitter:description" content="1. Fold / UnfoldFold这是 torch.nn.Fold 类。 首先我们来复习一下卷积过程，设输入 size 为 (N,C,H,W)，卷积 kernel size 为 (C,h,w)，碰撞系数为 d，padding 为 p，stride 记为 s，那么整个过程相当于将 Cxhxw 大小的数据块在输入数据中滑动，每一次滑动做一次卷积，记共有 L 次卷积，即，从输入数据中切分出 L 个">
@@ -405,7 +406,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-11-04 18:11:22" itemprop="dateModified" datetime="2019-11-04T18:11:22+08:00">2019-11-04</time>
+                <time title="修改时间：2019-11-05 12:05:46" itemprop="dateModified" datetime="2019-11-05T12:05:46+08:00">2019-11-05</time>
               
             
           </span>
@@ -519,6 +520,17 @@
 
 <h3 id="padding-gt-0"><a href="#padding-gt-0" class="headerlink" title="padding &gt; 0"></a>padding &gt; 0</h3><p>继续以上面的例子进行说明，假设现在 <code>padding=1</code>，根据式 $(4-2)$ 转置卷积的输出大小为 $2 \times 2$。将输入矩阵上下左右均进行 1 单位的 zero-padding，得到矩阵大小 $4 \times 4$，卷积核大小 $3 \times 3$，计算过程还是将卷积核 <strong>旋转 180°</strong>，卷积计算过程略，不过相信这是足够简单的事情。</p>
 <p>以上 <code>dialtion &gt; 1, stride &gt; 1, padding &gt; 0</code> 三种情况，除了可使用 python 程序验证，还可以使用 <code>第二种方法</code> 进行验证对输入矩阵以及卷积核的处理是正确的，并且，也可以使用 <code>第一种方法</code> 对输入矩阵和卷积核进行处理然后进行普通卷积计算得到输出矩阵。</p>
+<h1 id="5-Upsample"><a href="#5-Upsample" class="headerlink" title="5. Upsample"></a>5. Upsample</h1><p>输入维度为 <code>minibatch x channels x [optional depth] x [optional height] x width</code>，即，输入可以是 3D/4D/5D。可用的算法包括 <code>nearest neighbor, linear, bilinear, bicubic, trilinear</code>。</p>
+<h2 id="nearest-neighbor"><a href="#nearest-neighbor" class="headerlink" title="nearest neighbor"></a>nearest neighbor</h2><p>顾名思义，就是使用原平面上最近的一点作为上采样后的值。例如原平面 size 为 $m \times m$，在原平面上建立坐标系 S，上采样后的 size 为 $n \times n, \ n &gt; m$，设其上点的坐标为 $(x,y), \ x,y =0,1,…,n-1$。将上采样后平面点映射到 S 中，对应坐标记为 $(x’,y’)$，那么有</p>
+<p>$$\frac {x-0} {n-1-0}= \frac {x’-0}{m-1-0} \Rightarrow x’ = \frac {m-1} {n-1} \cdot x$$<br>同理有 $y’ = \frac {m-1} {n-1} \cdot y$，然后找出与点 $(i’,j’)$ 最近的那个整数坐标点，显然必然在以下四个点中产生 $(\lfloor x’\rfloor, \lfloor y’ \rfloor), \ (\lfloor x’\rfloor, \lceil y’ \rceil), \ (\lceil x’\rceil, \lfloor y’ \rfloor), \ (\lceil x’\rceil, \lceil y’ \rceil)$ （这四个点可能有重合），分别计算 $(x’,y’)$ 与这四个点的距离，距离最小的那个点的值即作为 $(x,y)$ 上采样后的值。（使用哪种距离指标，可以查看 PyTorch 底层实现代码，这里本人尚未去查看。）</p>
+<h2 id="bilinear"><a href="#bilinear" class="headerlink" title="bilinear"></a>bilinear</h2><p>输入必须是 4D。</p>
+<h3 id="align-corners-True"><a href="#align-corners-True" class="headerlink" title="align_corners=True"></a>align_corners=True</h3><p>双线性插值。记四个顶点为 $(x_1,y_1), \ (x_1,y_2), \ (x_2,y_1), \ (x_2,y_2)$，然后求目标点 $(x,y), \ x_1 \le x \le x_2, \ y_1 \le y \le y_2$ 的值。沿 x 轴线性插值，<br>$$f(x,y_1)=\frac {f_{21}-f_{11}} {x_2-x_1} \cdot (x-x_1)+f_{11}<br>\\ f(x,y_2)=\frac {f_{22}-f_{12}} {x_2-x_1} \cdot (x-x_1)+f_{12}<br>\\ f(x,y)=\frac {f_(x,y_2)-f(x,y_1)} {y_2-y_1} \cdot (y-y_1)+f(x,y_1)$$</p>
+<p>与 <code>nearest neighbor</code> 中一样，首先将点 $(x,y)$ 映射到原平面上一点 $(x’,y’)$，然后四个顶点为 $(\lfloor x’\rfloor, \lfloor y’ \rfloor), \ (\lfloor x’\rfloor, \lceil y’ \rceil), \ (\lceil x’\rceil, \lfloor y’ \rfloor), \ (\lceil x’\rceil, \lceil y’ \rceil)$。用这种映射方法，显然原平面的四个 corners 和上采样后平面的四个 corners 分别对齐，这就是 <code>align_corners=True</code> 的由来。</p>
+<h3 id="align-corners-False"><a href="#align-corners-False" class="headerlink" title="align_corners=False"></a>align_corners=False</h3><p>如下图所示，显示了 <code>align_corners</code> 不同值的区别。<br><img src="/images/pytorch_mtd_aligncorners.png" alt><center>图源 <a href="https://discuss.pytorch.org/t/what-we-should-use-align-corners-false/22663/9" target="_blank" rel="noopener">pytorch 论坛</a></center></p>
+<p>从图中可以发现，映射回原平面坐标时，坐标计算方式不同，例如上菜以后平面上一点 $(x,y)$，映射回 S 中的坐标为<br>$$x’=(x+0.5)/2-0.5<br>\\ y’=(y+0.5)/2-0.5$$</p>
+<p>此后的插值方式一致（毕竟都是双线性插值），找到最近的 4 个点 $(\lfloor x’\rfloor, \lfloor y’ \rfloor), \ (\lfloor x’\rfloor, \lceil y’ \rceil), \ (\lceil x’\rceil, \lfloor y’ \rfloor), \ (\lceil x’\rceil, \lceil y’ \rceil)$ 进行双线性插值。</p>
+<h2 id="linear"><a href="#linear" class="headerlink" title="linear"></a>linear</h2><p>与 bilinear 类似，但是输入维度必须是 3D。</p>
+<h2 id="trilinear"><a href="#trilinear" class="headerlink" title="trilinear"></a>trilinear</h2><p>与 bilinear 类似，但是输入维度必须是 5D。</p>
 
       
     </div>
@@ -567,6 +579,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/05/DIP-1/" rel="prev" title="数字图像处理（一）">
+                数字图像处理（一） <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -635,7 +651,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">34</span>
+                    <span class="site-state-item-count">36</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -689,7 +705,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">8</span>
+                      
+                    
+                    <span class="site-state-item-count">9</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -727,7 +745,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Fold-Unfold"><span class="nav-number">1.</span> <span class="nav-text">1. Fold / Unfold</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Fold"><span class="nav-number">1.1.</span> <span class="nav-text">Fold</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unfold"><span class="nav-number">1.2.</span> <span class="nav-text">Unfold</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Normalization"><span class="nav-number">2.</span> <span class="nav-text">2. Normalization</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BatchNorm"><span class="nav-number">2.1.</span> <span class="nav-text">BatchNorm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LayerNorm"><span class="nav-number">2.2.</span> <span class="nav-text">LayerNorm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InstanceNorm"><span class="nav-number">2.3.</span> <span class="nav-text">InstanceNorm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GroupNorm"><span class="nav-number">2.4.</span> <span class="nav-text">GroupNorm</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Pool"><span class="nav-number">3.</span> <span class="nav-text">3. Pool</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#FractionalMaxPool2d"><span class="nav-number">3.1.</span> <span class="nav-text">FractionalMaxPool2d</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-ConvTranspose"><span class="nav-number">4.</span> <span class="nav-text">4. ConvTranspose</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#输出大小"><span class="nav-number">4.1.</span> <span class="nav-text">输出大小</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#转置卷积计算"><span class="nav-number">4.2.</span> <span class="nav-text">转置卷积计算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一种方法"><span class="nav-number">4.2.1.</span> <span class="nav-text">第一种方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二种方法"><span class="nav-number">4.2.2.</span> <span class="nav-text">第二种方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dilation-gt-1"><span class="nav-number">4.2.3.</span> <span class="nav-text">dilation &gt; 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stride-gt-1"><span class="nav-number">4.2.4.</span> <span class="nav-text">stride &gt; 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#padding-gt-0"><span class="nav-number">4.2.5.</span> <span class="nav-text">padding &gt; 0</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Fold-Unfold"><span class="nav-number">1.</span> <span class="nav-text">1. Fold / Unfold</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Fold"><span class="nav-number">1.1.</span> <span class="nav-text">Fold</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unfold"><span class="nav-number">1.2.</span> <span class="nav-text">Unfold</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Normalization"><span class="nav-number">2.</span> <span class="nav-text">2. Normalization</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BatchNorm"><span class="nav-number">2.1.</span> <span class="nav-text">BatchNorm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LayerNorm"><span class="nav-number">2.2.</span> <span class="nav-text">LayerNorm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InstanceNorm"><span class="nav-number">2.3.</span> <span class="nav-text">InstanceNorm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GroupNorm"><span class="nav-number">2.4.</span> <span class="nav-text">GroupNorm</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Pool"><span class="nav-number">3.</span> <span class="nav-text">3. Pool</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#FractionalMaxPool2d"><span class="nav-number">3.1.</span> <span class="nav-text">FractionalMaxPool2d</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-ConvTranspose"><span class="nav-number">4.</span> <span class="nav-text">4. ConvTranspose</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#输出大小"><span class="nav-number">4.1.</span> <span class="nav-text">输出大小</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#转置卷积计算"><span class="nav-number">4.2.</span> <span class="nav-text">转置卷积计算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一种方法"><span class="nav-number">4.2.1.</span> <span class="nav-text">第一种方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二种方法"><span class="nav-number">4.2.2.</span> <span class="nav-text">第二种方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dilation-gt-1"><span class="nav-number">4.2.3.</span> <span class="nav-text">dilation &gt; 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stride-gt-1"><span class="nav-number">4.2.4.</span> <span class="nav-text">stride &gt; 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#padding-gt-0"><span class="nav-number">4.2.5.</span> <span class="nav-text">padding &gt; 0</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-Upsample"><span class="nav-number">5.</span> <span class="nav-text">5. Upsample</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#nearest-neighbor"><span class="nav-number">5.1.</span> <span class="nav-text">nearest neighbor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bilinear"><span class="nav-number">5.2.</span> <span class="nav-text">bilinear</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#align-corners-True"><span class="nav-number">5.2.1.</span> <span class="nav-text">align_corners=True</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#align-corners-False"><span class="nav-number">5.2.2.</span> <span class="nav-text">align_corners=False</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linear"><span class="nav-number">5.3.</span> <span class="nav-text">linear</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#trilinear"><span class="nav-number">5.4.</span> <span class="nav-text">trilinear</span></a></li></ol></li></ol></div>
             
 
           </div>

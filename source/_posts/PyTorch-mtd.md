@@ -213,3 +213,38 @@ output
 继续以上面的例子进行说明，假设现在 `padding=1`，根据式 $(4-2)$ 转置卷积的输出大小为 $2 \times 2$。将输入矩阵上下左右均进行 1 单位的 zero-padding，得到矩阵大小 $4 \times 4$，卷积核大小 $3 \times 3$，计算过程还是将卷积核 __旋转 180°__，卷积计算过程略，不过相信这是足够简单的事情。
 
 以上 `dialtion > 1, stride > 1, padding > 0` 三种情况，除了可使用 python 程序验证，还可以使用 `第二种方法` 进行验证对输入矩阵以及卷积核的处理是正确的，并且，也可以使用 `第一种方法` 对输入矩阵和卷积核进行处理然后进行普通卷积计算得到输出矩阵。
+
+# 5. Upsample
+输入维度为 `minibatch x channels x [optional depth] x [optional height] x width`，即，输入可以是 3D/4D/5D。可用的算法包括 `nearest neighbor, linear, bilinear, bicubic, trilinear`。
+
+## nearest neighbor
+顾名思义，就是使用原平面上最近的一点作为上采样后的值。例如原平面 size 为 $m \times m$，在原平面上建立坐标系 S，上采样后的 size 为 $n \times n, \ n > m$，设其上点的坐标为 $(x,y), \ x,y =0,1,...,n-1$。将上采样后平面点映射到 S 中，对应坐标记为 $(x',y')$，那么有
+
+$$\frac {x-0} {n-1-0}= \frac {x'-0}{m-1-0} \Rightarrow x' = \frac {m-1} {n-1} \cdot x$$
+同理有 $y' = \frac {m-1} {n-1} \cdot y$，然后找出与点 $(i',j')$ 最近的那个整数坐标点，显然必然在以下四个点中产生 $(\lfloor x'\rfloor, \lfloor y' \rfloor), \ (\lfloor x'\rfloor, \lceil y' \rceil), \ (\lceil x'\rceil, \lfloor y' \rfloor), \ (\lceil x'\rceil, \lceil y' \rceil)$ （这四个点可能有重合），分别计算 $(x',y')$ 与这四个点的距离，距离最小的那个点的值即作为 $(x,y)$ 上采样后的值。（使用哪种距离指标，可以查看 PyTorch 底层实现代码，这里本人尚未去查看。）
+
+## bilinear
+输入必须是 4D。
+### align_corners=True
+双线性插值。记四个顶点为 $(x_1,y_1), \ (x_1,y_2), \ (x_2,y_1), \ (x_2,y_2)$，然后求目标点 $(x,y), \ x_1 \le x \le x_2, \ y_1 \le y \le y_2$ 的值。沿 x 轴线性插值，
+$$f(x,y_1)=\frac {f_{21}-f_{11}} {x_2-x_1} \cdot (x-x_1)+f_{11}
+\\\\ f(x,y_2)=\frac {f_{22}-f_{12}} {x_2-x_1} \cdot (x-x_1)+f_{12}
+\\\\ f(x,y)=\frac {f_(x,y_2)-f(x,y_1)} {y_2-y_1} \cdot (y-y_1)+f(x,y_1)$$
+
+与 `nearest neighbor` 中一样，首先将点 $(x,y)$ 映射到原平面上一点 $(x',y')$，然后四个顶点为 $(\lfloor x'\rfloor, \lfloor y' \rfloor), \ (\lfloor x'\rfloor, \lceil y' \rceil), \ (\lceil x'\rceil, \lfloor y' \rfloor), \ (\lceil x'\rceil, \lceil y' \rceil)$。用这种映射方法，显然原平面的四个 corners 和上采样后平面的四个 corners 分别对齐，这就是 `align_corners=True` 的由来。
+
+### align_corners=False
+如下图所示，显示了 `align_corners` 不同值的区别。
+![](/images/pytorch_mtd_aligncorners.png)<center>图源 [pytorch 论坛](https://discuss.pytorch.org/t/what-we-should-use-align-corners-false/22663/9)</center>
+
+从图中可以发现，映射回原平面坐标时，坐标计算方式不同，例如上菜以后平面上一点 $(x,y)$，映射回 S 中的坐标为
+$$x'=(x+0.5)/2-0.5
+\\\\ y'=(y+0.5)/2-0.5$$
+
+此后的插值方式一致（毕竟都是双线性插值），找到最近的 4 个点 $(\lfloor x'\rfloor, \lfloor y' \rfloor), \ (\lfloor x'\rfloor, \lceil y' \rceil), \ (\lceil x'\rceil, \lfloor y' \rfloor), \ (\lceil x'\rceil, \lceil y' \rceil)$ 进行双线性插值。
+## linear
+与 bilinear 类似，但是输入维度必须是 3D。
+
+## trilinear
+与 bilinear 类似，但是输入维度必须是 5D。
+
