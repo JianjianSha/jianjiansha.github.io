@@ -5,7 +5,7 @@ tags: DIP
 mathjax: true
 ---
 
-> 参考教材《数字图像处理》(Gonzalez)
+> 根据教材《数字图像处理》(Gonzalez)
 # 1. 坐标变换
 ## 1.1 仿射变换
 特点：
