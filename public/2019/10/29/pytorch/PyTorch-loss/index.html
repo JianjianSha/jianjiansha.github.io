@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="常用的损失我们都很熟悉了，这里总结一下一些不太常用的损失。 1. PoissonNLLLossPyTorch 文档中关于 PoissonNLLLoss 的计算式为 12target ~ Poisson(input)loss(input, target)=input - target * log(input) + log(target!)  那么如何理解这个计算式呢？ 我们知道 $X \sim Po">
+<meta name="keywords" content="PyTorch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyTorch 中的损失">
+<meta property="og:url" content="https://shajianjian.github.io/2019/10/29/pytorch/PyTorch-loss/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="常用的损失我们都很熟悉了，这里总结一下一些不太常用的损失。 1. PoissonNLLLossPyTorch 文档中关于 PoissonNLLLoss 的计算式为 12target ~ Poisson(input)loss(input, target)=input - target * log(input) + log(target!)  那么如何理解这个计算式呢？ 我们知道 $X \sim Po">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-01-02T08:51:12.444Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PyTorch 中的损失">
+<meta name="twitter:description" content="常用的损失我们都很熟悉了，这里总结一下一些不太常用的损失。 1. PoissonNLLLossPyTorch 文档中关于 PoissonNLLLoss 的计算式为 12target ~ Poisson(input)loss(input, target)=input - target * log(input) + log(target!)  那么如何理解这个计算式呢？ 我们知道 $X \sim Po">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://shajianjian.github.io/2019/10/29/pytorch/PyTorch-loss/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>PyTorch 中的损失 | SJJ</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SJJ</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/10/29/pytorch/PyTorch-loss/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PyTorch 中的损失
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-10-29 09:46:16" itemprop="dateCreated datePublished" datetime="2019-10-29T09:46:16+08:00">2019-10-29</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-01-02 16:51:12" itemprop="dateModified" datetime="2020-01-02T16:51:12+08:00">2020-01-02</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>常用的损失我们都很熟悉了，这里总结一下一些不太常用的损失。</p>
+<h2 id="1-PoissonNLLLoss"><a href="#1-PoissonNLLLoss" class="headerlink" title="1. PoissonNLLLoss"></a>1. PoissonNLLLoss</h2><p>PyTorch 文档中关于 PoissonNLLLoss 的计算式为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">target ~ Poisson(input)</span><br><span class="line">loss(input, target)=input - target * log(input) + log(target!)</span><br></pre></td></tr></table></figure>
+
+<p>那么如何理解这个计算式呢？</p>
+<p>我们知道 $X \sim Poisson(\lambda)$ 分布为<br>$$P(X=k)=\frac {\lambda^k e^{-\lambda}} {k!}$$<br>其中 $\lambda$ 是参数，也是 Poisson 分布的期望。</p>
+<p><code>target</code> 就是这里的 <code>k</code> 表示事件发生的次数，<code>input</code> 可以是某个网络最后的计算输出，我们令其表示 Poisson 分布的期望，这样 <code>input</code> 与 <code>target</code> 就关联起来了。</p>
+<p>我们用 <code>y</code> 代替 <code>k</code> 表示真实值 <code>target</code>，<code>x</code> 代替 $\lambda$ 表示计算值 <code>input</code>，Poisson 分布的似然函数为<br>$$Likehood(y|x)=\prod_{i=1}^m P(y|x) = \prod_{i=1}^m \frac {x^y e^{-x}} {y!}$$<br>于是损失函数为<br>$$Loss=-\log [Likehood(y|x)]=-\sum_{i=1}^m (-x+y \log x - \log(y!))=\sum_{i=1}^m (x-y \log x+ \log(y!) )$$<br>上式与 PyTorch 文档说明的计算式一致。</p>
+<p><code>log(target!)</code> 可使用 Stirling 公式近似得到，Stirling 公式为<br>$$n! \sim \sqrt{2 \pi} n^{n+1/2} e^{-n}$$<br>于是有<br>$$\log(n!)=\frac 1 2 \log(2 \pi n)+ n \log n - n$$<br>与文档中 PoissonNLLLoss 的参数 <code>full</code> 的解释一致，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">target * log(target) - target + 0.5 * log(2 \pi target)</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-KLDivLoss"><a href="#2-KLDivLoss" class="headerlink" title="2. KLDivLoss"></a>2. KLDivLoss</h2><p>KL 散度损失，根据 PyTorch 文档说明，非归约版本的损失为，<br>$$l(x,y) = L={l_1,…,l_N}, \quad l_n=y_n \cdot (\log y_n - x_n)$$<br>其中输入 <code>x</code> 包含概率对数，目标值 <code>y</code> 是概率（没有取对数），<code>y</code> 和 <code>l</code> 均与 <code>x</code> 具有相同的 shape。</p>
+<p>根据如下 KL 散度计算公式，不难理解 KLDivLoss 就是根据 KL 散度定义进行计算。<br>$$D(P||Q)=\sum P(x) \cdot \log \frac {P(x)}{Q(x)}<br>\\ D(P||Q) = \int_x p(x) \log \frac {p(x)}{q(x)} dx$$<br>（上面是离散型概率分布，下面连续型概率分布）</p>
+<h2 id="3-HingeEmbeddingLoss"><a href="#3-HingeEmbeddingLoss" class="headerlink" title="3. HingeEmbeddingLoss"></a>3. HingeEmbeddingLoss</h2><p>用于测量两个输入相似或者不相似，相似则 <code>y=1</code>，不相似则 <code>y=-1</code>，两个输入之间的距离可以使用 $L_1$ 或者 $L_2$ 距离，hinge embedding loss 计算如下：<br>$$l_h(p_1,p_2)=\begin{cases} L_n(p_1,p_2) &amp; y=1 \ (p_1 \equiv p_2)<br>\\ \max {0, \Delta - L_n(p_1, p_2)}       &amp; y=-1 \ (p_1 \ne p_2)<br>\end{cases}$$<br>例如使用 $L_1$ 距离，$L_1(p_1,p_2)=|\mathbf x_1 - \mathbf x_2|_1$，其中 $\mathbf x$ 是特征向量。</p>
+<p>PyTorch 文档中关于 HingeEmbeddingLoss 计算描述为，对于第 n 个样本的损失为：<br>$$l_n=\begin{cases} x_n, &amp; y_n=1<br>\\ \max{0, \Delta-x_n}, &amp; y_n=-1 \end{cases}$$<br>其中 $\Delta$ 为间距，$x_n$ 为距离。</p>
+<p>根据 HingeEmbeddingLoss，如果两个输入相似（匹配），那么我们希望其距离 $x_n$ 越小越好，如果不相似，那么希望其距离越大越好，但是如果超过间距 $\Delta$，那么不在我们关心范围内。</p>
+<h2 id="4-MultiLabelMarginLoss"><a href="#4-MultiLabelMarginLoss" class="headerlink" title="4. MultiLabelMarginLoss"></a>4. MultiLabelMarginLoss</h2><p>这是一个关于 multi class multi classification 问题。</p>
+<p><code>x</code> tensor 的 size 为 <code>(N,C)</code>，其中 N 表示 batch 大小，C 为分类数量，<code>y</code> tensor 的 size 也是 <code>(N,C)</code>，对于 mini-batch 中某个样本而言，损失为<br>$$loss(x,y)=\sum_{ij} \frac {\max (0, 1- (x[y[j]]-x[i]))} {x.size(0)}$$<br>因为指定了某个样本，所以此时 <code>x,y</code> 均为一个 vector，<code>x.size(0)=y.size(0)=C</code> 表示分类数量，<code>y</code> 的值表示某个分类的下标，即 $0 \le y[j] \le C-1$，故上式的下标必须满足条件<br>$$i \in {0,…,x.size(0)-1}, \ j \in {0,…,y.size(0)-1}, \ 0 \le y[j] \le x.size(0)-1, \ i \ne y[j]$$<br>注意根据这个条件确定 loss 中求和项下标 <code>i,j</code> 的过程如下：</p>
+<ol>
+<li>根据 $j \in {0,…,y.size(0)-1}, \ 0 \le y[j] \le x.size(0)-1$  确定 <code>y</code> 的可取值集合 $\mathcal Y$</li>
+<li>然后确定 <code>x</code> 的可取值集合为 ${0,…,x.size(0)-1} \setminus \mathcal Y$</li>
+</ol>
+<p>以 PyTorch 文档中的例子进行说明</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>loss = nn.MultiLabelMarginLoss()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>x = torch.FloatTensor([[<span class="number">0.1</span>, <span class="number">0.2</span>, <span class="number">0.4</span>, <span class="number">0.8</span>]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># for target y, only consider labels 3 and 0, not after label -1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>y = torch.LongTensor([[<span class="number">3</span>, <span class="number">0</span>, <span class="number">-1</span>, <span class="number">1</span>]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>loss(x, y)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># 0.25 * ((1-(0.1-0.2)) + (1-(0.1-0.4)) + (1-(0.8-0.2)) + (1-(0.8-0.4)))</span></span><br><span class="line">tensor(<span class="number">0.8500</span>)</span><br><span class="line">``` </span><br><span class="line">首先确定有效的 `y` 值集合为 $\&#123;<span class="number">3</span>,<span class="number">0</span>\&#125;$，然后可确定 `x` 的 `i` 下标集合为 $\&#123;<span class="number">1</span>,<span class="number">2</span>\&#125;$，代入 loss 计算式得到损失为 `<span class="number">0.8500</span>`。</span><br><span class="line"></span><br><span class="line">最后简单的解释下损失这么计算的合理性：</span><br><span class="line"><span class="number">1.</span> 当 $i=y[j]$ 时，表示得到了正确的分类，正确的分类自然损失应为 <span class="number">0</span>，故损失计算要求 $i \ne y[j]$。</span><br><span class="line"><span class="number">2.</span> 当 $i \ne y[j]$ 时，由于 `y[j]` 为真实分类，故 `i` 应该是错误分类，所以 $x[y[j]]$ 越大越好，$x[i]$ 越小越好，对应 $<span class="number">1</span>-(x[y[j]]-x[i])$ 就越小，损失也越小，当然损失不能为负，所以使用 $\max (<span class="number">0</span>,*)$ 进行截断。</span><br><span class="line"></span><br><span class="line"><span class="comment">## 5. SoftMarginLoss</span></span><br><span class="line">用于优化多标签二分类的logistic 损失，计算如下</span><br><span class="line">$$loss(x,y)=\sum_i \frac &#123;\log (<span class="number">1</span>+\exp (-y[i]*x[i]))&#125; &#123;x.nelement()&#125;$$</span><br><span class="line"></span><br><span class="line">其中 `y` 中元素取值为 <span class="number">1</span> 或 <span class="number">-1</span>。</span><br><span class="line"></span><br><span class="line">为简单起见，考虑标量值 `x,y` （单标签），根据 logistic 函数</span><br><span class="line">$$f(x)=\frac <span class="number">1</span> &#123;<span class="number">1</span>+e^&#123;-x&#125;&#125;$$</span><br><span class="line">似然函数为 </span><br><span class="line">$$L(x,y)=\mathbb I(y=<span class="number">1</span>)f(x)+\mathbb I(y=<span class="number">-1</span>)(<span class="number">1</span>-f(x))=(<span class="number">1</span>+e^&#123;-yx&#125;)^&#123;<span class="number">-1</span>&#125;$$</span><br><span class="line">故损失函数为</span><br><span class="line">$$loss(x,y)=-\log L(x,y) = \log (<span class="number">1</span>+\exp(-yx))$$</span><br><span class="line"></span><br><span class="line"><span class="comment">## 6. CrossEntropyLoss</span></span><br><span class="line">`input` 为各分类的原生得分，未进行归一化，size 为 `(N,C)`，`target` 的 size 为 `(N,)`，其中元素值表示分类 id。损失计算如下</span><br><span class="line">$$loss(x,y=c)=-\log\frac &#123;\exp(x_c)&#125; &#123;\sum_j^C \exp(x_j)&#125;$$</span><br><span class="line"></span><br><span class="line">以单个样本为例，`x` 包含 C 个分类得分的 vector，`y` 是 one-hot vector，长度也为 C，值为 <span class="number">1</span> 的元素下标为 true 分类 id，记为 `c`。根据交叉熵公式</span><br><span class="line">$$H(p,q)=-\sum_i p(x_i) \log q(x_i)$$</span><br><span class="line">单个样本的交叉熵损失为</span><br><span class="line">$$L=-\sum_&#123;i=<span class="number">1</span>&#125;^C y_i \log x_i = - y_c \log x_c $$</span><br><span class="line">其中 $x_c$ 经过 Softmax 归一化。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">## 7. MultiLabelSoftMarginLoss</span></span><br><span class="line"></span><br><span class="line">这是 SoftMarginLoss 的多分类版本，即多标签多分类，标签数量小于等于分类数量，为了使 `target` 的向量长度一致，设置标签数量为分类数量，对于不存在的标签，则设置对应的 target 值为 <span class="number">-1</span>，例如分析某电影数据，分类总共为 <span class="number">4</span> 类，如下</span><br></pre></td></tr></table></figure>
+
+<p>romance, comedy, horror, action</p>
+<pre><code>
+那么，对于任意一部电影，其标签最多有 4 个，如果不足 4 个，那么缺失的分类设置标签 target 值为 0 或者 -1，这里使用 0 表示，例如某电影分类为 `comedy,action`，那么其 target 值按以上顺序为 `(-1, 1, -1, 1)`。
+
+MultiLabelSoftMarginLoss ，对某个样本而言，损失计算如下
+$$loss(x,y)=-\frac 1 C * \sum_i y[i] * \log((1+\exp(-x[i]))^{-1})+(1-y[i])*\log \frac {exp(-x[i])}{1+\exp(-x[i])}$$
+其中 $i \in \{0,...,x.nElement()-1\}$，`x` 元素数量为标签数量，$y[i] \in \{0,1\}$。可见每个 channel 独立做一次二分类，采用的 logistic 回归损失，然后所有 channel 做一次平均。
+
+
+## 8. CosineEmbeddingLoss
+损失用于测试两个输入之间相似度，target 标签为 1 或者 -1，1 表示两个输入相似，-1 表示不相似。损失计算如下
+$$\text{loss}(x,y)=\begin{cases} 1- \cos (x_1, x_2), &amp; y=1
+\\\\ \max(0, \cos(x_1,x_2)-\text{margin}), &amp; y=-1 \end{cases}$$
+
+显然，
+1. 当 `y=1` 时，$x_1, x_2$ 越相似，损失越小
+2. 当 `y=-1` 时，$x_1,x_2$ 越相似，损失越大
+
+
+## 9. MarginRankingLoss
+测量两个输入的排列等级的损失。输入 $x_1, x_2$ 通常是 1D mini-batch 的 tensor，目标 label 是 1D mini-batch 的 tensor，包含 1 或 -1 两种值。损失计算：
+$$\text{loss}(x,y)=\max(0, -y*(x_1-x_2) + \text{margin})$$
+1. 当 `y=1` 时，期望 $x_1$ 排列等级比  $x_2$ 高，所以当 $x_1 &gt; x_2$ 时，损失应该为 0
+2. 增加了 `+margin` 这一项，说明 $x_1$ 不但要大于 $x_2$，还要超过至少 `margin` 的量才可以忽略损失
+3. 当 `y=-1` 时，情况相反
+
+
+## 10. MultiMarginLoss
+多分类的带 margin 的 hinge 损失。输入 x 是一个 2D 表示 mini-batch 的 tensor，size 为 `(N,C)`， target 是一个 1D 的 size 为 `(N,)` 的 tensor，各元素值为分类 id。
+
+对于单个样本而言，输入 input 则为 vector，target 为标量，表示这个样本的真实分类 id，损失计算如下
+$$\text{loss}(x,y)=\frac {\sum_i \max [0, \text{margin}-(x[y]-x[i])]^p} {x.size(0)}$$
+输入 `x` 的元素值表示各分类的得分，显然真实分类 id `y` 的得分越大越好，其他分类 id 的得分越小越好，增加 `margin` 项，说明真实分类 id 的得分必须超过其他分类 id 的得分且拉开至少 `margin` 的差距才忽略损失，否则计入损失。
+
+## 11. TripletMarginLoss
+给定三个输入，计算三者损失，三个输入记为 `a,p,n`，分别表示 anchor，positive 和 negative examples，所有输入 tensor 的 size 均为 `(N,D)`。
+
+对于第 i 个样本，损失计算如下
+$$L(a,p,n)=\max \{d(a_i, p_i)-d(a_i,n_i) + \text{margin}, 0\}$$
+其中 $d$ 表示距离 $d(x_i,y_i)=\|\mathbf x_i - \mathbf y_i\|_p$。从损失计算式中可见，我们希望 anchor 与 positive 的距离近，anchor 与 negatvie 的距离远。增加 `margin` 项进一步强制 anchor 与 positive 更近，或，anchor 与 negative 的距离更远。
+
+## 12. CTCLoss</code></pre>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/09/DL-env/" rel="next" title="深度学习环境搭建">
+                <i class="fa fa-chevron-left"></i> 深度学习环境搭建
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/11/01/pytorch/PyTorch-mtd/" rel="prev" title="PyTorch 方法总结">
+                PyTorch 方法总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shajianjian</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">39</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-PoissonNLLLoss"><span class="nav-number">1.</span> <span class="nav-text">1. PoissonNLLLoss</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-KLDivLoss"><span class="nav-number">2.</span> <span class="nav-text">2. KLDivLoss</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-HingeEmbeddingLoss"><span class="nav-number">3.</span> <span class="nav-text">3. HingeEmbeddingLoss</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-MultiLabelMarginLoss"><span class="nav-number">4.</span> <span class="nav-text">4. MultiLabelMarginLoss</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="1. Fold / UnfoldFold这是 torch.nn.Fold 类。 首先我们来复习一下卷积过程，设输入 size 为 (N,C,H,W)，卷积 kernel size 为 (C,h,w)，碰撞系数为 d，padding 为 p，stride 记为 s，那么整个过程相当于将 Cxhxw 大小的数据块在输入数据中滑动，每一次滑动做一次卷积，记共有 L 次卷积，即，从输入数据中切分出 L 个">
+<meta name="keywords" content="PyTorch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyTorch 方法总结">
+<meta property="og:url" content="https://shajianjian.github.io/2019/11/01/pytorch/PyTorch-mtd/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="1. Fold / UnfoldFold这是 torch.nn.Fold 类。 首先我们来复习一下卷积过程，设输入 size 为 (N,C,H,W)，卷积 kernel size 为 (C,h,w)，碰撞系数为 d，padding 为 p，stride 记为 s，那么整个过程相当于将 Cxhxw 大小的数据块在输入数据中滑动，每一次滑动做一次卷积，记共有 L 次卷积，即，从输入数据中切分出 L 个">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/pytorch_mth_conv.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/pytorch_mtd_conv_t.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/pytorch_mtd_conv_t_1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/pytorch_mtd_aligncorners.png">
+<meta property="og:updated_time" content="2020-01-02T08:51:22.524Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PyTorch 方法总结">
+<meta name="twitter:description" content="1. Fold / UnfoldFold这是 torch.nn.Fold 类。 首先我们来复习一下卷积过程，设输入 size 为 (N,C,H,W)，卷积 kernel size 为 (C,h,w)，碰撞系数为 d，padding 为 p，stride 记为 s，那么整个过程相当于将 Cxhxw 大小的数据块在输入数据中滑动，每一次滑动做一次卷积，记共有 L 次卷积，即，从输入数据中切分出 L 个">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/pytorch_mth_conv.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://shajianjian.github.io/2019/11/01/pytorch/PyTorch-mtd/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>PyTorch 方法总结 | SJJ</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SJJ</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/11/01/pytorch/PyTorch-mtd/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PyTorch 方法总结
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-11-01 11:26:25" itemprop="dateCreated datePublished" datetime="2019-11-01T11:26:25+08:00">2019-11-01</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-01-02 16:51:22" itemprop="dateModified" datetime="2020-01-02T16:51:22+08:00">2020-01-02</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="1-Fold-Unfold"><a href="#1-Fold-Unfold" class="headerlink" title="1. Fold / Unfold"></a>1. Fold / Unfold</h1><h2 id="Fold"><a href="#Fold" class="headerlink" title="Fold"></a>Fold</h2><p>这是 torch.nn.Fold 类。</p>
+<p>首先我们来复习一下卷积过程，设输入 size 为 <code>(N,C,H,W)</code>，卷积 kernel size 为 <code>(C,h,w)</code>，碰撞系数为 <code>d</code>，padding 为 <code>p</code>，stride 记为 <code>s</code>，那么整个过程相当于将 <code>Cxhxw</code> 大小的数据块在输入数据中滑动，每一次滑动做一次卷积，记共有 <code>L</code> 次卷积，即，从输入数据中切分出 <code>L</code> 个数据块与卷积核做卷积，当然每个数据块的大小与卷积核相同，为 <code>(C,h,w)</code>，最后得到的输出 map 大小为<br>$$H_o= \frac {H - [d(h-1)+1] + 2p} {s}+1<br>\\ W_o= \frac {W - [d(w-1)+1] + 2p} {s}+1$$<br>因为每一次卷积得到的值均作为输出 map 上的一点，故 <code>L</code> 为<br>$$L=H_o * W_o=\left(\frac {H - [d(h-1)+1] + 2p} {s}+1\right) \left(\frac {W - [d(w-1)+1] + 2p} {s}+1\right)$$</p>
+<p>好了，现在 Fold 要做的事情是反过来的，已知 fold 的输入为 <code>L</code> 个数据块，大小为 <code>(N,C*h*w,L)</code>，有关的构造参数为卷积核 size <code>(h,w)</code>，dilation，padding，stride，以及，指定最终的（Fold）输出大小 <code>(H,W)</code>，注意，Fold 做的事情是反过来的，也就是说，从 <code>L</code> 个数据块中恢复出原来普通卷积的输入 map 的大小，即 <code>(H,W)</code>，不是做完卷积之后的输出 map 的大小，记住，<strong>Fold 的输出是普通卷积的输入</strong>。</p>
+<p>Fold 的这些构造参数指明了卷积核大小，以及卷积输入的大小，然后根据其（这里指 Fold）输入 <code>L</code> 个数据块的 tensor，size 为 <code>(N,C*h*w,L)</code>，恢复出卷积输入的 tensor，因为 Fold 的构造参数中指定了 卷据输入 map 的 <code>(H,W)</code>，而批大小 <code>N</code> 也已知，所以要求出通道 <code>C</code>，根据 Fold 输入 tensor 的 第二个维度值 <code>C*h*w</code> 以及 Fold 的构造参数中卷积核大小 <code>(h,w)</code> 很容易得到通道 <code>C</code>。</p>
+<p>先使用 PyTorch 文档中的例子加以说明，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>fold = nn.Fold(output_size=(<span class="number">4</span>, <span class="number">5</span>), kernel_size=(<span class="number">2</span>, <span class="number">2</span>))  <span class="comment"># (H,W)=(4,5), (h,w)=(2,2)</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>input = torch.randn(<span class="number">1</span>, <span class="number">3</span> * <span class="number">2</span> * <span class="number">2</span>, <span class="number">12</span>)   <span class="comment"># (N, C*h*w,L)</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>output = fold(input)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>output.size()</span><br><span class="line">torch.Size([<span class="number">1</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])    <span class="comment"># (N,C,H,W)</span></span><br></pre></td></tr></table></figure>
+
+<p>将数据维度从 <code>H,W</code> 扩展到更多维度，就是 PyTorch 文档中关于 <code>L</code> 的计算式了，如下<br>$$L=\prod_d \lfloor \frac {\text{output_size} [d] + 2 \times \text{padding}[d]-\text{dilation}[d] \times (\text{kernel_size}[d]-1) -1} {\text{stride}[d]} +1 \rfloor$$</p>
+<p><strong>总结：</strong></p>
+<p>Fold 的输入 size 为 $(N, C \times \prod(\text{kernel_size}), L)$，输出 size 为 $(N,C, \text{output_size}[0], \text{output_size}[1], …)$</p>
+<h2 id="Unfold"><a href="#Unfold" class="headerlink" title="Unfold"></a>Unfold</h2><p>这是 torch.nn.Unfold 类，所做的事情与 Fold 相反，根据普通卷积的输入 tensor 以及卷积核大小，dilation，padding 和 stride 等计算得到 <code>L</code> 个与卷积核做卷积操作的数据块。<code>L</code> 计算方式如上。Unfold 的输入 size 为 $(N,C,*)$，其中 * 表示多维数据，输出 size 为 $(N,C \times \prod(\text{kernel_size}), L)$。</p>
+<p>引用PyTorch 文档中的例子，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>unfold = nn.Unfold(kernel_size=(<span class="number">2</span>, <span class="number">3</span>))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>input = torch.randn(<span class="number">2</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">4</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>output = unfold(input)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># each patch contains 30 values (2x3=6 vectors, each of 5 channels)</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># 4 blocks (2x3 kernels) in total in the 3x4 input</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>output.size()</span><br><span class="line">torch.Size([<span class="number">2</span>, <span class="number">30</span>, <span class="number">4</span>])</span><br></pre></td></tr></table></figure>
+
+<h1 id="2-Normalization"><a href="#2-Normalization" class="headerlink" title="2. Normalization"></a>2. Normalization</h1><h2 id="BatchNorm"><a href="#BatchNorm" class="headerlink" title="BatchNorm"></a>BatchNorm</h2><p>批归一化是针对一个 mini-batch 内的数据进行归一化。首先给出归一化公式：<br>$$y=\frac {x-E[x]} {\sqrt{V[x]+\epsilon}} * \gamma + \beta$$</p>
+<p>批归一化过程为：<br>BatchNorm Layer 的输入（mini-batch）为 $\mathcal B={x_{1…m}}$，可学习参数为 $\gamma, \beta$。计算 mini-batch 的均值，方差<br>$$\mu_{\mathcal B} = \frac 1 m \sum_{i=1}^m x_i, \quad \sigma_{\mathcal B}^2=\frac 1 m \sum_{i=1}^m(x_i - \mu_{\mathcal B})^2$$<br>然后计算归一化后的值<br>$$\hat x_i = \frac {x_i - \mu_{\mathcal B}} {\sqrt {\sigma_{\mathcal B}^2+ \epsilon}}$$<br>最后进行 scale 和 shift，<br>$$y_i=\hat x_i \cdot \gamma + \beta$$</p>
+<p><strong>小结：</strong> 沿着 batch 方向进行归一化</p>
+<h2 id="LayerNorm"><a href="#LayerNorm" class="headerlink" title="LayerNorm"></a>LayerNorm</h2><p>Layer 归一化是针对某个数据（样本）内部进行归一化，假设某个数据样本到达 LayerNorm 层为 $x$，无论 $x$ 是多少维的 tensor，均可以看作是 1D vector，即 $x=(x_1,…x_H)$，$H$ 是 LayerNorm 层的单元数（也是 $x$ 的特征数），于是 LayerNorm 过程为<br>$$\mu=\frac 1 H \sum_{i=1}^H x_i, \quad \sigma^2=\frac 1 H \sum_{i=1}^H (x_i-\mu)^2$$<br>于是 LayerNorm 后的值为<br>$$y=\frac {x-\mu} {\sqrt {\sigma^2+\epsilon}} \cdot \gamma + \beta$$</p>
+<p><strong>小结：</strong> 沿着特征方向进行归一化（特征包含了除 batch 维度外的其他所有维度）</p>
+<p>有了前面的归一化介绍，我们知道归一化过程都很类似，区别在于如何计算 $\mu, \sigma$，或者说沿着什么方向进行归一化。</p>
+<h2 id="InstanceNorm"><a href="#InstanceNorm" class="headerlink" title="InstanceNorm"></a>InstanceNorm</h2><p>对于每个样例的每个 channel 分别计算 $\mu, \sigma$。假设输入为 $(N,C,H,W)$，那么沿着 $(H,W)$ 方向做归一化。</p>
+<h2 id="GroupNorm"><a href="#GroupNorm" class="headerlink" title="GroupNorm"></a>GroupNorm</h2><p>GroupNorm 是选择一组 channels 进行归一化，所以是介于 InstanceNorm（单个channel）和 LayerNorm （全部 channels）之间的。</p>
+<h1 id="3-Pool"><a href="#3-Pool" class="headerlink" title="3. Pool"></a>3. Pool</h1><p>池化操作都比较简单易懂，这里介绍几个非常规的池化操作。</p>
+<h2 id="FractionalMaxPool2d"><a href="#FractionalMaxPool2d" class="headerlink" title="FractionalMaxPool2d"></a>FractionalMaxPool2d</h2><p>引用论文 <a href="https://arxiv.org/abs/1412.6071" target="_blank" rel="noopener">Fractional MaxPooling</a>。</p>
+<p>pool 操作通常是用于降低 feature map 的大小，以常规的 <code>2x2</code> max-pooling 为例，记输入大小为 $N_{in} \times N_{in}$，输出大小为 $N_{out} \times N_{out}$，那么有<br>$$N_{out}=\frac {N_{in}-k+2p} {s} + 1= N_{in} / 2 \Rightarrow N_{in} /N_{out} = 2$$</p>
+<p>将 $N_{in} \times N_{in}$ 的 feature map 划分出 $N_{out}^2$ 个 pooling 区域 $(P_{i,j})$。我们用 ${1,2,…,N_{in}}^2$ （或 $[1,N_{in}]^2$）表示输入 feature map，pixel 使用坐标点表示，显然 pooling 区域满足<br>$$P_{i,j} \subset {1,2,…,N_{in}}, \quad (i,j) \in {1,…,N_{out}}^2$$</p>
+<p>现在，我们想让 $N_{in} / N_{out} \in (1,2)$，或者为了提高速度，让 $N_{in} / N_{out} \in (2,3)$，反正，这个比例不再是整数，这就是 Fractional max-pooling（FMP）。</p>
+<p>那么，FMP 具体是如何实现的呢？</p>
+<p>令两个递增序列 $(a_i)<em>{i=0}^{N</em>{out}}, \ (b_i)<em>{i=0}^{N</em>{out}}$ 均以 <code>1</code> 开始，$N_{in}$ 结尾，递增量为 <code>1</code> 或者 <code>2</code>，即 $\forall i,\ a_{i+1}-a_{i} \in {1,2}$，那么 pooling 区域可以有如下两种表示：<br>$$P_{i,j}=[a_{i-1}, a_i-1] \times [b_{j-1},b_j-1], \quad i,j \in {1,…,N_{out}}<br>\\ P_{i,j}=[a_{i-1}, a_i] \times [b_{j-1},b_j], \quad i,j \in {1,…,N_{out}}$$<br>注意下标 <code>i,j</code> 的范围。</p>
+<p>第一种是 <code>disjoint</code> 表示，第二种是 <code>overlapping</code> 表示。显然使用第二种表示，相邻两个 pooling 区域是有重叠的，而第一种表示则不会。</p>
+<p>记下采样率 $\alpha = N_{in} / N_{out}$，有如下两种方法得到 $(a_i)<em>{i=0}^{N</em>{out}}$</p>
+<ol>
+<li><p><code>random</code> 方法</p>
+<p>当 $\alpha$ 给定，那么 $(a_i-a_{i-1})<em>{i=1}^{N</em>{out}}$ 这个序列中有多少个 <code>1</code> 和多少个 <code>2</code> 已经是确定的了，将适量的 <code>1</code> 和 <code>2</code> shuffle 或者 random permutation，然后可可到 $\alpha = N_{in} / N_{out}$</p>
+</li>
+<li><p><code>pseudorandom</code> 方法</p>
+<p>经过 $(0,0), \ (N_{out}, N_{in}-1)$ 的直线，其斜率为 $\alpha$（实际上是比下采样率小一点点，但是没关系，这两个值只要同时位于 $(1,2)$ 之间即可），将这个直线沿 y 轴 平移 $\alpha \cdot u$，其中 $\alpha \in (1,2), \ u \in (0,1), \alpha \cdot u \in (0,1)$，即<br>$$y=\alpha(i+u)$$<br>在此直线上取点，x 值依次为 $0,1,2,…,N_{out}$，对 y 值在应用 ceiling 函数，作为 $a_i$ 的值，<br>$$a_i=\text{ceiling}(\alpha(i+u)), \quad i=0,1,2,…,N_{out}$$<br>验证一下 ${a_i}$ 序列是否满足上述条件：</p>
+<ul>
+<li>$i=0$，$a_0=\text{ceiling}(\alpha \cdot u)$，由于 $\alpha \cdot u \in (0,1)$，故 $a_0=1$</li>
+<li>$i=N_{out}$，$a_{N_{out}}=\text{ceiling}(N_{in}-1+\alpha \cdot u)=N_{in}$</li>
+<li><code>otherwise：</code> $a_{i+1}-a_i=\text{ceiling}(\alpha \cdot i+\alpha+\alpha \cdot u)-\text{ceiling}(\alpha \cdot i+\alpha \cdot u)$。验证说明如下。</li>
+</ul>
+<p>下面验证最后一种情况：</p>
+<p>记 $\alpha \cdot i+\alpha \cdot u=f \in [k,k+1)$，k 是某个整数，那么当</p>
+<ul>
+<li><p><code>f=k</code> 时，</p>
+<p>   $a_{i+1}-a_i=\text{ceiling}(k+\alpha)-k=k+\text{ceiling}(\alpha)-k=\text{ceiling}(\alpha)=2$</p>
+</li>
+<li><p><code>k&lt;f&lt;k+1</code> 时，</p>
+<p>   $k+1&lt;f+\alpha&lt;k+3$</p>
+<p>   $a_{i+1}-a_i=\text{ceiling}(f+\alpha)-k-1 \in {1,2}$</p>
+</li>
+</ul>
+<p>至此，验证了 $(a_i)$ 序列满足条件。显然，基于直线取离散点然后应用 ceiling 函数得到的是一种伪随机序列。</p>
+</li>
+</ol>
+<h1 id="4-ConvTranspose"><a href="#4-ConvTranspose" class="headerlink" title="4. ConvTranspose"></a>4. ConvTranspose</h1><h2 id="输出大小"><a href="#输出大小" class="headerlink" title="输出大小"></a>输出大小</h2><p>转置卷积，通常又称反卷积、逆卷积，然而转置卷积并非卷积的逆过程，并且转置卷积其实也是一种卷积，只不过与卷积相反的是，输出平面的大小通常不是变小而是变大。对于普通卷积，设输入平面边长为 $L_{in}$，输出平面边长为 $L_{out}$，卷积核边长为 $k$，dilation 、stride 和 padding 分别为 $d, p, s$，那么有<br>$$L_{out}=\frac {L_{in}-(d(k-1)+1)+2p} s + 1 \qquad (4-1)$$<br>对于转置卷积，令 $L_{in}^{\top}, \ L_{out}^{\top}$ 分别表示输入和输出的边长，于是有<br>$$L_{out}^{\top}=s(L_{in}^{\top} - 1) +d(k-1)+1 - 2p \qquad (4-2)$$<br>可见，转置卷积的输入输出边长的关系与普通卷积是反过来的。</p>
+<h2 id="转置卷积计算"><a href="#转置卷积计算" class="headerlink" title="转置卷积计算"></a>转置卷积计算</h2><h3 id="第一种方法"><a href="#第一种方法" class="headerlink" title="第一种方法"></a>第一种方法</h3><p>回顾一下卷积过程，以二维卷积为例，假设输入大小为 $4 \times 4$，卷积核 $3 \times 3$，不考虑 padding，且 stride 为 1，那么根据 $(4-1)$ 式输出大小为 $2 \times 2$，我们可以用卷积核在输入平面上滑窗并做卷积来理解卷积，实际计算则是根据输入矩阵得到 $4 \times 9$ 的矩阵（<strong>部分 element 用 0 填充</strong>），然后将卷积核展开成 $9 \times 1$ 的矩阵，然后进行卷积相乘得到 $4 \times 1$ 的输出矩阵。</p>
+<p>我们再看转置卷积，输入大小为 $2 \times 2$，卷积核大小为 $3 \times 3$，同样地，不考虑 padding 且 stride 为 1，那么根据 $(4-2)$ 式输出大小为 $4 \times 4$，实际的计算过程为：<strong>由于转置卷积也是一个普通卷积</strong>，所以先将输入矩阵 zero-padding 为 $6\times 6$ 的矩阵（$6 \times 6$ 的输入矩阵经过 $3 \times 3$ 的卷积才能得到 $4 \times 4$ 的输出大小），然后与普通卷积一样地得到为 $16 \times 9$ 的矩阵，卷积核 <strong>旋转 180°</strong>，然后 reshape 为 $9 \times 1$ 的矩阵，通过矩阵乘法，得到矩阵大小为 $16 \times 1$，然后 reshape 为 $4 \times 4$，此即输出矩阵。</p>
+<p>下面我们画图来展示卷积和转置卷积地过程：</p>
+<p><img src="/images/pytorch_mth_conv.png" alt="普通卷积"><center>普通卷积</center></p>
+<p><img src="/images/pytorch_mtd_conv_t.png" alt="转置卷积"><center>转置卷积</center></p>
+<p>使用 Pytorch 进行验证：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn</span><br><span class="line">convt = nn.ConvTranspose2d(<span class="number">1</span>,<span class="number">1</span>,<span class="number">3</span>)</span><br><span class="line">convt.bias = nn.Parameter(torch.tensor([<span class="number">0.</span>]))</span><br><span class="line">convt.weight = nn.Parameter(torch.tensor([[[[<span class="number">0.</span>,<span class="number">1</span>,<span class="number">2</span>],</span><br><span class="line">                                            [<span class="number">2</span>,<span class="number">2</span>,<span class="number">0</span>],</span><br><span class="line">                                            [<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>]]]]))</span><br><span class="line">input = torch.tensor([[[[<span class="number">12.</span>,<span class="number">12</span>],</span><br><span class="line">                        [<span class="number">10</span>,<span class="number">17</span>]]]])</span><br><span class="line">output = convt(input)</span><br><span class="line">output</span><br><span class="line"><span class="comment"># tensor([[[[ 0., 12., 36., 24.],</span></span><br><span class="line"><span class="comment">#           [24., 58., 61., 34.],</span></span><br><span class="line"><span class="comment">#           [20., 66., 70., 24.],</span></span><br><span class="line"><span class="comment">#           [ 0., 10., 37., 34.]]]])</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="第二种方法"><a href="#第二种方法" class="headerlink" title="第二种方法"></a>第二种方法</h3><p>还有另一种方法来理解计算卷积和转置卷积。还是以上面的例子进行说明。</p>
+<p>普通卷积中，输入矩阵 reshape 为 $1 \times 16$。因为有 4 个滑窗卷积动作，所以将卷积核分别以四种不同的 zero-padding 方式得到 4 个 $4 \times 4$ 的矩阵（即，卷积核的 $3 \times 4$ 部分位于 $4 \times 4$ 矩阵的左上角、右上角，左下角和右下角，其他位置 zero-padding），然后 reshape 为 $16 \times 4$，记这个 $16 \times 4$ 的矩阵为 $K$， 得到 $1 \times 4$ 矩阵，reshape 为 $2 \times 2$ 即输出矩阵。</p>
+<p>转置卷积中，输入矩阵大小为 $2 \times 2$（即 <code>[12,12,10,17]</code>），直接 reshape 为 $1 \times 4$，将上面的矩阵 $K$ <strong>转置</strong>，得到 $4 \times 16$ 的矩阵，然后矩阵相乘得到 $1 \times 16$ 矩阵，最后 reshape 为 $4 \times 4$ 即为输出矩阵。</p>
+<p>普通卷积的过程如下图示意，转置卷积非常简单，读者可以自己画图验证。</p>
+<p><img src="/images/pytorch_mtd_conv_t_1.png" alt="卷积的另一种计算过程"><center>卷积的另一种计算过程</center></p>
+<p>从转置卷积得到的结果来看，很明显，转置卷积不是普通卷积的逆过程。</p>
+<h3 id="dilation-gt-1"><a href="#dilation-gt-1" class="headerlink" title="dilation &gt; 1"></a>dilation &gt; 1</h3><p>现在，我们的讨论还未结束，来看 <code>dilation</code> 不为 1 的情况，例如 <code>dilation=2</code>，还是使用上面的例子，对于转置卷积，此时根据 $(4-2)$ 式得到输出矩阵大小为 $6 \times 6$，将卷积核膨胀后得到 $5 \times 5$ 矩阵（间隔填充 0），并 <strong>旋转 180°</strong>，由于转置卷积也是一种普通卷积，所以应该将输入矩阵 zero-padding 到 $10 \times 10$ 大小才能得到 $6 \times 6$ 的输出，也就是说，输入矩阵上下左右均进行 4 个单位的 zero-padding，</p>
+<p>记 <code>input</code> 为 $I$，zero-padding后，$I[4:6,4:6]=[[12.,12],[10,17]]$，其余位置为 <code>0</code>，膨胀后的卷积核 <strong>旋转 180°</strong> 后为 $K’=[[2., 0, 1, 0, 0],[0,0,0,0,0],[0,0,2,0,2],[0,0,0,0,0],[2,0,1,0,0]]$，可以手动计算卷积后的输出矩阵，这里给出 python 代码计算示例，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">convt1 = nn.ConvTranspose2d(<span class="number">1</span>,<span class="number">1</span>,<span class="number">3</span>,dilation=<span class="number">2</span>)</span><br><span class="line">convt1.bias = nn.Parameter(torch.tensor([<span class="number">0.</span>]))</span><br><span class="line">convt1.weight = nn.Parameter(torch.tensor([[[[<span class="number">0.</span>,<span class="number">1</span>,<span class="number">2</span>],[<span class="number">2</span>,<span class="number">2</span>,<span class="number">0</span>],[<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>]]]]))</span><br><span class="line">output1 = convt1(input)</span><br><span class="line">output1</span><br></pre></td></tr></table></figure>
+
+<h3 id="stride-gt-1"><a href="#stride-gt-1" class="headerlink" title="stride &gt; 1"></a>stride &gt; 1</h3><p>依然以上面的例子进行说明，假设现在 <code>stride=2</code>，根据式 $(4-2)$ 转置卷积的输出大小为 $5 \times 5$。把转置卷积看作一种普通卷积，那么其输入大小应该为 $7 \times 7$，由于 <code>stride=2</code>，所以先将 $2 \times 2$ 输入矩阵膨胀为 $3 \times 3$ 的矩阵（2*(2-1)+1=3），然后再 zero-padding 成 $7 \times 7$ 的矩阵（上下左右 padding 的数量均为 (7-3)/2=2），经过这番处理，输入矩阵变为 $I[2,2]=I[2,4]=12, \ I[4,2]=10, \ I[4,4]=17$，其余位置均为 <code>0</code>，卷积核 <strong>旋转 180°</strong> 后为 $K’=[[2., 1, 0],[0,2,2],[2,1,0]]$，于是可以手动计算出卷积后的矩阵，这里给出 python 代码计算示例，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">convt.stride = (<span class="number">2</span>,<span class="number">2</span>)</span><br><span class="line">output = convt(input)</span><br><span class="line">output</span><br></pre></td></tr></table></figure>
+
+<h3 id="padding-gt-0"><a href="#padding-gt-0" class="headerlink" title="padding &gt; 0"></a>padding &gt; 0</h3><p>继续以上面的例子进行说明，假设现在 <code>padding=1</code>，根据式 $(4-2)$ 转置卷积的输出大小为 $2 \times 2$。将输入矩阵上下左右均进行 1 单位的 zero-padding，得到矩阵大小 $4 \times 4$，卷积核大小 $3 \times 3$，计算过程还是将卷积核 <strong>旋转 180°</strong>，卷积计算过程略，不过相信这是足够简单的事情。</p>
+<p>以上 <code>dialtion &gt; 1, stride &gt; 1, padding &gt; 0</code> 三种情况，除了可使用 python 程序验证，还可以使用 <code>第二种方法</code> 进行验证对输入矩阵以及卷积核的处理是正确的，并且，也可以使用 <code>第一种方法</code> 对输入矩阵和卷积核进行处理然后进行普通卷积计算得到输出矩阵。</p>
+<h1 id="5-Upsample"><a href="#5-Upsample" class="headerlink" title="5. Upsample"></a>5. Upsample</h1><p>输入维度为 <code>minibatch x channels x [optional depth] x [optional height] x width</code>，即，输入可以是 3D/4D/5D。可用的算法包括 <code>nearest neighbor, linear, bilinear, bicubic, trilinear</code>。</p>
+<h2 id="nearest-neighbor"><a href="#nearest-neighbor" class="headerlink" title="nearest neighbor"></a>nearest neighbor</h2><p>顾名思义，就是使用原平面上最近的一点作为上采样后的值。例如原平面 size 为 $m \times m$，在原平面上建立坐标系 S，上采样后的 size 为 $n \times n, \ n &gt; m$，设其上点的坐标为 $(x,y), \ x,y =0,1,…,n-1$。将上采样后平面点映射到 S 中，对应坐标记为 $(x’,y’)$，那么有</p>
+<p>$$\frac {x-0} {n-1-0}= \frac {x’-0}{m-1-0} \Rightarrow x’ = \frac {m-1} {n-1} \cdot x$$<br>同理有 $y’ = \frac {m-1} {n-1} \cdot y$，然后找出与点 $(i’,j’)$ 最近的那个整数坐标点，显然必然在以下四个点中产生 $(\lfloor x’\rfloor, \lfloor y’ \rfloor), \ (\lfloor x’\rfloor, \lceil y’ \rceil), \ (\lceil x’\rceil, \lfloor y’ \rfloor), \ (\lceil x’\rceil, \lceil y’ \rceil)$ （这四个点可能有重合），分别计算 $(x’,y’)$ 与这四个点的距离，距离最小的那个点的值即作为 $(x,y)$ 上采样后的值。（使用哪种距离指标，可以查看 PyTorch 底层实现代码，这里本人尚未去查看。）</p>
+<h2 id="bilinear"><a href="#bilinear" class="headerlink" title="bilinear"></a>bilinear</h2><p>输入必须是 4D。</p>
+<h3 id="align-corners-True"><a href="#align-corners-True" class="headerlink" title="align_corners=True"></a>align_corners=True</h3><p>双线性插值。记四个顶点为 $(x_1,y_1), \ (x_1,y_2), \ (x_2,y_1), \ (x_2,y_2)$，然后求目标点 $(x,y), \ x_1 \le x \le x_2, \ y_1 \le y \le y_2$ 的值。沿 x 轴线性插值，<br>$$f(x,y_1)=\frac {f_{21}-f_{11}} {x_2-x_1} \cdot (x-x_1)+f_{11}<br>\\ f(x,y_2)=\frac {f_{22}-f_{12}} {x_2-x_1} \cdot (x-x_1)+f_{12}<br>\\ f(x,y)=\frac {f_(x,y_2)-f(x,y_1)} {y_2-y_1} \cdot (y-y_1)+f(x,y_1)$$</p>
+<p>与 <code>nearest neighbor</code> 中一样，首先将点 $(x,y)$ 映射到原平面上一点 $(x’,y’)$，然后四个顶点为 $(\lfloor x’\rfloor, \lfloor y’ \rfloor), \ (\lfloor x’\rfloor, \lceil y’ \rceil), \ (\lceil x’\rceil, \lfloor y’ \rfloor), \ (\lceil x’\rceil, \lceil y’ \rceil)$。用这种映射方法，显然原平面的四个 corners 和上采样后平面的四个 corners 分别对齐，这就是 <code>align_corners=True</code> 的由来。</p>
+<h3 id="align-corners-False"><a href="#align-corners-False" class="headerlink" title="align_corners=False"></a>align_corners=False</h3><p>如下图所示，显示了 <code>align_corners</code> 不同值的区别。<br><img src="/images/pytorch_mtd_aligncorners.png" alt><center>图源 <a href="https://discuss.pytorch.org/t/what-we-should-use-align-corners-false/22663/9" target="_blank" rel="noopener">pytorch 论坛</a></center></p>
+<p>从图中可以发现，映射回原平面坐标时，坐标计算方式不同，例如上菜以后平面上一点 $(x,y)$，映射回 S 中的坐标为<br>$$x’=(x+0.5)/2-0.5<br>\\ y’=(y+0.5)/2-0.5$$</p>
+<p>此后的插值方式一致（毕竟都是双线性插值），找到最近的 4 个点 $(\lfloor x’\rfloor, \lfloor y’ \rfloor), \ (\lfloor x’\rfloor, \lceil y’ \rceil), \ (\lceil x’\rceil, \lfloor y’ \rfloor), \ (\lceil x’\rceil, \lceil y’ \rceil)$ 进行双线性插值。</p>
+<h2 id="linear"><a href="#linear" class="headerlink" title="linear"></a>linear</h2><p>与 bilinear 类似，但是输入维度必须是 3D。</p>
+<h2 id="trilinear"><a href="#trilinear" class="headerlink" title="trilinear"></a>trilinear</h2><p>与 bilinear 类似，但是输入维度必须是 5D。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/29/pytorch/PyTorch-loss/" rel="next" title="PyTorch 中的损失">
+                <i class="fa fa-chevron-left"></i> PyTorch 中的损失
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/05/DIP-1/" rel="prev" title="数字图像处理（一）">
+                数字图像处理（一） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shajianjian</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">39</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Fold-Unfold"><span class="nav-number">1.</span> <span class="nav-text">1. Fold / Unfold</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Fold"><span class="nav-number">1.1.</span> <span class="nav-text">Fold</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unfold"><span class="nav-number">1.2.</span> <span class="nav-text">Unfold</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Normalization"><span class="nav-number">2.</span> <span class="nav-text">2. Normalization</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BatchNorm"><span class="nav-number">2.1.</span> <span class="nav-text">BatchNorm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LayerNorm"><span class="nav-number">2.2.</span> <span class="nav-text">LayerNorm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InstanceNorm"><span class="nav-number">2.3.</span> <span class="nav-text">InstanceNorm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GroupNorm"><span class="nav-number">2.4.</span> <span class="nav-text">GroupNorm</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Pool"><span class="nav-number">3.</span> <span class="nav-text">3. Pool</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#FractionalMaxPool2d"><span class="nav-number">3.1.</span> <span class="nav-text">FractionalMaxPool2d</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-ConvTranspose"><span class="nav-number">4.</span> <span class="nav-text">4. ConvTranspose</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#输出大小"><span class="nav-number">4.1.</span> <span class="nav-text">输出大小</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#转置卷积计算"><span class="nav-number">4.2.</span> <span class="nav-text">转置卷积计算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一种方法"><span class="nav-number">4.2.1.</span> <span class="nav-text">第一种方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二种方法"><span class="nav-number">4.2.2.</span> <span class="nav-text">第二种方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dilation-gt-1"><span class="nav-number">4.2.3.</span> <span class="nav-text">dilation &gt; 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stride-gt-1"><span class="nav-number">4.2.4.</span> <span class="nav-text">stride &gt; 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#padding-gt-0"><span class="nav-number">4.2.5.</span> <span class="nav-text">padding &gt; 0</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-Upsample"><span class="nav-number">5.</span> <span class="nav-text">5. Upsample</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#nearest-neighbor"><span class="nav-number">5.1.</span> <span class="nav-text">nearest neighbor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bilinear"><span class="nav-number">5.2.</span> <span class="nav-text">bilinear</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#align-corners-True"><span class="nav-number">5.2.1.</span> <span class="nav-text">align_corners=True</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#align-corners-False"><span class="nav-number">5.2.2.</span> <span class="nav-text">align_corners=False</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linear"><span class="nav-number">5.3.</span> <span class="nav-text">linear</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#trilinear"><span class="nav-number">5.4.</span> <span class="nav-text">trilinear</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

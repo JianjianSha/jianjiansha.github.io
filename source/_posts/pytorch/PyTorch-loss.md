@@ -1,5 +1,6 @@
 ---
 title: PyTorch 中的损失
+p: pytorch/PyTorch-loss
 date: 2019-10-29 09:46:16
 tags: PyTorch
 mathjax: true

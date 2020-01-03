@@ -1,5 +1,6 @@
 ---
 title: PyTorch-1
+p: pytorch/PyTorch-1
 date: 2019-06-12 19:17:11
 tags: PyTorch
 categories: DL Framework

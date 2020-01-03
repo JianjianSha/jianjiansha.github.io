@@ -1,5 +1,6 @@
 ---
 title: PyTorch 方法总结
+p: pytorch/PyTorch-mtd
 date: 2019-11-01 11:26:25
 tags: PyTorch
 mathjax: true

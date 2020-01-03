@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读 torch/__init__.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY">
+<meta name="keywords" content="PyTorch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyTorch-2">
+<meta property="og:url" content="https://shajianjian.github.io/2019/06/13/pytorch/PyTorch-2/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读 torch/__init__.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-01-02T08:50:39.455Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PyTorch-2">
+<meta name="twitter:description" content="torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是 1import torch  于是阅读 torch/__init__.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://shajianjian.github.io/2019/06/13/pytorch/PyTorch-2/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>PyTorch-2 | SJJ</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SJJ</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/13/pytorch/PyTorch-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PyTorch-2
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-13 10:19:52" itemprop="dateCreated datePublished" datetime="2019-06-13T10:19:52+08:00">2019-06-13</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-01-02 16:50:39" itemprop="dateModified" datetime="2020-01-02T16:50:39+08:00">2020-01-02</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/DL-Framework/" itemprop="url" rel="index"><span itemprop="name">DL Framework</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="torch-installization"><a href="#torch-installization" class="headerlink" title="torch installization"></a>torch installization</h1><p>依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import torch</span><br></pre></td></tr></table></figure>
+
+<p>于是阅读 <code>torch/__init__.py</code>，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之后加载torch._C然后再恢复动态加载模式，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">old_flags=sys.getdlopenflags()</span><br><span class="line">sys.setdlopenflags(_dl_flags.RTDL_GLOBAL | _dl_flags.RTLD_LAZY)</span><br><span class="line">from torch._C import *</span><br><span class="line">__all__ += [name for name in dir(_C)</span><br><span class="line">            if name[0] != &apos;_&apos; and</span><br><span class="line">            not name.endswith(&apos;Base&apos;)]</span><br><span class="line">sys.setdlopenflags(old_flags)</span><br></pre></td></tr></table></figure>
+
+<p><strong>将torch._C中（不包括_开头和Base结尾）的属性导出到当前域。</strong></p>
+<p><code>__init__.py</code>除了import torch._C，还import了同目录下其他module，以及同目录下的package。首先看torch._C导入时做了什么， torch._C的源文件只有torch/csrc/stub.cpp，链接库为shm和torch_python，stub.cpp中仅仅是初始化模块，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">extern PyObject* initModule();</span><br><span class="line">PyMODINIT_FUNC PyInit__C()   // 在python脚本中，import _C 时调用</span><br><span class="line">&#123;</span><br><span class="line">  return initModule();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据python3扩展库的规则可知，<code>import torch._C</code> ，调用PyInit__C函数（调用名为PyInit_&lt;package&gt;的函数），这个函数内部调用initModule，也就是说，具体的模块定义由initModule实现。看到extern知道initModule方法定义在外部，所以只能从shm和torch_python对应的源文件中寻找方法定义。</p>
+<p>shm库实现Domain Socket通信获得共享内存的句柄，解决多进程的内存分配问题，查看torch/CMakeLists.txt，发现生成shm相关语句为，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set(LIBSHM_SUBDIR libshm)</span><br><span class="line">set(LIBSHM_SRCDIR $&#123;LIBSHM_SRC_DIR&#125;/lib/$&#123;LIBSHM_SUBDIR&#125;)</span><br><span class="line">add_subdirectory($&#123;LIBSHM_SRCDIR&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>从上面语句得知shm库的源码位于torch/lib/libshm目录下，这个跟torch._C模块定义没有关系，暂且不细展开，继续查看torch_python的源码以寻求initModule方法定义。在torch/CMakeLists.txt中发现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_library(torch_python SHARED $&#123;TORCH_PYTHON_SRCS&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>TORCH_PYTHON_SRCS是一个列表，存储了torch_python库的源文件，生成torch_python库所需要的源文件以及依赖库直接查看torch/CMakeLists.txt，这里不再展开一一说明。</p>
+<p>initModule方法定义在torch/csrc/Module.cpp，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">#ifdef USE_CUDA</span><br><span class="line">namespace torch &#123; namespace cuda &#123;</span><br><span class="line">void initModule(PyObject* module);       // 模块中有关cuda部分的初始化函数声明</span><br><span class="line">&#125;&#125;</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">static std::vector&lt;PyMethodDef&gt; methods;</span><br><span class="line"></span><br><span class="line">PyObject* module;</span><br><span class="line">PyObject* initModule() &#123;                 // 声明并定义模块初始化函数</span><br><span class="line">  // 向methods中添加方法定义</span><br><span class="line">  THPUtils_addPyMethodDefs(methods, TorchMethods);</span><br><span class="line">  THPUtils_addPyMethodDefs(methods, DataLoaderMethods);</span><br><span class="line">  ...</span><br><span class="line">  // 真正的扩展模块定义</span><br><span class="line">  static struct PyModuleDef torchmodule = &#123;</span><br><span class="line">    PyModuleDef_HEAD_INIT,</span><br><span class="line">    &quot;torch._C&quot;,                          // 扩展模块名</span><br><span class="line">    nullptr,                           </span><br><span class="line">    -1,</span><br><span class="line">    methods.data()                       // 模块中的方法定义</span><br><span class="line">  &#125;;</span><br><span class="line">  ASSERT_TRUE(module = PyModule_Create(&amp;torchmodule)); // 创建模块并确保创建成功</span><br><span class="line">  // 对模块进行各种初始化</span><br><span class="line">#ifdef USE_CUDA</span><br><span class="line">  torch::cuda::initModule(module);       // 执行cuda相关的初始化</span><br><span class="line">#endif</span><br><span class="line">  ...</span><br><span class="line">  // 定义模块的属性设置函数，setter</span><br><span class="line">  // 属性名为name，值为v，incref表示是否对值对象增加引用计数</span><br><span class="line">  // 设置成功返回1，否则返回0</span><br><span class="line">  auto set_module_attr = [&amp;](const char* name, PyObject* v, bool incref = true) </span><br><span class="line">  &#123;</span><br><span class="line">    if(incref) &#123;</span><br><span class="line">      Py_INCREF(v);</span><br><span class="line">    &#125;</span><br><span class="line">    return PyModule_AddObject(module, name, v) == 0;</span><br><span class="line">  &#125;</span><br><span class="line">  // 设置模块属性</span><br><span class="line">  ...</span><br><span class="line">  ASSERT_TRUE(set_module_attr(&quot;has_cudnn&quot;, has_cudnn));</span><br><span class="line">  // 向模块添加方法</span><br><span class="line">  auto py_module = py::reinterpret_borrow&lt;py::module&gt;(module);</span><br><span class="line">  py_module.def(&quot;_demangle&quot;, &amp;c10::demangle);</span><br><span class="line">  py_module.def(&quot;_log_api_usage_once&quot;, &amp;LogAPIUsageOnceFromPython);</span><br><span class="line">  ...    // 设置模块其他属性</span><br><span class="line">  ASSERT_TRUE(set_module_attr(&quot;default_generator&quot;, </span><br><span class="line">        (PyObject*)THPDefaultGenerator, false));</span><br><span class="line">  torch::nn::init__THNN(module);  // 增加 _THNN 属性</span><br><span class="line">#ifdef USE_CUDA</span><br><span class="line">  torch::nn::init_THCUDD(module);</span><br><span class="line">#endif</span><br><span class="line">  return module;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从上面的代码中可见，定义并生成名为torch._C的模块，然后对这个模块设置attr，添加方法，添加子模块等。</p>
+<h1 id="methods-members-in-torch-C"><a href="#methods-members-in-torch-C" class="headerlink" title="methods/members in torch._C"></a>methods/members in torch._C</h1><ul>
+<li><p>使用 THPUtils_addPyMethodDefs 向torch._C 添加模块方法。包括</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"># TorchMethods </span><br><span class="line">_initExtension</span><br><span class="line">_autograd_init</span><br><span class="line">...</span><br><span class="line"># DataLoaderMethods </span><br><span class="line">_set_worker_signal_handlers</span><br><span class="line">_set_worker_pids</span><br><span class="line">...</span><br><span class="line"># torch::autograd::python_functions(), torch/csrc/autograd/init.cpp</span><br><span class="line">set_grad_enabled</span><br><span class="line">is_grad_enabled</span><br><span class="line">set_anomaly_enabled</span><br><span class="line">is_anomaly_enabled</span><br><span class="line"># torch::multiprocessing::python_functions(), torch/csrc/multiprocessing/init.cpp</span><br><span class="line">_multiprocessing_init</span><br><span class="line"># torch::distributed::c10d::python_functions()  同上类似</span><br><span class="line">...</span><br><span class="line"># THCPModule_method(), torch/csrc/cuda/Module.cpp</span><br><span class="line">_cuda_init</span><br><span class="line">_cuda_setDevice</span><br><span class="line">...</span><br><span class="line">_nccl_version</span><br><span class="line">...</span><br><span class="line"># THCUDNN_method()</span><br><span class="line">_cudnn_version</span><br><span class="line"># THDPModule_methods(), torch/csrc/distributed/Module.cpp</span><br><span class="line">_dist_init_extension</span><br><span class="line">_dist_init_process_group</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成模块torch._C 后再向其添加如下成员：</p>
+<ul>
+<li><p>向torch._C添加类型_PtrWrapper，Generator，FatalError，Size，dtype，iinfo，layout，memory_format，device，_LegacyVariableBase，_TensorBase，_VariableFunctions，_FunctionBase，_EngineBase，JITException，IODescriptor，_THNN，_THCUNN。</p>
+<p>  torch._C._TensorBase这个类型具有属性</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">_cdata</span><br><span class="line">_version</span><br><span class="line">grad_fn</span><br><span class="line">_grad_fn</span><br><span class="line">is_leaf</span><br><span class="line">data</span><br><span class="line">_grad</span><br><span class="line">grad</span><br><span class="line">...</span><br><span class="line">device</span><br><span class="line">ndim</span><br></pre></td></tr></table></figure>
+
+<p>  并且具有以下方法</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># variable_methods, torch/csrc/autograd/generated/python_variable_methods.cpp</span><br><span class="line">__add__</span><br><span class="line">__radd__</span><br><span class="line">...</span><br><span class="line">apply_</span><br><span class="line">byte</span><br><span class="line">char</span><br><span class="line">contiguous</span><br><span class="line">...</span><br><span class="line">where</span><br><span class="line">zero_</span><br><span class="line"># extra_method</span><br><span class="line">_make_subclass</span><br></pre></td></tr></table></figure>
+
+<p>  类型torch._C._FunctionBase， 这个类型具有方法和属性为</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># method</span><br><span class="line">apply</span><br><span class="line">_do_forward</span><br><span class="line">_do_backward</span><br><span class="line">_register_hook_dict</span><br><span class="line">register_hook</span><br><span class="line"># property</span><br><span class="line">saved_tensors</span><br><span class="line">saved_variables</span><br><span class="line">...</span><br><span class="line">requires_grad</span><br><span class="line">metadata</span><br></pre></td></tr></table></figure>
+
+<p>  类型 torch._C._VariableFunctions 包含方法</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">arange</span><br><span class="line">as_tensor</span><br><span class="line">...</span><br><span class="line">empty       <span class="comment"># 出现我们这里所讨论的 torch.empty</span></span><br><span class="line">empty_like</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>  不难知道_TensorBase是Tensor的基类，包含了Tensor的各种操作，_FunctionBase则包括了前后向传播方法，从这里能将深度学习中的一些概念与代码实现建立一点点联系了。</p>
+</li>
+<li><p>向torch._C中添加函数 _wrap_tensor_impl，_tensor_impl_raw_handle，_demangle，_log_api_usage_once，以_jit开头的一系列函数。</p>
+</li>
+<li><p>向torch._C添加模块， _nn，cpp，_onnx。</p>
+</li>
+<li><p>向torch._C添加属性 has_cudnn，has_openmp，has_mkl，has_lapack，has_cuda，has_mkldnn，_GLIBCXX_USE_CXX11_API，default_generator。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="some-installization-w-r-t-torch-C"><a href="#some-installization-w-r-t-torch-C" class="headerlink" title="some installization w.r.t. torch._C"></a>some installization w.r.t. torch._C</h1><h3 id="THPxxxStorage-init"><a href="#THPxxxStorage-init" class="headerlink" title="THPxxxStorage_init"></a>THPxxxStorage_init</h3><p>torch._C模块中各种Tensor的定义通过 THPxxxStorage_init 和 THCPxxxStorage_init 完成，在项目中是无法直接搜索到这两种函数定义的，下面讲解这两个函数的定义。</p>
+<p>注意到从Module.cpp文件中头文件引用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;TH/TH.h&gt;               // TH=TorcH</span><br><span class="line">#include &lt;c10/util/Logging.h&gt;</span><br><span class="line">#include &lt;ATen/ATen.h&gt;</span><br><span class="line">...</span><br><span class="line">#include &lt;torch/csrc/THP.h&gt;      // THP=TorcH Python</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>可以看出先引用ATen和c10库的头文件，然后再引用torch中的头文件，这是因为ATen [A Tensor Library的缩写] 实现了Tensor的运算等，c10 [表示caffe2和ATen] 实现了Tensor存储等，这两个库作为基础。</p>
+<p>一方面，头文件 TH/TH.h 中引用了#include &lt;TH/THGeneral.h&gt;，在aten/src/TH目录下的CMakeLists.txt中有这么一行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CONFIGURE_FILE(THGeneral.h.in &quot;$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/THGeneral.h&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>在THGeneral.h中有如下宏定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#define TH_CONCAT_4_EXPAND(x,y,z,w) x ## y ## z ## w</span><br><span class="line">#define TH_CONCAT_4(x,y,z,w) TH_CONCAT_4_EXPAND(x,y,z,w)</span><br></pre></td></tr></table></figure>
+
+<p>另一方面，torch/csrc/THP.h 中引用了#include &lt;torch/src/Storage.h&gt;，在这个Storage.h中有如下语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#define THPStorage_(NAME) TH_CONCAT_4(THP, Real, Storage_, NAME)</span><br><span class="line">...</span><br><span class="line">#include &lt;torch/csrc/generic/Storage.h&gt;</span><br><span class="line">#include &lt;TH/THGenerateAllType.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;torch/csrc/generic/Storage.h&gt;</span><br><span class="line">#include &lt;TH/THGenerateHalfType.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;torch/csrc/generic/Storage.h&gt;</span><br><span class="line">#include &lt;TH/THGenerateBoolType.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;torch/csrc/generic/Storage.h&gt;</span><br><span class="line">#include &lt;TH/THGenerateQTypes.h&gt;</span><br></pre></td></tr></table></figure>
+
+<p>上面是4组include操作（根据不同类型生成对应的方法声明/定义，这种策略，后面还会用到很多次），可以看到每组include一次 torch/csrc/generic/Storage.h，这是为什么呢？查看文件torch/csrc/generic/Storage.h 发现其包含语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#ifndef TH_GENERIC_FILE</span><br><span class="line">#define TH_GENERIC_FILE &quot;torch/csrc/generic/Storage.h&quot;         // (0)</span><br><span class="line">#else</span><br><span class="line">...</span><br><span class="line">bool THPStorage_(init)(PyObject *module);                      // (1)</span><br><span class="line">...</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<p>而文件TH/THGenerateAllType.h则包含语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;TH/THGenerateFloatTypes.h&gt;</span><br><span class="line">#include &lt;TH/THGenerateIntTypes.h&gt;</span><br><span class="line">...</span><br><span class="line">#undef TH_GENERIC_FILE</span><br></pre></td></tr></table></figure>
+
+<p>4组include操作中，每组的第二个被include的文件均包含#undef TH_GENERIC_FILE，这使得每组include操作中，include torch/csrc/generic/Storage.h时均执行语句 (0)，而非语句 (1)，继续进一步查看TH/THGenerateFloatTypes.h，发现有</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 此时 TH_GENERIC_FILE是已定义的</span><br><span class="line">#include &lt;TH/THGenerateFloatType.h&gt;</span><br><span class="line">#include &lt;TH/THGenerateDoubleType.h&gt;</span><br><span class="line">#undef TH_GENERIC_FILE     // 这里将TH_GENERIC_FILE 设为未定义</span><br></pre></td></tr></table></figure>
+
+<p>以TH/THGenerateFloatType.h为例说明，此文件中有语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#define Real Float</span><br><span class="line">...</span><br><span class="line">#line 1 TH_GENERIC_FILE</span><br><span class="line">#include TH_GENERIC_FILE         // (2)</span><br><span class="line">...</span><br><span class="line">#undef Real</span><br></pre></td></tr></table></figure>
+
+<p>注意语句 (2) 是include torch/csrc/generic/Storate.h，而此时TH_GENERIC_FILE是已定义的，所以执行 语句 (1)， 于是按如下过程进行宏替换</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bool THPStorage_(init)(PyObject *module);  -&gt;</span><br><span class="line">bool TH_CONCAT_4(THP, Real, Storage_, init)(PyObject *module);    -&gt;</span><br><span class="line">bool TH_CONCAT_4(THP, Float, Storage_, init)(PyObject *module);   -&gt;</span><br><span class="line">bool TH_CONCAT_4_EXPAND(THP, Float, Storage_, init)(PyObject *module); -&gt;</span><br><span class="line">bool THPFloatStorage_init(PyObject *module);</span><br></pre></td></tr></table></figure>
+
+<p>类似地，#include &lt;TH/THGenerateDoubleType.h&gt;，则得到THPDoubleStorage_init，</p>
+<p>#include &lt;TH/THGenerateIntTypes.h&gt; 得到</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">THPByteStorage_init</span><br><span class="line">THPCharStorage_init</span><br><span class="line">THPShortStorage_init</span><br><span class="line">THPIntStorage_init</span><br><span class="line">THPLongStorage_init</span><br></pre></td></tr></table></figure>
+
+<p>对4组include中的其他三组，则得到</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">THPHalfStorage_init</span><br><span class="line">THPBoolStorage_init</span><br><span class="line">THPQUInt8Storage_init</span><br><span class="line">THPQInt8Storage_init</span><br><span class="line">THPQInt32Storage_init</span><br></pre></td></tr></table></figure>
+
+<p>以上仅得到函数的声明，我们还需要弄清楚其定义，定义部分的构造与声明类似，首先查看torch/csrc/Storage.cpp，其中包含</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;TH/THStorageFunctions.hpp&gt;</span><br><span class="line">#include &lt;torch/csrc/THP.h&gt;                   // include THPxxxStorage_init 函数声明</span><br><span class="line">...</span><br><span class="line">#include &lt;torch/csrc/generic/Storage.cpp&gt;</span><br><span class="line">#include &lt;TH/THGenerateAllTypes.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;torch/csrc/generic/Storage.cpp&gt;</span><br><span class="line">#include &lt;TH/THGenerateHalfType.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;torch/csrc/generic/Storage.cpp&gt;</span><br><span class="line">#include &lt;TH/THGenerateBoolType.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;torch/csrc/generic/Storage.cpp&gt;</span><br><span class="line">#include &lt;TH/THGenerateQTypes.h&gt;</span><br></pre></td></tr></table></figure>
+
+<p>又是4组include 操作，还是熟悉的配方，torch/csrc/generic/Storage.cpp中，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">#ifndef TH_GENERIC_FILE</span><br><span class="line">#define TH_GENERIC_FILE &quot;torch/csrc/generic/Storage.cpp&quot;              // (11)</span><br><span class="line">#else</span><br><span class="line">...                                                                   // (12)</span><br><span class="line">bool THPStorage_(init)(PyObject *module)</span><br><span class="line">&#123;</span><br><span class="line">  static std::vector&lt;PyMethodDef&gt; methods;</span><br><span class="line">  THPUtils_addPyMethodDefs(methods, THPStorage_(methods));</span><br><span class="line">#ifndef THD_GENERIC_FILE</span><br><span class="line">  THPUtils_addPyMethodDefs(methods, THPStorage_(sharingMethods);</span><br><span class="line">#endif</span><br><span class="line">  </span><br><span class="line">  THPStorageType.tp_methods = methods.data();</span><br><span class="line">  THPStorageType.tp_members = THPStorage_(members);</span><br><span class="line">  THPStorageType.tp_getset = THPStorage_(properties);</span><br><span class="line">  if (PyType_Ready(&amp;THPStorageType) &lt; 0)</span><br><span class="line">    return false;</span><br><span class="line">  Py_INCREF(&amp;THPStorageType);</span><br><span class="line">  PyModule_AddObject(module, THPStorageBaseStr, (PyObject*)&amp;THPStorageType);</span><br><span class="line">  THPStorage_(initCopyMethods)();</span><br><span class="line">  return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码容易看出是向模块module添加字段THPStorageBaseStr， 在torch/csrc/Storage.h中有宏</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#define THPStorageBaseStr TH_CONCAT_STRING_2(Real, StorageBase)</span><br></pre></td></tr></table></figure>
+
+<p>在TH/THGeneral.h中存在宏定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#define TH_CONCAT_STRING_2(x,y) TH_CONCAT_STRING_2_EXPAND(x,y)</span><br><span class="line">#define TH_CONCAT_STRING_2_EXPAND(x,y) #x #y</span><br></pre></td></tr></table></figure>
+
+<p>由于StorageBase没有宏定义，Real则可以是 Int, Float, Double, Short, Char等（见前面THPxxxStorage_init的声明分析部分），以Real=Float为例，THPStorageBaseStr此时变为”FloatStorageBase”，所以实际上是向torch._C添加字段 FloatStorageBase， 此字段类型为python class torch._C.FloatStorageBase。</p>
+<p>以4组include操作的第一组为例说明，首次include torch/csrc/generic/Storage.cpp时，TH_GENERIC_FILE未定义，所以执行 (11)，然后include TH/THGenerateAllTypes.h，同样的，在TH/THGenerateFloatType.h中根据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#define Real Float</span><br><span class="line">...</span><br><span class="line">#include TH_GENERIC_FILE</span><br></pre></td></tr></table></figure>
+
+<p>即，再一次include torch/csrc/generic/Storage.cpp，此时TH_GENERIC_FILE已定义，所以从 (12) 处开始执行，得到THPFloatStorage_init的函数定义，前面已经分析过，此函数用于向torch._C 模块添加类 FloatStorageBase。</p>
+<p>其他如Int，Char，Byte，Double，Half，QUInt8等类似处理。</p>
+<p>torch/csrc/Module.cpp中模块初始化initModule函数中还有一些 THCPxxxStorage_init 的函数，这些函数的声明和定义与 THPxxxStorage_init 的声明和定义 的生成方式一样，不再展开细讲，直接阅读torch/csrc/cuda/Storage.h 和 torch/csrc/cuda/Storage.cpp 两个文件。</p>
+<p>现在我们来看一下上面所述的torch._C模块中新增类到底是什么。以FloatStorageBase为例，查看torch/csrc/generic/Storage.cpp中 THPStorageType的定义，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PyTypeObject THPStorageType = &#123;</span><br><span class="line">  PyVarObject_HEAD_INIT(nullptr, 0)</span><br><span class="line">  &quot;torch._C.&quot; THPStorageBaseStr,               /* tp_name */</span><br><span class="line">  sizeof(THPStorage),                          /* tp_basicsize */</span><br><span class="line">  ...</span><br><span class="line">  THPStorage_(pynew),                          /* tp_new */</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可见python中的类型FloatStorageBase对应在C++中的类型为THPStorage，在 torch/csrc/StorageDef.h中查看THPStorage定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct THPStorage &#123;</span><br><span class="line">  PyObject_HEAD</span><br><span class="line">  THWStorage *cdata;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>（插播一下，torch/csrc/generic/Storage.cpp 这里如何找到 THPStorage的定义？首先，torch/csrc/Storage.cpp中include了文件 torch/csrc/THP.h，torch/csrc/generic/Storage.cpp，然后 torch/csrc/THP.h 中include 了文件torch/csrc/Storage.h，torch/csrc/Storage.h又include了torch/csrc/generic/Storage.h，最后在这个generic/Storage.h中include了 torch/csrc/StorageDef.h）</p>
+<p>然后查看类创建 THPStorage_(pynew) 的定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">static PyObject* THPStorage_(pynew)(PyTypeObject *type, PyObject *args, PyObject *kwargs)</span><br><span class="line">&#123;</span><br><span class="line">  Py_ssize_t num_args = args ? PyTuple_Size(args) : 0;   // 可变长度参数的个数</span><br><span class="line"></span><br><span class="line">  THPStoragePtr self((THPStorage *)type-&gt;tp_alloc(type, 0); // 分配内存，让self指向这个内存块</span><br><span class="line">  ...</span><br><span class="line">  c10::Allocator * allocator = nullptr;</span><br><span class="line"></span><br><span class="line">  if (kwargs != nullptr) &#123;                               // named arguments</span><br><span class="line">    PyObject *allocator_ptr = PyDict_GetItemString(kwargs, &quot;allocator&quot;); // 获取参数allocator的值</span><br><span class="line">    if (allocator_ptr) &#123;</span><br><span class="line">      THPUtils_assert(THPUtils_checkLong(allocator_ptr), &quot;invalid allocator&quot;);</span><br><span class="line">      // 转为 c10::Allocator 指针</span><br><span class="line">      allocator = static_cast&lt;c10::Allocator*&gt;(PyLong_AsVoidPtr(allocator_ptr));</span><br><span class="line">      PyDict_DelItemString(kwargs, &quot;allocator&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    Py_ssize_t num_kwargs = PyDict_Size(kwargs);</span><br><span class="line">    if (num_args == 0) &#123;</span><br><span class="line">      PyObject *cdata_ptr = PyDict_GetItemString(kwargs, &quot;cdata&quot;);</span><br><span class="line">      if (num_kwargs==1 &amp;&amp; cdata_ptr &amp;&amp; THPUtils_checkLong(cdata_ptr)) &#123;   // 提供了cdata值</span><br><span class="line">        THWStorage *ptr = (THWStorage*)PyLong_AsVoidPtr(cdata_ptr);</span><br><span class="line">        self-&gt;cdata = ptr;</span><br><span class="line">        return (PyObject*)self.release();       // 返回THPStorage指针</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    THPUtils_assert(num_kwargs == 0, THPStoragePtr &quot;(): invalid keyword arguments&quot;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  if (num_args == 0) &#123;</span><br><span class="line">    if (allocator) &#123;                            // 未提供cdata值，则需要创建THWStorage类型实例</span><br><span class="line">      self-&gt;cdata = THPStorage_(newWithAllocator)(0, allocator);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      self-&gt;cdata = THWStorage_(new)(LIBRARY_STATE_NOARGS);</span><br><span class="line">    &#125;</span><br><span class="line">    return (PyObject*)self.release();</span><br><span class="line">  &#125;</span><br><span class="line">  ...     // 使用其他方法设置 self-&gt;cdata</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从上面的代码中可见，创建FloatStorageBase实例时，核心是设置 THPStorage.cdata的值，其指向一个THWStorage类型对象，在torch/csrc/THP.h中有宏定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#define THWStorage THStorage</span><br></pre></td></tr></table></figure>
+
+<p>转而去寻找 THStorage 的定义，我们从torch/csrc/Storage.cpp出发，逐级查看被include的文件，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Storage.cpp                 -&gt;</span><br><span class="line">#include &lt;TH/TH.h&gt;          -&gt;</span><br><span class="line">#include &lt;TH/THStorageFunction.h&gt;   -&gt;</span><br><span class="line">#include &lt;TH/generic/THStorage.h&gt;   -&gt;</span><br><span class="line">#include &lt;c10/core/StorageImpl.h&gt;</span><br></pre></td></tr></table></figure>
+
+<p>在 TH/generic/THStorage.h 中找到宏定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#define THStorage at::StorageImpl</span><br></pre></td></tr></table></figure>
+
+<p>在 c10/core/StorageImpl.h 中找到结构定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">namespace c10 &#123;</span><br><span class="line">struct C10_API StorageImpl final : public c10::intrusive_ptr_target &#123;</span><br><span class="line">...</span><br><span class="line">private:</span><br><span class="line">  caffe2::TypeMeta  data_type_;  // 数据类型</span><br><span class="line">  DataPtr data_ptr_;             // 数据指针</span><br><span class="line">  int64_t numel_;                // 数据数量</span><br><span class="line">  bool resizable_;</span><br><span class="line">  bool received_cuda_;</span><br><span class="line">  Allocator* allocator_;         // 数据的内存分配器</span><br><span class="line">&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以，THWStorage实际上是类型 at::StorageImpl，这个结构是数据存储实现，我们先不去深挖这个结构，转而继续 THPStorage_(pynew) 的定义，当未提供 cdata变量值时，需要创建 THWStorage 类型实例，使用THWStorage_(NAME)函数，NAME可能的值为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">new                // 新建THStorage，未指定 size，即size=0，使用默认Allocator</span><br><span class="line">free</span><br><span class="line">size</span><br><span class="line">get</span><br><span class="line">set</span><br><span class="line">data</span><br><span class="line">newWithSize        // 新建THStorage，指定 size，使用默认Allocator</span><br><span class="line">newWithAllocator   // 新建THStorage，指定 size 和 Allocator</span><br><span class="line">copy_functions</span><br><span class="line">copyByte</span><br><span class="line">...</span><br><span class="line">copyCudaByte</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>此外有宏定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#define THWStorage_(NAME) THStorage_(NAME)     // torch/csrc/THP.h</span><br><span class="line">#define THStorage_(NAME) TH_CONCAT_4(TH,Real,Storage_,NAME)   // TH/THStorageFunctions.h</span><br></pre></td></tr></table></figure>
+
+<p>函数THStorage_(NAME) 声明分布在文件 TH/generic/THStorage.h，TH/generic/THStorageCopy.h，实现部分则位于相应的 cpp文件。</p>
+<p>（插播：在使用cuda的情况下，#define THWStorage_(NAME) THCStorage_(NAME)，后者的声明则分布在THC/generic/THCStorage.h，THC/generic/THCStorageCopy.h）</p>
+<p>以 THStorage_(newWithSize)函数为例说明，查看 TH/generic/THStorage.cpp，有定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">THStorage* THStorage_(newWithSize)(ptrdiff_t size)</span><br><span class="line">&#123;</span><br><span class="line">  THStorage* storage = c10::make_instrusive&lt;at::StorageImpl&gt;(</span><br><span class="line">#ifdef THQUANTIZED</span><br><span class="line">    caffe2::TypeMeta::Make&lt;quantized_t&gt;(),</span><br><span class="line">#else</span><br><span class="line">    caffe2::TypeMeta::Make&lt;scalar_t&gt;(),        // 新建scalar_t 类型</span><br><span class="line">#endif</span><br><span class="line">    size,</span><br><span class="line">    getTHDefaultAllocator(),</span><br><span class="line">    true).release();</span><br><span class="line">  return storage;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从这段代码中不难看出，创建StorageImpl对象，以及指向其的一个intrusive_ptr类型的指针，返回一个新的普通指针，指向这个StorageImpl，并销毁intrusive_ptr 内部指针，上文讲过有宏定义 THStorage 就是 at::StorageImpl，所以这个方法就是新建一个StorageImpl对象，并返回指向它的指针。根据c10::make_instrusive的函数定义，实际上是调用StorageImpl的构造函数完成这项工作，此构造函数为，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">StorageImpl(</span><br><span class="line">    caffe2::TypeMeta data_type,</span><br><span class="line">    int64_4 numel,</span><br><span class="line">    at::Allocator* allocator,</span><br><span class="line">    bool resizable)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>我们看上上个代码片段中StorageImpl构造函数的实参，</p>
+<p>首先回顾一下我们是从FloatStorageBase出发走到现在这里，所以在TH/THGenerateFloatType.h 文件中找到（如果理解上文所说的 4组include操作，就能理解为什么是在这个文件中）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#define scalar_t float</span><br></pre></td></tr></table></figure>
+
+<p>于是，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">caffe2::TypeMeta::Make&lt;scalar_t&gt;()    // 假设 THQUANTIZED 未定义</span><br></pre></td></tr></table></figure>
+
+<p>caffe2::TypeMeta::Make 这个方法是创建caffe2::TypeMeta 对象，其内部维护一个detail::TypeMetaData* 变量data_，如何new 一个TypeMetaData对象暂且不表，我们先看一组宏，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">#define _CAFFE_KNOWN_TYPE_DEFINE_TYPEMETADATA_INSTANCE(T, Counter)         \</span><br><span class="line">  namespace detail &#123;                                                       \</span><br><span class="line">  const TypeMetaData C10_CONCATENATE(_typeMetaDataInstance_, Counter) =    \</span><br><span class="line">    _makeTypeMetaDataInstance&lt;T&gt;(_typeName&lt;T&gt;(#T));                        \</span><br><span class="line">  &#125;                                                                        \</span><br><span class="line">  template&lt;&gt;                                                               \</span><br><span class="line">  EXPORT_IF_NOT_GCC const detail::TypeMetaData*                            \</span><br><span class="line">  TypeMeta::_typeMetaDataInstance&lt;T&gt;() noexcept &#123;                          \</span><br><span class="line">    return &amp;C10_CONCATENATE(detail::_typeMetaDataInstance_, Counter);      \</span><br><span class="line">  &#125;</span><br><span class="line">  _CAFFE_KNOWN_TYPE_DEFINE_TYPEMETADATA_INSTANCE(T, __COUNTER__)</span><br><span class="line"></span><br><span class="line">#define C10_CONCATENATE_IMPL(s1,s2) s1##s2</span><br><span class="line">#define C10_CONCATENATE(s1, s2) C10_CONCATENATE_IMPL(s1, s2)</span><br></pre></td></tr></table></figure>
+
+<p>经过宏替换，得到 _typeMetaDataInstance的模板函数定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">template&lt;&gt;</span><br><span class="line">const detail::TypeMetaData*</span><br><span class="line">TypeMeta::_typeMetaDataInstance&lt;T&gt;() noexcept &#123;</span><br><span class="line">  return &amp;detail::_makeTypeMetaDataInstance&lt;T&gt;(_typeName&lt;T&gt;(#T));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>还有一组宏，用于生成模板特例化，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">#define CAFFE_DECLARE_PREALLOCATED_KNOWN_TYPE(PreallocatedId, T)       \</span><br><span class="line">  template&lt;&gt;                                                           \</span><br><span class="line">  inline C10_EXPORT TypeIdentifier TypeIdentifier::Get&lt;T&gt;() &#123;          \</span><br><span class="line">    return TypeIdentifier(PreallocatedId);                             \</span><br><span class="line">  &#125;                                                                    \</span><br><span class="line">  namespace detail &#123;                                                   \</span><br><span class="line">  C10_EXPORT extern const TypeMetaData C10_CONCATENATE(                \</span><br><span class="line">    _typeMetaDataInstance_preallocated_,                               \</span><br><span class="line">    PreallocatedId);                                                   \</span><br><span class="line">  &#125;                                                                    \</span><br><span class="line">  template&lt;&gt;                                                           \</span><br><span class="line">  inline const detail::TypeMetaData*                                   \</span><br><span class="line">  TypeMeta::_typeMetaDataInstance&lt;T&gt;() noexcept &#123;                      \</span><br><span class="line">    return &amp;C10_CONCATENATE(                                           \</span><br><span class="line">      detail::_typeMetaDataInstance_preallocated_, PreallocatedId);    \</span><br><span class="line">  &#125;                                                                    \</span><br><span class="line">#define CAFFE_DEFINE_PREALLOCATED_KNOWN_TYPE(PreallocatedId, T)      \</span><br><span class="line">  namespace detail &#123;                                                 \</span><br><span class="line">  const TypeMetaData C10_CONCATENATE(                                \</span><br><span class="line">    _typeMetaDataInstance_preallocated_,                             \</span><br><span class="line">    PreallocatedId) = _makeTypeMetaDataInstance&lt;T&gt;(_typeName&lt;T&gt;(#T));\</span><br><span class="line">  &#125;                                                                  </span><br><span class="line">// 调用</span><br><span class="line">CAFFE_DECLARE_PREALLOCATED_KNOWN_TYPE(0, uint8_t)</span><br></pre></td></tr></table></figure>
+
+<p>对于系统内部变量如 float，得到函数模板特例化的定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 函数声明</span><br><span class="line">namespace detail &#123;</span><br><span class="line">__attrubyte((__visibility(&quot;default&quot;))) extern const TypeMetaData</span><br><span class="line">_typeMetaDataInstance_preallocated_Preallocated;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">template&lt;&gt;</span><br><span class="line">inline const detail::TypeMetaData*</span><br><span class="line">TypeMeta::_typeMetaDataInstance&lt;float&gt;() noexcept &#123;</span><br><span class="line">  return &amp;detail::_typeMetaDataInstance_preallocated_Preallocated;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>另外，在c10/util/typeid.cpp中有如下调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CAFFE_DEFINE_PREALLOCATED_KNOWN_TYPE(0, float)</span><br></pre></td></tr></table></figure>
+
+<p>经过宏替换得到</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">namespace detail &#123;                                                 </span><br><span class="line">  const TypeMetaData _typeMetaDataInstance_preallocated_PreallocatedId</span><br><span class="line">    = _makeTypeMetaDataInstance&lt;float&gt;(_typeName&lt;float&gt;(&quot;float&quot;));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>于是函数模板特例化最终形式为，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">template&lt;&gt;</span><br><span class="line">inline const detail::TypeMetaData*</span><br><span class="line">TypeMeta::_typeMetaDataInstance&lt;float&gt;() noexcept &#123;</span><br><span class="line">  return &amp;detail::_makeTypeMetaDataInstance&lt;float&gt;(_typeName&lt;float&gt;(&quot;float&quot;));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>detail::_makeTypeMetaDataInstance是一个模板函数，根据模板参数提供的类型创建相应类型的TypeMetaData实例，TypeMetaData是类型元数据，指定了类型在内存占多少字节空间（比如 float四个字节），类型名称，类型的构造函数、析构函数和拷贝函数等，以及类型的全局id，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">struct TypeMetaData final &#123;</span><br><span class="line">// 函数类型的别名</span><br><span class="line">using New = void*();                            // new</span><br><span class="line">using PlacementNew = void(void*, size_t);       // 占位new</span><br><span class="line">using Copy = void(const void*, void*, size_t);  // 类型数组拷贝</span><br><span class="line">using PlacementDelete = void(void*, size_t);</span><br><span class="line">using Delete = void(void*);</span><br><span class="line">... //构造函数</span><br><span class="line"></span><br><span class="line">size_t itemsize_;  // 类型占多少字节</span><br><span class="line">New* new_;</span><br><span class="line">PlacementNew* placementNew_;   // 定位放置 new</span><br><span class="line">Copy* copy_;        // 类型拷贝</span><br><span class="line">Delete* delete_;    // 类型析构</span><br><span class="line">TypeIdentifier id_; // 类型全局唯一id</span><br><span class="line">const char* name_;  // 类型名称</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我们还以float为例，看看如何构造这个类型元数据的实例，根据以上分析查看detail::_makeTypeMetaDataInstance 模板函数的定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">template &lt;class T&gt;</span><br><span class="line">inline TypeMetaData _makeTypeMetaDataInstance(const char* typeName) &#123;</span><br><span class="line">  return &#123;sizeof(T),                 // 类型T占多少字节</span><br><span class="line">          _PickNew&lt;T&gt;(),             // 通过 new T</span><br><span class="line">          _PickPlacementNew&lt;T&gt;(),</span><br><span class="line">          _PickCopy&lt;T&gt;(),      </span><br><span class="line">          _PickPlacementDelete&lt;T&gt;(),</span><br><span class="line">          _PickDelete&lt;T&gt;(),</span><br><span class="line">          TypeIdentifier::Get&lt;T&gt;(),  // 获取类型的全局唯一id，</span><br><span class="line">          typeName&#125;;                 // 类型名称，例如float的名称为&quot;float&quot;</span><br></pre></td></tr></table></figure>
+
+<p>构造struct结构实例，按照struct内字段顺序传入字段的值直接{}构造，类型的全局唯一id的获取使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TypeIdentifier::Get&lt;T&gt;()</span><br></pre></td></tr></table></figure>
+
+<p>在上述宏定义CAFFE_DECLARE_PREALLOCATED_KNOWN_TYPE中给出这个函数（模板特例化）定义 ，其是通过调用TypeIdentifer(PreallocatedId)获取，对于float，PreallocatedId的实参值为6。</p>
+<p>对于其他类型如 int，double，int64_t等类似处理。</p>
+<p>PyTorch源码中给定了一些预定义好的类型及其全局唯一id值，如果是自定义变量，那么其全局唯一id则通过宏_CAFFE_KNOWN_TYPE_DEFINE_TYPEMETADATA_INSTANCE得到，具体而言是通过TypeIdentifier::createTypeId()得到，这个函数从PyTorch中预定义好的类型全局唯一id最大值（为32，对应类型为虚构的一个类型_CaffeHighestPreallocatedTypeId）开始，每次对一个自定义类型，id值增1。</p>
+<p>至此完成TypeMetaData实例的创建，从而完成TypeMeta（其内部维护TypeMetaData指针）创建，得到构造StorageImpl的第一个实参，回到前面的THStorage_(newWithSize)(ptrdiff_t size)的函数体部分，构造StorageImpl后面的实参分别为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">size,             // 被构造的StorageImpl包含多少类型变量（类型在TypeMeta中指定，例如float）</span><br><span class="line">getTHDefaultAllocator(),  // 使用默认内存分配器，最终是使用posix_memalign函数实现内存分配</span><br><span class="line">true                      // 被构造的StorageImpl可以resize</span><br></pre></td></tr></table></figure>
+
+<p>创建了StorageImpl实例后，就完成了THPStorage实例构造（其内部维护StorageImpl的指针），而THPStorage就对应 torch._C 模块中新增的类型FloatStorageBase</p>
+<p>记住，这里仅以float为例说明，THPStorage还可以对应其他类型如IntStorageBase等。</p>
+<p>FloatStorageBase的methods, members, properties 参考generic/Storage.cpp中THPStorage_(int)(PyObject* module)函数定义。</p>
+<p>类型 _THNN 和 _THCUNN 分别通过如下函数调用添加到模型 torch._C中，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">  torch::nn::init_THNN(module);</span><br><span class="line">#ifdef USE_CUDA</span><br><span class="line">  torch::nn::init_THCUNN(module);</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<p>函数定义位于文件torch/csrc/nn目录下的THNN.cpp和THCUNN.cpp文件中，这两个文件是生成 torch_python 这个TARGET时使用 tools/setup_helpers/generate_code.py这个脚本生成的，具体参见 torch/CMakeLists.txt。</p>
+<p><code>torch._C</code>模块初始化过程到这里就完成了。回到 <code>torch/__init__.py</code>，继续看看 import torch时接下来做了哪些事情：</p>
+<ol>
+<li><p>定义了模块函数 typename，is_tensor，is_storage等</p>
+</li>
+<li><p>导入torch下其他子模块</p>
+</li>
+<li><p>调用_C._init_name，这个函数在文件torch/csrc/Module.cpp 中实现，用于将torch模块中的DoubleStorage名称改为 torch.DoubleStorage，其他类型如FloatStorage，HalfStorage则同样这么处理</p>
+</li>
+<li><p>调用_C._initExtension，这个函数同样在文件torch/csrc/Module.cpp 中实现，（阅读源码其实不难理解）所做的事情如下：</p>
+<ul>
+<li><p>初始化布局layout，向torch模块添加strided、sparse_coo和_mkldnn布局；</p>
+</li>
+<li><p>初始化内存格式，向torch模块添加any_format、preserve_format、contiguous_format和channels_last内存格式；</p>
+</li>
+<li><p>初始化类型，向torch模块添加uint8、int8、float64、float32、int32、int64、int16、float16、complex32、complex64、complex128、bool、qint8、quint8、qint32等类型，其中部分类型有旧名称，所以将旧名称类型也添加进torch模块；</p>
+</li>
+<li><p>初始化python绑定：1）初始化PyTensorType 类型实例，每个PyTensorType实例对应一组Backend和ScalarType；2）初始化torch.tensortype类型，表示torch.FloatTensor等Tensor的metaclass；3）初始化python的各个Tensor类，如torch.FloatTensor等；4）将各个Tensor类添加到模块 torch 中；5）设置FloatTensor为默认Tensor</p>
+</li>
+<li><p>共享内存管理初始化，设置文件路径；</p>
+</li>
+<li><p>执行 THPxxxStorage_postInit(module)，其中xxx是类型名称，这些函数的定义可与THPxxxStorage_Init 类似地得到，其中module是torch（而非torch._C），调用这个函数注册类型相关的Python storage类（比如Float对应torch.FloatStorage），</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">torch::registerStoragePyTypeObject((PyTypeObject*)THPStorageClass, backend, </span><br><span class="line">TH_CONCAT_2(at::k, Real));</span><br></pre></td></tr></table></figure>
+
+<p>  其中 TH_CONCAT_2(at::k, Real)，即at::kReal由以下宏展开得到，是一个常量，当Real=Float时，其值为at::ScalarType::Float，</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AT_FORALL_SCALAR_TYPES_WITH_COMPLEX(DEFINE_CONSTANT)`</span><br></pre></td></tr></table></figure>
+
+<p>  这个注册调用其实就是添加THPStorageClass与back+at::kReal之间的映射。</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>到这里，import torch 的工作全部完成。</p>
+<h1 id="后记："><a href="#后记：" class="headerlink" title="后记："></a>后记：</h1><p>初次阅读PyTorch源码，语言组织可能比较乱，加上鄙人还有很多东西没看懂，看懂的部分仅仅是零散分布的点，不一定能连成线，更加没有形成（知识）面，所以如果有错误，请直接指正，多谢。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/13/Hexo-Sync/" rel="next" title="Hexo Sync">
+                <i class="fa fa-chevron-left"></i> Hexo Sync
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/13/GIoU/" rel="prev" title="GIoU">
+                GIoU <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shajianjian</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">39</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#torch-installization"><span class="nav-number">1.</span> <span class="nav-text">torch installization</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#methods-members-in-torch-C"><span class="nav-number">2.</span> <span class="nav-text">methods/members in torch._C</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#some-installization-w-r-t-torch-C"><span class="nav-number">3.</span> <span class="nav-text">some installization w.r.t. torch._C</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#THPxxxStorage-init"><span class="nav-number">3.0.1.</span> <span class="nav-text">THPxxxStorage_init</span></a></li></ol></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#后记："><span class="nav-number">4.</span> <span class="nav-text">后记：</span></a></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

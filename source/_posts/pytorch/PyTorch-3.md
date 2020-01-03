@@ -1,5 +1,6 @@
 ---
 title: PyTorch-3
+p: pytorch/PyTorch-3
 date: 2019-06-18 16:44:44
 tags: PyTorch
 categories: DL Framework

@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Tensortorch 模块中包含了各种 Tensor：FloatTensor，DoubleTensor，HalfTensor，ByteTensor 等。这些 Tensor 是怎么来的呢？首先，入口是 torch/__init__.py 中的 _C._initExtension(manager_path())，其中 manager_path 用于获取 torch_shm_manager 的文件路径">
+<meta name="keywords" content="PyTorch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyTorch-4">
+<meta property="og:url" content="https://shajianjian.github.io/2019/08/22/pytorch/PyTorch-4/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="Tensortorch 模块中包含了各种 Tensor：FloatTensor，DoubleTensor，HalfTensor，ByteTensor 等。这些 Tensor 是怎么来的呢？首先，入口是 torch/__init__.py 中的 _C._initExtension(manager_path())，其中 manager_path 用于获取 torch_shm_manager 的文件路径">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-01-02T08:50:54.602Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PyTorch-4">
+<meta name="twitter:description" content="Tensortorch 模块中包含了各种 Tensor：FloatTensor，DoubleTensor，HalfTensor，ByteTensor 等。这些 Tensor 是怎么来的呢？首先，入口是 torch/__init__.py 中的 _C._initExtension(manager_path())，其中 manager_path 用于获取 torch_shm_manager 的文件路径">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://shajianjian.github.io/2019/08/22/pytorch/PyTorch-4/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>PyTorch-4 | SJJ</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SJJ</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/08/22/pytorch/PyTorch-4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PyTorch-4
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-08-22 14:34:33" itemprop="dateCreated datePublished" datetime="2019-08-22T14:34:33+08:00">2019-08-22</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-01-02 16:50:54" itemprop="dateModified" datetime="2020-01-02T16:50:54+08:00">2020-01-02</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/DL-Framework/" itemprop="url" rel="index"><span itemprop="name">DL Framework</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Tensor"><a href="#Tensor" class="headerlink" title="Tensor"></a>Tensor</h2><p>torch 模块中包含了各种 Tensor：FloatTensor，DoubleTensor，HalfTensor，ByteTensor 等。这些 Tensor 是怎么来的呢？首先，入口是 <code>torch/__init__.py</code> 中的 <code>_C._initExtension(manager_path())</code>，其中 manager_path 用于获取 torch_shm_manager 的文件路径，shm 实现Domain Socket通信获得共享内存的句柄，解决多进程的内存分配问题，这里跳过。_initExtension 在 torch/csrc/Module.cpp 中初始化 _C 模块时注册到 _C 模块中，其底层 c++ 实现函数为 THPModule_initExtension，这个函数定义中初始化了很多东西，我们依次来看看。</p>
+<h3 id="initializeLayouts"><a href="#initializeLayouts" class="headerlink" title="initializeLayouts"></a>initializeLayouts</h3><p>初始化内存布局。当前有三种布局（位于文件 c10/core/Layout.h 中）：</p>
+<ol>
+<li>Strided，使用密集多维数组的内存布局</li>
+<li>Sparse，使用稀疏多维数组的内存布局</li>
+<li>Mkldnn，使用 Intel 的 Mkldnn 库加速 CPU 时，由于 Mkldnn 使用了内部特殊内存布局，所以增加对应的内存布局枚举</li>
+</ol>
+<p>以最常用的 Strided 布局为例，使用 THPLayout_New 生成 THPLayoutType/THPLayout 的类型对象，指定 layout 为 Strided，name 为 “torch.strided”，然后 <strong>将这个类型添加到 torch 模块中</strong>，其他两种内存布局方式也类似处理。最后注册这些布局类型：</p>
+<ul>
+<li>CPU, CUDA, MSNPU, XLA, QuantizedCPU -&gt; strided_layout</li>
+<li>SparseCPU, SparseCUDA -&gt; sparse_coo_layout</li>
+<li>MkldnnCPU -&gt; mkldnn_layout</li>
+</ul>
+<p>即，将 Backend 与 Layout 关联起来，以便将来根据 Backend 获取对应的 Layout。</p>
+<h3 id="initializeMemoryFormats"><a href="#initializeMemoryFormats" class="headerlink" title="initializeMemoryFormats"></a>initializeMemoryFormats</h3><p>初始化内存格式。内存格式表明 Tensor 中的数据是如何组织的。当前有三种：Preserve, Contiguous 和 ChannelsLast。例如 ChannelsLast 表示内存中数据的格式为 NHWC，假设正常顺序 NCHW 的各维度值为 sizes，那么 ChannelsLast 下的各维度步幅 strides 应为：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">strides[<span class="number">1</span>]=<span class="number">1</span>;           <span class="comment">// ChannelsLast 中 C 为最低一级维度，故步幅为 1</span></span><br><span class="line">strides[<span class="number">3</span>]=sizes[<span class="number">1</span>];    <span class="comment">// ChannelsLast 中 W 为次低一级维度，故步幅为 C 维度即 sizes[1]</span></span><br><span class="line">strides[<span class="number">2</span>]=strides[<span class="number">3</span>]*sizes[<span class="number">3</span>]; <span class="comment">// ChannelsLast 中 H 为再次低一级维度，步幅为 W*C</span></span><br><span class="line">strides[<span class="number">0</span>]=strides[<span class="number">2</span>]*sizes[<span class="number">2</span>]; <span class="comment">// ChannelsLast 中 N 为最高一级维度，步幅为 H*W*C</span></span><br></pre></td></tr></table></figure>
+
+<p>注意，上面 strides 和 sizes 的顺序均为 NCHW。<br>创建三种内存格式类型对象 preserve_format, contiguous_format, channels_last 并 <strong>添加到 torch 模块中</strong>。</p>
+<h3 id="initializeQScheme"><a href="#initializeQScheme" class="headerlink" title="initializeQScheme"></a>initializeQScheme</h3><p>初始化量化机制，量化是将连续型的输入限制为离散型，比如将浮点计算转为整型计算，显然使用小型整型比浮点型计算更高效，且内存占用更小，这在模型 inference 阶段尤其重要。关于量化的具体概念以及相关操作可参考 <a href="https://github.com/pytorch/pytorch/wiki/Introducing-Quantized-Tensor" target="_blank" rel="noopener">Introducing-Quantized-Tensor</a>。当前量化机制有 5 种，类似以上布局和内存格式，分别创建对应的类型对象，然后 <strong>添加到 torch 模块中</strong>。</p>
+<h3 id="initializeDtypes"><a href="#initializeDtypes" class="headerlink" title="initializeDtypes"></a>initializeDtypes</h3><p>初始化数据类型。直接看此函数的部分定义</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DEFINE_SCALAR_TYPE(_1, n) at::ScalarType::n,</span></span><br><span class="line">at:ScalarType all_scalar_type[] = &#123;</span><br><span class="line">    AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(DEFINE_SCALAR_TYPE)&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>其中 AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS 这个宏罗列了所有的标量类型，包括 complex 类型和 quantization 类型，展开后为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">at::ScalarType::Byte,</span><br><span class="line">at::ScalarType::Char,</span><br><span class="line">at::ScalarType::Short,</span><br><span class="line">at::ScalarType::Int,</span><br><span class="line">at::ScalarType::Long,</span><br><span class="line">at::ScalarType::Half,</span><br><span class="line">at::ScalarType::Float,</span><br><span class="line">at::ScalarType::Double,</span><br><span class="line">at::ScalarType::ComplexHalf,</span><br><span class="line">at::ScalarType::ComplexFloat,</span><br><span class="line">at::ScalarType::ComplexDouble,</span><br><span class="line">at::ScalarType::Bool,</span><br><span class="line">at::ScalarType::QInt8,</span><br><span class="line">at::ScalarType::QUInt8,</span><br><span class="line">at::ScalarType::QInt32</span><br><span class="line">at::ScalarType::BFloat16</span><br></pre></td></tr></table></figure>
+
+<p>然后根据以上标量类型获取其主名称和传统旧名称，如没有传统旧名称，则默认为空字符串 <code>&quot;&quot;</code>，然后创建各个对应的类型对象，并注册这些类型对象（即，将类型对象与 at::ScalarType 值关联起来，存储到字典，以便将来能根据 at::ScalarType 获取对应的类型对象），相关代码如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::tie(primary_name, legacy_name) = getDtypeName(scalarType);</span><br><span class="line">PyObject *dtype = THPDtype_New(scalarType, primary_name);</span><br><span class="line">torch::registerDtypeObject((THPDtype*)dtype, scalarType);</span><br></pre></td></tr></table></figure>
+
+<p>然后将类型对象（THPDtypeType/THPDtype 实例）<strong>添加到 torch 模块中</strong>，如果存在传统旧名称，则也同样添加到 torch 模块中。</p>
+<h3 id="initialize-python-bindings"><a href="#initialize-python-bindings" class="headerlink" title="initialize_python_bindings"></a>initialize_python_bindings</h3><p>初始化 python 绑定</p>
+<h4 id="initialize-aten-types"><a href="#initialize-aten-types" class="headerlink" title="initialize_aten_types"></a>initialize_aten_types</h4><p>根据 all_declared_types 函数获取所有声明过的类型，Backend 有 <code>CPU, CUDA, SparseCPU, SparseCUDA</code> 四种，ScalarType 除去 Complex 和 Quantization 类型，则一共有</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Byte, Char, Double, Float, Int, Long, Short, Half, Bool, BFloat16</span><br></pre></td></tr></table></figure>
+
+<p>然后所有 Backend 与 ScalarType 不同的组合构成这里所需要的声明类型，不过 (SparseCUDA|SparseCPU,Bool) 除外，这样的组合一共有 4*10-2=38 种，根据这 38 种组合构建对应的 PyTensorType 类型，看看这个 PyTensorType 类型定义，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">PyTensorType</span> &#123;</span></span><br><span class="line">    PyTypeObject py_type;   <span class="comment">// python 类型对应的扩展类型，这个字段后文会再次讲到</span></span><br><span class="line">    THPDtype* dtype;        <span class="comment">// 对应上文 initializeDtypes 中注册的某个数据标量类型</span></span><br><span class="line">    THPLayout* layout;      <span class="comment">// 对应上文 initializeLayouts 中注册的某个内存布局类型</span></span><br><span class="line">    <span class="keyword">bool</span> is_cuda;           <span class="comment">// 指示是 cuda 还是 cpu</span></span><br><span class="line">    <span class="keyword">char</span> name[<span class="number">64</span>];          <span class="comment">// tensor 类型名称</span></span><br><span class="line">    <span class="keyword">int</span> backend;            <span class="comment">// CPU, CUDA, SparseCPU, SparseCUDA 四种之一</span></span><br><span class="line">    <span class="keyword">int</span> scalar_type;        <span class="comment">// Byte 等十种之一</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>上述 38 种组合，每种组合构建一个 PyTensorType 对象。Python 接口中某种 Tensor，比如 FloatTensor 其底层就对应这里的某个 PyTensorType 对象。</p>
+<ul>
+<li><p>layout，根据 backend 字段获取，initializeLayouts 中注册了所有 Backend 与 Layout 的映射关系</p>
+</li>
+<li><p>is_cuda，当 backend = CUDA|SparseCUD 时为 true</p>
+</li>
+<li><p>name，名称构成为 <code>[模块名].[ScalarType名]Tensor</code>。  
+模块名：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CPU -&gt; torch</span><br><span class="line">CUDA -&gt; torch.cuda</span><br><span class="line">SparseCPU -&gt; torch.sparse</span><br><span class="line">SparseCUDA -&gt; torch.cuda.sparse</span><br></pre></td></tr></table></figure>
+
+<p>ScalarType名 就是 ScalarType 字面量的字符串形式，如 Byte -&gt; “Byte”, Float -&gt; “Float” 等。例如组合 (CPU, Float) 对应的 PyTensorType 对象名为 “torch.FloatTensor”，(SparseCUDA, Double) 对应的 PyTensorType 对象名为 “torch.cuda.sparse.DoubleTensor”。</p>
+</li>
+</ul>
+<p>注意到，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (backend==Backend::CPU &amp;&amp; scalar_type==at::kFloat) &#123;</span><br><span class="line">    set_default_tensor_type(&amp;tensor_type);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可见默认 Tensor 类型为 torch.FloatTensor（其 Backend 为 CPU，注意对应 CUDA 的为 torch.cuda.FloatTensor）。</p>
+<p>总结：initialize_aten_types 根据 38 种组合构建 PyTensorType 类型对象，并保存到 tensor_types 这个 vector 中。</p>
+<h4 id="py-initialize-metaclass-metaclass"><a href="#py-initialize-metaclass-metaclass" class="headerlink" title="py_initialize_metaclass(metaclass)"></a>py_initialize_metaclass(metaclass)</h4><p>初始化元类，这是一个 python 的扩展类型 PyTypeObject，对应的 python 类型名为 “torch.tensortype”，顾名思义表示 tensor 类型类，即，tensor 各种类型如 torch.FloatTensor 等的元类型，这个元类具有的属性为</p>
+<ul>
+<li>dtype<br>  对应 initializeDtypes 中某个 THPDtype 对象</li>
+<li>layout<br>  对应 initializeLayouts 中某个内存布局类型 THPLayout 对象</li>
+<li>is_cuda<br>  是否使用 cuda</li>
+<li>is_sparse<br>  是否是稀疏存储</li>
+</ul>
+<p>具有方法</p>
+<ul>
+<li><code>__instancecheck__</code> 检测某个 Tensor 是否与当前 tensor 类型类匹配，当 type_id 和 scalar_type 这两个字段均分别相同时，则匹配，否则不匹配。</li>
+</ul>
+<p>PyTensorType 是表示 python 的 Tensor 类型，我们指定 python 的类型本身也是一种对象，这种类型对象的类型为元类型，也就是这里的 metaclass。</p>
+<p>总结：初始化 PyTypeObject 类型对象 metaclass，它表示 tensor 类型的元类，且具有上述属性和方法。</p>
+<h4 id="get-tensor-dict"><a href="#get-tensor-dict" class="headerlink" title="get_tensor_dict"></a>get_tensor_dict</h4><p>获取 torch.Tensor 以及其基类 _C._TensorBase 的初始属性（名称与值构成的字典）</p>
+<h4 id="py-initialize-tensor-type"><a href="#py-initialize-tensor-type" class="headerlink" title="py_initialize_tensor_type"></a>py_initialize_tensor_type</h4><p>对于前面构造的 38 个 PyTensorType 对象，设置每个对象的 py_type 字段。py_type 类型为 PyTypeObject，表示一个类型对象，也就是 python 中的某个类型，为这个类型对象设置元类 metaclass，名称，以及将上一小节中的属性字典并入这个类型，从而使得类型具有 torch.Tensor 的全部初始属性。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dir(torch.Tensor)</span><br><span class="line">dir(torch.FloatTensor)</span><br></pre></td></tr></table></figure>
+
+<p>以上两个指令输出内容一样。</p>
+<h4 id="py-bind-tensor-types"><a href="#py-bind-tensor-types" class="headerlink" title="py_bind_tensor_types"></a>py_bind_tensor_types</h4><p>至此，以上 38 种 PyTensorType 对象均已准备好，将他们添加进相应的模块中，前文可能说 “添加进 torch 模块中”，因为当时没有讨论到 PyTensorType 对象名，所以笼统的那么说了一下，实际上应为 “添加进相应的模块中”，比如 “torch.FloatTensor”，则将相应的 PyTensorType 对象以 FloatTensor 作为 python 端的名称添加进 torch 模块中，”torch.cuda.sparse.DoubleTensor” 则将相应的 PyTensorType 对象以 DoubleTensor 作为 python 端的名称添加进 torch.cuda.sparse 模块中，即最后一个 <code>.</code> 后面的部分表示类型，而之前的部分表示模块。</p>
+<p>但是，现在还存在一个问题，那就是这些 torch.FloatTensor, torch.IntTensor 等类型与 torch.Tensor 是什么关系？</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a=torch.empty(<span class="number">1</span>,<span class="number">2</span>,dtype=torch.int)</span><br><span class="line">isinstance(a, torch.IntTensor)  <span class="comment"># True</span></span><br><span class="line">isinstance(a, torch.Tensor)     <span class="comment"># True</span></span><br><span class="line">issubclass(torch.IntTensor, torch.Tensor)   <span class="comment"># False</span></span><br><span class="line">issubclass(torch.Tensor, torch.IntTensor)   <span class="comment"># False</span></span><br></pre></td></tr></table></figure>
+
+<p>根据 <a href="2019/06/18/Pytorch-3">Pytorch-3</a> 最后的分析，我们知道 torch.empty 函数最后使用 THPVariable_Wrap 将 c++ Variable 类型包装成 python 的 torch.Tensor 类型，甚至直接调用 torch.IntTensor 构造的对象最后也是经过 THPVariable_Wrap 包装成 torch.Tensor 类型，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; type(torch.IntTensor([1,2]))</span><br><span class="line">&lt;class &apos;torch.Tensor&apos;&gt;</span><br></pre></td></tr></table></figure>
+
+<p>既然返回的都是 torch.Tensor 类型，那怎么跟 torch.IntTensor 联系起来的呢？其实，torch.IntTensor 等 38 个 Tensor 类型与 torch.Tensor 没有直接关系</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; torch.IntTensor.__bases__</span><br><span class="line">(&lt;class &apos;object&apos;&gt;)</span><br><span class="line">&gt;&gt;&gt; torch.Tensor.__bases__</span><br><span class="line">(&lt;class &apos;torch._C._TensorBases&apos;&gt;)</span><br></pre></td></tr></table></figure>
+
+<p>上面所说的各种构造 Tensor 的方法返回的类型也确实是 torch.Tensor，但是 <code>isinstance(a, torch.IntTensor)</code> 结果为 True 也没错，因为 <code>isinstance</code> 实际上内部调用 <code>__instancecheck__</code> 进行判断，前面讨论 metaclass 时讲到这个方法的 c++ 底层实现函数为 Tensor_instancecheck，其定义如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> PyObject *<span class="title">Tensor_instancecheck</span><span class="params">(PyTensorType *self, PyObject * arg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(THPVariable_Check(arg)) &#123;    <span class="comment">// 检测参数是否是 THPVariable 类型</span></span><br><span class="line">            <span class="keyword">auto</span>&amp; var = ((THPVariable*)arg)-&gt;cdata; <span class="comment">// 获取内部的 Variable 类型对象</span></span><br><span class="line">            <span class="keyword">if</span> (var.type_id() == self-&gt;get_type_id() &amp;&amp;</span><br><span class="line">                var.scalar_type() == <span class="keyword">static_cast</span>&lt;ScalarType&gt;(self-&gt;scalar_type)) &#123;</span><br><span class="line">                Py_RETURN_TRUE;     <span class="comment">// 如果 type_id 和 ScalarType 均分别相同，则返回 True</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        Py_RETURN_FALSE;</span><br><span class="line">    &#125; <span class="keyword">catch</span>(python_error &amp; e)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以，不难理解 <code>isinstance(a, torch.IntTensor)=True</code>。</p>
+<p><strong>总结：在 <a href>PyTorch-2</a> 中，我们讨论了 PyTorch 中的函数返回或直接构造的 Tensor 均为 torch.Tensor，其继承自 <code>torch._C.Tensor</code>，所以要理解 Tensor 类的各种方法，需要从 <code>torch._C.Tensor</code> 的类型构造开始着手。</strong></p>
+<p>接下来是一系列的 THPxxxStorage_postInit 函数执行，这在 <a href="2019/06/13/PyTorch-2">PyTorch-2</a> 中已经进行了介绍（THPxxxStorage_init），这里仅仅给出结论：</p>
+<ol>
+<li><p>函数声明</p>
+ <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> THPStorage_(NAME) TH_CONCAT_4(THP,Real,Storage_,NAME) <span class="comment">//torch/csrc/Storage.h</span></span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">THPStorage_</span><span class="params">(postInit)</span><span class="params">(PyObject *<span class="keyword">module</span>)</span></span>;   <span class="comment">// torch/csrc/generic/Storage.h</span></span><br></pre></td></tr></table></figure>
+
+<p> THPStorage_(NAME) 这个宏展开后就得到 THPxxxStorage_init， 其中 Real 在宏展开时被替换为具体的 ScalarType，NAME 被替换为 init。于是，最终得到的函数声明为 THPxxxStorage_init(PyObject *module);</p>
+</li>
+<li><p>torch/csrc/generic/Storage.cpp 中</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">PyObject *THPStorageClass = <span class="literal">nullptr</span>;</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">THPStorage_</span><span class="params">(postInit)</span><span class="params">(PyObject *<span class="keyword">module</span>)</span></span>&#123;</span><br><span class="line">    <span class="comment">// 从 torch 模块中获取名为 RealStorage 的属性，其中 Real 可为 Float, Bool, Double 等 ScalarType</span></span><br><span class="line">    THPStorageClass = PyObject_GetAttrString(<span class="keyword">module</span>, (<span class="keyword">char</span>*)TH_CONCAT_STRING_2(Real, Storage));</span><br><span class="line">    at::Backend backend = at::Backend::CPU;</span><br><span class="line">    <span class="meta">#<span class="meta-keyword">ifdef</span> THC_GENERIC_FILE</span></span><br><span class="line">    backend = at::Backend::CUDA;</span><br><span class="line">    <span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    <span class="meta">#<span class="meta-keyword">ifdef</span> THQUANTIZED</span></span><br><span class="line">    backend = at::Backend::QuantizedCPU;</span><br><span class="line">    <span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    torch::registerStoragePyTypeObject((PyTypeObject*)THPStorageClass, backend, TH_CONCAT_2(at::k, Real));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意到在 <code>torch/__init__.py</code> 中定义了 FloatStorage 等类型，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FloatStorage</span><span class="params">(_C.FloatStorageBase, _StorageBase)</span>:</span></span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+
+<p>torch._C.FloatStorageBase 等类型是在 THPxxxStorage_init 函数中被添加到模块 torch._C 中。THPxxxStorage_postInit 函数先是从 torch 模块中获取 RealStorage 类型对象，然后进行注册即，将 RealStorage 类型对象与对应的组合 (Backend, ScalarType) 进行映射，这样以后就可以根据 (Backend, ScalarType) 获取对应的 RealStorage 类型对象，反过来亦可。</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/14/DP2/" rel="next" title="Dynamic Programming (2)">
+                <i class="fa fa-chevron-left"></i> Dynamic Programming (2)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/27/pytorch/PyTorch-5/" rel="prev" title="PyTorch-5">
+                PyTorch-5 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shajianjian</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">39</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Tensor"><span class="nav-number">1.</span> <span class="nav-text">Tensor</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#initializeLayouts"><span class="nav-number">1.1.</span> <span class="nav-text">initializeLayouts</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#initializeMemoryFormats"><span class="nav-number">1.2.</span> <span class="nav-text">initializeMemoryFormats</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#initializeQScheme"><span class="nav-number">1.3.</span> <span class="nav-text">initializeQScheme</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#initializeDtypes"><span class="nav-number">1.4.</span> <span class="nav-text">initializeDtypes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#initialize-python-bindings"><span class="nav-number">1.5.</span> <span class="nav-text">initialize_python_bindings</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#initialize-aten-types"><span class="nav-number">1.5.1.</span> <span class="nav-text">initialize_aten_types</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#py-initialize-metaclass-metaclass"><span class="nav-number">1.5.2.</span> <span class="nav-text">py_initialize_metaclass(metaclass)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get-tensor-dict"><span class="nav-number">1.5.3.</span> <span class="nav-text">get_tensor_dict</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#py-initialize-tensor-type"><span class="nav-number">1.5.4.</span> <span class="nav-text">py_initialize_tensor_type</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#py-bind-tensor-types"><span class="nav-number">1.5.5.</span> <span class="nav-text">py_bind_tensor_types</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
