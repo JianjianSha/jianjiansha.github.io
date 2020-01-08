@@ -34,21 +34,21 @@ DenseNet 中每个 layer 的操作 $H_l(\cdot)$ 是由：
 ![](/images/img_cls/densenet_2.png)
 
 ### Growth rate
-记 $k_0$ 为 Dense Block 初始输入的 channels，如果每个 $H_l$ 输出均为 $k$ 个 feature maps，由于 $l^{th}$ layer 的输入为初始网络输入 $\mathbf x_0$ 以及前 $l-1$ 个 layer 输出的 concatenation，所以共有 $k_0+k(l-1)$ 个 feature maps，所以 $k$ 值即使较小，随着 $l^{th}$ 增大，深层 layer 的 in_channels 也可以很大，因为可以使用较小 $k$ 值，这就使得 DenseNet 与传统网络相比，拥有更少的网络参数。记 $k$ 为 _growth rate_，表示 layer 输入 feature maps 增长量。作者实验表明，即使非常小的 _growth rate_ 也可以获取很好的测试结果。作者解释为，每个 layer 可以利用同 block 内的前面所有 layer 的输出 feature maps，也就是 “collective knowledge”，将 feature maps 看作网络的 global state，每个 layer 贡献自己的 k 个 feature maps 到这个 global state，同时 _growth rate_ 控制了每个 layer 对 global state 的贡献量，并且每次某个 layer 对 global state 贡献完毕，此时的 global state 可以被之后所有 layer 利用。传统网络为了在 layer 到 layer 之间传递这种 global state，不得不使用越来越多的输出通道数，达到复制前面各阶段的 global states 的效果。
+记 $k_0$ 为 Dense Block 初始输入的 channels，如果每个 $H_l$ 输出均为 $k$ 个 feature maps，由于 $l^{th}$ layer 的输入为初始网络输入 $\mathbf x_0$ 以及前 $l-1$ 个 layer 输出的 concatenation，所以共有 $k_0+k(l-1)$ 个 feature maps，所以 $k$ 值即使较小，随着 $l^{th}$ 增大，深层 layer 的 `in_channels` 也可以很大，因为可以使用较小 $k$ 值，这就使得 DenseNet 与传统网络相比，拥有更少的网络参数。记 $k$ 为 _growth rate_ ，表示 layer 输入 feature maps 增长量。作者实验表明，即使非常小的 _growth rate_ 也可以获取很好的测试结果。作者解释为，每个 layer 可以利用同 block 内的前面所有 layer 的输出 feature maps，也就是 “collective knowledge”，将 feature maps 看作网络的 global state，每个 layer 贡献自己的 k 个 feature maps 到这个 global state，同时 _growth rate_ 控制了每个 layer 对 global state 的贡献量，并且每次某个 layer 对 global state 贡献完毕，此时的 global state 可以被之后所有 layer 利用。传统网络为了在 layer 到 layer 之间传递这种 global state，不得不使用越来越多的输出通道数，达到复制前面各阶段的 global states 的效果。
 
 ### Bottleneck layers
 later layer 的输入通道数较大，可以在这些 layer（通常是 `3x3` 卷积） 前面增加一个 `1x1` 卷积作为 bottleneck layer，降低 later layer 的输入通道数，提高计算效率。记这种带有 bottleneck layer 的 DenseNet 为 DenseNet-B，其中 layer 的操作 $H_l(\cdot)$ 变为 BN-ReLU-Conv(1x1)-BN-ReLU-Conv(3x3)（参考前面 __组合函数__ 小节）。
 
 ### Compression
-为了进一步压缩模型，可以在过渡层降低 feature maps 的数量，记 dense block 的输出 feature maps 数量为 $m$，注意是 dense block 初始输入和各 layer 输出的叠加，参加图 1，过渡层输出 feature maps 数量为 $\lfloor \theta m \rfloor$，其中 $0 < \theta \le 1$，当 $\theta=1$，过渡层不改变 feature maps 的数量，当 $\theta <1$ 记这样的 DenseNet 为 DenseNet-C，而 DenseNet-BC 则表示既有 bottleneck layer 又有 $\theta <1$ 的 DenseNet。
+为了进一步压缩模型，可以在过渡层降低 feature maps 的数量，记 dense block 的输出 feature maps 数量为 $m$，注意是 dense block 初始输入和各 layer 输出的叠加，参见图 1，过渡层输出 feature maps 数量为 $\lfloor \theta m \rfloor$，其中 $0 < \theta \le 1$，当 $\theta=1$，过渡层不改变 feature maps 的数量，当 $\theta <1$ 记这样的 DenseNet 为 DenseNet-C，而 DenseNet-BC 则表示既有 bottleneck layer 又有 $\theta <1$ 的 DenseNet。
 
 ### 实现细节
 作者在 CIFAR-10,CIFAR-100,SVHN 以及 ImageNet 四个数据集上评估了 DenseNet。
 
 在前三个数据集上（这三个数据集的图像 size 均为 `32x32`），DenseNet 使用了 3 个 dense block，每个 dense block 有相等数量的 layer。在进入第一个 dense block 之前，输入图像数据先经过了一个 `1x1` 16-out_channels 的卷积层（对于 DenseNet-BC 网络，输出通道数为 _growth rate_ 的两倍）。对于 `3x3` conv，进行 padding=1 的 zero 填充，以保持 feature map size 不变。在最后一个 dense block 之后，进行全局均值池化以及 softmax 操作。三个 dense block 的 feature maps 大小分别为 `32x32, 16x16, 8x8`。使用最普通的 DenseNet（不带 B\C 后缀）进行实验时，dense block 配置分别为 $\{L=40,k=12\}$, $\{L=100,k=12\}$ 和 $\{L=100,k=24\}$，使用 DenseNet-BC 进行实验时，配置分别为 $\{L=100,k=12\}$, $\{L=250,k=24\}$ 和 $\{L=190,k=40\}$。
 
-对于 ImageNet，使用 4 个 dense block 的 DenseNet-BC，输入图像大小为 `224x224`，初始 layer 为一个 `7x7` 2k-out_channels，stride=2 的卷积，其中 k 表示 _growth-rate_，所有 dense block 均为 $k=32$，网络具体描述如表 1 所示，
-![](/images/img_cls/densenet_3.png) <center>ImageNet 对应的四个 DenseNet-BC 网络配置。所有网络的 k=32，表中所有 conv 均表示 __BN-ReLU-Conv__</center>
+对于 ImageNet，使用 4 个 dense block 的 DenseNet-BC，输入图像大小为 `224x224`，初始 layer 为一个 `7x7` 2k-out_channels，stride=2 的卷积，其中 k 表示 _growth-rate_ ，所有 dense block 均为 $k=32$，网络具体描述如表 1 所示，
+![](/images/img_cls/densenet_3.png) <center>ImageNet 对应的四个 DenseNet-BC 网络配置。所有网络的 k=32，表中所有 conv 均表示 __BN-ReLU-Conv__ </center>
 
 ## 实验
 实验结果的对比可直接参考原论文。

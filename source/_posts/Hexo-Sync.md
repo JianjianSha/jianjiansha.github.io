@@ -81,3 +81,10 @@ $ git pull origin hexo
 hexo g -d
 ```
 由 hexo 向 .deploy_git 填充生成的文件/目录，而不需要在 hexo 分支上备份这些内容。
+
+## hexo 新建自定义路径的文章
+有时候为了方便管理文章，需要将文章归入不同的子目录下。例如，
+```
+hexo new -p pytorch/optim_Adadelta "PyTorch.optim.Adadelta"
+```
+表示新建文章，标题为 `PyTorch.optim.Adadelta`，文章所在文件位于 `source/_posts/pytorch/optim_Adadelta.md`。

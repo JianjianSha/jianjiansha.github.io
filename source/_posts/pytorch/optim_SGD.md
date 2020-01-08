@@ -1,6 +1,6 @@
 ---
-title: PyTorch.optim
-p: pytorch/optim
+title: PyTorch.optim.SGD
+p: pytorch/optim_SGD
 date: 2020-01-02 16:25:32
 tags: PyTorch
 ---
@@ -21,7 +21,7 @@ $$\theta_{t+1} = \theta_t -\epsilon \cdot d\theta_t$$
 $$\begin{aligned} v_{t+1} & = \mu \cdot v_t + d\theta_t
 \\\\ \theta_{t+1} &= \theta_t - \epsilon \cdot v_{t+1}=\theta_t-\epsilon \cdot \mu \cdot v_t - \epsilon \cdot d\theta_t \end{aligned} \qquad(1)$$
 其中 $\theta_0$ 为初始权值参数值，$v_0=0$，$\epsilon$ 为学习率，$\mu$ 为 momentum 系数。从上两式中可见，如果当前 velocity（v 值） 与梯度方向一致，那么将会加快权值参数的变化量。在局部最小值附近（见图 2），由于 velocity 累计了之前的梯度，所以有望冲出局部最小值区域。
-
+![](/images/pytorch/momentum.png) <center>图 2</center>
 有的地方写成如下形式：
 $$\begin{aligned}v_{t+1}&=\mu \cdot v_t - d\theta_t
 \\\\\theta_{t+1}&=\theta_t+\epsilon \cdot v_{t+1}=\theta_t +\epsilon \cdot \mu \cdot v_t-\epsilon \cdot d\theta_t \end{aligned}\qquad(2)$$
@@ -60,9 +60,9 @@ $$v_{t+1} = \mu \cdot v_t + \text{dampening} \cdot d\theta_t$$
 其实很多地方写成 $v_{t+1} = \mu \cdot v_t + (1-\mu) \cdot d\theta_t$，由于 $0 \le \mu < 1$，这表示 $v_{t+1}$ 在 $\min (v_t, d\theta_t)$ 与 $\max (v_t, d\theta_t)$ 之间。不过，实际计算中，`dampening` 常使用默认值 `0`。
 
 ## 1.3 Nesterov
-在 momentum 一节使用式 (1) (3) 进行介绍，其实是为了与 PyTorch [源码](https://github.com/pytorch/pytorch/blob/master/torch/optim/sgd.py#L71) 或者 [文档](https://pytorch.org/docs/stable/optim.html#torch.optim.SGD) 对应，但是很多论文或者博客中更常用式 (2) 的形式，
+在 momentum 一节使用式 (1) (3) 进行介绍，其实是为了与 PyTorch [源码](https://github.com/pytorch/pytorch/blob/master/torch/optim/sgd.py#L71) 或者 [文档](https://pytorch.org/docs/stable/optim.html#torch.optim.SGD) 对应，但是很多论文或者博客中更常用式 (3') 的形式（将学习率放入 $v_{t+1}$ 的计算式中），
 $$\theta_{t+1}=\theta_t+v_{t+1}$$
-这里，$v_{t+1}$ 的计算方法有很多种，例如经典 momentum，NAG (Nesterov Accelerated Gradient)，以及 Nesterov momentum 等。
+这里，$v_{t+1}$ 的定义有很多种，例如经典 momentum，NAG (Nesterov Accelerated Gradient) 等。
 
 ### 1.3.1 经典 momentum（CE）
 
@@ -74,48 +74,54 @@ $$\begin{aligned}v_{t+1}&=\mu \cdot v_t - \epsilon \cdot \nabla f(\theta_t)
 NAG 一次迭代过程分为两步：
 1. 梯度下降步骤
    
-   $$\theta_t = y_t - \epsilon_t \cdot \nabla f(y_t) \qquad(4)$$
+   $$\theta_{t+1} = y_t - \epsilon_t \cdot \nabla f(y_t) \qquad(4)$$
 2. momentum
    
-   $$ y_{t+1}=\theta_t + \mu_t \cdot (\theta_t-\theta_{t-1}) \qquad(5)$$
-   这里的 momentum 与 CE 中的 momentum 含义不同。观察发现，要更新出 $\theta_{t+1}$ 的值，似乎用到 $\theta_t$ 和 $\theta_{t-1}$ 的值。
+   $$ y_{t+1}=\theta_{t+1} + \mu_{t+1} \cdot (\theta_{t+1}-\theta_t) \qquad(5)$$
+   
+初始时令 $y_0=\theta_0$，即这两个变量起点相同。
 
-注意，这里将 $\mu, \ \epsilon$ 系数带上时刻 t 下标。
+NAG 中我们对 $y$ 做梯度下降，得到的值为 $\theta$ 的新值，而非 $y$ 新值，$y$ 的新值是在 $\theta$ 的基础之上再增加 $\mu_{t+1} \cdot (\theta_{t+1}-\theta_t)$ 这么多的更新量。如图 3，
+![](/images/pytorch/NAS_0.png) <center>图 3. NAG 过程示意图</center>
+如果 $\mu \equiv 0$，NAG 就是普通的梯度下降 SD。
+
+
+注意，这里将 $\mu, \ \epsilon$ 系数带上时刻下标。下面我们推导 velocity 的迭代计算式。
 
 
 ### 1.3.3 Sutskever Nesterov Momentum
 NAG 中参数 $\theta$ 的更新在梯度下降之后，在 momentum 之前。现在我们根据 NAG 推导出 velocity 项。首先要说明的是，需要将 NAG 迭代过程的两个步骤顺序对换，即 `momentum-GD-momentum-GD-...` 的顺序。
 
 已知，
-$$y_t=\theta_{t-1}+\mu_{t-1} \cdot(\theta_{t-1}-\theta_{t-2})$$
+$$y_t=\theta_t+\mu_t \cdot(\theta_t-\theta_{t-1})$$
 
 写成以下形式，
-$$y_t=\theta_{t-1} + \mu_{t-1} \cdot v_{t-1}$$
+$$y_t=\theta_t + \mu_t \cdot v_t$$
 
-可根据 (4) 式消去 $y_t$，需要注意的是，(4) 式表示 t 时刻迭代过程中的梯度下降步骤，到 Sutskever Nesterov Momentum 中则为 t-1 时刻迭代中的 momentum 步骤，即 $\theta_t = y_t - \epsilon_{t-1} \cdot \nabla f(y_t)$，与上式联合可消去 $y_t$， 得
-$$\theta_t = \theta_{t-1}+\mu_{t-1} \cdot v_{t-1}-\epsilon_{t-1} \cdot \nabla f(\theta_{t-1} + \mu_{t-1} \cdot v_{t-1})$$
+可根据 (4) 式消去 $y_t$，需要注意的是，(4) 式表示 t 时刻迭代过程中的梯度下降步骤，到 Sutskever Nesterov Momentum 中则为 t-1 时刻迭代中的 momentum 步骤，即 $\theta_{t+1} = y_t - \epsilon_t \cdot \nabla f(y_t)$，与上式联合可消去 $y_t$， 得
+$$\theta_{t+1} = \theta_t+\mu_t \cdot v_t-\epsilon_t \cdot \nabla f(\theta_t + \mu_t \cdot v_t) \qquad(6)$$
 
 于是，
-$$\theta_{t+1}=\theta_t+\mu_t \cdot v_t - \epsilon_t \cdot \nabla f(\theta_t + \mu_t \cdot v_t) \qquad(6)$$
 
 $$v_{t+1} = \mu_t \cdot v_t - \epsilon_t \cdot \nabla f(\theta_t+\mu_t \cdot v_t)  \qquad(7) $$
 
-图 3 是经典 momentum 与 NAG 方法的图示比较。
-![](/images/pytorch/NAG.png) <center>图 3 </center>
+图 4 是经典 momentum 与 NAG 方法的图示比较。
+![](/images/pytorch/NAG.png) <center>图 4 </center>
 
 
 ### 1.3.4 Bengio Nesterov Momentum
-定义一个新变量，表示经过 momentum 更新后的 $\theta$ 值，
-$$\Theta_{t-1}=\theta_{t-1} + \mu_{t-1} \cdot v_{t-1}$$
-（这个变量其实就是 Sutskever Nesterov Momentum 中的 $y_t$）
+NAG 中我们的模型参数是 $\theta$，但是其更新不是对自身做梯度下降，而是对 $y$ 做梯度下降，进一步地，$y$ 的更新则又反过来依赖于 $\theta$ 的 momentum。
 
-移项，得
-$$\theta_{t-1}=\Theta_{t-1} - \mu_{t-1} \cdot v_{t-1}$$
+定义一个新变量，表示经过 momentum 更新后的 $\theta$ 值，或者更准确地讲，是 momentum 更新后的模型参数的值。
+
+$$\Theta_{t-1}=\theta_{t-1} + \mu_{t-1} \cdot v_{t-1}$$
+这里可能感觉有点绕，一会 $\theta$，一会 $\Theta$，到底哪个是表示模型参数。我是这么理解的，初始时模型参数为 $\theta_0$，此后更新迭代过程中，$\Theta$ 才表示模型参数，$\theta$ 只作为中间变量。
+
 
 根据 velocity 的定义 (7) 式，有
 $$v_t=\mu_{t-1} \cdot v_{t-1} - \epsilon_{t-1} \cdot \nabla f(\Theta_{t-1})$$
 
-从上式中可见 velocity 现在表示 $\Theta$ 的更新量。
+$v_t$ 依然是 $\theta$ “中间”变量的更新量。
 
 根据 $\Theta$ 定义，
 $$\Theta_{t+1}-\mu_{t+1} \cdot v_{t+1}= \theta_{t+1}
@@ -131,12 +137,22 @@ $$\Theta_{t+1}=\Theta_t+\mu_{t+1} \cdot[\mu_t \cdot v_t - \epsilon_t \cdot \nabl
 展开得，
 $$\Theta_{t+1}=\Theta_t+\mu_{t+1} \cdot \mu_t \cdot v_t-\mu_{t+1} \cdot \epsilon_t \cdot \nabla f(\Theta_t)-\epsilon_t \cdot \nabla f(\Theta_t)$$
 
-其中 $\mu_{t+1} \cdot \mu_t \cdot v_t-\mu_{t+1} \cdot \epsilon_t \cdot \nabla f(\Theta_t)-\epsilon_t \cdot \nabla f(\Theta_t)$ 等价于 `(3')` 式中的 $v_{t+1}$，对应到 (1) 式中的 $v_{t+1}$ 则为 
-$$\begin{aligned} v_{t+1}&=\mu_{t+1} \cdot \mu_t \cdot v_t+\mu_{t+1} \cdot \nabla f(\Theta_t)+ \nabla f(\Theta_t) 
+写成 $\Theta_{t+1}=\Theta_t + V_{t+1}$ 的形式，于是
+$$V_{t+1}=\mu_{t+1} \cdot \mu_t \cdot v_t-\mu_{t+1} \cdot \epsilon_t \cdot \nabla f(\Theta_t)-\epsilon_t \cdot \nabla f(\Theta_t)$$
+ 就是 $\Theta$ 的更新量，等价于 `(3')` 式中的 $v_{t+1}$，对应到 (1) 式中的 $v_{t+1}$ 的形式，去掉 $\epsilon$，以及 $-$ 变成 $+$，易得， 
+$$\begin{aligned} V_{t+1}&=\mu_{t+1} \cdot \mu_t \cdot v_t+\mu_{t+1} \cdot \nabla f(\Theta_t)+ \nabla f(\Theta_t) 
 \\\\ &=\mu_{t+1} \cdot [\mu_t \cdot v_t+ \nabla f(\Theta_t)] + \nabla f(\Theta_t)  \end{aligned} \qquad(8)$$
+此时 $\Theta$ 的更新为
+$$\Theta_{t+1}=\Theta_t - \epsilon_t \cdot V_{t+1} \qquad(9)$$
 
-__(8) 式就对应 PyTorch 源码中 `SGD.step` 在 `nesterov=True` 时的计算过程。__
+__(8) 和 (9) 式就对应 PyTorch 源码中 `SGD.step` 在 `nesterov=True` 时的计算过程。__
 
-# 参考文献：
+
+# 参考：
 
 [1] On the importance of initialization and momentum in deep learning. Ilya Sutskever
+
+[2] [Nesterov Accelerated Gradient and Momentum](https://jlmelville.github.io/mize/mesterov.html)
+
+# 更多阅读
+[1] [ORF523: Nesterov's Accelerated Gradient Descent](https://blogs.princeton.edu/imabandit/2013/04/01/acceleratedgradientdescent/)

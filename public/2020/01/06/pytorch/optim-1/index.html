@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="1. Adagrad1.1 原理所有的参数形成一个参数向量，对每个参数使用不同的学习率。例如在时间步 t，第 i 个参数 $\theta_i$ 的梯度为 $g_{t,i}$，$$g_{t,i} = \nabla_{\theta}J(\theta_{t,i})$$SGD 的更新方式为，$$\theta_{t+1,i}=\theta_{t,i}-\eta \cdot g_{t,i}$$其中学习率 $\">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyTorch.optim">
+<meta property="og:url" content="https://shajianjian.github.io/2020/01/06/pytorch/optim-1/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="1. Adagrad1.1 原理所有的参数形成一个参数向量，对每个参数使用不同的学习率。例如在时间步 t，第 i 个参数 $\theta_i$ 的梯度为 $g_{t,i}$，$$g_{t,i} = \nabla_{\theta}J(\theta_{t,i})$$SGD 的更新方式为，$$\theta_{t+1,i}=\theta_{t,i}-\eta \cdot g_{t,i}$$其中学习率 $\">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-01-08T09:47:11.908Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PyTorch.optim">
+<meta name="twitter:description" content="1. Adagrad1.1 原理所有的参数形成一个参数向量，对每个参数使用不同的学习率。例如在时间步 t，第 i 个参数 $\theta_i$ 的梯度为 $g_{t,i}$，$$g_{t,i} = \nabla_{\theta}J(\theta_{t,i})$$SGD 的更新方式为，$$\theta_{t+1,i}=\theta_{t,i}-\eta \cdot g_{t,i}$$其中学习率 $\">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://shajianjian.github.io/2020/01/06/pytorch/optim-1/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>PyTorch.optim | SJJ</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SJJ</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2020/01/06/pytorch/optim-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PyTorch.optim
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-01-06 14:38:40" itemprop="dateCreated datePublished" datetime="2020-01-06T14:38:40+08:00">2020-01-06</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-01-08 17:47:11" itemprop="dateModified" datetime="2020-01-08T17:47:11+08:00">2020-01-08</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="1-Adagrad"><a href="#1-Adagrad" class="headerlink" title="1. Adagrad"></a>1. Adagrad</h1><h2 id="1-1-原理"><a href="#1-1-原理" class="headerlink" title="1.1 原理"></a>1.1 原理</h2><p>所有的参数形成一个参数向量，对每个参数使用不同的学习率。例如在时间步 <code>t</code>，第 <code>i</code> 个参数 $\theta_i$ 的梯度为 $g_{t,i}$，<br>$$g_{t,i} = \nabla_{\theta}J(\theta_{t,i})$$<br>SGD 的更新方式为，<br>$$\theta_{t+1,i}=\theta_{t,i}-\eta \cdot g_{t,i}$$<br>其中学习率 $\eta$ 恒定。</p>
+<p>Adagrad 对每个参数在不同时间步调整学习率，参数更新为<br>$$\theta_{t+1,i}=\theta_{t,i}-\frac {\eta} {\sqrt{G_{t,ii}+\epsilon}} \cdot g_{t,i} \qquad(1)$$</p>
+<p>其中 $G_t \in \mathbb R^{d \times d}$ 是一个对角矩阵，对角线上每个元素 $G_{t,ii}$ 是参数 $\theta_i$ 从时间步 <code>0</code> 到时间步 <code>t</code> 的梯度的平方和，<br>$$G_{t,ii}=\sum_{\tau=0}^t g_{\tau,i}^2 \qquad(2)$$</p>
+<p>$\epsilon$ 为平滑因子，用于避免分母为 0，一般取值 <code>1e-8</code>。</p>
+<p>将 (1) 式向量化，<br>$$\theta_{t+1}=\theta_t - \frac \eta {\sqrt {G_t+\epsilon}} \odot g_t \qquad(3)$$</p>
+<p>其中 $\odot$ 表示矩阵与向量相乘。通常，$\eta=0.01$。</p>
+<p>Adagrad 的优点是不需要手动调整学习率，缺点是随着迭代次数的增加，分母逐渐增大，导致最后变得非常小，学习过程非常缓慢甚至停止。</p>
+<p>关于 Adagrad 调整学习率的理论分析可参考论文 [1]。</p>
+<h2 id="1-2-PyTorch-实现"><a href="#1-2-PyTorch-实现" class="headerlink" title="1.2 PyTorch 实现"></a>1.2 PyTorch 实现</h2><p>PyTorch 的 Adagrad 实现中除了学习率 <code>lr</code> 和平滑因子 <code>eps</code>，还是增加了几个参数：</p>
+<ol>
+<li>学习率衰减因子 <code>lr_decay</code></li>
+<li>权重衰减因子 <code>weight_decay</code></li>
+<li>累加初始值 <code>G</code>，这是 (2) 式中累加的一个初始值</li>
+</ol>
+<p>参数更新步骤如下：</p>
+<p>设置累加初值<br>$$G_0=[G,…,G]$$<br>其中 $G_0$ 是一个向量（对角矩阵的对角线元素），与参数数量相同。</p>
+<p>在时间步 <code>t</code>，</p>
+<ol>
+<li><p>增加权重衰减项（正则项）的梯度</p>
+<p>$$g_t := g_t + \lambda_{\theta} \cdot \theta_t$$</p>
+</li>
+<li><p>学习率衰减为 </p>
+<p>$$\eta := \frac {\eta} {1+ t \cdot \lambda_{\eta}}  $$</p>
+</li>
+<li><p>累加梯度平方</p>
+<p>$$G_{t+1} = G_t+ g_t \cdot g_t$$</p>
+</li>
+<li><p>更新参数</p>
+<p>$$\theta_{t+1} = \theta_t - \frac \eta {\sqrt{G_t} + \epsilon}\cdot g_t$$</p>
+</li>
+</ol>
+<p>以上，向量的计算全部按元素进行（标量则在需要的时候广播为向量）。（不同的参数具有不同的调整后的学习率）</p>
+<h1 id="2-Adadelta"><a href="#2-Adadelta" class="headerlink" title="2. Adadelta"></a>2. Adadelta</h1><h2 id="2-1-原理"><a href="#2-1-原理" class="headerlink" title="2.1 原理"></a>2.1 原理</h2><p>Adadelta 是在 Adagrad 的基础上对学习率一味单调递减进行修改，不再对之前所有时间步的梯度做平方和，而是限制一个最近时间步的窗口，窗口大小为 <code>w</code>。</p>
+<p>然而，由于存储 <code>w</code> 个梯度平方值效率较低，所以改为使用梯度的衰减均值，如下<br>$$E[g^2]<em>t = \gamma E[g^2]</em>{t-1} + (1- \gamma)g_t^2$$<br>它的平方根就变成了 RMS（均方根，区别是每个元素的权重由 <code>1/n</code> 变成依次递增的值），<br>$$\text{RMS}[g]_t = \sqrt{E[g^2]_t + \epsilon}$$<br>这样，越早期时间步的梯度平方，其权重越低，贡献也小，越近期的梯度平方，贡献越大。$\gamma$ 可取 <code>0.9</code>。</p>
+<p>于是，参数更新为，<br>$$\Delta \theta_t = -\frac \eta {\text{RMS}[g]<em>t}\cdot g_t \qquad(4)<br>\\\theta</em>{t+1}=\theta_t + \Delta \theta_t$$</p>
+<p>更进一步地，更新量 $\Delta \theta$ 与 $\theta$ 在单位空间上不匹配，这在 SGD，momentum 以及 Adagrad 中也存在同样的问题，即<br>$$\Delta x 单位 \propto g 单位 \propto \frac {\partial f} {\partial x} \propto  \frac 1 {x 单位}$$<br>上式最后一步中假定了目标函数 <code>f</code> 是无单位的。这个单位空间不匹配如何理解呢？假设 <code>x</code> 表示距离，例如 米 $m$，损失函数 <code>f</code> 无量纲，根据上式，发现 <code>x</code> 的更新量的单位为 $m^{-1}$，显然这是不匹配的。为了实现匹配的目的，首先类似 $g^2$ 的衰减均值，定义更新量的衰减均值，<br>$$E[\Delta \theta^2]<em>t = \gamma \cdot E[\Delta \theta^2]</em>{t-1} + (1-\gamma)\Delta \theta_t^2$$</p>
+<p>均方根为，<br>$$\text{RMS}[\Delta\theta]<em>t=\sqrt {E[\Delta \theta^2]_t+\epsilon}$$<br>残念，由于 $\Delta \theta_t$ 未知，所以上式也未知，所以近似使用 $\text{RMS}[\Delta\theta]</em>{t-1}$ 来代替，然后这个值就作为 (4) 式中的 $\eta$。</p>
+<p>于是最终参数更新方式为，<br>$$\Delta \theta_t = -\frac {\text{RMS}[\Delta\theta]<em>{t-1}} {\text{RMS}[g]_t}\cdot g_t \qquad(5)<br>\\\theta</em>{t+1}=\theta_t + \Delta \theta_t$$<br>注意到 <code>RMS</code> 中有平方根计算，所以，$\text{RMS}[\Delta\theta]_{t-1}$ 与 $\theta$ 量纲匹配，而 $\text{RMS}[g]_t$ 与 $g$ 量纲匹配，所以 (5) 式中 $\Delta \theta$ 与 $\theta$ 量纲匹配。</p>
+<h2 id="2-2-PyTorch-实现"><a href="#2-2-PyTorch-实现" class="headerlink" title="2.2 PyTorch 实现"></a>2.2 PyTorch 实现</h2><p>PyTorch 的 Adadelta 实现使用 (5) 式，非常简单，不再啰嗦。</p>
+<h1 id="3-RMSprop"><a href="#3-RMSprop" class="headerlink" title="3. RMSprop"></a>3. RMSprop</h1><p>RMSprop 就是 Adadelta 中 (4) 式，通常 $\gamma=0.9$，$\eta=0.001$。简单，我们直接看 PyTorch 实现部分。</p>
+<h2 id="3-1-PyTorch-实现"><a href="#3-1-PyTorch-实现" class="headerlink" title="3.1 PyTorch 实现"></a>3.1 PyTorch 实现</h2><p>RMSprop 的 <code>step</code> 方法部分代码如下，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 对每个参数</span></span><br><span class="line">square_avg = state[<span class="string">'square_avg'</span>]    <span class="comment"># 参数对应的梯度平方的衰减均值（也称 moving average）</span></span><br><span class="line">alpha = group[<span class="string">'alpha'</span>]              <span class="comment"># 对应上文公式中的 gamma</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> group[<span class="string">'weight_decay'</span>] != <span class="number">0</span>:</span><br><span class="line">    grad = grad.add(group[<span class="string">'weight_decay'</span>], p.data)  <span class="comment"># 添加正则项的梯度</span></span><br><span class="line"></span><br><span class="line">square_avg.mul_(alpha).addcmul_(<span class="number">1</span>-alpha, grad, grad)    <span class="comment"># 计算 E[g^2]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> group[<span class="string">'centered'</span>]:               <span class="comment"># 使用 centered 版本的 RMSprop</span></span><br><span class="line">    grad_avg = state[<span class="string">'grad_avg'</span>]    <span class="comment"># 获取 梯度衰减平均</span></span><br><span class="line">    grad_avg.mul_(alpha).add_(<span class="number">1</span>-alpha, grad)    <span class="comment"># 更新 梯度衰减平均</span></span><br><span class="line">    <span class="comment"># 先归一化，然后计算 RMS[g]</span></span><br><span class="line">    avg = square_avg.addcmul_(<span class="number">-1</span>, grad_avg, grad_avg).sqrt_().add_(group[<span class="string">'eps'</span>])</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="comment"># 直接计算 RMS[g]</span></span><br><span class="line">    avg = square_avg.sqrt_().add_(group[<span class="string">'eps'</span>])</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> group[<span class="string">'momentum'</span>] &gt; <span class="number">0</span>:       <span class="comment"># 使用动量</span></span><br><span class="line">    buf = state[<span class="string">'momentum_buffer'</span>]  <span class="comment"># 获取动量缓存</span></span><br><span class="line">    buf.mul_(group<span class="string">'momentum'</span>).addcdiv_(grad, avg)   <span class="comment"># 更新 velocity，与 (6) 式一致</span></span><br><span class="line">    p.data.add_(-group[<span class="string">'lr'</span>], buf)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    p.data.addcdiv_(-group[<span class="string">'lr'</span>], grad, avg)</span><br></pre></td></tr></table></figure>
+
+<p>上面代码中，如果不使用 <code>centered</code> 和 <code>momentum</code>，那么代码逻辑与 (4) 式完全一致，所以我们只看 <code>centered</code> 和 <code>momentum</code> 是如何进行的。</p>
+<h3 id="centered"><a href="#centered" class="headerlink" title="centered"></a>centered</h3><p>对 梯度 $g$ 归一化，然后计算 平方 的衰减均值，如下<br>$$E{[g-E(g)]^2}=E(g^2)-[E(g)]^2$$<br>其中 $E(\cdot)$ 计算衰减均值。于是，<br>$$RMS[g]=\sqrt{E{[g-E(g)]^2}}+\epsilon=\sqrt{E(g^2)-[E(g)]^2}+\epsilon$$</p>
+<h3 id="momentum"><a href="#momentum" class="headerlink" title="momentum"></a>momentum</h3><p>我们回顾一下普通的 SGD 参数更新方式：<br>$$\theta_{t+1}=\theta_t - \eta \cdot \nabla f(\theta_t)$$<br>然后带有 momentum 的 SGD 参数更新方式：<br>$$v_{t+1}=\mu \cdot v_t + \nabla f(\theta_t)<br>\\\theta_{t+1}=\theta_t - \eta \cdot v_{t+1}$$</p>
+<p>根据 (4) 式，现在已知 RMSprop 的参数更新方式为，<br>$$\theta_{t+1}=\theta_t -\frac \eta {\text{RMS}[g]<em>t}\cdot g_t$$<br>类比 SGD，可知带有 momentum 的 RMSprop 参数更新方式为，<br>$$v</em>{t+1}=\mu \cdot v_t + \frac {g_t} {\text{RMS}[g]<em>t} \qquad(6)<br>\\ \theta</em>{t+1}=\theta_t - \eta \cdot v_{t+1}$$</p>
+<h1 id="4-Rprop"><a href="#4-Rprop" class="headerlink" title="4. Rprop"></a>4. Rprop</h1><h2 id="4-1-原理"><a href="#4-1-原理" class="headerlink" title="4.1 原理"></a>4.1 原理</h2><p>Rprop 表示 resilient propagation。</p>
+<p>在 SGD 中，参数更新方向为负梯度方向，更新步长为梯度乘以一个系数（学习率），但是让更新步长直接与梯度成正比不一定是好选择，例如（来源 [2]）<br><img src alt><center>图 1. 三个函数在相同的地方有最小值，但是 <code>f&#39;(x)</code> 不同</center><br>上图中，三个函数的最小值均在相同地方，所以各自更新步长可以差不多，但是如果使用 学习率乘以梯度 作为步长，显然三者的更新步长将会相差几个数量级，更糟的是，可能还会出现 梯度消失 和 梯度爆炸。</p>
+<p>Rprop 仅利用梯度的（负）方向，参数更新如下，<br>$$\theta_{t+1} = \theta_t + \Delta \theta_t=\theta_t - \Delta_t \cdot \text{sign}[\nabla f(\theta_t)] \qquad(7)$$<br>其中 $\Delta_t$ 表示时间步 <code>t</code> 处的更新步长，并且不同参数的更新步长也不同，例如第 <code>i</code> 个参数在时间步 <code>t</code> 的更新步长为 $\Delta_{t,i}$。</p>
+<p>在每个时间步，计算各参数的梯度以及更新步长。根据当前时间步的梯度与上一时间步的梯度的符号是否一致，来调整更新步长，思路如下：</p>
+<ul>
+<li>如果符号一致，那么应该增大更新步长，以更快的到达最小值处</li>
+<li>如果符号相反，这表示刚好跨过最小值处，那么应该减小更新步长，以避免再次跨过最小值处</li>
+</ul>
+<p>更新步长调整方案如下，<br>$$\Delta_t=\begin{cases}\min(\Delta_{t-1} \cdot \eta^+, \ \Delta_{max}) &amp; \nabla f(\theta_t) \cdot \nabla f(\theta_{t-1}) &gt; 0 \\ \max(\Delta_{t-1} \cdot \eta^-, \Delta_{min}) &amp; \nabla f(\theta_t) \cdot \nabla f(\theta_{t-1}) &lt; 0 \\ \Delta_{t-1} &amp; \text{otherwise} \end{cases}$$</p>
+<p>其中 $\eta^+ &gt; 1 &gt; \eta^-&gt;0$，$\eta^+, \ \eta^-$ 分别用于增大步长和减小步长，并使用 $\Delta_{min}, \ \Delta_{max}$ 来限制步长范围。通常，$\Delta_{min}$ 过小 或者 $\Delta_{max}$ 过大 都不是问题，因为实际的更新步长可以快速调整到合适值。$\alpha$ 通常取 <code>1.2</code>，$\beta$ 取 <code>0.5</code>。$\Delta_0$ 为初始更新步长，作为超参数，事先给定，在 PyTorch 实现中为 <code>0.01</code>。</p>
+<p>在论文 [3] 中，作者具体讨论了四种参数更新方式，<code>Rprop+</code>，<code>Rprop-</code>，<code>iRprop+</code>，<code>iRprop-</code>，上述的参数更新方式对应 <code>Rprop-</code>，其余三种方法可阅读 [3]，这里不再一一具体介绍。[3] 的实验结果表明，<code>iRprop-</code> 的更新方式综合最优，PyTorch 的实现正是采用了 <code>iRprop-</code>。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>[1] Adaptive Subgradient Methods for Online Learning and Stochastic Optimization. John Duchi.</p>
+<p>[2] <a href="https://florian.github.io/rprop/" target="_blank" rel="noopener">RProp</a> </p>
+<p>[3] Improving the Rprop Learning Algorithm. Christian Igel.</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/02/pytorch/optim_SGD/" rel="next" title="PyTorch.optim.SGD">
+                <i class="fa fa-chevron-left"></i> PyTorch.optim.SGD
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shajianjian</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">40</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Adagrad"><span class="nav-number">1.</span> <span class="nav-text">1. Adagrad</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-原理"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-PyTorch-实现"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 PyTorch 实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Adadelta"><span class="nav-number">2.</span> <span class="nav-text">2. Adadelta</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-原理"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-PyTorch-实现"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 PyTorch 实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-RMSprop"><span class="nav-number">3.</span> <span class="nav-text">3. RMSprop</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-PyTorch-实现"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 PyTorch 实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#centered"><span class="nav-number">3.1.1.</span> <span class="nav-text">centered</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#momentum"><span class="nav-number">3.1.2.</span> <span class="nav-text">momentum</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-Rprop"><span class="nav-number">4.</span> <span class="nav-text">4. Rprop</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-原理"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 原理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

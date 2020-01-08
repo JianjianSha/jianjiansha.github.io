@@ -107,7 +107,7 @@
 <meta property="og:image" content="https://shajianjian.github.io/images/img_cls/densenet_1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/img_cls/densenet_2.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/img_cls/densenet_3.png">
-<meta property="og:updated_time" content="2020-01-02T06:49:52.501Z">
+<meta property="og:updated_time" content="2020-01-07T07:56:45.508Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="DenseNet">
 <meta name="twitter:description" content="论文 Densely Connected Convolutional Networks 随着现在数据集越来越大，网络容量也需要增大，否则容易出现过拟合现象，一种增大网络容量的方法是增加更多的 layer ，让网络更深（deep），但是这也会带来新的问题：随着输入（或梯度）经过越来越多的 layer，信息可能在到达最后一层（对于梯度则是反向传播在到达网络第一层）之前就消失了。ResNet 增加 sh">
@@ -405,7 +405,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2020-01-02 14:49:52" itemprop="dateModified" datetime="2020-01-02T14:49:52+08:00">2020-01-02</time>
+                <time title="修改时间：2020-01-07 15:56:45" itemprop="dateModified" datetime="2020-01-07T15:56:45+08:00">2020-01-07</time>
               
             
           </span>
@@ -453,12 +453,12 @@
 </ol>
 <p>组合而得。</p>
 <h3 id="Pooling-层"><a href="#Pooling-层" class="headerlink" title="Pooling 层"></a>Pooling 层</h3><p>网络肯定存在下采样，这就导致 early layer 与 later layer 可能有不同的 feature maps 大小，这就导致没法直接连接。一种解决的办法如图 2，将若干个 layer 分为一组作为一个 block，称为 Dense Block，block 内部的 feature maps 大小保持不变，从而 block 内部的 layer 之间可以进行密集连接，block 之间使用过渡层进行下采样，在作者实验中过渡层包含 BN 层、<code>1x1</code> 卷积层以及 <code>2x2</code> 均值池化层。<br><img src="/images/img_cls/densenet_2.png" alt></p>
-<h3 id="Growth-rate"><a href="#Growth-rate" class="headerlink" title="Growth rate"></a>Growth rate</h3><p>记 $k_0$ 为 Dense Block 初始输入的 channels，如果每个 $H_l$ 输出均为 $k$ 个 feature maps，由于 $l^{th}$ layer 的输入为初始网络输入 $\mathbf x_0$ 以及前 $l-1$ 个 layer 输出的 concatenation，所以共有 $k_0+k(l-1)$ 个 feature maps，所以 $k$ 值即使较小，随着 $l^{th}$ 增大，深层 layer 的 in_channels 也可以很大，因为可以使用较小 $k$ 值，这就使得 DenseNet 与传统网络相比，拥有更少的网络参数。记 $k$ 为 <em>growth rate_，表示 layer 输入 feature maps 增长量。作者实验表明，即使非常小的 _growth rate</em> 也可以获取很好的测试结果。作者解释为，每个 layer 可以利用同 block 内的前面所有 layer 的输出 feature maps，也就是 “collective knowledge”，将 feature maps 看作网络的 global state，每个 layer 贡献自己的 k 个 feature maps 到这个 global state，同时 <em>growth rate</em> 控制了每个 layer 对 global state 的贡献量，并且每次某个 layer 对 global state 贡献完毕，此时的 global state 可以被之后所有 layer 利用。传统网络为了在 layer 到 layer 之间传递这种 global state，不得不使用越来越多的输出通道数，达到复制前面各阶段的 global states 的效果。</p>
+<h3 id="Growth-rate"><a href="#Growth-rate" class="headerlink" title="Growth rate"></a>Growth rate</h3><p>记 $k_0$ 为 Dense Block 初始输入的 channels，如果每个 $H_l$ 输出均为 $k$ 个 feature maps，由于 $l^{th}$ layer 的输入为初始网络输入 $\mathbf x_0$ 以及前 $l-1$ 个 layer 输出的 concatenation，所以共有 $k_0+k(l-1)$ 个 feature maps，所以 $k$ 值即使较小，随着 $l^{th}$ 增大，深层 layer 的 <code>in_channels</code> 也可以很大，因为可以使用较小 $k$ 值，这就使得 DenseNet 与传统网络相比，拥有更少的网络参数。记 $k$ 为 <em>growth rate</em> ，表示 layer 输入 feature maps 增长量。作者实验表明，即使非常小的 <em>growth rate</em> 也可以获取很好的测试结果。作者解释为，每个 layer 可以利用同 block 内的前面所有 layer 的输出 feature maps，也就是 “collective knowledge”，将 feature maps 看作网络的 global state，每个 layer 贡献自己的 k 个 feature maps 到这个 global state，同时 <em>growth rate</em> 控制了每个 layer 对 global state 的贡献量，并且每次某个 layer 对 global state 贡献完毕，此时的 global state 可以被之后所有 layer 利用。传统网络为了在 layer 到 layer 之间传递这种 global state，不得不使用越来越多的输出通道数，达到复制前面各阶段的 global states 的效果。</p>
 <h3 id="Bottleneck-layers"><a href="#Bottleneck-layers" class="headerlink" title="Bottleneck layers"></a>Bottleneck layers</h3><p>later layer 的输入通道数较大，可以在这些 layer（通常是 <code>3x3</code> 卷积） 前面增加一个 <code>1x1</code> 卷积作为 bottleneck layer，降低 later layer 的输入通道数，提高计算效率。记这种带有 bottleneck layer 的 DenseNet 为 DenseNet-B，其中 layer 的操作 $H_l(\cdot)$ 变为 BN-ReLU-Conv(1x1)-BN-ReLU-Conv(3x3)（参考前面 <strong>组合函数</strong> 小节）。</p>
-<h3 id="Compression"><a href="#Compression" class="headerlink" title="Compression"></a>Compression</h3><p>为了进一步压缩模型，可以在过渡层降低 feature maps 的数量，记 dense block 的输出 feature maps 数量为 $m$，注意是 dense block 初始输入和各 layer 输出的叠加，参加图 1，过渡层输出 feature maps 数量为 $\lfloor \theta m \rfloor$，其中 $0 &lt; \theta \le 1$，当 $\theta=1$，过渡层不改变 feature maps 的数量，当 $\theta &lt;1$ 记这样的 DenseNet 为 DenseNet-C，而 DenseNet-BC 则表示既有 bottleneck layer 又有 $\theta &lt;1$ 的 DenseNet。</p>
+<h3 id="Compression"><a href="#Compression" class="headerlink" title="Compression"></a>Compression</h3><p>为了进一步压缩模型，可以在过渡层降低 feature maps 的数量，记 dense block 的输出 feature maps 数量为 $m$，注意是 dense block 初始输入和各 layer 输出的叠加，参见图 1，过渡层输出 feature maps 数量为 $\lfloor \theta m \rfloor$，其中 $0 &lt; \theta \le 1$，当 $\theta=1$，过渡层不改变 feature maps 的数量，当 $\theta &lt;1$ 记这样的 DenseNet 为 DenseNet-C，而 DenseNet-BC 则表示既有 bottleneck layer 又有 $\theta &lt;1$ 的 DenseNet。</p>
 <h3 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h3><p>作者在 CIFAR-10,CIFAR-100,SVHN 以及 ImageNet 四个数据集上评估了 DenseNet。</p>
 <p>在前三个数据集上（这三个数据集的图像 size 均为 <code>32x32</code>），DenseNet 使用了 3 个 dense block，每个 dense block 有相等数量的 layer。在进入第一个 dense block 之前，输入图像数据先经过了一个 <code>1x1</code> 16-out_channels 的卷积层（对于 DenseNet-BC 网络，输出通道数为 <em>growth rate</em> 的两倍）。对于 <code>3x3</code> conv，进行 padding=1 的 zero 填充，以保持 feature map size 不变。在最后一个 dense block 之后，进行全局均值池化以及 softmax 操作。三个 dense block 的 feature maps 大小分别为 <code>32x32, 16x16, 8x8</code>。使用最普通的 DenseNet（不带 B\C 后缀）进行实验时，dense block 配置分别为 ${L=40,k=12}$, ${L=100,k=12}$ 和 ${L=100,k=24}$，使用 DenseNet-BC 进行实验时，配置分别为 ${L=100,k=12}$, ${L=250,k=24}$ 和 ${L=190,k=40}$。</p>
-<p>对于 ImageNet，使用 4 个 dense block 的 DenseNet-BC，输入图像大小为 <code>224x224</code>，初始 layer 为一个 <code>7x7</code> 2k-out_channels，stride=2 的卷积，其中 k 表示 <em>growth-rate_，所有 dense block 均为 $k=32$，网络具体描述如表 1 所示，<br><img src="/images/img_cls/densenet_3.png" alt> <center>ImageNet 对应的四个 DenseNet-BC 网络配置。所有网络的 k=32，表中所有 conv 均表示 <em>_BN-ReLU-Conv</em></center></em></p>
+<p>对于 ImageNet，使用 4 个 dense block 的 DenseNet-BC，输入图像大小为 <code>224x224</code>，初始 layer 为一个 <code>7x7</code> 2k-out_channels，stride=2 的卷积，其中 k 表示 <em>growth-rate</em> ，所有 dense block 均为 $k=32$，网络具体描述如表 1 所示，<br><img src="/images/img_cls/densenet_3.png" alt> <center>ImageNet 对应的四个 DenseNet-BC 网络配置。所有网络的 k=32，表中所有 conv 均表示 <strong>BN-ReLU-Conv</strong> </center></p>
 <h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>实验结果的对比可直接参考原论文。</p>
 <h3 id="数据集"><a href="#数据集" class="headerlink" title="数据集"></a>数据集</h3><p><strong>CIFAR：</strong>  CIFAR-10 和 CIFAR-100 数据集包含 <code>32x32</code> 大小的彩色图像，其中 CIFAR-10 的图像分类数量为 10，CIFAR-100 图像分类数量为 100。训练集和测试集大小分别为 50000 和 10000，训练集中取 5000 作为验证集。数据扩增使用 镜像/平移 两种方法。预处理包括 RGB 三通道分别使用 <code>mean</code> 和 <code>std</code> 归一化。最后一轮训练时使用全部 50000 个图像，然后计算测试错误。</p>
 <p><strong>SVHN：</strong>  SVHN 数据集包含 <code>32x32</code> 大小的彩色数字图像，训练集和测试集大小分别为 73257 和 26032，另有 531131 个图像作为额外的训练数据。作者实验中，不采用任何数据扩增手段，从训练集中取 6000 个图像作为验证集。选择具有最低验证错误的训练结果，然后计算测试错误。图像像素值除以 255 以落于 <code>[0,1]</code> 范围作为归一化处理方法。</p>
@@ -523,8 +523,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2020/01/02/pytorch/optim/" rel="prev" title="PyTorch.optim">
-                PyTorch.optim <i class="fa fa-chevron-right"></i>
+              <a href="/2020/01/02/pytorch/optim_SGD/" rel="prev" title="PyTorch.optim.SGD">
+                PyTorch.optim.SGD <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -594,7 +594,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">39</span>
+                    <span class="site-state-item-count">40</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
