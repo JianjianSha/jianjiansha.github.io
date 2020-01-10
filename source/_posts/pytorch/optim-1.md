@@ -2,7 +2,8 @@
 title: PyTorch.optim
 p: pytorch/optim-1
 date: 2020-01-06 14:38:40
-tags:
+tags: PyTorch
+mathjax: true
 ---
 
 # 1. Adagrad

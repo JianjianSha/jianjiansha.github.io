@@ -108,7 +108,7 @@
 <meta property="og:image" content="https://shajianjian.github.io/images/pytorch/momentum.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/pytorch/NAS_0.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/pytorch/NAG.png">
-<meta property="og:updated_time" content="2020-01-06T06:49:37.678Z">
+<meta property="og:updated_time" content="2020-01-09T10:11:18.569Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PyTorch.optim.SGD">
 <meta name="twitter:description" content="1. SGD1.1 weight decay为了过拟合，通常在损失函数中增加正则项，记原来损失（MSE 或者 CE 等）为 $L_0$，那么添加正则项后的损失为，$$L=L_0+\frac 1 2 \lambda \cdot |\mathbf \theta|_2^2$$如图 1 所示， 图 1 过拟合图示（来源《Deep Learning with PyTorch》）下半部分展示了过拟合的图，这种">
@@ -406,7 +406,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2020-01-06 14:49:37" itemprop="dateModified" datetime="2020-01-06T14:49:37+08:00">2020-01-06</time>
+                <time title="修改时间：2020-01-09 18:11:18" itemprop="dateModified" datetime="2020-01-09T18:11:18+08:00">2020-01-09</time>
               
             
           </span>
@@ -477,9 +477,9 @@
 <p>$v_t$ 依然是 $\theta$ “中间”变量的更新量。</p>
 <p>根据 $\Theta$ 定义，<br>$$\Theta_{t+1}-\mu_{t+1} \cdot v_{t+1}= \theta_{t+1}<br>\\ \Theta_t-\mu_t \cdot v_t= \theta_t$$<br>以及 (6) 式，有<br>$$\Theta_{t+1}-\mu_{t+1} \cdot v_{t+1}=\Theta_t-\mu_t \cdot v_t+\mu_t \cdot v_t - \epsilon_t \cdot \nabla f(\Theta_t)$$<br>化简得，<br>$$\Theta_{t+1}=\Theta_t+\mu_{t+1} \cdot v_{t+1}-\epsilon_t \cdot \nabla f(\Theta_t)$$</p>
 <p>继续代入 (7) 式，有<br>$$\Theta_{t+1}=\Theta_t+\mu_{t+1} \cdot[\mu_t \cdot v_t - \epsilon_t \cdot \nabla f(\Theta_t)]-\epsilon_t \cdot \nabla f(\Theta_t)$$</p>
-<p>展开得，<br>$$\Theta_{t+1}=\Theta_t+\mu_{t+1} \cdot \mu_t \cdot v_t-\mu_{t+1} \cdot \epsilon_t \cdot \nabla f(\Theta_t)-\epsilon_t \cdot \nabla f(\Theta_t)$$</p>
-<p>写成 $\Theta_{t+1}=\Theta_t + V_{t+1}$ 的形式，于是<br>$$V_{t+1}=\mu_{t+1} \cdot \mu_t \cdot v_t-\mu_{t+1} \cdot \epsilon_t \cdot \nabla f(\Theta_t)-\epsilon_t \cdot \nabla f(\Theta_t)$$<br> 就是 $\Theta$ 的更新量，等价于 <code>(3&#39;)</code> 式中的 $v_{t+1}$，对应到 (1) 式中的 $v_{t+1}$ 的形式，去掉 $\epsilon$，以及 $-$ 变成 $+$，易得，<br>$$\begin{aligned} V_{t+1}&amp;=\mu_{t+1} \cdot \mu_t \cdot v_t+\mu_{t+1} \cdot \nabla f(\Theta_t)+ \nabla f(\Theta_t)<br>\\ &amp;=\mu_{t+1} \cdot [\mu_t \cdot v_t+ \nabla f(\Theta_t)] + \nabla f(\Theta_t)  \end{aligned} \qquad(8)$$<br>此时 $\Theta$ 的更新为<br>$$\Theta_{t+1}=\Theta_t - \epsilon_t \cdot V_{t+1} \qquad(9)$$</p>
-<p><strong>(8) 和 (9) 式就对应 PyTorch 源码中 <code>SGD.step</code> 在 <code>nesterov=True</code> 时的计算过程。</strong></p>
+<p>展开得，<br>$$\Theta_{t+1}=\Theta_t+\mu_{t+1} \cdot \mu_t \cdot v_t-\mu_{t+1} \cdot \epsilon_t \cdot \nabla f(\Theta_t)-\epsilon_t \cdot \nabla f(\Theta_t) \qquad(8)$$</p>
+<p>写成 $\Theta_{t+1}=\Theta_t + V_{t+1}$ 的形式，于是<br>$$V_{t+1}=\mu_{t+1} \cdot \mu_t \cdot v_t-\mu_{t+1} \cdot \epsilon_t \cdot \nabla f(\Theta_t)-\epsilon_t \cdot \nabla f(\Theta_t)$$<br> 就是 $\Theta$ 的更新量，等价于 <code>(3&#39;)</code> 式中的 $v_{t+1}$，对应到 (1) 式中的 $v_{t+1}$ 的形式，去掉 $\epsilon$，以及 $-$ 变成 $+$，易得，<br>$$\begin{aligned} V_{t+1}&amp;=\mu_{t+1} \cdot \mu_t \cdot v_t+\mu_{t+1} \cdot \nabla f(\Theta_t)+ \nabla f(\Theta_t)<br>\\ &amp;=\mu_{t+1} \cdot [\mu_t \cdot v_t+ \nabla f(\Theta_t)] + \nabla f(\Theta_t)  \end{aligned} \qquad(9)$$<br>此时 $\Theta$ 的更新为<br>$$\Theta_{t+1}=\Theta_t - \epsilon_t \cdot V_{t+1} \qquad(10)$$</p>
+<p><strong>(9) 和 (10) 式就对应 PyTorch 源码中 <code>SGD.step</code> 在 <code>nesterov=True</code> 时的计算过程。</strong></p>
 <h1 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h1><p>[1] On the importance of initialization and momentum in deep learning. Ilya Sutskever</p>
 <p>[2] <a href="https://jlmelville.github.io/mize/mesterov.html" target="_blank" rel="noopener">Nesterov Accelerated Gradient and Momentum</a></p>
 <h1 id="更多阅读"><a href="#更多阅读" class="headerlink" title="更多阅读"></a>更多阅读</h1><p>[1] <a href="https://blogs.princeton.edu/imabandit/2013/04/01/acceleratedgradientdescent/" target="_blank" rel="noopener">ORF523: Nesterov’s Accelerated Gradient Descent</a></p>
@@ -603,7 +603,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">40</span>
+                    <span class="site-state-item-count">41</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -661,7 +661,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">10</span>
+                      
+                    
+                    <span class="site-state-item-count">11</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

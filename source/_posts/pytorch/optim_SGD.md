@@ -135,17 +135,17 @@ $$\Theta_{t+1}=\Theta_t+\mu_{t+1} \cdot v_{t+1}-\epsilon_t \cdot \nabla f(\Theta
 $$\Theta_{t+1}=\Theta_t+\mu_{t+1} \cdot[\mu_t \cdot v_t - \epsilon_t \cdot \nabla f(\Theta_t)]-\epsilon_t \cdot \nabla f(\Theta_t)$$
 
 展开得，
-$$\Theta_{t+1}=\Theta_t+\mu_{t+1} \cdot \mu_t \cdot v_t-\mu_{t+1} \cdot \epsilon_t \cdot \nabla f(\Theta_t)-\epsilon_t \cdot \nabla f(\Theta_t)$$
+$$\Theta_{t+1}=\Theta_t+\mu_{t+1} \cdot \mu_t \cdot v_t-\mu_{t+1} \cdot \epsilon_t \cdot \nabla f(\Theta_t)-\epsilon_t \cdot \nabla f(\Theta_t) \qquad(8)$$
 
 写成 $\Theta_{t+1}=\Theta_t + V_{t+1}$ 的形式，于是
 $$V_{t+1}=\mu_{t+1} \cdot \mu_t \cdot v_t-\mu_{t+1} \cdot \epsilon_t \cdot \nabla f(\Theta_t)-\epsilon_t \cdot \nabla f(\Theta_t)$$
  就是 $\Theta$ 的更新量，等价于 `(3')` 式中的 $v_{t+1}$，对应到 (1) 式中的 $v_{t+1}$ 的形式，去掉 $\epsilon$，以及 $-$ 变成 $+$，易得， 
 $$\begin{aligned} V_{t+1}&=\mu_{t+1} \cdot \mu_t \cdot v_t+\mu_{t+1} \cdot \nabla f(\Theta_t)+ \nabla f(\Theta_t) 
-\\\\ &=\mu_{t+1} \cdot [\mu_t \cdot v_t+ \nabla f(\Theta_t)] + \nabla f(\Theta_t)  \end{aligned} \qquad(8)$$
+\\\\ &=\mu_{t+1} \cdot [\mu_t \cdot v_t+ \nabla f(\Theta_t)] + \nabla f(\Theta_t)  \end{aligned} \qquad(9)$$
 此时 $\Theta$ 的更新为
-$$\Theta_{t+1}=\Theta_t - \epsilon_t \cdot V_{t+1} \qquad(9)$$
+$$\Theta_{t+1}=\Theta_t - \epsilon_t \cdot V_{t+1} \qquad(10)$$
 
-__(8) 和 (9) 式就对应 PyTorch 源码中 `SGD.step` 在 `nesterov=True` 时的计算过程。__
+__(9) 和 (10) 式就对应 PyTorch 源码中 `SGD.step` 在 `nesterov=True` 时的计算过程。__
 
 
 # 参考：
