@@ -8,6 +8,7 @@ tags: tool
 ```
 在A, B两台电脑上同步Hexo博客
 ```
+<!-- more -->
 假设在 computer B 上已经初次建立hexo博客 https://shajian.github.io， computer B 本地的文件夹（hexo部署环境目录）为 path/to/myblog，其内部文件/目录如下：
 ```
 _config.yml

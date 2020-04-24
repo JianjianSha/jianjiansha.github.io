@@ -7,7 +7,7 @@ mathjax: true
 ---
 
 # 1. Adagrad
-
+<!-- more -->
 ## 1.1 原理
 所有的参数形成一个参数向量，对每个参数使用不同的学习率。例如在时间步 `t`，第 `i` 个参数 $\theta_i$ 的梯度为 $g_{t,i}$，
 $$g_{t,i} = \nabla_{\theta}J(\theta_{t,i})$$

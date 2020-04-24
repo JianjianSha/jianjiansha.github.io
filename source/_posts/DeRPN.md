@@ -5,7 +5,7 @@ tags: object detection
 mathjax: true
 ---
 论文 [DeRPN: Taking a further step toward more general object detection](https://arxiv.org/abs/1811.06700)
-
+<!-- more -->
 two-stage SOTA 目标检测器通常会使用 anchor，比如 Faster R-CNN 中的 RPN，但是对于不同的数据集，则需要重新设计超参数，如 anchor 的 scale 和 aspect ratio，并且一旦选定就固定了，这在被检测目标尺度变化较大时，检测性能往往不理想，当然，也有人尝试使用 K-means 聚类计算得到 anchor，但是对最终的检测性能的提升非常有限。本文提出 DeRPN 用于解决 RPN 的这一不足之处，如图 1(b)，
 ![](/images/DeRPN_fig1.png)
 

@@ -7,6 +7,7 @@ categories: DL Framework
 ---
 ## Tensor
 torch 模块中包含了各种 Tensor：FloatTensor，DoubleTensor，HalfTensor，ByteTensor 等。这些 Tensor 是怎么来的呢？首先，入口是 `torch/__init__.py` 中的 `_C._initExtension(manager_path())`，其中 manager_path 用于获取 torch_shm_manager 的文件路径，shm 实现Domain Socket通信获得共享内存的句柄，解决多进程的内存分配问题，这里跳过。_initExtension 在 torch/csrc/Module.cpp 中初始化 _C 模块时注册到 _C 模块中，其底层 c++ 实现函数为 THPModule_initExtension，这个函数定义中初始化了很多东西，我们依次来看看。
+<!-- more -->
 ### initializeLayouts
 初始化内存布局。当前有三种布局（位于文件 c10/core/Layout.h 中）：
 1. Strided，使用密集多维数组的内存布局

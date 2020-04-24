@@ -5,7 +5,7 @@ tags: object detection
 mathjax: true
 ---
 论文：[Region Proposal by Guided Anchoring](https://arxiv.org/abs/1901.03278)
-
+<!-- more -->
 目标检测中，通常使用 anchor 来生成 proposal（two-stage）或者直接对 anchor 进行分类和回归（one-stage）。以 two-stage 的 Faster R-CNN 为例，先在 feature map 上生成密集均匀分布的 anchors，然后对其进行二分类预测及坐标回归得到 proposals，最后再对 proposals 进行分类和坐标回归微调。
 
 合理的 anchor 设计遵循两个通用规则：alignment 和 consistency：

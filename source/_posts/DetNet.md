@@ -5,7 +5,7 @@ tags: object detection
 mathjax: true
 ---
 论文 [DetNet: A Backbone network for Object Detection](https://arxiv.org/abs/1804.06215)
-
+<!-- more -->
 本文创作动机是当前大多数的目标检测器都是在 ImageNet 上预训练后 finetune 到目标检测集，目标检测器的 backbone 原本是为了图像分类任务而设计的，这样的 backbone 显然不是最佳的，较大的下采样率带来较大的感受野 RF，这对图像分类是有益的，对目标检测尤其是小目标而言则是不利的，所以像 FPN 和 RetinaNet 就使用了额外的网络结构（extra stage）来处理目标的多尺度问题，但是这总归不是一个优雅的解决办法，所以本文提出了 DetNet，这是一个专为目标检测而设计的新型 backbone。
 
 DetNet 保持了 FPN 中的额外网络结构（extra stage），毕竟是目标的多尺度问题的一个较为不错的解决方案。与 FPN 等基于 ImageNet 预训练的目标检测器不同的是，DetNet 的深层依然有较高的空间分辨率，不过考虑到高分辨率与计算资源的矛盾，我们采用了一种低复杂度的 dilated bottleneck 结构。

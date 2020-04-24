@@ -7,7 +7,7 @@ mathjax: true
 标题 [Improved Techniques for Training GANs](https://arxiv.org/abs/1606.03498)
 
 源码 [improved_gan](https://github.com/openai/improved_gan)
-
+<!-- more -->
 # 简介
 GAN 是基于博弈论学习生成模型的一类方法总称。GAN 目的是训练一个生成网络其生成样本的分布可以拟合真实数据分布。虽然 [DCGAN](2019/07/23/GAN) 在 GAN 中引入 conv+BN+ReLU 在一定程度上改善了生成器，但是我们认为 GAN 这个零和博弈问题具有高维参数且非凸，需要达到 Nash 均衡才是最佳解，而传统的基于目标函数梯度下降方法目的并非用于寻找 Nash 均衡。本文提出了以下改进方法：
 1. 特征匹配

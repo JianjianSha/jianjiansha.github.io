@@ -7,8 +7,11 @@ mathjax: true
 ---
 
 # 1. SGD
+<!-- more -->
+
 ## 1.1 weight decay
 为了过拟合，通常在损失函数中增加正则项，记原来损失（MSE 或者 CE 等）为 $L_0$，那么添加正则项后的损失为，
+
 $$L=L_0+\frac 1 2 \lambda \cdot \|\mathbf \theta\|_2^2$$
 如图 1 所示，
 ![](/images/pytorch/overfitting.png) <center>图 1 过拟合图示（来源《Deep Learning with PyTorch》）</center>

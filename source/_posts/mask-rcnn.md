@@ -5,7 +5,7 @@ tags: object detection
 mathjax: true
 ---
 论文 [Mask R-CNN](https://arxiv.org/abs/1703.06870)
-
+<!-- more -->
 # Introduction
 这是一篇实例分割的文章。实例分割结合了目标检测和语义分割，这看似是需要一个复杂的模型才能完成的任务，实际上本文提出的 Mask R-CNN 出奇的简单灵活且高效。  
 

@@ -5,7 +5,7 @@ tags: object detection
 mathjax: true
 ---
 论文：[M2Det: A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network](https://arxiv.org/abs/1811.04533)
-
+<!-- more -->
 # Introduction
 我们知道在目标检测任务中目标尺度的变化一直是一个具有挑战的问题，通常有两种解决思路：image pyramid 和 feature pyramid。前者在训练阶段其实可以看作是一种数据增强，优点是可以让网络学习到统一的特征表达能力，缺点是测试阶段计算量和内存占用均增大，因为不同 size 的 image 需要分别通过网络预测，然后再合并预测结果。后者是从输入 image 中抽取不同 level 的 feature （不同scale 的 feature maps）形成 feature pyramid，相比于前者，降低了计算量和内存占用，但是不足之处在于构造 feature pyramid 时使用 backbone 网络中固有的 multi-scale feature maps，虽然这些 feature maps 可以形成 feature pyramid，但是其本是为了分类任务而设计的。如图 1，
 ![](/images/M2Det_fig1.png)

@@ -5,6 +5,7 @@ tags: object detection
 mathjax: true
 ---
 论文：[Bounding Box Regression with Uncertainty for Accurate Object Detection](https://arxiv.org/abs/1809.08545)
+<!-- more -->
 # 简介
 大型目标检测集如 ImageNet，MS-COCO 和 CrowdHuman 等都致力于定义足够明确的 ground truth bounding box。但是有时候 gt bbox 的边界是不明确的，使得难以去打标签，也难以学习 bbox 回归函数（的参数），如图 1，
 ![](/images/BBox-reg_fig1.png) <center>Fig 1 MS-COCO 数据集中 gt bbox 不明确的情况。(a)(c) 标签不准确导致歧义；(b) 遮挡导致歧义；(d) 目标边界本身就不明确</center>

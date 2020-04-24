@@ -6,6 +6,7 @@ tags: PyTorch
 categories: DL Framework
 ---
 本篇主要分析 PyTorch 中自动求导是如何进行的。要使得能够自动求导，需要设置 Tensor 的 `requires_grad=True`，例如
+<!-- more -->
 ```python
 x=torch.ones(1, requires_grad=True)
 ```

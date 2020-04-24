@@ -5,7 +5,9 @@ tags:
 ---
 本文仅针对 ubuntu 系统进行讨论。
 
-搭建深度学习环境 tensorflow，pytorch 等，如需要 GPU 加速，一般选择安装 NVIDIA cuda 工具包，以前通常需要预先安装：
+搭建深度学习环境 tensorflow，pytorch 等，如需要 GPU 加速，一般选择安装 
+<!-- more -->
+NVIDIA cuda 工具包，以前通常需要预先安装：
 1. NVIDIA driver
 2. cuda
 3. cudnn

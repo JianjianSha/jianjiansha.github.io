@@ -6,6 +6,7 @@ tags: PyTorch
 categories: DL Framework
 ---
 在 [PyTorch-2](PyTorch-2) 我们已经了解了 torch 包的初始化过程，接下来便可以愉快查看这个 package 包含哪些字段（包含函数和类）了，再参照 PyTorch 的[官方文档](https://pytorch.org/docs/stable/torch.html)，了解其中各个函数的具体实现。
+<!-- more -->
 # torch 包
 从 `torch/__init__.py` 中可以查看所有的 torch 包的所有字段，包括：
 1. 直接在此文件中定义的函数/字段，如 typename, is_tensor, is_storage, _storage_classes 等

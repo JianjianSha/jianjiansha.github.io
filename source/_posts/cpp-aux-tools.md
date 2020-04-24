@@ -4,6 +4,7 @@ date: 2019-07-11 19:16:23
 tags: c++
 ---
 来看一个 c++ 程序片段
+<!-- more -->
 ```c++
 // test.cpp
 int f(int i) { return 0; }

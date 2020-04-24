@@ -5,6 +5,7 @@ tags: CV
 mathjax: true
 ---
 总结 CV 中的一些概念和操作（并不局限于 CV）。
+<!-- more -->
 # RF
 第 k layer 上的感受野大小为
 $$l_k=l_{k-1}+[(f_k-1)\prod_{i=0}^{k-1}s_i]$$

@@ -6,6 +6,7 @@ tags: PyTorch
 categories: DL Framework
 ---
 # torch installization
+<!-- more -->
 依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是
 ```
 import torch

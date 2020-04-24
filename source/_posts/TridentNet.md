@@ -5,7 +5,7 @@ tags: object detection
 mathjax: true
 ---
 论文：[Scale-Aware Trident Networks for Object Detection](https://arxiv.org/abs/1901.01892)
-
+<!-- more -->
 代码：[TuSimple/simpledet](https://github.com/TuSimple/simpledet)
 # 简介
 目标检测通常分为：

@@ -1,130 +1,51 @@
 <!DOCTYPE html>
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-<html class="theme-next pisces use-motion" lang="zh-CN">
+<html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
-<meta name="theme-color" content="#222"/>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
-
-<link rel="stylesheet" href="/css/main.css?v=7.1.2"/>
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
-
-
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
-
-
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
-
-
-  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
-
-
-
-
-
-
-
-<script id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '/',
-    scheme: 'Pisces',
-    version: '7.1.2',
-    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
-    back2top: true,
-    back2top_sidebar: false,
-    fancybox: false,
-    fastclick: false,
-    lazyload: false,
-    tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
-
-
-  
-
-
-
-
-  <meta name="description" content="1. YOLOv11.1 简介one-stage 检测方法，从图像像素到bbox 坐标和分类概率，一步到位。优点为：  快。YOLO 每秒可处理 45 帧，可实时处理视频流。 从图像全局出发，作出预测。这种策略有效利用了上下文信息。 能学习目标的泛化特征。基于天然图像数据集上的训练，用于人工图像数据集上的测试，也能取得较好的结果。  1.2 方法YOLOv1 网络结构如图1，采用的是 VOC 数据">
+  <meta name="description" content="YOLOv1简介one-stage 检测方法，从图像像素到bbox 坐标和分类概率，一步到位。优点为：  快。YOLO 每秒可处理 45 帧，可实时处理视频流。 从图像全局出发，作出预测。这种策略有效利用了上下文信息。 能学习目标的泛化特征。基于天然图像数据集上的训练，用于人工图像数据集上的测试，也能取得较好的结果。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="YOLO">
 <meta property="og:url" content="https://shajianjian.github.io/2020/04/20/obj_det/YOLO/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="1. YOLOv11.1 简介one-stage 检测方法，从图像像素到bbox 坐标和分类概率，一步到位。优点为：  快。YOLO 每秒可处理 45 帧，可实时处理视频流。 从图像全局出发，作出预测。这种策略有效利用了上下文信息。 能学习目标的泛化特征。基于天然图像数据集上的训练，用于人工图像数据集上的测试，也能取得较好的结果。  1.2 方法YOLOv1 网络结构如图1，采用的是 VOC 数据">
+<meta property="og:description" content="YOLOv1简介one-stage 检测方法，从图像像素到bbox 坐标和分类概率，一步到位。优点为：  快。YOLO 每秒可处理 45 帧，可实时处理视频流。 从图像全局出发，作出预测。这种策略有效利用了上下文信息。 能学习目标的泛化特征。基于天然图像数据集上的训练，用于人工图像数据集上的测试，也能取得较好的结果。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/obj_det/YOLOv1_fig1.jpg">
-<meta property="og:image" content="https://shajianjian.github.io/images/obj_det/YOLOv2_fig2.jpg">
+<meta property="og:image" content="https://shajianjian.github.io/images/obj_det/YOLOv2_fig2.png">
 <meta property="article:published_time" content="2020-04-20T05:58:33.000Z">
-<meta property="article:modified_time" content="2020-04-24T07:41:09.790Z">
+<meta property="article:modified_time" content="2020-04-24T10:30:00.129Z">
 <meta property="article:author" content="shajianjian">
 <meta property="article:tag" content="object detection">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://shajianjian.github.io/images/obj_det/YOLOv1_fig1.jpg">
 
+<link rel="canonical" href="https://shajianjian.github.io/2020/04/20/obj_det/YOLO/">
 
 
-
-
-  
-  
-  <link rel="canonical" href="https://shajianjian.github.io/2020/04/20/obj_det/YOLO/"/>
-
-
-
-<script id="page.configurations">
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -136,15 +57,8 @@
 
 
 
-
-
-
-
-
-
   <noscript>
   <style>
-  .use-motion .motion-element,
   .use-motion .brand,
   .use-motion .menu-item,
   .sidebar-inner,
@@ -153,9 +67,8 @@
   .use-motion .comments,
   .use-motion .post-header,
   .use-motion .post-body,
-  .use-motion .collection-title { opacity: initial; }
+  .use-motion .collection-header { opacity: initial; }
 
-  .use-motion .logo,
   .use-motion .site-title,
   .use-motion .site-subtitle {
     opacity: initial;
@@ -165,150 +78,72 @@
   .use-motion .logo-line-before i { left: initial; }
   .use-motion .logo-line-after i { right: initial; }
   </style>
-</noscript>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
-<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+</head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-
-  
-  
-    
-  
-
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
     <div class="headband"></div>
 
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">SJJ</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
-    
-    
   </div>
 
-  <div class="site-nav-toggle">
-    <button aria-label="切换导航栏">
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
   </div>
 </div>
 
 
 
+
 <nav class="site-nav">
-  
-    <ul id="menu" class="menu">
-      
-        
-        
-        
-          
-          <li class="menu-item menu-item-home">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
 
-    
-    
-    
-      
-    
-
-    
-
-    <a href="/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-home&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;首页</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
-        
-        
-        
-          
-          <li class="menu-item menu-item-about">
+        <li class="menu-item menu-item-about">
 
-    
-    
-    
-      
-    
-
-    
-
-    <a href="/about/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-user&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;关于</a>
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
 
   </li>
-        
-        
-        
-          
-          <li class="menu-item menu-item-tags">
+        <li class="menu-item menu-item-tags">
 
-    
-    
-    
-      
-    
-
-    
-
-    <a href="/tags/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-tags&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;标签</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
 
   </li>
-        
-        
-        
-          
-          <li class="menu-item menu-item-categories">
+        <li class="menu-item menu-item-categories">
 
-    
-    
-    
-      
-    
-
-    
-
-    <a href="/categories/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-th&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;分类</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
 
   </li>
-        
-        
-        
-          
-          <li class="menu-item menu-item-archives">
+        <li class="menu-item menu-item-archives">
 
-    
-    
-    
-      
-    
-
-    
-
-    <a href="/archives/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-archive&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;归档</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
-
-      
-      
-    </ul>
-  
-
-  
-
-  
+  </ul>
 </nav>
 
-
-
-  
 
 
 
@@ -316,118 +151,61 @@
     </header>
 
     
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
 
 
-    <main id="main" class="main">
+    <main class="main">
       <div class="main-inner">
         <div class="content-wrap">
           
+
+          <div class="content post posts-expand">
             
 
-          
-          <div id="content" class="content">
-            
-
-  <div id="posts" class="posts-expand">
     
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2020/04/20/obj_det/YOLO/"/>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2020/04/20/obj_det/YOLO/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ"/>
+      <meta itemprop="name" content="SJJ">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">YOLO
-
-              
-            
-          </h1>
-        
+        <h1 class="post-title" itemprop="name headline">
+          YOLO
+        </h1>
 
         <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
+              <span class="post-meta-item-text">发表于</span>
 
               <time title="创建时间：2020-04-20 13:58:33" itemprop="dateCreated datePublished" datetime="2020-04-20T13:58:33+08:00">2020-04-20</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
+            </span>
+              <span class="post-meta-item">
                 <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
+                  <i class="far fa-calendar-check"></i>
                 </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2020-04-24 15:41:09" itemprop="dateModified" datetime="2020-04-24T15:41:09+08:00">2020-04-24</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-24 18:30:00" itemprop="dateModified" datetime="2020-04-24T18:30:00+08:00">2020-04-24</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -435,18 +213,17 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        <h1 id="1-YOLOv1"><a href="#1-YOLOv1" class="headerlink" title="1. YOLOv1"></a>1. YOLOv1</h1><h2 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h2><p>one-stage 检测方法，从图像像素到bbox 坐标和分类概率，一步到位。优点为：</p>
+        <h1 id="YOLOv1"><a href="#YOLOv1" class="headerlink" title="YOLOv1"></a>YOLOv1</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>one-stage 检测方法，从图像像素到bbox 坐标和分类概率，一步到位。优点为：</p>
 <ol>
 <li>快。YOLO 每秒可处理 45 帧，可实时处理视频流。</li>
 <li>从图像全局出发，作出预测。这种策略有效利用了上下文信息。</li>
 <li>能学习目标的泛化特征。基于天然图像数据集上的训练，用于人工图像数据集上的测试，也能取得较好的结果。</li>
 </ol>
-<h2 id="1-2-方法"><a href="#1-2-方法" class="headerlink" title="1.2 方法"></a>1.2 方法</h2><p>YOLOv1 网络结构如图1，采用的是 VOC 数据集。<br><img src="/images/obj_det/YOLOv1_fig1.jpg" alt=""> <center>图 1 YOLOv1 网络结构</center></p>
+<a id="more"></a>
+
+<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><p>YOLOv1 网络结构如图1，采用的是 VOC 数据集。<br><img src="/images/obj_det/YOLOv1_fig1.jpg" alt=""> <center>图 1 YOLOv1 网络结构</center></p>
 <p>输入 shape : <code>448,448,3</code>，<br>输出 shape ：<code>7,7,35</code></p>
-<h3 id="1-2-1-检测思想"><a href="#1-2-1-检测思想" class="headerlink" title="1.2.1 检测思想"></a>1.2.1 检测思想</h3><ol>
+<h3 id="检测思想"><a href="#检测思想" class="headerlink" title="检测思想"></a>检测思想</h3><ol>
 <li>将输入图像划分为 <code>SxS</code> 大小的网格，如果目标中心落于某个 grid cell，那么这个 grid cell 负责检测这个目标。对于 VOC 数据集，使用 <code>S=7</code>，这是综合考虑，平衡了计算量和准确率。</li>
 <li>每个 grid cell 预测 <code>B</code> 个 box。这里取 <code>B=3</code>。</li>
 <li>对每个 box 预测，需要 5 个数据 <code>(x,y,w,h,IOU)</code>（全部都是归一化的）。</li>
@@ -457,7 +234,7 @@
 </ol>
 <p><strong>思考：</strong> 为什么每个 grid cell 处预测不是 1 个 box 而是多个 box？</p>
 <p><strong>答：</strong> 我们假定不会有多个目标的中心落入同一个 grid cell，如果确实存在（这种概率很低），那么只有第一个目标的数据<code>x,y,w,h,IOU,class</code>会写入 gt <code>Y</code> 中。每个 grid cell 仍然预测多个 box，这是因为这些不同的预测 box 将具有不同的 size 或 aspect ratio。如果目标中心落入某个 grid cell，那么其上的 <code>B</code> 个预测 box 中，只有与目标 IOU 最大的预测 box 才负责预测。例如，某个预测 box 适合预测高的目标（人），而另一个预测 box 可能适合预测宽的目标（车）。</p>
-<h3 id="1-2-2-损失"><a href="#1-2-2-损失" class="headerlink" title="1.2.2 损失"></a>1.2.2 损失</h3><p>$$\begin{aligned} L&amp;=\lambda_{coord} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj}(x_i-\hat x_i)^2+(y_i-\hat y_i)^2 \ &amp;+ \lambda_{coord} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj}(\sqrt {w_i}- \sqrt {\hat w_i})^2+(\sqrt {h_i}- \sqrt {\hat h_i})^2 \ &amp;+ \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj} (C_i-\hat C_i)^2 \ &amp;+ \lambda_{noobj} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{noobj}(C_i-\hat C_i)^2 \ &amp;+ \sum_{i=1}^{S^2} \mathbf 1_i^{obj} \sum_{c \in classes}\left(p_i(c)-\hat p_i(c)\right)^2 \end{aligned}<br>$$</p>
+<h3 id="损失"><a href="#损失" class="headerlink" title="损失"></a>损失</h3><p>$$\begin{aligned} L&amp;=\lambda_{coord} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj}(x_i-\hat x_i)^2+(y_i-\hat y_i)^2 \\ &amp;+ \lambda_{coord} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj}(\sqrt {w_i}- \sqrt {\hat w_i})^2+(\sqrt {h_i}- \sqrt {\hat h_i})^2 \\ &amp;+ \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj} (C_i-\hat C_i)^2 \\ &amp;+ \lambda_{noobj} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{noobj}(C_i-\hat C_i)^2 \\ &amp;+ \sum_{i=1}^{S^2} \mathbf 1_i^{obj} \sum_{c \in classes}\left(p_i(c)-\hat p_i(c)\right)^2 \end{aligned}<br>$$</p>
 <p><strong>分析：</strong></p>
 <p>带 <code>^</code> 的为网络输出，不带 <code>^</code> 则为 ground truth 值。<code>x, y, w, h</code> 为中心点坐标，<code>C</code> 为 IOU，<code>pi(c)</code> 为分类 <code>c</code> 的概率。</p>
 <p>$\mathbf 1_{ij}^{obj}$ 表示第 <code>i</code> 个 grid cell 有目标（中心），且此 grid cell 上第 <code>j</code> 个预测 box 与 gt box 有最大 IOU，即，第 <code>j</code> box 负责预测。</p>
@@ -465,21 +242,21 @@
 <p>$\mathbf 1_{ij}^{noobj}$ 表示 i) 第 <code>i</code> 个 grid cell 无目标（中心），或者 ii) 有目标（中心），但是第 <code>j</code> 个预测 box 不负责预测（即，与 gt box 的 IOU 不是 <code>B</code> 个预测 box 中最大的）。</p>
 <p>$\mathbf 1_i^{obj}$ 表示第 <code>i</code> 个 grid cell 有目标（中心）。</p>
 <p>坐标损失与分类损失分属两类损失，需要进行平衡。此外，由于大部分预测 box 其实并不负责预测，来自这部分预测 box 的 IOU 损失（损失公式中第四行）将会压制负责预测的 box 的坐标损失和 IOU 损失（损失公式中前三行），所以需要提升被压制的那部分的损失贡献。综合考虑，设置 $\lambda_{coord}=5, \ \lambda_{noobj}=0.5$。</p>
-<h2 id="1-3-细节"><a href="#1-3-细节" class="headerlink" title="1.3 细节"></a>1.3 细节</h2><ol>
+<h2 id="细节"><a href="#细节" class="headerlink" title="细节"></a>细节</h2><ol>
 <li>GT label 数据的 size 为 <code>S*S*(5+20)</code>，其中 <code>5</code> 包含了 4 个坐标值，1 个 IOU，20 为表示分类 id 的 one-hot vector 的长度。维度从高到低为 <code>(S,S,5+20)</code>，最低维数据顺序为 IOU, class id, x,y,w,h。</li>
 <li>网络输出 size 为 <code>S*S*(B*5+20)</code>，维度从高到低为 <code>(5+20,S,S)</code>，通道顺序为 class id, IOU, x,y,w,h。</li>
 <li>GT label 数据中， x,y,w,h 先进行归一化（除以图像宽/高），然后 <code>x=x*S-(int)x*S, y=y*S-(int)y*S</code>。</li>
 <li>网络输出中的 x,y 与 GT label 中含义一致，表示相对于 grid cell 的（归一化）偏差，而 w,h 则是经过了平方根处理。</li>
 </ol>
-<h1 id="2-YOLOv2"><a href="#2-YOLOv2" class="headerlink" title="2. YOLOv2"></a>2. YOLOv2</h1><h2 id="2-1-简介"><a href="#2-1-简介" class="headerlink" title="2.1 简介"></a>2.1 简介</h2><p>YOLOv2 是对 YOLOv1 的改进，包括：</p>
+<h1 id="YOLOv2"><a href="#YOLOv2" class="headerlink" title="YOLOv2"></a>YOLOv2</h1><h2 id="简介-1"><a href="#简介-1" class="headerlink" title="简介"></a>简介</h2><p>YOLOv2 是对 YOLOv1 的改进，包括：</p>
 <ol>
 <li>利用现有的分类数据集来扩展检测数据集，使得检测目标的分类种数更多。</li>
 <li>增加 Batch Normalization</li>
 <li>检测小目标更准确</li>
 </ol>
 <p>在分类集上预训练时，就使用较大分辨率的图像。YOLOv1 中使用 <code>224x224</code> 在分类集上预训练，然后直接将 <code>448x448</code> 大小的检测数据训练集喂给网络，这让网络同时适应高分辨率的图像以及学习目标检测，难免压力山大。YOLOv2 中，每隔十次 batch 训练，变更一次网络输入 size。</p>
-<h2 id="2-2-方法"><a href="#2-2-方法" class="headerlink" title="2.2 方法"></a>2.2 方法</h2><p>以 VOC 数据集为例，YOLOv2 的网络结构可以从配置文件 <code>cfg/yolov2-voc.cfg</code> 中获取。</p>
-<h3 id="2-2-1-实现细节"><a href="#2-2-1-实现细节" class="headerlink" title="2.2.1 实现细节"></a>2.2.1 实现细节</h3><ol>
+<h2 id="方法-1"><a href="#方法-1" class="headerlink" title="方法"></a>方法</h2><p>以 VOC 数据集为例，YOLOv2 的网络结构可以从配置文件 <code>cfg/yolov2-voc.cfg</code> 中获取。</p>
+<h3 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h3><ol>
 <li><p>输入 size 每隔 10 个 batch 变更一次，从 <code>320, 352, ..., 608</code> 这十个值中随机选择。记输入大小为 <code>(3,d,d)</code>。</p>
 </li>
 <li><p>网络整体下采样率为 32，输出大小为 <code>(125, d/32, d/32)</code>。其中，<code>(d/32,d/32)</code> 与 YOLOv1 中类似，可以看作原图像上的 grid cell 数量 <code>S=d/32</code>。如果目标的中心落入某个 grid cell，那么这个 grid cell 负责预测目标。每个 grid cell 上有 <code>5</code> 个预测 box，每各 box 有 <code>1</code> 个 IOU 以及 <code>4</code> 个坐标值，每个 box 独立拥有 <code>20</code> 个分类得分，故输出 channel 为 <code>125=5*(1+4+20)</code>。注意，YOLOv1 中每个 cell 上的 <code>B</code> 个预测 box 共享 <code>20</code> 个分类得分。</p>
@@ -489,25 +266,25 @@
 <li><p><code>(route:-1，-4)</code> 层将浅层特征（高分辨率）与高层特征（低分辨率）融合，类似于 ResNet 中的 identity mapping，这种更细粒度的特征将有助于小目标的检测。</p>
 </li>
 </ol>
-<h3 id="2-2-2-损失"><a href="#2-2-2-损失" class="headerlink" title="2.2.2 损失"></a>2.2.2 损失</h3><p>损失包括：分类损失，置信度损失，坐标损失三部分。</p>
+<h3 id="损失-1"><a href="#损失-1" class="headerlink" title="损失"></a>损失</h3><p>损失包括：分类损失，置信度损失，坐标损失三部分。</p>
 <p>$$L=L_p+L_{box}+L_C$$</p>
 <p><strong>分类损失</strong></p>
 <p>$$L_p=\sum_{i=1}^{S^2} \sum_{j=1}^B \sum_{c=1}^{20} \mathbf 1_{ij}^{obj} [\hat p_{ij}(c)-p_{ij}(c)]^2$$</p>
 <p><strong>坐标损失</strong></p>
-<p>$$L_{box}=\lambda_{obj}^{coord} \sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{obj} (\hat x_{ij} - x_{ij})^2 + (\hat y_{ij} - y_{ij})^2+ (\hat w_{ij} - w_{ij})^2+ (\hat h_{ij} - h_{ij})^2 \ + \lambda_{noobj}^{coord} \sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{noobj} (\hat x_{ij} - x_{ij}^a)^2 + (\hat y_{ij} - y_{ij}^a)^2+ (\hat w_{ij} - w_{ij}^a)^2+ (\hat h_{ij} - h_{ij}^a)^2$$</p>
+<p>$$L_{box}=\lambda_{obj}^{coord} \sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{obj} (\hat x_{ij} - x_{ij})^2 + (\hat y_{ij} - y_{ij})^2+ (\hat w_{ij} - w_{ij})^2+ (\hat h_{ij} - h_{ij})^2<br>\\ + \lambda_{noobj}^{coord} \sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{noobj} (\hat x_{ij} - x_{ij}^a)^2 + (\hat y_{ij} - y_{ij}^a)^2+ (\hat w_{ij} - w_{ij}^a)^2+ (\hat h_{ij} - h_{ij}^a)^2$$</p>
 <p><strong>置信度损失</strong></p>
-<p>$$L_C=\lambda_{obj}^{conf}\sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{obj}[\hat C_{ij}-iou(\hat {box}<em>{ij}, box</em>{ij})]^2  \+ \lambda_{noobj}^{conf}\sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{noobj}[\hat C_{ij}-0]^2$$</p>
+<p>$$L_C=\lambda_{obj}^{conf}\sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{obj}[\hat C_{ij}-iou(\hat \text{box}<em>{ij}, \text{box}</em>{ij})]^2<br>\\+ \lambda_{noobj}^{conf}\sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{noobj}[\hat C_{ij}-0]^2$$</p>
 <p>以上，带 ^ 表示 network 输出，带 a 表示 anchor，不带这两个修饰的表示 GT label。</p>
 <p><strong>分析：</strong></p>
 <p>网络输出 shape 从高维到低维为，<code>batch, B, 4+1+C, S, S</code>（其实无论几维，在内存中都是一维）。这里假设了输出 feature map 的 height 和 width 相等，均为 <code>S</code> （grid size），且 <code>4</code> 表示 4 个坐标，<code>1</code> 表示 IOU，<code>C</code> 表示分类数量。</p>
 <p>与 YOLOv1 中类似，目标中心落入某个 grid cell，那么这个 grid cell 负责预测目标。每个 grid cell 有 <code>B=5</code> 个预测 box，具有不同的 size。使用 5 组 anchor box 帮助预测，参考 yolov2-voc.cfg 文件中最后一个 layer 配置中 <code>anchors</code> 的值，给了 5 组 width height 的值，这些值基于输出 feature map 的 size <code>SxS</code>，即，并没有归一化。anchor box 的中心为所在 grid cell 坐标加 0.5，即 <code>(i,j)</code> 处 grid cell 的 anchor box 中心为 <code>(i+0.5, j+0.5)</code>。</p>
-<p>网络输出坐标 <code>x,y,h,w</code> 的具体含义，如图 2，<br><img src="/images/obj_det/YOLOv2_fig2.jpg" alt=""> <center>图2 预测 box 与 anchor box 的关系</center></p>
+<p>网络输出坐标 <code>x,y,h,w</code> 的具体含义，如图 2，<br><img src="/images/obj_det/YOLOv2_fig2.png" alt=""> <center>图2 预测 box 与 anchor box 的关系</center></p>
 <p>网络输出坐标实际含义就是 $\sigma(t_x), \sigma(t_y), t_w, t_h$。</p>
 <p>一幅图像的 GT label 的 size 为 <code>30*5</code>，低维数据排列顺序为 <code>x,y,w,h, class id</code>，其中 <code>x,y,w,h</code> 是基于 original image 的 size 进行了归一化（<code>x,y</code> 与 YOLOv1 中稍有不同）。</p>
 <p>坐标损失中 $x_{ij}, y_{ij}, w_{ij}, h_{ij}$ 使用的是 $\sigma(t_x), \sigma(t_y), t_w, t_h$，对于网络输出，不用做任何修改，而对于 GT box 以及 anchor box，则需要做变换，也就是说，将预测 box 分别替换为 GT box 和 anchor box 来计算 $\sigma(t_x), \sigma(t_y), t_w, t_h$。</p>
 <p>位于某 location <code>(i,j)</code> 处，将 <code>B</code> 个预测 box 与 GT label 中所有目标 box 两两求 IOU，最后得到一个最大 IOU，如果这个最大 IOU 大于阈值 0.5，那么 $\mathbf 1_{ij}^{noobj}=0$，此时置信度损失中第二项为 0。</p>
 <p>对于每个 GT box，找出与这个 GT box 有最大 IOU 预测 box，注意这个 IOU 没有阈值限制，然后设置 $\mathbf 1_{ij}^{obj}=1$（每个 GT box 有且只有一个负责预测的 box），此时置信度损失中第一项非零，且分类损失非零，此时计算分类损失时，$\sum_{c=1}^C$ 求和中，当且仅当 <code>c</code> 等于 GT label 中的 class id 时，$p_{ij}(c)=1$，其余 <code>C-1</code> 种情况 $p_{ij}(c)=0$。</p>
-<h1 id="3-YOLOv3"><a href="#3-YOLOv3" class="headerlink" title="3. YOLOv3"></a>3. YOLOv3</h1><p>在 YOLOv2 基础上做了修改：</p>
+<h1 id="YOLOv3"><a href="#YOLOv3" class="headerlink" title="YOLOv3"></a>YOLOv3</h1><p>在 YOLOv2 基础上做了修改：</p>
 <ol>
 <li>三个 scale 的输出 feature maps。每组 feature maps 的大小为 <code>NxNx[3*(4+1+C)]</code>，三个不同的 <code>N</code>，依次增大 2 倍。</li>
 <li>使用 <code>9</code> 个不同 scale 的 anchor box 帮助预测。由于有 <code>3</code> 个 scale 的 feature maps，所以实际上，每个 scale 大小的 feature maps 上每个 grid cell 仅使用 <code>9/3=3</code> 个 anchor box。</li>
@@ -519,300 +296,149 @@
 <li>大量使用 Residual layer。</li>
 </ol>
 
-      
     </div>
 
     
-
-    
-    
-    
-
-    
-
-    
-      
     
     
 
-    
-
-    <footer class="post-footer">
-      
-        
-          
-        
-        <div class="post-tags">
-          
-            <a href="/tags/object-detection/" rel="tag"># object detection</a>
-          
-        </div>
-      
-
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2020/01/08/pytorch/optim-2/" rel="next" title="PyTorch.optim">
-                <i class="fa fa-chevron-left"></i> PyTorch.optim
-              </a>
-            
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/object-detection/" rel="tag"># object detection</a>
           </div>
 
-          <span class="post-nav-divider"></span>
+        
 
-          <div class="post-nav-prev post-nav-item">
-            
-          </div>
-        </div>
-      
 
-      
-      
-    </footer>
-  </div>
-  
-  
-  
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/01/08/pytorch/optim-2/" rel="prev" title="PyTorch.optim">
+      <i class="fa fa-chevron-left"></i> PyTorch.optim
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
   </article>
+  
+  
+  
 
-
-  </div>
 
 
           </div>
           
-
-  
-
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <p class="site-author-name" itemprop="name">shajianjian</p>
-              <div class="site-description motion-element" itemprop="description"></div>
-          </div>
-
-          
-            <nav class="site-state motion-element">
-              
-                <div class="site-state-item site-state-posts">
-                
-                  <a href="/archives/%20%7C%7C%20archive">
-                
-                    <span class="site-state-item-count">42</span>
-                    <span class="site-state-item-name">日志</span>
-                  </a>
-                </div>
-              
-
-              
-                
-                
-                <div class="site-state-item site-state-categories">
-                  
-                    
-                      <a href="/categories/%20%7C%7C%20th">
-                    
-                  
-                    
-                    
-                      
-                    
-                      
-                    
-                    <span class="site-state-item-count">2</span>
-                    <span class="site-state-item-name">分类</span>
-                  </a>
-                </div>
-              
-
-              
-                
-                
-                <div class="site-state-item site-state-tags">
-                  
-                    
-                      <a href="/tags/%20%7C%7C%20tags">
-                    
-                  
-                    
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                    <span class="site-state-item-count">11</span>
-                    <span class="site-state-item-name">标签</span>
-                  </a>
-                </div>
-              
-            </nav>
-          
-
-          
-
-          
-
-          
-
-          
-
-          
-          
-
-          
-            
-          
-          
-
-        </div>
-      </div>
-
-      
-      <!--noindex-->
-        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-            
-            
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-YOLOv1"><span class="nav-number">1.</span> <span class="nav-text">1. YOLOv1</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-简介"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-方法"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-检测思想"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.2.1 检测思想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-损失"><span class="nav-number">1.2.2.</span> <span class="nav-text">1.2.2 损失</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-细节"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 细节</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-YOLOv2"><span class="nav-number">2.</span> <span class="nav-text">2. YOLOv2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-简介"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-方法"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-实现细节"><span class="nav-number">2.2.1.</span> <span class="nav-text">2.2.1 实现细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-损失"><span class="nav-number">2.2.2.</span> <span class="nav-text">2.2.2 损失</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-YOLOv3"><span class="nav-number">3.</span> <span class="nav-text">3. YOLOv3</span></a></li></ol></div>
-            
-
-          </div>
-        </div>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-  
-
-
-        
-      </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
-  <span class="with-love" id="animate">
-    <i class="fa fa-user"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">shajianjian</span>
-
-  
-
-  
-</div>
-
-
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0</div>
-
-
-
-  <span class="post-meta-divider">|</span>
-
-
-
-  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
-
-
-
-
-        
-
-
-
-
-
-
-
-
-        
-      </div>
-    </footer>
-
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
-
-    
-
-    
-
-    
-  </div>
-
-  
 
 <script>
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
   }
 </script>
 
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLOv1"><span class="nav-number">1.</span> <span class="nav-text">YOLOv1</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法"><span class="nav-number">1.2.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#检测思想"><span class="nav-number">1.2.1.</span> <span class="nav-text">检测思想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#损失"><span class="nav-number">1.2.2.</span> <span class="nav-text">损失</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#细节"><span class="nav-number">1.3.</span> <span class="nav-text">细节</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLOv2"><span class="nav-number">2.</span> <span class="nav-text">YOLOv2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介-1"><span class="nav-number">2.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法-1"><span class="nav-number">2.2.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实现细节"><span class="nav-number">2.2.1.</span> <span class="nav-text">实现细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#损失-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">损失</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLOv3"><span class="nav-number">3.</span> <span class="nav-text">YOLOv3</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
 
 
 
@@ -821,8 +447,29 @@
 
 
 
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
 
 
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
 
 
 
@@ -839,135 +486,61 @@
 
 
   
-  <script src="/lib/jquery/index.js?v=3.4.1"></script>
 
   
-  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-
-  
-
-
-  <script src="/js/utils.js?v=7.1.2"></script>
-
-  <script src="/js/motion.js?v=7.1.2"></script>
-
-
-
-  
-  
-
-
-  <script src="/js/affix.js?v=7.1.2"></script>
-
-  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
-
-
-
-  
-  <script src="/js/scrollspy.js?v=7.1.2"></script>
-<script src="/js/post-details.js?v=7.1.2"></script>
-
-
-
-  
-
-
-  <script src="/js/next-boot.js?v=7.1.2"></script>
-
-
-  
-
-  
-
-  
-
-  
-
-
-  
-
-
-  
-
-
-
-
-  
-
-  
-
-  
-  
-
-  
-  
-
-  
-    
-      <script type="text/x-mathjax-config">
-  
-
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
-      processEscapes: true,
-      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
       
-      equationNumbers: {
-        autoNumber: 'AMS'
-      }
-    }
-  });
-  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
-    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
-      if (data.display) {
-        var next = data.script.nextSibling;
-        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
-        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
-      }
-    });
-  });
-</script>
 
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for (i = 0; i < all.length; i += 1) {
-      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
-    }
-  });
-</script>
-<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
     
-  
-
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
 
   
 

@@ -10,7 +10,7 @@ mathjax: true
 
 # 1. Adam
 Adam 表示 Adaptive Moment Estimation。
-
+<!-- more -->
 ## 1.1 原理
 梯度和梯度平方的衰减如下，
 $$m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t

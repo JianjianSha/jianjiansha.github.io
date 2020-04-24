@@ -5,6 +5,7 @@ tags: object detection
 mathjax: true
 ---
 论文 [DSOD: Learning Deeply Supervised Object Detectors from Scratch](https://arxiv.org/abs/1708.01241)
+<!-- more -->
 # Introduction
 近几年来提出了很多新型 CNN 网络结构，如 Inception、ResNet 以及 DenseNet 等，带动了包括目标检测在内的诸多 CV 任务的发展。通常来讲，目标检测都是在 backbone 后增加检测子网络，backbone 在分类 benchmark 如 ImageNet 进行预训练，然后使用目标检测数据集对整个网络进行 fine-tune，也就是所谓的迁移学习。但是这种设计范式具有三个不足之处：
 1. 有限的结构设计空间。基于 ImageNet 预训练的 backbone 通常是较为庞大的网络，参数量巨大，所以用在目标检测时，不容易调整网络结构。

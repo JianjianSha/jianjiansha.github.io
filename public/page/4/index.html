@@ -1,100 +1,24 @@
 <!DOCTYPE html>
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-<html class="theme-next pisces use-motion" lang="zh-CN">
+<html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
-<meta name="theme-color" content="#222"/>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
-
-<link rel="stylesheet" href="/css/main.css?v=7.1.2"/>
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
-
-
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
-
-
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
-
-
-  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
-
-
-
-
-
-
-
-<script id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '/',
-    scheme: 'Pisces',
-    version: '7.1.2',
-    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
-    back2top: true,
-    back2top_sidebar: false,
-    fancybox: false,
-    fastclick: false,
-    lazyload: false,
-    tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
-
-
-  
-
-
-
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
 
   <meta property="og:type" content="website">
 <meta property="og:title" content="SJJ">
@@ -104,19 +28,16 @@
 <meta property="article:author" content="shajianjian">
 <meta name="twitter:card" content="summary">
 
+<link rel="canonical" href="https://shajianjian.github.io/page/4/">
 
 
-
-
-  
-  
-  <link rel="canonical" href="https://shajianjian.github.io/page/4/"/>
-
-
-
-<script id="page.configurations">
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -128,15 +49,8 @@
 
 
 
-
-
-
-
-
-
   <noscript>
   <style>
-  .use-motion .motion-element,
   .use-motion .brand,
   .use-motion .menu-item,
   .sidebar-inner,
@@ -145,9 +59,8 @@
   .use-motion .comments,
   .use-motion .post-header,
   .use-motion .post-body,
-  .use-motion .collection-title { opacity: initial; }
+  .use-motion .collection-header { opacity: initial; }
 
-  .use-motion .logo,
   .use-motion .site-title,
   .use-motion .site-subtitle {
     opacity: initial;
@@ -157,151 +70,72 @@
   .use-motion .logo-line-before i { left: initial; }
   .use-motion .logo-line-after i { right: initial; }
   </style>
-</noscript>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
-<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+</head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-
-  
-  
-    
-  
-
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left 
-  page-home">
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
     <div class="headband"></div>
 
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">SJJ</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
-    
-    
   </div>
 
-  <div class="site-nav-toggle">
-    <button aria-label="切换导航栏">
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
   </div>
 </div>
 
 
 
+
 <nav class="site-nav">
-  
-    <ul id="menu" class="menu">
-      
-        
-        
-        
-          
-          <li class="menu-item menu-item-home">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
 
-    
-    
-    
-      
-    
-
-    
-
-    <a href="/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-home&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;首页</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
-        
-        
-        
-          
-          <li class="menu-item menu-item-about">
+        <li class="menu-item menu-item-about">
 
-    
-    
-    
-      
-    
-
-    
-
-    <a href="/about/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-user&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;关于</a>
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
 
   </li>
-        
-        
-        
-          
-          <li class="menu-item menu-item-tags">
+        <li class="menu-item menu-item-tags">
 
-    
-    
-    
-      
-    
-
-    
-
-    <a href="/tags/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-tags&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;标签</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
 
   </li>
-        
-        
-        
-          
-          <li class="menu-item menu-item-categories">
+        <li class="menu-item menu-item-categories">
 
-    
-    
-    
-      
-    
-
-    
-
-    <a href="/categories/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-th&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;分类</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
 
   </li>
-        
-        
-        
-          
-          <li class="menu-item menu-item-archives">
+        <li class="menu-item menu-item-archives">
 
-    
-    
-    
-      
-    
-
-    
-
-    <a href="/archives/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-archive&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;归档</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
-
-      
-      
-    </ul>
-  
-
-  
-
-  
+  </ul>
 </nav>
 
-
-
-  
 
 
 
@@ -309,120 +143,61 @@
     </header>
 
     
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
 
 
-    <main id="main" class="main">
+    <main class="main">
       <div class="main-inner">
         <div class="content-wrap">
           
-            
 
-          
-          <div id="content" class="content">
+          <div class="content index posts-expand">
             
-  <section id="posts" class="posts-expand">
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/28/M2Det/"/>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/28/M2Det/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ"/>
+      <meta itemprop="name" content="SJJ">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/28/M2Det/" class="post-title-link" itemprop="url">M2Det</a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/28/M2Det/" class="post-title-link" itemprop="url">M2Det</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
+              <span class="post-meta-item-text">发表于</span>
 
               <time title="创建时间：2019-06-28 17:59:08" itemprop="dateCreated datePublished" datetime="2019-06-28T17:59:08+08:00">2019-06-28</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
+            </span>
+              <span class="post-meta-item">
                 <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
+                  <i class="far fa-calendar-check"></i>
                 </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-24 18:36:31" itemprop="dateModified" datetime="2020-04-24T18:36:31+08:00">2020-04-24</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -430,165 +205,71 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>
-              论文：M2Det: A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network
-Introduction我们知道在目标检测任务中目标尺度的变化一直是一个具有挑战的问题，通常有两种解决思路：image pyramid 和 feature pyramid。前者在训练阶段其实可以看作是一种数据增强，优点是可以让网络
-              ...
-            </p>
+          <p>论文：<a href="https://arxiv.org/abs/1811.04533" target="_blank" rel="noopener">M2Det: A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network</a></p>
           <!--noindex-->
-          
-            <div class="post-button text-center">
+            <div class="post-button">
               <a class="btn" href="/2019/06/28/M2Det/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
-          
           <!--/noindex-->
         
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/28/BBox-Reg-Uncertainty/"/>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/28/BBox-Reg-Uncertainty/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ"/>
+      <meta itemprop="name" content="SJJ">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/28/BBox-Reg-Uncertainty/" class="post-title-link" itemprop="url">BBox-Reg-Uncertainty</a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/28/BBox-Reg-Uncertainty/" class="post-title-link" itemprop="url">BBox-Reg-Uncertainty</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
+              <span class="post-meta-item-text">发表于</span>
 
               <time title="创建时间：2019-06-28 09:23:16" itemprop="dateCreated datePublished" datetime="2019-06-28T09:23:16+08:00">2019-06-28</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
+            </span>
+              <span class="post-meta-item">
                 <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
+                  <i class="far fa-calendar-check"></i>
                 </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-24 18:35:17" itemprop="dateModified" datetime="2020-04-24T18:35:17+08:00">2020-04-24</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -596,165 +277,71 @@ Introduction我们知道在目标检测任务中目标尺度的变化一直是�
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>
-              论文：Bounding Box Regression with Uncertainty for Accurate Object Detection
-简介大型目标检测集如 ImageNet，MS-COCO 和 CrowdHuman 等都致力于定义足够明确的 ground truth bounding box。但是有时候 gt bbox 的边界是不明确的，使得难以去打标签，也难以学习 bbox 回归函
-              ...
-            </p>
+          <p>论文：<a href="https://arxiv.org/abs/1809.08545" target="_blank" rel="noopener">Bounding Box Regression with Uncertainty for Accurate Object Detection</a></p>
           <!--noindex-->
-          
-            <div class="post-button text-center">
+            <div class="post-button">
               <a class="btn" href="/2019/06/28/BBox-Reg-Uncertainty/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
-          
           <!--/noindex-->
         
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/27/FSAF/"/>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/27/FSAF/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ"/>
+      <meta itemprop="name" content="SJJ">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/27/FSAF/" class="post-title-link" itemprop="url">FSAF</a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/27/FSAF/" class="post-title-link" itemprop="url">FSAF</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
+              <span class="post-meta-item-text">发表于</span>
 
               <time title="创建时间：2019-06-27 09:14:42" itemprop="dateCreated datePublished" datetime="2019-06-27T09:14:42+08:00">2019-06-27</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
+            </span>
+              <span class="post-meta-item">
                 <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
+                  <i class="far fa-calendar-check"></i>
                 </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-24 18:37:38" itemprop="dateModified" datetime="2020-04-24T18:37:38+08:00">2020-04-24</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -762,165 +349,71 @@ Introduction我们知道在目标检测任务中目标尺度的变化一直是�
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>
-              论文：Feature Selective Anchor-Free Module for Single-Shot Object Detection
-目标检测中一个具有挑战性的问题是目标尺度的变化，即，在检测极小目标或极大目标时，往往检测性能不够好。为了达到尺度不变性，SOTA 检测器使用 feature pyramid 或 image pyramid。比如使用 feature pyramid 时，高
-              ...
-            </p>
+          <p>论文：<a href="https://arxiv.org/pdf/1903.00621" target="_blank" rel="noopener">Feature Selective Anchor-Free Module for Single-Shot Object Detection</a></p>
           <!--noindex-->
-          
-            <div class="post-button text-center">
+            <div class="post-button">
               <a class="btn" href="/2019/06/27/FSAF/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
-          
           <!--/noindex-->
         
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/25/GA-RPN/"/>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/25/GA-RPN/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ"/>
+      <meta itemprop="name" content="SJJ">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/25/GA-RPN/" class="post-title-link" itemprop="url">GA-RPN</a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/25/GA-RPN/" class="post-title-link" itemprop="url">GA-RPN</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
+              <span class="post-meta-item-text">发表于</span>
 
               <time title="创建时间：2019-06-25 17:01:57" itemprop="dateCreated datePublished" datetime="2019-06-25T17:01:57+08:00">2019-06-25</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
+            </span>
+              <span class="post-meta-item">
                 <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
+                  <i class="far fa-calendar-check"></i>
                 </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-24 18:37:42" itemprop="dateModified" datetime="2020-04-24T18:37:42+08:00">2020-04-24</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -928,165 +421,71 @@ Introduction我们知道在目标检测任务中目标尺度的变化一直是�
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>
-              论文：Region Proposal by Guided Anchoring
-目标检测中，通常使用 anchor 来生成 proposal（two-stage）或者直接对 anchor 进行分类和回归（one-stage）。以 two-stage 的 Faster R-CNN 为例，先在 feature map 上生成密集均匀分布的 anchors，然后对其进行二分类预测及坐标回归得到 propo
-              ...
-            </p>
+          <p>论文：<a href="https://arxiv.org/abs/1901.03278" target="_blank" rel="noopener">Region Proposal by Guided Anchoring</a></p>
           <!--noindex-->
-          
-            <div class="post-button text-center">
+            <div class="post-button">
               <a class="btn" href="/2019/06/25/GA-RPN/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
-          
           <!--/noindex-->
         
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/24/cv-mtds/"/>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/24/cv-mtds/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ"/>
+      <meta itemprop="name" content="SJJ">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/24/cv-mtds/" class="post-title-link" itemprop="url">CV 中的常用方法总结</a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/24/cv-mtds/" class="post-title-link" itemprop="url">CV 中的常用方法总结</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
+              <span class="post-meta-item-text">发表于</span>
 
               <time title="创建时间：2019-06-24 17:33:22" itemprop="dateCreated datePublished" datetime="2019-06-24T17:33:22+08:00">2019-06-24</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
+            </span>
+              <span class="post-meta-item">
                 <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
+                  <i class="far fa-calendar-check"></i>
                 </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-24 18:35:35" itemprop="dateModified" datetime="2020-04-24T18:35:35+08:00">2020-04-24</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1094,166 +493,71 @@ Introduction我们知道在目标检测任务中目标尺度的变化一直是�
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>
-              总结 CV 中的一些概念和操作（并不局限于 CV）。
-RF第 k layer 上的感受野大小为$$l_k=l_{k-1}+[(f_k-1)\prod_{i=0}^{k-1}s_i]$$其中，$s_i$ 为第 i layer 上卷积的步幅，$f_k$ 为第 k layer 上卷积核大小，$l_0=1, \ s_0=1$。
-NMS以 Faster R-CNN 为例，Test 阶段时，ProposalL
-              ...
-            </p>
+          <p>总结 CV 中的一些概念和操作（并不局限于 CV）。</p>
           <!--noindex-->
-          
-            <div class="post-button text-center">
+            <div class="post-button">
               <a class="btn" href="/2019/06/24/cv-mtds/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
-          
           <!--/noindex-->
         
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/21/TridentNet/"/>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/21/TridentNet/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ"/>
+      <meta itemprop="name" content="SJJ">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/21/TridentNet/" class="post-title-link" itemprop="url">TridentNet</a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/21/TridentNet/" class="post-title-link" itemprop="url">TridentNet</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
+              <span class="post-meta-item-text">发表于</span>
 
               <time title="创建时间：2019-06-21 16:24:19" itemprop="dateCreated datePublished" datetime="2019-06-21T16:24:19+08:00">2019-06-21</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
+            </span>
+              <span class="post-meta-item">
                 <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
+                  <i class="far fa-calendar-check"></i>
                 </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-24 18:36:12" itemprop="dateModified" datetime="2020-04-24T18:36:12+08:00">2020-04-24</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1261,189 +565,80 @@ NMS以 Faster R-CNN 为例，Test 阶段时，ProposalL
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>
-              论文：Scale-Aware Trident Networks for Object Detection
-代码：TuSimple/simpledet
-简介目标检测通常分为：
-
-one stage，如 YOLO, SSD
-two stage，如 Faster R-CNN, R-FCN
-
-这些方法在目标尺度变化范围较大时，均存在问题，尤其在目标尺度很小或很大时，性能较差。为了解决目标尺寸多变性的问题，
-              ...
-            </p>
+          <p>论文：<a href="https://arxiv.org/abs/1901.01892" target="_blank" rel="noopener">Scale-Aware Trident Networks for Object Detection</a></p>
           <!--noindex-->
-          
-            <div class="post-button text-center">
+            <div class="post-button">
               <a class="btn" href="/2019/06/21/TridentNet/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
-          
           <!--/noindex-->
         
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/18/pytorch/PyTorch-3/"/>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/18/pytorch/PyTorch-3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ"/>
+      <meta itemprop="name" content="SJJ">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/18/pytorch/PyTorch-3/" class="post-title-link" itemprop="url">PyTorch-3</a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/18/pytorch/PyTorch-3/" class="post-title-link" itemprop="url">PyTorch-3</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
+              <span class="post-meta-item-text">发表于</span>
 
               <time title="创建时间：2019-06-18 16:44:44" itemprop="dateCreated datePublished" datetime="2019-06-18T16:44:44+08:00">2019-06-18</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/DL-Framework/" itemprop="url" rel="index"><span itemprop="name">DL Framework</span></a></span>
-
-                
-                
-              
             </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-24 18:34:35" itemprop="dateModified" datetime="2020-04-24T18:34:35+08:00">2020-04-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/DL-Framework/" itemprop="url" rel="index"><span itemprop="name">DL Framework</span></a>
+                </span>
+            </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1451,167 +646,71 @@ two stage，如 Faster R-CNN, R-FCN
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>
-              在 PyTorch-2 我们已经了解了 torch 包的初始化过程，接下来便可以愉快查看这个 package 包含哪些字段（包含函数和类）了，再参照 PyTorch 的官方文档，了解其中各个函数的具体实现。
-torch 包从 torch/__init__.py 中可以查看所有的 torch 包的所有字段，包括：
-
-直接在此文件中定义的函数/字段，如 typename, is_tensor, is_
-              ...
-            </p>
+          <p>在 <a href="PyTorch-2">PyTorch-2</a> 我们已经了解了 torch 包的初始化过程，接下来便可以愉快查看这个 package 包含哪些字段（包含函数和类）了，再参照 PyTorch 的<a href="https://pytorch.org/docs/stable/torch.html" target="_blank" rel="noopener">官方文档</a>，了解其中各个函数的具体实现。</p>
           <!--noindex-->
-          
-            <div class="post-button text-center">
+            <div class="post-button">
               <a class="btn" href="/2019/06/18/pytorch/PyTorch-3/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
-          
           <!--/noindex-->
         
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/16/mAP/"/>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/16/mAP/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ"/>
+      <meta itemprop="name" content="SJJ">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/16/mAP/" class="post-title-link" itemprop="url">mAP</a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/16/mAP/" class="post-title-link" itemprop="url">mAP</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
+              <span class="post-meta-item-text">发表于</span>
 
               <time title="创建时间：2019-06-16 11:43:57" itemprop="dateCreated datePublished" datetime="2019-06-16T11:43:57+08:00">2019-06-16</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
+            </span>
+              <span class="post-meta-item">
                 <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
+                  <i class="far fa-calendar-check"></i>
                 </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-24 18:36:27" itemprop="dateModified" datetime="2020-04-24T18:36:27+08:00">2020-04-24</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1619,167 +718,71 @@ torch 包从 torch/__init__.py 中可以查看所有的 torch 包的所有字段
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>
-              mAP目标检测中，不同比赛的评估指标通常也不相同，我们先以 PASCAL VOC 为例进行说明。-目标检测中常用的评价标准是 mAP（mean Average Precision），入坑目标检测的应该都知道 mAP 是 AP 的平均，即每个分类单独计算出一个 AP 值，然后对所有分类的 AP 值求平均就得到 mAP。
-相关概念
-Positive 表示检测结果
-True Positive (TP):
-              ...
-            </p>
+          <h1 id="mAP"><a href="#mAP" class="headerlink" title="mAP"></a>mAP</h1><p>目标检测中，不同比赛的评估指标通常也不相同，我们先以 PASCAL VOC 为例进行说明。<br>-目标检测中常用的评价标准是 mAP（mean Average Precision），入坑目标检测的应该都知道 mAP 是 AP 的平均，即每个分类单独计算出一个 AP 值，然后对所有分类的 AP 值求平均就得到 mAP。</p>
           <!--noindex-->
-          
-            <div class="post-button text-center">
+            <div class="post-button">
               <a class="btn" href="/2019/06/16/mAP/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
-          
           <!--/noindex-->
         
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/13/GIoU/"/>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/13/GIoU/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ"/>
+      <meta itemprop="name" content="SJJ">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/13/GIoU/" class="post-title-link" itemprop="url">GIoU</a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/13/GIoU/" class="post-title-link" itemprop="url">GIoU</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
+              <span class="post-meta-item-text">发表于</span>
 
               <time title="创建时间：2019-06-13 15:00:48" itemprop="dateCreated datePublished" datetime="2019-06-13T15:00:48+08:00">2019-06-13</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
+            </span>
+              <span class="post-meta-item">
                 <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
+                  <i class="far fa-calendar-check"></i>
                 </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-24 18:37:58" itemprop="dateModified" datetime="2020-04-24T18:37:58+08:00">2020-04-24</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1787,183 +790,80 @@ True Positive (TP):
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>
-              论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression
-摘要IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，
-              ...
-            </p>
+          <p>论文 <a href="https://arxiv.org/abs/1902.09630" target="_blank" rel="noopener">Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression</a></p>
           <!--noindex-->
-          
-            <div class="post-button text-center">
+            <div class="post-button">
               <a class="btn" href="/2019/06/13/GIoU/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
-          
           <!--/noindex-->
         
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/13/pytorch/PyTorch-2/"/>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/13/pytorch/PyTorch-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ"/>
+      <meta itemprop="name" content="SJJ">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/13/pytorch/PyTorch-2/" class="post-title-link" itemprop="url">PyTorch-2</a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/13/pytorch/PyTorch-2/" class="post-title-link" itemprop="url">PyTorch-2</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
+              <span class="post-meta-item-text">发表于</span>
 
               <time title="创建时间：2019-06-13 10:19:52" itemprop="dateCreated datePublished" datetime="2019-06-13T10:19:52+08:00">2019-06-13</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/DL-Framework/" itemprop="url" rel="index"><span itemprop="name">DL Framework</span></a></span>
-
-                
-                
-              
             </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-24 18:34:28" itemprop="dateModified" datetime="2020-04-24T18:34:28+08:00">2020-04-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/DL-Framework/" itemprop="url" rel="index"><span itemprop="name">DL Framework</span></a>
+                </span>
+            </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1971,70 +871,33 @@ True Positive (TP):
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>
-              torch installization依然采取自顶向下的原则剖析，借助PyTorch的python接口。我们知道使用PyTorch第一步都是
-import torch
-于是阅读 torch/__init__.py，发现需要加载torch._C这个库，但是需要以（RTLD_GLOBAL|RTLD_LAZY）这个模式动态加载，于是先将动态加载模式设置到（RTLD_GLOBAL|RTLD_LAZY）之
-              ...
-            </p>
+          <h1 id="torch-installization"><a href="#torch-installization" class="headerlink" title="torch installization"></a>torch installization</h1>
           <!--noindex-->
-          
-            <div class="post-button text-center">
+            <div class="post-button">
               <a class="btn" href="/2019/06/13/pytorch/PyTorch-2/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
-          
           <!--/noindex-->
         
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
-  </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot; aria-label&#x3D;&quot;上一页&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot; aria-label&#x3D;&quot;下一页&quot;&gt;&lt;&#x2F;i&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -2042,375 +905,216 @@ import torch
           </div>
           
 
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    <div class="sidebar-inner">
-
-      
-
-      
-
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <p class="site-author-name" itemprop="name">shajianjian</p>
-              <div class="site-description motion-element" itemprop="description"></div>
-          </div>
-
-          
-            <nav class="site-state motion-element">
-              
-                <div class="site-state-item site-state-posts">
-                
-                  <a href="/archives/%20%7C%7C%20archive">
-                
-                    <span class="site-state-item-count">42</span>
-                    <span class="site-state-item-name">日志</span>
-                  </a>
-                </div>
-              
-
-              
-                
-                
-                <div class="site-state-item site-state-categories">
-                  
-                    
-                      <a href="/categories/%20%7C%7C%20th">
-                    
-                  
-                    
-                    
-                      
-                    
-                      
-                    
-                    <span class="site-state-item-count">2</span>
-                    <span class="site-state-item-name">分类</span>
-                  </a>
-                </div>
-              
-
-              
-                
-                
-                <div class="site-state-item site-state-tags">
-                  
-                    
-                      <a href="/tags/%20%7C%7C%20tags">
-                    
-                  
-                    
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                    <span class="site-state-item-count">11</span>
-                    <span class="site-state-item-name">标签</span>
-                  </a>
-                </div>
-              
-            </nav>
-          
-
-          
-
-          
-
-          
-
-          
-
-          
-          
-
-          
-            
-          
-          
-
-        </div>
-      </div>
-
-      
-
-      
-
-    </div>
-  </aside>
-  
-
-
-        
-      </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
-  <span class="with-love" id="animate">
-    <i class="fa fa-user"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">shajianjian</span>
-
-  
-
-  
-</div>
-
-
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0</div>
-
-
-
-  <span class="post-meta-divider">|</span>
-
-
-
-  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
-
-
-
-
-        
-
-
-
-
-
-
-
-
-        
-      </div>
-    </footer>
-
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
-
-    
-
-    
-
-    
-  </div>
-
-  
-
 <script>
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
   }
 </script>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        </div>
+          
   
-  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
 
-  
-  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <aside class="sidebar">
+    <div class="sidebar-inner">
 
-  
-  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
 
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
 
-  
-
-
-  <script src="/js/utils.js?v=7.1.2"></script>
-
-  <script src="/js/motion.js?v=7.1.2"></script>
-
-
-
-  
-  
-
-
-  <script src="/js/affix.js?v=7.1.2"></script>
-
-  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
-
-
-
-  
-
-  
-
-
-  <script src="/js/next-boot.js?v=7.1.2"></script>
-
-
-  
-
-  
-
-  
-
-  
-
-
-
-  
-
-
-
-
-  
-
-  
-
-  
-  
-
-  
-  
-    
-      
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
         
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
 
   
-    
-      <script type="text/x-mathjax-config">
-  
-
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
-      processEscapes: true,
-      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
       
-      equationNumbers: {
-        autoNumber: 'AMS'
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
       }
-    }
-  });
-  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
-    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
-      if (data.display) {
-        var next = data.script.nextSibling;
-        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
-        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
-      }
-    });
-  });
-</script>
-
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for (i = 0; i < all.length; i += 1) {
-      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
-    }
-  });
-</script>
-<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
     
-  
-
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
 
   
 

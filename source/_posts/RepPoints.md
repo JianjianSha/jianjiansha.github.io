@@ -5,7 +5,7 @@ tags: object detection
 mathjax: true
 ---
 论文 [RepPoints: Point Set Representation for Object Detection](https://arxiv.org/abs/1904.11490)
-
+<!-- more -->
 大多数目标检测器使用 bbox 表示目标的位置，但是本文认为 bbox 对目标的位置描述较为粗糙，所以提出了一种新型的更加精确的目标表示方法 RepPoints（representative points），RepPoints 使用一组采样点进行目标定位和识别。通过训练给定目标的 gt 位置和分类，RepPoints 可以学习自动排布这些点使得这些点能勾画出目标边缘并在语义上确定目标所在区域。这是一种 anchor-free 的目标检测器，避开了 anchor 导致的搜索空间大和 anchor 难于设计等缺点。
 
 如图 1，

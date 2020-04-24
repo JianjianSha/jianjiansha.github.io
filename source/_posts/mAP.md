@@ -7,6 +7,7 @@ mathjax: true
 # mAP
 目标检测中，不同比赛的评估指标通常也不相同，我们先以 PASCAL VOC 为例进行说明。
 -目标检测中常用的评价标准是 mAP（mean Average Precision），入坑目标检测的应该都知道 mAP 是 AP 的平均，即每个分类单独计算出一个 AP 值，然后对所有分类的 AP 值求平均就得到 mAP。
+<!-- more -->
 ## 相关概念
 0. Positive 表示检测结果
 1. True Positive (TP): IoU 大于等于阈值的检测 box

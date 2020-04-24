@@ -5,7 +5,7 @@ tags: object detection
 mathjax: true
 ---
 论文：[Feature Selective Anchor-Free Module for Single-Shot Object Detection](https://arxiv.org/pdf/1903.00621)
-
+<!-- more -->
 目标检测中一个具有挑战性的问题是目标尺度的变化，即，在检测极小目标或极大目标时，往往检测性能不够好。为了达到尺度不变性，SOTA 检测器使用 feature pyramid 或 image pyramid。比如使用 feature pyramid 时，高 level 的 feature 对应大 anchor，低 level 的 feature 对应小 anchor，如图 2，高 level 的 feature 拥有更多的语义信息，适合检测大目标，而低 level 的 feature 由于保持了细粒度的信息，所以适合检测小目标。但是这种网络设计有两个局限：
 1. 启发式导向的特征选择
 2. 基于 overlap 选取 anchor 

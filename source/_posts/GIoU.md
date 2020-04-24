@@ -5,6 +5,7 @@ tags: object detection
 mathjax: true
 ---
 论文 [Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression](https://arxiv.org/abs/1902.09630)
+<!-- more -->
 # 摘要
 IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，所以本文提出一种泛化版的Iou，名为 GIou。结合 GIoU 和 sota 目标检测框架，在流行的目标检测benchmarks例如 PASCAL VOC 和 MS COCO中，分别使用标准 IoU 和 GIoU 损失，我们发现性能一致得到提升。
 # 简介

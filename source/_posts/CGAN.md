@@ -6,7 +6,7 @@ mathjax: true
 ---
 # CGAN
 论文 [Conditional Generative Adversarial Nets](https://arxiv.org/abs/1411.1784)
-
+<!-- more -->
 在 [GAN](2019/07/23/GAN) 中我们知道 GAN 经过训练，生成器 G 可以根据一个随机噪声输入生成与训练集样本非常相似的样本（判别器 D 无法判别），但是 G 生成样本的标签是无法控制的，以 mnist 数据集为例，给 G 一个随机噪声输入，G 生成的样本图像可能表示数字 1，也可能是其他数字，GAN 无法控制，GAN 只能做到 G 生成样本图像很逼近真实样本图像。然而，使用额外信息来限制模型则可以控制数据生成过程，这个额外信息可以是分类标签或是其他形式的数据，于是本文的 CGAN 应运而生。
 
 ## Conditional Adversarial Nets

@@ -5,7 +5,7 @@ tags: GAN
 mathjax: true
 ---
 论文 [Generative Adversarial Nets](https://arxiv.org/abs/1406.2661)
-
+<!-- more -->
 # GAN
 ## 原理
 生成对抗网络 GAN：一个生成模型 G 和一个判别模型 D，G 尽可能模拟真实的数据分布，D 尽可能的区分样本是模型生成的还是真实的。下文以图像数据为例说明。

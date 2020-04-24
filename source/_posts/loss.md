@@ -5,7 +5,7 @@ tags: CV
 mathjax: true
 ---
 总结一些常见的损失（虽然我把本文归类到 CV，但实际上这些损失函数并不仅仅用于 CV 中，只是目前我只关注 CV 而已）
-
+<!-- more -->
 # Cross-Entropy Loss
 交叉熵损失常用于分类任务中，比如共有 C 中可能的分类，（softmax 之后的）预测向量为 $P=(p_1,...,p_C)$，其中 $p_i$ 表示分类为 i 的概率，且有 $\sum_i^C p_i=1$，目标真实分类为 c，那么 gt target 为 $T=(t_1,...,t_C)$，其中
 $$t_i=\begin{cases} 1 & i=c \\\\ 0 & i\ne c \end{cases}$$

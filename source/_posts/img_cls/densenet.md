@@ -9,6 +9,7 @@ mathjax: true
 论文 [Densely Connected Convolutional Networks](https://arxiv.org/abs/1608.06993)
 
 随着现在数据集越来越大，网络容量也需要增大，否则容易出现过拟合现象，一种增大网络容量的方法是增加更多的 layer ，让网络更深（deep），但是这也会带来新的问题：随着输入（或梯度）经过越来越多的 layer，信息可能在到达最后一层（对于梯度则是反向传播在到达网络第一层）之前就消失了。ResNet 增加 shortcut，即 early layer 到 later layer 之间直接连接，以此来解决这个问题。本文提出 densenet，将这种连接风格贯彻到底，网络结构如图1，
+<!-- more -->
 
 ![](/images/img_cls/densenet_1.png)
 
