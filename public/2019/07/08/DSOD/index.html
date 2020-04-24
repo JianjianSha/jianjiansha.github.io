@@ -15,11 +15,11 @@
 
 
 <html class="theme-next pisces use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -44,9 +44,9 @@
 
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+<link rel="stylesheet" href="/css/main.css?v=7.1.2"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
@@ -97,18 +97,18 @@
 
 
   <meta name="description" content="论文 DSOD: Learning Deeply Supervised Object Detectors from Scratch Introduction近几年来提出了很多新型 CNN 网络结构，如 Inception、ResNet 以及 DenseNet 等，带动了包括目标检测在内的诸多 CV 任务的发展。通常来讲，目标检测都是在 backbone 后增加检测子网络，backbone 在分类">
-<meta name="keywords" content="object detection">
 <meta property="og:type" content="article">
 <meta property="og:title" content="DSOD">
 <meta property="og:url" content="https://shajianjian.github.io/2019/07/08/DSOD/index.html">
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="论文 DSOD: Learning Deeply Supervised Object Detectors from Scratch Introduction近几年来提出了很多新型 CNN 网络结构，如 Inception、ResNet 以及 DenseNet 等，带动了包括目标检测在内的诸多 CV 任务的发展。通常来讲，目标检测都是在 backbone 后增加检测子网络，backbone 在分类">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/DSOD_fig1.png">
-<meta property="og:updated_time" content="2019-07-17T06:12:00.637Z">
+<meta property="article:published_time" content="2019-07-08T01:14:40.000Z">
+<meta property="article:modified_time" content="2020-04-20T05:45:52.241Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="object detection">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="DSOD">
-<meta name="twitter:description" content="论文 DSOD: Learning Deeply Supervised Object Detectors from Scratch Introduction近几年来提出了很多新型 CNN 网络结构，如 Inception、ResNet 以及 DenseNet 等，带动了包括目标检测在内的诸多 CV 任务的发展。通常来讲，目标检测都是在 backbone 后增加检测子网络，backbone 在分类">
 <meta name="twitter:image" content="https://shajianjian.github.io/images/DSOD_fig1.png">
 
 
@@ -117,7 +117,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/2019/07/08/DSOD/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/07/08/DSOD/"/>
 
 
 
@@ -164,9 +164,9 @@
   .use-motion .logo-line-before i { left: initial; }
   .use-motion .logo-line-after i { right: initial; }
   </style>
-</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</noscript>
 
-</head>
+<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -223,7 +223,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-home&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;首页</a>
 
   </li>
         
@@ -240,7 +240,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-user&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;关于</a>
 
   </li>
         
@@ -257,7 +257,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-tags&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;标签</a>
 
   </li>
         
@@ -274,7 +274,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+    <a href="/categories/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-th&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;分类</a>
 
   </li>
         
@@ -291,7 +291,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+    <a href="/archives/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-archive&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;归档</a>
 
   </li>
 
@@ -343,16 +343,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/08/DSOD/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/08/DSOD/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
+      <meta itemprop="name" content="SJJ"/>
     </span>
 
     
@@ -403,7 +403,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-07-17 14:12:00" itemprop="dateModified" datetime="2019-07-17T14:12:00+08:00">2019-07-17</time>
+                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
               
             
           </span>
@@ -445,7 +445,7 @@
 <li>领域不匹配。fine-tuning 虽然可以缓和不同数据集的不同分类分布，但是当源域（ImageNet）与目标域（深度图像，医学图像等）有着严重不匹配时，这依然是个问题。</li>
 </ol>
 <p>于是我们考虑两个问题：目标检测网络是否可以 train from scratch？如果可以，是否存在一些网络结构设计原则使得保持高检测准确率的同时让网络轻量？我们提出深度监督目标检测器 DSOD 以满足以上两个问题。</p>
-<h1 id="DSOD"><a href="#DSOD" class="headerlink" title="DSOD"></a>DSOD</h1><h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>DSOD 与 SSD 类似，是一个多尺度的无 proposal（one-stage）的目标检测网络。DSOD 结构分为两部分：用于抽取特征的 backbone 子网络，以及在多尺度响应图（response maps）上预测子网络（这里也称前端子网络）。backbone 是深度监督的 DenseNet 的变体（深度监督指的是对网络隐藏层和输出层直接使用目标检测数据集监督训练，而不是先使用 ImageNet 预训练，再使用目标检测数据集 fine-tune），这个 DenseNet 组成包括一个 stem block，四个 dense block，两个 transition layer 以及两个不带池化层的 transition layer。前端子网络使用一个dense结构融合了多尺度预测响应，如图 1 展示了 DSOD 前端子网络，以及 SSD 中使用的朴素多尺度预测 maps 结构。<br><img src="/images/DSOD_fig1.png" alt><center>Fig 1: 预测子网络。左边是 SSD 中所用的朴素结构；右边是 dense 结构</center></p>
+<h1 id="DSOD"><a href="#DSOD" class="headerlink" title="DSOD"></a>DSOD</h1><h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>DSOD 与 SSD 类似，是一个多尺度的无 proposal（one-stage）的目标检测网络。DSOD 结构分为两部分：用于抽取特征的 backbone 子网络，以及在多尺度响应图（response maps）上预测子网络（这里也称前端子网络）。backbone 是深度监督的 DenseNet 的变体（深度监督指的是对网络隐藏层和输出层直接使用目标检测数据集监督训练，而不是先使用 ImageNet 预训练，再使用目标检测数据集 fine-tune），这个 DenseNet 组成包括一个 stem block，四个 dense block，两个 transition layer 以及两个不带池化层的 transition layer。前端子网络使用一个dense结构融合了多尺度预测响应，如图 1 展示了 DSOD 前端子网络，以及 SSD 中使用的朴素多尺度预测 maps 结构。<br><img src="/images/DSOD_fig1.png" alt=""><center>Fig 1: 预测子网络。左边是 SSD 中所用的朴素结构；右边是 dense 结构</center></p>
 <p>整个 DSOD 网络结构如表 1 所示。</p>
 <table>
 <thead>
@@ -656,9 +656,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20archive">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">42</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -670,7 +670,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20th">
                     
                   
                     
@@ -691,7 +691,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -789,7 +789,7 @@
 </div>
 
 
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0</div>
 
 
 
@@ -797,7 +797,7 @@
 
 
 
-  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
 
 
 

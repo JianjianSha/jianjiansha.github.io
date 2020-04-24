@@ -15,11 +15,11 @@
 
 
 <html class="theme-next pisces use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -44,9 +44,9 @@
 
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+<link rel="stylesheet" href="/css/main.css?v=7.1.2"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
@@ -97,19 +97,19 @@
 
 
   <meta name="description" content="论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression 摘要IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，">
-<meta name="keywords" content="object detection">
 <meta property="og:type" content="article">
 <meta property="og:title" content="GIoU">
 <meta property="og:url" content="https://shajianjian.github.io/2019/06/13/GIoU/index.html">
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression 摘要IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/GIoU_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/GIoU_fig2.png">
-<meta property="og:updated_time" content="2019-08-01T06:24:28.166Z">
+<meta property="article:published_time" content="2019-06-13T07:00:48.000Z">
+<meta property="article:modified_time" content="2020-04-20T05:45:52.250Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="object detection">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="GIoU">
-<meta name="twitter:description" content="论文 Generalized Intersection over Union: A Metric and A Loss for Bounding Box Regression 摘要IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，">
 <meta name="twitter:image" content="https://shajianjian.github.io/images/GIoU_fig1.png">
 
 
@@ -118,7 +118,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/2019/06/13/GIoU/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/06/13/GIoU/"/>
 
 
 
@@ -165,9 +165,9 @@
   .use-motion .logo-line-before i { left: initial; }
   .use-motion .logo-line-after i { right: initial; }
   </style>
-</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</noscript>
 
-</head>
+<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -224,7 +224,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-home&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;首页</a>
 
   </li>
         
@@ -241,7 +241,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-user&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;关于</a>
 
   </li>
         
@@ -258,7 +258,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-tags&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;标签</a>
 
   </li>
         
@@ -275,7 +275,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+    <a href="/categories/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-th&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;分类</a>
 
   </li>
         
@@ -292,7 +292,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+    <a href="/archives/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-archive&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;归档</a>
 
   </li>
 
@@ -344,16 +344,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/13/GIoU/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/13/GIoU/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
+      <meta itemprop="name" content="SJJ"/>
     </span>
 
     
@@ -404,7 +404,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-08-01 14:24:28" itemprop="dateModified" datetime="2019-08-01T14:24:28+08:00">2019-08-01</time>
+                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
               
             
           </span>
@@ -442,7 +442,7 @@
 <h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p>IoU 是目标检测benchmarks中使用最广的评估指标，然而，优化回归bbox参数的距离损失并不等价于最大化IoU指标。对于轴对齐的2D bbox，IoU 可直接用作回归损失，但是 IoU 无法优化无重叠的bbox，所以本文提出一种泛化版的Iou，名为 GIou。结合 GIoU 和 sota 目标检测框架，在流行的目标检测benchmarks例如 PASCAL VOC 和 MS COCO中，分别使用标准 IoU 和 GIoU 损失，我们发现性能一致得到提升。</p>
 <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>在很多2D/3D 计算机视觉任务中，bbox 回归是最基本的组成之一。例如目标定位，多目标检测，目标跟踪以及实例分割，均依赖准确的bbox回归。提升性能的主流趋势是使用深度神经网络，然而，还有一种提升方法被广泛忽略，那就是使用基于 IoU 的指标损失来代替传统的回归损失如 $l_1, l_2$ 等。</p>
 <p>IoU 将要比较的目标的形状属性例如 bbox 的宽、高和位置等信息编码成区域属性，并基于面积（体积）计算出一个归一化的值。语义分割、目标检测和跟踪等任务中的性能测量均采用IoU作为测量指标。</p>
-<p>然而，最小化损失如$l_n$范数与提高IoU并不是强相关。考虑一个2D场景，如图1(a)，<br><img src="/images/GIoU_fig1.png" alt></p>
+<p>然而，最小化损失如$l_n$范数与提高IoU并不是强相关。考虑一个2D场景，如图1(a)，<br><img src="/images/GIoU_fig1.png" alt=""></p>
 <!--  -->
 
 <p>预测box（黑矩形）和gt box（绿矩形）均由左上角和右下角坐标表示$(x_1,y_1,x_2,y_2)$，为简单起见，我们令两个box的其中一个corner的距离（例如$l_2$范数）固定，于是，以 gt box 另一个 corner 为圆心，某半径长的圆，无论预测 box 的另一个 corner 的坐标，只要其位于这个圆上，其 $l_2$ 距离均保持不变；然而IoU却不同。这个问题可以延伸到其他损失和bbox表示上，例如图1(b)。</p>
@@ -575,7 +575,7 @@
 </ol>
 <hr>
 <p>根据指标检测性能时，以指标本身作为损失来优化显然是最佳选择，但是在bbox非重叠场景下，IoU=0，其梯度也为0，影响训练质量和收敛速度，相反，GIoU 则一直有有效梯度指导如何优化模型。另外，根据性质3，GIoU 与 IoU 强相关，在 IoU 较大时，这种强相关更加显著。图2 定性的分析了这种相关性，</p>
-<p><img src="/images/GIoU_fig2.png" alt></p>
+<p><img src="/images/GIoU_fig2.png" alt=""></p>
 <p>图2中，随机选择了1万组 2D 矩形pair，计算其 IoU 和 GIoU，观察发现，在重叠较小时，例如 $IoU \le 0.2, \ GIoU \le 0.2$，GIoU 可以比 IoU 变化更显著，而且在任何情况下，GIoU 的梯度都可以很陡，所以将 GIoU 作为损失$\mathcal L_{GIoU}$，比使用 IoU 作为损失$\mathcal L_{IoU}$，更有利于优化，并且最终的性能测量指标只要是基于IoU，无论使用哪种指标均可。</p>
 <h3 id="损失稳定性"><a href="#损失稳定性" class="headerlink" title="损失稳定性"></a>损失稳定性</h3><p>我们也考察了预测值为任意的情况下，损失是否会不稳定或者出现未定义情况（比如除数为0）。</p>
 <p>假设 GT box 是矩形，且面积大于0即，$A^g &gt; 0$，算法2中第1点和第4点分别确保了预测框和两个bbox的交均非负即，$A^p \ge 0, \ \mathcal I \ge 0, \forall B^p \in \mathbb R^4$，又根据$\mathcal U \ge A^g$，故 $\mathcal U &gt; 0$，所以 IoU 的分母为正非零。又 $\mathcal U \ge \mathcal I$，故 $0 \le IoU \le 1$，于是 IoU 损失范围为 $0 \le \mathcal L_{IoU} \le 1$</p>
@@ -707,9 +707,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20archive">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">42</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -721,7 +721,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20th">
                     
                   
                     
@@ -742,7 +742,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -807,7 +807,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#摘要"><span class="nav-number">1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#相关工作"><span class="nav-number">3.</span> <span class="nav-text">相关工作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#泛化IoU"><span class="nav-number">4.</span> <span class="nav-text">泛化IoU</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#GIoU用作BBox回归损失"><span class="nav-number">4.1.</span> <span class="nav-text">GIoU用作BBox回归损失</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#损失稳定性"><span class="nav-number">4.1.1.</span> <span class="nav-text">损失稳定性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IoU-0时-mathcal-L-GIoU-的行为"><span class="nav-number">4.1.2.</span> <span class="nav-text">IoU=0时$\mathcal L_{GIoU}$的行为</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实验结果"><span class="nav-number">5.</span> <span class="nav-text">实验结果</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#YOLO-v3"><span class="nav-number">5.1.</span> <span class="nav-text">YOLO v3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Faster-R-CNN-和-Mask-R-CNN"><span class="nav-number">5.2.</span> <span class="nav-text">Faster R-CNN 和 Mask R-CNN</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">6.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">7.</span> <span class="nav-text">后记</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#摘要"><span class="nav-number">1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#相关工作"><span class="nav-number">3.</span> <span class="nav-text">相关工作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#泛化IoU"><span class="nav-number">4.</span> <span class="nav-text">泛化IoU</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#GIoU用作BBox回归损失"><span class="nav-number">4.1.</span> <span class="nav-text">GIoU用作BBox回归损失</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#损失稳定性"><span class="nav-number">4.1.1.</span> <span class="nav-text">损失稳定性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IoU-0时-mathcal-L-GIoU-的行为"><span class="nav-number">4.1.2.</span> <span class="nav-text">IoU&#x3D;0时$\mathcal L_{GIoU}$的行为</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实验结果"><span class="nav-number">5.</span> <span class="nav-text">实验结果</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#YOLO-v3"><span class="nav-number">5.1.</span> <span class="nav-text">YOLO v3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Faster-R-CNN-和-Mask-R-CNN"><span class="nav-number">5.2.</span> <span class="nav-text">Faster R-CNN 和 Mask R-CNN</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">6.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">7.</span> <span class="nav-text">后记</span></a></li></ol></div>
             
 
           </div>
@@ -840,7 +840,7 @@
 </div>
 
 
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0</div>
 
 
 
@@ -848,7 +848,7 @@
 
 
 
-  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
 
 
 

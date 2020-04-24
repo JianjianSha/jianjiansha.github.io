@@ -15,11 +15,11 @@
 
 
 <html class="theme-next pisces use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -44,9 +44,9 @@
 
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+<link rel="stylesheet" href="/css/main.css?v=7.1.2"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
@@ -97,23 +97,23 @@
 
 
   <meta name="description" content="Grid R-CNN论文 Grid R-CNN 源码 Grid R-CNN 1. 简介目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。 这篇文章介绍了 Grid R-CNN，主要是修改了类 R-">
-<meta name="keywords" content="object detection">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Grid-RCNN">
 <meta property="og:url" content="https://shajianjian.github.io/2019/07/19/Grid-RCNN/index.html">
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="Grid R-CNN论文 Grid R-CNN 源码 Grid R-CNN 1. 简介目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。 这篇文章介绍了 Grid R-CNN，主要是修改了类 R-">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/Grid-RCNN_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/Grid-RCNN_fig2.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/Grid-RCNN_fig3.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/Grid-RCNN_fig4.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/Grid-RCNN-Plus_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/Grid-RCNN-Plus_fig2.png">
-<meta property="og:updated_time" content="2019-07-23T01:23:23.833Z">
+<meta property="article:published_time" content="2019-07-19T09:44:19.000Z">
+<meta property="article:modified_time" content="2020-04-20T05:45:52.251Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="object detection">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Grid-RCNN">
-<meta name="twitter:description" content="Grid R-CNN论文 Grid R-CNN 源码 Grid R-CNN 1. 简介目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。 这篇文章介绍了 Grid R-CNN，主要是修改了类 R-">
 <meta name="twitter:image" content="https://shajianjian.github.io/images/Grid-RCNN_fig1.png">
 
 
@@ -122,7 +122,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/2019/07/19/Grid-RCNN/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/07/19/Grid-RCNN/"/>
 
 
 
@@ -169,9 +169,9 @@
   .use-motion .logo-line-before i { left: initial; }
   .use-motion .logo-line-after i { right: initial; }
   </style>
-</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</noscript>
 
-</head>
+<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -228,7 +228,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-home&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;首页</a>
 
   </li>
         
@@ -245,7 +245,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-user&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;关于</a>
 
   </li>
         
@@ -262,7 +262,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-tags&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;标签</a>
 
   </li>
         
@@ -279,7 +279,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+    <a href="/categories/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-th&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;分类</a>
 
   </li>
         
@@ -296,7 +296,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+    <a href="/archives/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-archive&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;归档</a>
 
   </li>
 
@@ -348,16 +348,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/19/Grid-RCNN/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/19/Grid-RCNN/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
+      <meta itemprop="name" content="SJJ"/>
     </span>
 
     
@@ -408,7 +408,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-07-23 09:23:23" itemprop="dateModified" datetime="2019-07-23T09:23:23+08:00">2019-07-23</time>
+                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
               
             
           </span>
@@ -444,24 +444,24 @@
       
         <h1 id="Grid-R-CNN"><a href="#Grid-R-CNN" class="headerlink" title="Grid R-CNN"></a>Grid R-CNN</h1><p>论文 <a href="https://arxiv.org/abs/1811.12030" target="_blank" rel="noopener">Grid R-CNN</a></p>
 <p>源码 <a href="https://github.com/STVIR/Grid-R-CNN" target="_blank" rel="noopener">Grid R-CNN</a></p>
-<h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p>目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。<br><img src="/images/Grid-RCNN_fig1.png" alt></p>
+<h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p>目标检测器包含两个分支：分类和回归，其中回归分支通常由 conv 和 fc 层组成，因为最终的输出单元数量固定为 4，表示 x,y,w,h 的坐标偏差（或者固定为 4*(C+1)，表示坐标偏差的预测是分类相关的），而 fc 层适用输出单元数量固定的场景。<br><img src="/images/Grid-RCNN_fig1.png" alt=""></p>
 <p>这篇文章介绍了 Grid R-CNN，主要是修改了类 R-CNN 目标检测器的回归分支，与传统类 R-CNN 的区别主要如图 1 所示，即，使用 grid points 表示目标定位：在得到 RoI 特征后，使用全卷积 FCN 得到特征图，然后再通过某种方法得到 grid points。此修改有如下优点：</p>
 <ol>
 <li>FCN 保留了 RoI 的空间信息，二维（显然，之前的方法都是展平成了一维向量），所以可准确的得到 grid points</li>
 <li>根据 grid points 可以更加精确的获得目标定位。以前的方法都是通过左上角和右下角坐标确定目标 bbox，这种方法显然较为粗糙，因为目标形状的任意性，角点可能位于目标形状之外的背景上，角点处的局部特征并不能反映目标的特征（ExtremeNet 中也提过 CornerNet 的这个问题），而 grid points 采用 3x3 的点作为监督，由于点数增多，可以降低其中某些不准确点对位置预测的负面影响。如图 1(b)，右上角的坐标不准确，但是中上（top-middle）点可以帮助校正最终的目标位置。</li>
 </ol>
 <p>利用 grid points 数量多这个优势，文中还提出一种信息融合方法，为每个 grid point 设计独立的一组 feature maps：对某个 grid point，聚集其邻近 grid point 的 feature maps 并进行融合成，作为当前这个 grid point 的 feature map，这个合成的 feature map 则用于预测当前 grid point 的位置。这种空间信息互补的方法可以使得位置预测更加准确。</p>
-<h2 id="2-Grid-R-CNN"><a href="#2-Grid-R-CNN" class="headerlink" title="2. Grid R-CNN"></a>2. Grid R-CNN</h2><p>网络的整体结构如图 2 所示，基于 region proposals，使用 RoIAlign 抽取出 RoI 特征，然后分为两支，其中一支用于目标分类预测，另一支经过 FCN 得到 feature maps，然后经过 sigmoid 得到概率热图（probability heatmap），注意不是传统的坐标偏差，heatmaps 可由 target map 监督，从这个概率热图上我们可以通过某种方法得到 grid points（下文 2.1 一节会介绍这种方法），再经过上述的空间信息融合方法（2.2 一节会介绍），最后得到准确的目标定位。接下来我们将整个问题分而治之进行介绍。<br><img src="/images/Grid-RCNN_fig2.png" alt></p>
+<h2 id="2-Grid-R-CNN"><a href="#2-Grid-R-CNN" class="headerlink" title="2. Grid R-CNN"></a>2. Grid R-CNN</h2><p>网络的整体结构如图 2 所示，基于 region proposals，使用 RoIAlign 抽取出 RoI 特征，然后分为两支，其中一支用于目标分类预测，另一支经过 FCN 得到 feature maps，然后经过 sigmoid 得到概率热图（probability heatmap），注意不是传统的坐标偏差，heatmaps 可由 target map 监督，从这个概率热图上我们可以通过某种方法得到 grid points（下文 2.1 一节会介绍这种方法），再经过上述的空间信息融合方法（2.2 一节会介绍），最后得到准确的目标定位。接下来我们将整个问题分而治之进行介绍。<br><img src="/images/Grid-RCNN_fig2.png" alt=""></p>
 <h3 id="2-1-Grid-Guided-Localization"><a href="#2-1-Grid-Guided-Localization" class="headerlink" title="2.1 Grid Guided Localization"></a>2.1 Grid Guided Localization</h3><p>一般地， NxN 的 grid points 位列 bbox 之上。以上文提到的 3x3 的 grid points 为例，共四个角点，四条边的中点，以及 bbox 的中心点。</p>
 <p>我们简单地描述一下坐标预测分支：使用 RoIAlign 抽取 RoI 得到空间尺度固定为 14x14 的 feature，然后跟着是 8 个 3x3 的空洞卷积，目的是为了增大感受野，接着是两个 2x 反卷积，得到空间尺度为 56x56 的 feature，其通道数为 NxN，然后应用 pixel-wise 的 sigmoid 函数，得到 NxN 个概率热图 heatmap，注意 heatmap 与 feature map 两者是不同的，每个热图对应一个 grid point，且对应一个 supervision map，在这个 supervision map 上以 target grid point 为中心的可以组成十字型的 5 个像素点标记为正 $t_i=1$，其他像素位置处表示为负 $t_i=0$（target grid point 在 supervision map 上的位置在 2.3 一节介绍），然后使用 binary cross-entropy loss $CE=\sum_{i=1}^{56 \times 56} [-t_i\log p_i-(1-t_i)\log(1-p_i)]$进行优化，其中 $p_i$ 表示某个 pixel 处的概率。</p>
 <p>Inference 阶段，在每个 heatmap 上选择最高置信度的点，记为 $(H_x,H_y)$，经过简单的映射计算可以得到其在原始 image 平面上的坐标，记为 $(I_x,I_y)$，<br>$$I_x=P_x+ \frac {H_x}{w_o} w_p<br>\\ I_y=P_y+ \frac {H_y}{h_o} h_p$$<br>其中 $(P_x,P_y)$ 为 region proposal 的左上角在原始 image 平面上的坐标，$(w_p,h_p)$ 表示 proposal 的宽高，$(w_o,h_o)$ 表示输出 heatmap 的宽高。 <strong>注意：</strong> heatmap 与 proposal 尺度不一定相同！！！<br>有了预测的 grid points 之后就可以得到目标 bbox 的四个边的坐标，记为 $B=(x_l,y_u,x_r,y_b)$。第 j 个 grid point 记为 $g_j$，其坐标为 $(x_j,y_j)$，其概率为 $p_j$（第 j 个 heatmap 上置信度最高值），定义 $E_i$ 为位于第 i 个边（左上右下，其中一个）上的 grid points 的下标集合，即，如果 $g_j$ 位于 第 i 个边上，那么 $j \in E_i$，于是根据 grid points 集合可以计算 B，采用加权平均，如下，<br>$$x_l=\frac 1 N \sum_{j \in E_1} x_j p_j, \quad y_u=\frac 1 N \sum_{j \in E_2} y_j p_j<br>\\ x_r=\frac 1 N \sum_{j \in E_3} x_j p_j, \quad y_b=\frac 1 N \sum_{j \in E_4} y_j p_j$$</p>
 <h3 id="2-2-Grid-Points-Feature-Fusion"><a href="#2-2-Grid-Points-Feature-Fusion" class="headerlink" title="2.2 Grid Points Feature Fusion"></a>2.2 Grid Points Feature Fusion</h3><p>由 FCN 得到得 heatmap 保留了 RoI 的空间信息，所以 grid points 之间存在某种联系，他们之间可以互相校正位置，通过一种空间信息融合方法得以实现。以 3x3 grid points 为例，要校正左上角 point，我们可以利用其他 grid points 对应的 feature maps 上左上角区域的特征。</p>
 <p>为了区分不同 grid points 的 feature maps，使用 NxN 不同的 filters 从最后的 feature map 上分别为这些 grid points 抽取特征，于是每个 feature map 与其对应的 grid point 有特殊的联系，称第 i 个 point 对应的 feature map 为 $F_i$。</p>
-<p>对于每个 grid point，与其 L1 距离为 1 的其他 points 参与融合过程，称这些 points 为 source points，记为 $S_i$，对于 $S_i$ 中的 point j，其 feature maps $F_j$ 经过三个连续的 5x5 卷积，记此过程为 $T_{j \rightarrow i}$，$S_i$ 中所有 source points 经过此过程后得到的 features 再与 $F_i$ 进行融合得到 $F_i’$，融合采用简单的求和操作，<br>$$F_i’=F_i + \sum_{j \in S_i} T_{j \rightarrow i} (F_j)$$<br><img src="/images/Grid-RCNN_fig3.png" alt></p>
+<p>对于每个 grid point，与其 L1 距离为 1 的其他 points 参与融合过程，称这些 points 为 source points，记为 $S_i$，对于 $S_i$ 中的 point j，其 feature maps $F_j$ 经过三个连续的 5x5 卷积，记此过程为 $T_{j \rightarrow i}$，$S_i$ 中所有 source points 经过此过程后得到的 features 再与 $F_i$ 进行融合得到 $F_i’$，融合采用简单的求和操作，<br>$$F_i’=F_i + \sum_{j \in S_i} T_{j \rightarrow i} (F_j)$$<br><img src="/images/Grid-RCNN_fig3.png" alt=""></p>
 <p>如图 3(a) 是左上角 point 的融合示意图。有了融合后的特征 $F_i’$ 后，还可进行二次融合，类似的，对 source point 的 $F_i’$ 特征应用变换函数 $T_{j \rightarrow i}^+$（几个连续的卷积），其参数不与第一个融合的过程共享，第二次融合后的特征记为 $F_i’’$，用于输出最终的 heatmap，并从中根据前述方法取最大置信度得到 grid point 位置预测。第二次融合使得 L1 距离小于等于 2 的 points 的 features 对当前 grid point 均有贡献，如图 3(b)。</p>
 <p><strong>注意：</strong> 融合前后的两组 feature maps 均通过 sigmoid 计算得到两组 heatmaps，然后分别与 supervision maps 计算出前后两处 loss（作为位置预测损失），损失计算如上面所述均采用 Binary Cross-Entropy Loss。</p>
 <h3 id="2-3-Extended-Region-Mapping"><a href="#2-3-Extended-Region-Mapping" class="headerlink" title="2.3 Extended Region Mapping"></a>2.3 Extended Region Mapping</h3><p>Grid 预测模块输出的 heatmap 是固定尺度的，各 pixel 位置处的概率表示可能是 grid point 的概率。对 RoI 特征应用的是全卷积 FCN，所以空间信息得以保留，输出 heatmap 自然就对应 region proposal 在原 image 上的空间区域，但是，region proposal 不一定完全包含目标，这意味着 gt grid point 可能位于 region proposal 之外，导致无法在 supervision map 上标记 target grid point，这种缺失造成训练阶段训练样本的利用率低的问题，同时在 inference 阶段，简单地在 heatmap 上选择置信度最大的 pixel 作为 grid point，由于 region proposal 没有完全包含目标，可能会选择出一个错误的 grid point 位置，从而导致预测存在偏差。很多场合下有超过一半的 gt grid points 都没有被 region proposals 覆盖到，如图 4，proposal（最小白框）比 gt box 小，9 个 grid points 中有 7 个将会位于输出 heatmap 之外。</p>
-<p>解决上述问题的一个最自然的方法是增大 proposal，从而确保大部分 gt grid points 还是会被 proposal 包含进来，但是这同时也会包含 背景或其他目标 的特征，这些特征对于预测当前目标是冗余的，甚至是有害的。作者实验显示，简单的增大 proposal 确实没什么好处，在小目标检测上是有害的。作者采用的解决方法是修改输出 heatmap 和原 image 上 region 之间的关系：当给定 proposal 时，RoI 特征依然是从 feature map 上相同 region 中获取，此处不需要增大 proposal；但是重新定义输出 heatmap 所代表的区域为 region 的两倍大，这样大多数场合下，所有的 grid points 都被包含进来了，如图 4 中虚线框所示，但是 supervision map 与输出 heatmap 尺度相同的，这相当于将 gt box 缩小一倍然后映射到 supervision map 上从而进行标记，标记方法前文已经提到过，在以 gt grid point 为中心的十字型 pixels，即 gt grid point 和位于其上下左右四个最近邻 pixels，共 5 个 pixels 标记为正。<br><img src="/images/Grid-RCNN_fig4.png" alt></p>
+<p>解决上述问题的一个最自然的方法是增大 proposal，从而确保大部分 gt grid points 还是会被 proposal 包含进来，但是这同时也会包含 背景或其他目标 的特征，这些特征对于预测当前目标是冗余的，甚至是有害的。作者实验显示，简单的增大 proposal 确实没什么好处，在小目标检测上是有害的。作者采用的解决方法是修改输出 heatmap 和原 image 上 region 之间的关系：当给定 proposal 时，RoI 特征依然是从 feature map 上相同 region 中获取，此处不需要增大 proposal；但是重新定义输出 heatmap 所代表的区域为 region 的两倍大，这样大多数场合下，所有的 grid points 都被包含进来了，如图 4 中虚线框所示，但是 supervision map 与输出 heatmap 尺度相同的，这相当于将 gt box 缩小一倍然后映射到 supervision map 上从而进行标记，标记方法前文已经提到过，在以 gt grid point 为中心的十字型 pixels，即 gt grid point 和位于其上下左右四个最近邻 pixels，共 5 个 pixels 标记为正。<br><img src="/images/Grid-RCNN_fig4.png" alt=""></p>
 <p>扩展的区域映射使用公式表达如下，<br>$$I_x’=P_x+\frac {4H_x-w_o}{2w_o}w_p<br>\\ I_y’=P_y+\frac {4H_y-h_o}{2h_o}h_p$$</p>
 <p>以图 4 为例，推导一下上式的由来。<br>记 heatmap 对应到原 image 上两倍 region proposal 大小的区域为 R’，类似于 $(I_x,I_y)$ 地有，<br>$$I_x’=P_x’+\frac {H_x}{w_o} 2 w_p, \quad I_y’=P_y’+\frac {H_y}{h_o} 2 h_p$$<br>其中 $(P_x’,P_y’)$ 是 R’ 的左上角在原 image 上的坐标，其与 proposal 的左上角坐标具有关系，<br>$$2(x_c-P_x)=x_c-P_x’=w_p, \quad 2(y_c-P_y)=y_c-P_y’=h_p$$<br>其中 $(x_c,y_c)$ 是 proposal 与 R’ 共同的中心在原 image 上的坐标，综合上两式即可证明。</p>
 <h3 id="2-4-Implementation-Details"><a href="#2-4-Implementation-Details" class="headerlink" title="2.4 Implementation Details"></a>2.4 Implementation Details</h3><p>实现细节和实验分析略，请阅读原文。</p>
@@ -469,10 +469,10 @@
 <p>前面讲到将 Grid R-CNN 模块引入到 two-stage 目标检测器中可以显著提升 mAP，然而 Grid R-CNN 的计算量较大导致 inference 时间较长，从而使其难以广泛应用，所以这篇文章提出 Grid R-CNN Plus，通过一些有效的改进使其成为更好更快的目标检测器。</p>
 <p>大概介绍一下 Grid R-CNN Plus：对于每个 grid point，Grid R-CNN 均使用相同的表示区域来生成 supervision map，显然这是低效的，例如，左上 grid point 不会出现在其对应 supervision map 的右部和底部，所以在 Grid R-CNN Plus 中，仅监督最有可能的 1/4 区域，这样就降低了 grid 分支中 feature maps 的尺度。另外，特征融合阶段的卷积层数量也减少了。如此，降低计算损耗的同时，由于更加专注 grid point 的表示区域（原来区域中最有可能的 1/4），grid point 定位也更加准确。</p>
 <p>在采用策略，归一化方法，NMS 策略和超参数上也进行了分析和优化。</p>
-<h2 id="回顾-Grid-R-CNN"><a href="#回顾-Grid-R-CNN" class="headerlink" title="回顾 Grid R-CNN"></a>回顾 Grid R-CNN</h2><p>图 1 是 Grid R-CNN 的框架结构示意图。与一般 two-stage 检测器类似，Grid R-CNN 包含 RPN 和 R-CNN。基于 region propopsals，使用 RoIAlign 从 CNN backbone 的输出 feature maps 上 RoI 对应区域抽取特征，这个 RoI 特征用于预测分类和 bbox 定位。Grid R-CNN 与一般类 R-CNN 的不同之处在于使用 grid points 代替了坐标偏差。Grid 预测分支使用 FCN 结构输出保留空间信息的 heatmaps，从这些 heatmaps 中可以分别定位目标的 grid points。<br><img src="/images/Grid-RCNN-Plus_fig1.png" alt></p>
+<h2 id="回顾-Grid-R-CNN"><a href="#回顾-Grid-R-CNN" class="headerlink" title="回顾 Grid R-CNN"></a>回顾 Grid R-CNN</h2><p>图 1 是 Grid R-CNN 的框架结构示意图。与一般 two-stage 检测器类似，Grid R-CNN 包含 RPN 和 R-CNN。基于 region propopsals，使用 RoIAlign 从 CNN backbone 的输出 feature maps 上 RoI 对应区域抽取特征，这个 RoI 特征用于预测分类和 bbox 定位。Grid R-CNN 与一般类 R-CNN 的不同之处在于使用 grid points 代替了坐标偏差。Grid 预测分支使用 FCN 结构输出保留空间信息的 heatmaps，从这些 heatmaps 中可以分别定位目标的 grid points。<br><img src="/images/Grid-RCNN-Plus_fig1.png" alt=""></p>
 <p>Grid R-CNN 使用 8 个 3x3 的卷积和两个 2x 反卷积得到 heatmap，这种分支结构比较重量级。降低计算量的一种方法是：首先从 RPN 中选择 1000 的 proposals，然后送入分类分支得到分类得分后，进行 NMS 之后然后选择其中 top 100 的 proposals，然后再送入 grid 分支，以降低计算耗时。</p>
 <p>为了提高准确性，还使用了特征融合机制和扩展区域映射，其中特征融合利用了 grid points 空间相关性互相进行校正，扩展区域映射则解决了 gt grid points 位于 proposal 之外的痛点。</p>
-<h2 id="Grid-R-CNN-Plus-1"><a href="#Grid-R-CNN-Plus-1" class="headerlink" title="Grid R-CNN Plus"></a>Grid R-CNN Plus</h2><h3 id="Grid-Point-专用表示区域"><a href="#Grid-Point-专用表示区域" class="headerlink" title="Grid Point 专用表示区域"></a>Grid Point 专用表示区域</h3><p>因为只有 IoU &gt; 0.5 的 proposals（正例）才可能会被选择送入 Grid 分支，所以 supervision map 上 gt grid point 被限制在一个较小的区域，如图 2 所示是各个 grid point 的 gt label 分布，以 3x3 grid points 为例说明，左上角 point 的 gt label 只可能出现在 supervision map 的左上角区域，所以，如果所有 grid points 的表示区域均相同（相同的 scale 和 center），那么大多数 pixel 的输出均不会被激活，这是很低效的，于是就有了 grid point 专用表示区域。<br><img src="/images/Grid-RCNN-Plus_fig2.png" alt></p>
+<h2 id="Grid-R-CNN-Plus-1"><a href="#Grid-R-CNN-Plus-1" class="headerlink" title="Grid R-CNN Plus"></a>Grid R-CNN Plus</h2><h3 id="Grid-Point-专用表示区域"><a href="#Grid-Point-专用表示区域" class="headerlink" title="Grid Point 专用表示区域"></a>Grid Point 专用表示区域</h3><p>因为只有 IoU &gt; 0.5 的 proposals（正例）才可能会被选择送入 Grid 分支，所以 supervision map 上 gt grid point 被限制在一个较小的区域，如图 2 所示是各个 grid point 的 gt label 分布，以 3x3 grid points 为例说明，左上角 point 的 gt label 只可能出现在 supervision map 的左上角区域，所以，如果所有 grid points 的表示区域均相同（相同的 scale 和 center），那么大多数 pixel 的输出均不会被激活，这是很低效的，于是就有了 grid point 专用表示区域。<br><img src="/images/Grid-RCNN-Plus_fig2.png" alt=""></p>
 <p>原来每个 grid point 的表示区域的尺度是 56x56，现在降为 28x28，是原来区域中最有可能的 1/4，这样输出 heatmap 尺度降为一半。Grid point 专用表示区域也可以看作一种规范化过程，即，从原来的有偏分布到现在的规范化分布，如图 2 中，上左 point 和 中右 point 的 gt label 分布均以区域中心为中心。</p>
 <h3 id="Light-Grid-Head"><a href="#Light-Grid-Head" class="headerlink" title="Light Grid Head"></a>Light Grid Head</h3><p>由于输出 heatmap 尺度变为一半，我们同时将 grid 分支中其中 features 的分辨率也降为一半（例如从 14x14 降为 7x7），这降低了计算损耗。具体而言，使用 RoIAlign 从 RoI 中抽取固定大小 14x14 的特征之后，使用一个 3x3 stride=2 的卷积层，使得特征 size 降为 7x7，在这之后，使用 7 个 3x3 stride=1 的卷积层，每层的输出特征大小均为 7x7，最终特征分为 N 组（默认为 9）每组特征对应一个 grid point。我们显式地将特征与 grid points 一一起来，然后使用 2 个 2x 反卷积生成 28x28 的 heatmaps。</p>
 <p>grid point 专用表示区域使得不同的 grid points 的特征之间更加联系紧密，所以不需要很多的卷积层来弥补不同 grid points 特征之间的差异，所以 Grid R-CNN Plus 仅使用一个 5x5 depth-wise 的卷积，depth-wise 表示一个卷积核负责一个通道（二维平面上的卷积），而 Grid R-CNN 则使用三个 5x5 的普通卷积。这个改进也使得 grid 分支更加轻量。</p>
@@ -597,9 +597,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20archive">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">42</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -611,7 +611,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20th">
                     
                   
                     
@@ -632,7 +632,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -730,7 +730,7 @@
 </div>
 
 
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0</div>
 
 
 
@@ -738,7 +738,7 @@
 
 
 
-  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
 
 
 

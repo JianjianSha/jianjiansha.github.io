@@ -15,11 +15,11 @@
 
 
 <html class="theme-next pisces use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -44,9 +44,9 @@
 
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+<link rel="stylesheet" href="/css/main.css?v=7.1.2"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
@@ -97,21 +97,21 @@
 
 
   <meta name="description" content="论文：Bounding Box Regression with Uncertainty for Accurate Object Detection 简介大型目标检测集如 ImageNet，MS-COCO 和 CrowdHuman 等都致力于定义足够明确的 ground truth bounding box。但是有时候 gt bbox 的边界是不明确的，使得难以去打标签，也难以学习 bbox 回归函">
-<meta name="keywords" content="object detection">
 <meta property="og:type" content="article">
 <meta property="og:title" content="BBox-Reg-Uncertainty">
 <meta property="og:url" content="https://shajianjian.github.io/2019/06/28/BBox-Reg-Uncertainty/index.html">
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="论文：Bounding Box Regression with Uncertainty for Accurate Object Detection 简介大型目标检测集如 ImageNet，MS-COCO 和 CrowdHuman 等都致力于定义足够明确的 ground truth bounding box。但是有时候 gt bbox 的边界是不明确的，使得难以去打标签，也难以学习 bbox 回归函">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/BBox-reg_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/BBox-reg_fig2.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/BBox-reg_fig3.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/BBox-reg_fig4.png">
-<meta property="og:updated_time" content="2019-06-28T09:21:00.064Z">
+<meta property="article:published_time" content="2019-06-28T01:23:16.000Z">
+<meta property="article:modified_time" content="2020-04-20T05:45:52.229Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="object detection">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="BBox-Reg-Uncertainty">
-<meta name="twitter:description" content="论文：Bounding Box Regression with Uncertainty for Accurate Object Detection 简介大型目标检测集如 ImageNet，MS-COCO 和 CrowdHuman 等都致力于定义足够明确的 ground truth bounding box。但是有时候 gt bbox 的边界是不明确的，使得难以去打标签，也难以学习 bbox 回归函">
 <meta name="twitter:image" content="https://shajianjian.github.io/images/BBox-reg_fig1.png">
 
 
@@ -120,7 +120,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/2019/06/28/BBox-Reg-Uncertainty/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/06/28/BBox-Reg-Uncertainty/"/>
 
 
 
@@ -167,9 +167,9 @@
   .use-motion .logo-line-before i { left: initial; }
   .use-motion .logo-line-after i { right: initial; }
   </style>
-</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</noscript>
 
-</head>
+<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -226,7 +226,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-home&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;首页</a>
 
   </li>
         
@@ -243,7 +243,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-user&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;关于</a>
 
   </li>
         
@@ -260,7 +260,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-tags&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;标签</a>
 
   </li>
         
@@ -277,7 +277,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+    <a href="/categories/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-th&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;分类</a>
 
   </li>
         
@@ -294,7 +294,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+    <a href="/archives/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-archive&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;归档</a>
 
   </li>
 
@@ -346,16 +346,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/28/BBox-Reg-Uncertainty/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/28/BBox-Reg-Uncertainty/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
+      <meta itemprop="name" content="SJJ"/>
     </span>
 
     
@@ -389,12 +389,24 @@
                 
               
 
-              <time title="创建时间：2019-06-28 09:23:16 / 修改时间：17:21:00" itemprop="dateCreated datePublished" datetime="2019-06-28T09:23:16+08:00">2019-06-28</time>
+              <time title="创建时间：2019-06-28 09:23:16" itemprop="dateCreated datePublished" datetime="2019-06-28T09:23:16+08:00">2019-06-28</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
               
             
           </span>
@@ -429,9 +441,8 @@
 
       
         <p>论文：<a href="https://arxiv.org/abs/1809.08545" target="_blank" rel="noopener">Bounding Box Regression with Uncertainty for Accurate Object Detection</a></p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>大型目标检测集如 ImageNet，MS-COCO 和 CrowdHuman 等都致力于定义足够明确的 ground truth bounding box。但是有时候 gt bbox 的边界是不明确的，使得难以去打标签，也难以学习 bbox 回归函数（的参数），如图 1，<br><img src="/images/BBox-reg_fig1.png" alt> <center>Fig 1 MS-COCO 数据集中 gt bbox 不明确的情况。(a)(c) 标签不准确导致歧义；(b) 遮挡导致歧义；(d) 目标边界本身就不明确</center></p>
-<p>当前 SOTA 目标检测器如 Faster R-CNN，Cascade R-CNN 和 Mask R-CNN 等均依赖于 bbox 回归来定位目标。传统的 bbox 回归损失如 smooth-L1 没有考虑到 gt box 的不明确性，所以损失较大，并且认为分类得分越高时 bbox 回归越准确（应该说的是 Inference 阶段），但事实不总是如此，如图 2，分类得分高的 bbox 但是回归不够准确，回归不准确还是说明 <strong>回归 loss 较大</strong>。
-<img src="/images/BBox-reg_fig2.png" alt> <center>Fig 2 MS-COCO 上使用 VGG-16 Faster R-CNN 的失败案例。(a) 两个预测框均不准确；(b) 高分类得分 bbox 的左边界不准确</center></p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>大型目标检测集如 ImageNet，MS-COCO 和 CrowdHuman 等都致力于定义足够明确的 ground truth bounding box。但是有时候 gt bbox 的边界是不明确的，使得难以去打标签，也难以学习 bbox 回归函数（的参数），如图 1，<br><img src="/images/BBox-reg_fig1.png" alt=""> <center>Fig 1 MS-COCO 数据集中 gt bbox 不明确的情况。(a)(c) 标签不准确导致歧义；(b) 遮挡导致歧义；(d) 目标边界本身就不明确</center></p>
+<p>当前 SOTA 目标检测器如 Faster R-CNN，Cascade R-CNN 和 Mask R-CNN 等均依赖于 bbox 回归来定位目标。传统的 bbox 回归损失如 smooth-L1 没有考虑到 gt box 的不明确性，所以损失较大，并且认为分类得分越高时 bbox 回归越准确（应该说的是 Inference 阶段），但事实不总是如此，如图 2，分类得分高的 bbox 但是回归不够准确，回归不准确还是说明 <strong>回归 loss 较大</strong>。<br><img src="/images/BBox-reg_fig2.png" alt=""> <center>Fig 2 MS-COCO 上使用 VGG-16 Faster R-CNN 的失败案例。(a) 两个预测框均不准确；(b) 高分类得分 bbox 的左边界不准确</center></p>
 <p>为了解决以上问题，我们介绍一种新型 bbox 回归损失 KL loss，同时学习 bbox 回归和定位不确定性，从而使得 <strong>回归 loss 较小</strong>。学习 gt box 的不确定性肯定是针对整个数据集的，首先将预测 box 和 gt box 分别建模为 Gaussian 分布和 Dirac delta 函数。KL loss 定义为预测分布和 gt 分布之间的 KL 散度，我们知道 KL 散度用于衡量两个分布之间的距离（其实不满足距离的对称性，即不满足交换律）或者说差异，差异越大，KL 散度越大。假设目标分布为 P(x)，使用 Q(x) 去匹配目标分布，那么 KL 散度为<br>$$D_{KL}(P||Q)=\sum_{i=1}^N P(x_i) \log \frac {P(x_i)} {Q(x_i)}$$<br>这是离散分布的情况，对于连续分布则为，<br>$$D_{KL}(P||Q)=E_P \left[\log \frac {p(x)} {q(x)} \right]=\int p(x) \log \frac {p(x)} {q(x)} dx$$<br>注意，此时 p(x) 和 q(x) 表示概率密度而非概率。<br>显然如果 P,Q 完全匹配，那么 KL 散度达到最小值 0。</p>
 <p>使用 KL loss 学习 bbox 回归有以下三个优点：</p>
 <ol>
@@ -440,7 +451,7 @@
 <li>学习到的概率分布是可解释的。由于分布反应的是预测 box 的不确定性，故在汽车自动驾驶或机器人等下游应用中非常有用</li>
 </ol>
 <p>我们提出了 KL loss 和 var voting，为了验证这两者的通用性，我们使用了 PASCAL VOC 2007 和 MS-COCO 两个 benchmark，多个目标检测器包括 VGG-CNN-M-1024, VGG-16, ResNet-5-FPN 以及 Mask R-CNN（前两者属于 Faster R-CNN），实验证明使用我们提出的方法均提升了目标定位的准确率。</p>
-<h1 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h1><h2 id="BBox-参数化"><a href="#BBox-参数化" class="headerlink" title="BBox 参数化"></a>BBox 参数化</h2><p>基于 Faster R-CNN 或 Mask R-CNN 如图 3，我们分别回归 bbx 的四条边坐标，即 Box 分支输出 shape 为 (N, 84)，其中 N 表示使用 proposals 的 batch size，84 是 21 个分类下 4 个坐标预测（这里以 PASCAL VOC 为例，共 21 个分类），Box std 分支输出 shape 也是 (N, 84)，表示 21 分类下 4 条边坐标分布的标准差 $\sigma$，坐标是分类相关的（not class-agnostic），前面简介部分所讲的将 box 建模为高斯分布，就是指四条边的坐标均为高斯分布，具体请往下看，<br><img src="/images/BBox-reg_fig3.png" alt></p>
+<h1 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h1><h2 id="BBox-参数化"><a href="#BBox-参数化" class="headerlink" title="BBox 参数化"></a>BBox 参数化</h2><p>基于 Faster R-CNN 或 Mask R-CNN 如图 3，我们分别回归 bbx 的四条边坐标，即 Box 分支输出 shape 为 (N, 84)，其中 N 表示使用 proposals 的 batch size，84 是 21 个分类下 4 个坐标预测（这里以 PASCAL VOC 为例，共 21 个分类），Box std 分支输出 shape 也是 (N, 84)，表示 21 分类下 4 条边坐标分布的标准差 $\sigma$，坐标是分类相关的（not class-agnostic），前面简介部分所讲的将 box 建模为高斯分布，就是指四条边的坐标均为高斯分布，具体请往下看，<br><img src="/images/BBox-reg_fig3.png" alt=""></p>
 <p>令 $(x_1,y_1,x_2,y_2) \in \mathcal R^4$ 表示预测 bbox，那么偏差 ${t_i| i=x_1,y_1,x_2,y_2}$ 为：</p>
 <p>$$t_{x_1}=\frac {x_1-x_{1a}} {w_a}, \quad t_{x_2}=\frac {x_2-x_{2a}} {w_a}<br>\\ t_{y_1}=\frac {y_1-y_{1a}} {h_a}, \quad t_{y_2}=\frac {y_2-y_{2a}} {h_a}<br>\\ t_{x_1}^{\ast}=\frac {x_1^{\ast}-x_{1a}} {w_a}, \quad t_{x_2}^{\ast}=\frac {x_2^{\ast}-x_{2a}} {w_a}<br>\\ t_{y_1}^{\ast}=\frac {y_1^{\ast}-y_{1a}} {h_a}, \quad t_{y_2}^{\ast}=\frac {y_2^{\ast}-y_{2a}} {h_a}$$</p>
 <p>其中带 * 的为 gt offset，不带 * 的为预测 offset，$(x_{1a},y_{1a},x_{2a},y_{2a})$ 为 anchor box。后面的讨论中，由于各坐标独立进行优化，故我们统一使用 x 表示这四个坐标，x 取值为${x_1,y_1,x_2,y_2}$。</p>
@@ -449,7 +460,7 @@
 <p>gt box 也可以使用高斯分布，只是其中标准差无限趋于 0： $\sigma \rightarrow 0$，此时退化为 Dirac delta 函数，<br>$$P_D(x)=\delta(x-x_g)$$<br>其中 $x_g$ 是 gt box 位置 x 坐标。</p>
 <h2 id="使用-KL-Loss-的-BBox-回归"><a href="#使用-KL-Loss-的-BBox-回归" class="headerlink" title="使用 KL Loss 的 BBox 回归"></a>使用 KL Loss 的 BBox 回归</h2><p>最小化 $P_{\Theta}(x)$ 和 $P_D(x)$ 之间的 KL 散度来估计参数 $\hat \Theta$，即，使用 KL 损失优化网络参数，<br>$$\hat \Theta = \arg \min_{\Theta} \frac 1 N \sum D_{KL}(P_D(x)||P_{\Theta}(x))$$<br>其中 N 表示样本数量，x 表示 4 个坐标中的一个。KL 散度作为回归损失，而分类损失维持原来不变。<br>$$\begin{aligned} L_{reg} &amp;=D_{KL}(P_D(x)||P_{\Theta}(x))<br>\\ &amp;=\int P_D(x) \log P_D(x) dx - \int P_D(x) \log P_{\Theta}(x) dx<br>\\ &amp;=-H(P_D(x))-\int P_D(x) \log \frac 1 {\sqrt {2 \pi \sigma^2}}e^{- \frac {(x-x_e)^2} {2 \sigma^2}} dx<br>\\ &amp;=-H(P_D(x))+ \log \sqrt{2\pi \sigma^2}\int P_D(x) dx+\int P_D(x) \frac {(x-x_e)^2} {2 \sigma^2} dx<br>\\ &amp;=\frac {(x_g-x_e)^2}{2\sigma^2}+\frac {\log \sigma^2} 2 + \frac {\log 2\pi} 2 - H(P_D(x))<br>\end{aligned}$$</p>
 <p>其中，$H(P_D(x))$ 是 Dirac delta 分布的信息熵。</p>
-<p>如图 4，<br><img src="/images/BBox-reg_fig4.png" alt></p>
+<p>如图 4，<br><img src="/images/BBox-reg_fig4.png" alt=""></p>
 <p>当 box 位置 $x_e$ 估计不正确时，我们希望方差 $\sigma^2$ 更大，从而降低回归损失 $L_{reg}$。由于 $H(P_D(x)), \log (2\pi)/2$ 均与估计参数 $\Theta$ 无关，故有，<br>$$L_{reg} \propto \frac {(x_g-x_e)^2}{2\sigma^2}+\frac {\log \sigma^2} 2$$<br>当 $\sigma=1$，KL Loss 退化为标准的欧氏距离，<br>$$L_{reg} \propto \frac {(x_g-x_e)^2} 2$$<br>损失关于估计位置 $x_e$ 和定位标准差 $\sigma$ 可导，<br>$$\frac d {dx_e}L_{reg}=\frac {x_e-x_g} {\sigma^2}<br>\\ \frac d {dx_e}L_{reg}=-\frac {(x_e-x_g)^2} {\sigma^3} + \frac 1 \sigma$$</p>
 <p>由于 $\sigma$ 位于分母上，所以训练初期可能会出现梯度爆炸，为了避免这种现象，在训练阶段，使用 $\alpha=\log \sigma^2$ 代替 $\sigma$，即，图 3 中 Box std 输出为 $\alpha$，此时<br>$$L_{reg} \propto \frac {e^{-\alpha}} 2 (x_g-x_e)^2+\frac \alpha 2$$<br>反向传播时使用 $L_{reg}$ 关于 $\alpha$ 的梯度。测试阶段，则将 $\alpha$ 转变为 $\sigma$，即测试阶段中，需要将 Box std 的输出经过 $\sigma=\sqrt{e^{\alpha}}$ 转换才能得到标准差。</p>
 <p>当 $|x_g - x_e| &gt; 1$ 时，我们参考 smooth-L1 改写回归损失，这是为了避免 $x_g,x_e$ 相差太多时，损失过大造成训练不稳定，于是最终有，<br>$$L_{reg} \begin {cases} \propto \frac {e^{-\alpha}} 2 (x_g-x_e)^2+\frac \alpha 2 &amp; |x_g - x_e| \le 1<br>\\ = e^{-\alpha} (|x_g-x_e|-\frac 1 2 )+\frac \alpha 2 &amp; |x_g - x_e| &gt; 1 \end{cases}$$</p>
@@ -467,10 +478,10 @@
 <ul>
 <li>$m \leftarrow \arg\max \mathcal T$ （论文中为 $\arg \max \mathcal S$，但是我觉得不对）</li>
 <li>$\mathcal T \leftarrow \mathcal T - b_m$</li>
-<li><font color="cyan">$\mathcal S \leftarrow \mathcal S f(IoU(b_m, \mathcal T)) \qquad \qquad \qquad \qquad \ \ \triangleright$ soft-NMS </font></li>
-<li><font color="gree">$idx \leftarrow IoU(b_m, B) &gt; 0 \qquad \qquad \qquad \qquad \triangleright$    var voting </font></li>
-<li><font color="gree"> $p \leftarrow exp(-(1-IoU(b_m, \mathcal B[idx]))^2/\sigma_t)$ </font></li>
-<li><font color="gree"> $b_m \leftarrow p(\mathcal B[idx]/\mathcal C[idx])/p(1 / \mathcal C[idx])$</font></li>
+<li><font color='cyan'>$\mathcal S \leftarrow \mathcal S f(IoU(b_m, \mathcal T)) \qquad \qquad \qquad \qquad \ \ \triangleright$ soft-NMS </font></li>
+<li><font color='gree'>$idx \leftarrow IoU(b_m, B) &gt; 0 \qquad \qquad \qquad \qquad \triangleright$    var voting </font></li>
+<li><font color='gree'> $p \leftarrow exp(-(1-IoU(b_m, \mathcal B[idx]))^2/\sigma_t)$ </font></li>
+<li><font color='gree'> $b_m \leftarrow p(\mathcal B[idx]/\mathcal C[idx])/p(1 / \mathcal C[idx])$</font></li>
 <li>$\mathcal D \leftarrow \mathcal D \cup b_m$</li>
 </ul>
 <p><strong>end while</strong></p>
@@ -599,9 +610,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20archive">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">42</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -613,7 +624,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20th">
                     
                   
                     
@@ -634,7 +645,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -732,7 +743,7 @@
 </div>
 
 
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0</div>
 
 
 
@@ -740,7 +751,7 @@
 
 
 
-  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
 
 
 

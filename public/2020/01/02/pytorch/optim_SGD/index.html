@@ -15,11 +15,11 @@
 
 
 <html class="theme-next pisces use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -44,9 +44,9 @@
 
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+<link rel="stylesheet" href="/css/main.css?v=7.1.2"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
@@ -96,22 +96,22 @@
 
 
 
-  <meta name="description" content="1. SGD1.1 weight decay为了过拟合，通常在损失函数中增加正则项，记原来损失（MSE 或者 CE 等）为 $L_0$，那么添加正则项后的损失为，$$L=L_0+\frac 1 2 \lambda \cdot |\mathbf \theta|_2^2$$如图 1 所示， 图 1 过拟合图示（来源《Deep Learning with PyTorch》）下半部分展示了过拟合的图，这种">
-<meta name="keywords" content="PyTorch">
+  <meta name="description" content="1. SGD1.1 weight decay为了过拟合，通常在损失函数中增加正则项，记原来损失（MSE 或者 CE 等）为 $L_0$，那么添加正则项后的损失为，$$L&#x3D;L_0+\frac 1 2 \lambda \cdot |\mathbf \theta|_2^2$$如图 1 所示， 图 1 过拟合图示（来源《Deep Learning with PyTorch》）下半部分展示了过拟合的图，这种">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PyTorch.optim.SGD">
 <meta property="og:url" content="https://shajianjian.github.io/2020/01/02/pytorch/optim_SGD/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="1. SGD1.1 weight decay为了过拟合，通常在损失函数中增加正则项，记原来损失（MSE 或者 CE 等）为 $L_0$，那么添加正则项后的损失为，$$L=L_0+\frac 1 2 \lambda \cdot |\mathbf \theta|_2^2$$如图 1 所示， 图 1 过拟合图示（来源《Deep Learning with PyTorch》）下半部分展示了过拟合的图，这种">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:description" content="1. SGD1.1 weight decay为了过拟合，通常在损失函数中增加正则项，记原来损失（MSE 或者 CE 等）为 $L_0$，那么添加正则项后的损失为，$$L&#x3D;L_0+\frac 1 2 \lambda \cdot |\mathbf \theta|_2^2$$如图 1 所示， 图 1 过拟合图示（来源《Deep Learning with PyTorch》）下半部分展示了过拟合的图，这种">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/pytorch/overfitting.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/pytorch/momentum.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/pytorch/NAS_0.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/pytorch/NAG.png">
-<meta property="og:updated_time" content="2020-01-09T10:11:18.569Z">
+<meta property="article:published_time" content="2020-01-02T08:25:32.000Z">
+<meta property="article:modified_time" content="2020-04-20T05:46:32.310Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="PyTorch">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="PyTorch.optim.SGD">
-<meta name="twitter:description" content="1. SGD1.1 weight decay为了过拟合，通常在损失函数中增加正则项，记原来损失（MSE 或者 CE 等）为 $L_0$，那么添加正则项后的损失为，$$L=L_0+\frac 1 2 \lambda \cdot |\mathbf \theta|_2^2$$如图 1 所示， 图 1 过拟合图示（来源《Deep Learning with PyTorch》）下半部分展示了过拟合的图，这种">
 <meta name="twitter:image" content="https://shajianjian.github.io/images/pytorch/overfitting.png">
 
 
@@ -120,7 +120,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/2020/01/02/pytorch/optim_SGD/">
+  <link rel="canonical" href="https://shajianjian.github.io/2020/01/02/pytorch/optim_SGD/"/>
 
 
 
@@ -167,9 +167,9 @@
   .use-motion .logo-line-before i { left: initial; }
   .use-motion .logo-line-after i { right: initial; }
   </style>
-</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</noscript>
 
-</head>
+<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -226,7 +226,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-home&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;首页</a>
 
   </li>
         
@@ -243,7 +243,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-user&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;关于</a>
 
   </li>
         
@@ -260,7 +260,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-tags&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;标签</a>
 
   </li>
         
@@ -277,7 +277,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+    <a href="/categories/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-th&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;分类</a>
 
   </li>
         
@@ -294,7 +294,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+    <a href="/archives/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-archive&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;归档</a>
 
   </li>
 
@@ -346,16 +346,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2020/01/02/pytorch/optim_SGD/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2020/01/02/pytorch/optim_SGD/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
+      <meta itemprop="name" content="SJJ"/>
     </span>
 
     
@@ -406,7 +406,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2020-01-09 18:11:18" itemprop="dateModified" datetime="2020-01-09T18:11:18+08:00">2020-01-09</time>
+                <time title="修改时间：2020-04-20 13:46:32" itemprop="dateModified" datetime="2020-04-20T13:46:32+08:00">2020-04-20</time>
               
             
           </span>
@@ -440,8 +440,8 @@
       
 
       
-        <h1 id="1-SGD"><a href="#1-SGD" class="headerlink" title="1. SGD"></a>1. SGD</h1><h2 id="1-1-weight-decay"><a href="#1-1-weight-decay" class="headerlink" title="1.1 weight decay"></a>1.1 weight decay</h2><p>为了过拟合，通常在损失函数中增加正则项，记原来损失（MSE 或者 CE 等）为 $L_0$，那么添加正则项后的损失为，<br>$$L=L_0+\frac 1 2 \lambda \cdot |\mathbf \theta|_2^2$$<br>如图 1 所示，<br><img src="/images/pytorch/overfitting.png" alt> <center>图 1 过拟合图示（来源《Deep Learning with PyTorch》）</center><br>下半部分展示了过拟合的图，这种曲线的多项式比上图曲线的多项式，其系数 $\mathbf \theta$ 的绝对值更大（曲线的部分段变化更快，说明斜率绝对值更大，也就是 $|\mathbf \theta_i|$ 更大），所以增加正则项作为惩罚，其中 $\lambda$ 作为平衡因子，也称 <code>weight decay</code>。于是，求导时，损失对每个权重参数的梯度多了一项<br>$$\frac {\partial L}{\partial \mathbf \theta_i}=\frac {\partial L_0}{\partial \mathbf \theta_i}+\lambda \cdot \mathbf \theta_i$$</p>
-<h2 id="1-2-momentum"><a href="#1-2-momentum" class="headerlink" title="1.2 momentum"></a>1.2 momentum</h2><p>使用 SGD 训练时，有时候下降比较慢，甚至会陷入导局部最小值中，如图 2 所示，引入 momentum 可以加快收敛速度，我们知道 SGD 的参数更新公式为<br>$$\theta_{t+1} = \theta_t -\epsilon \cdot d\theta_t$$<br>而使用 momentum 的更新公式为<br>$$\begin{aligned} v_{t+1} &amp; = \mu \cdot v_t + d\theta_t<br>\\ \theta_{t+1} &amp;= \theta_t - \epsilon \cdot v_{t+1}=\theta_t-\epsilon \cdot \mu \cdot v_t - \epsilon \cdot d\theta_t \end{aligned} \qquad(1)$$<br>其中 $\theta_0$ 为初始权值参数值，$v_0=0$，$\epsilon$ 为学习率，$\mu$ 为 momentum 系数。从上两式中可见，如果当前 velocity（v 值） 与梯度方向一致，那么将会加快权值参数的变化量。在局部最小值附近（见图 2），由于 velocity 累计了之前的梯度，所以有望冲出局部最小值区域。<br><img src="/images/pytorch/momentum.png" alt> <center>图 2</center><br>有的地方写成如下形式：<br>$$\begin{aligned}v_{t+1}&amp;=\mu \cdot v_t - d\theta_t<br>\\\theta_{t+1}&amp;=\theta_t+\epsilon \cdot v_{t+1}=\theta_t +\epsilon \cdot \mu \cdot v_t-\epsilon \cdot d\theta_t \end{aligned}\qquad(2)$$<br>实际上，当 $v_0=0$ 时，这两组更新公式本质相同。</p>
+        <h1 id="1-SGD"><a href="#1-SGD" class="headerlink" title="1. SGD"></a>1. SGD</h1><h2 id="1-1-weight-decay"><a href="#1-1-weight-decay" class="headerlink" title="1.1 weight decay"></a>1.1 weight decay</h2><p>为了过拟合，通常在损失函数中增加正则项，记原来损失（MSE 或者 CE 等）为 $L_0$，那么添加正则项后的损失为，<br>$$L=L_0+\frac 1 2 \lambda \cdot |\mathbf \theta|_2^2$$<br>如图 1 所示，<br><img src="/images/pytorch/overfitting.png" alt=""> <center>图 1 过拟合图示（来源《Deep Learning with PyTorch》）</center><br>下半部分展示了过拟合的图，这种曲线的多项式比上图曲线的多项式，其系数 $\mathbf \theta$ 的绝对值更大（曲线的部分段变化更快，说明斜率绝对值更大，也就是 $|\mathbf \theta_i|$ 更大），所以增加正则项作为惩罚，其中 $\lambda$ 作为平衡因子，也称 <code>weight decay</code>。于是，求导时，损失对每个权重参数的梯度多了一项<br>$$\frac {\partial L}{\partial \mathbf \theta_i}=\frac {\partial L_0}{\partial \mathbf \theta_i}+\lambda \cdot \mathbf \theta_i$$</p>
+<h2 id="1-2-momentum"><a href="#1-2-momentum" class="headerlink" title="1.2 momentum"></a>1.2 momentum</h2><p>使用 SGD 训练时，有时候下降比较慢，甚至会陷入导局部最小值中，如图 2 所示，引入 momentum 可以加快收敛速度，我们知道 SGD 的参数更新公式为<br>$$\theta_{t+1} = \theta_t -\epsilon \cdot d\theta_t$$<br>而使用 momentum 的更新公式为<br>$$\begin{aligned} v_{t+1} &amp; = \mu \cdot v_t + d\theta_t<br>\\ \theta_{t+1} &amp;= \theta_t - \epsilon \cdot v_{t+1}=\theta_t-\epsilon \cdot \mu \cdot v_t - \epsilon \cdot d\theta_t \end{aligned} \qquad(1)$$<br>其中 $\theta_0$ 为初始权值参数值，$v_0=0$，$\epsilon$ 为学习率，$\mu$ 为 momentum 系数。从上两式中可见，如果当前 velocity（v 值） 与梯度方向一致，那么将会加快权值参数的变化量。在局部最小值附近（见图 2），由于 velocity 累计了之前的梯度，所以有望冲出局部最小值区域。<br><img src="/images/pytorch/momentum.png" alt=""> <center>图 2</center><br>有的地方写成如下形式：<br>$$\begin{aligned}v_{t+1}&amp;=\mu \cdot v_t - d\theta_t<br>\\\theta_{t+1}&amp;=\theta_t+\epsilon \cdot v_{t+1}=\theta_t +\epsilon \cdot \mu \cdot v_t-\epsilon \cdot d\theta_t \end{aligned}\qquad(2)$$<br>实际上，当 $v_0=0$ 时，这两组更新公式本质相同。</p>
 <p>caffe 框架以及在 Sutskever. [1] 中，更新公式为：<br>$$\begin{aligned}v_{t+1}&amp;=\mu \cdot v_t + \epsilon \cdot d\theta_t<br>\\ \theta_{t+1}&amp;=\theta_t - v_{t+1}=\theta_t-\mu \cdot v_t-\epsilon \cdot d\theta_t\end{aligned} \qquad(3)$$</p>
 <p>或者<br>$$\begin{aligned}v_{t+1}&amp;=\mu \cdot v_t - \epsilon \cdot d\theta_t<br>\\ \theta_{t+1}&amp;=\theta_t + v_{t+1}=\theta_t+\mu \cdot v_t-\epsilon \cdot d\theta_t\end{aligned} \qquad(3’)$$</p>
 <p>假设学习率 $\epsilon$ 保持不变，那么在 $v_0=0$ 时，(3) 式中的 $v_{t+1}$ 是 (1) 式中的 $\epsilon$ 倍（在其他变量均相同的情况下），<br>$$\begin{aligned}v_1^{(3)}&amp;=\epsilon \cdot d\theta_0 = \epsilon \cdot v_1^{(1)}<br>\\ v_2^{(3)}&amp; = \mu \cdot v_1^{(3)}+\epsilon \cdot d\theta_1=\epsilon \cdot [\mu \cdot v_1^{(1)}+d\theta_1]=\epsilon \cdot v_2^{(1)}<br>\\ &amp;\cdots \end{aligned}$$</p>
@@ -461,7 +461,7 @@
 </li>
 </ol>
 <p>初始时令 $y_0=\theta_0$，即这两个变量起点相同。</p>
-<p>NAG 中我们对 $y$ 做梯度下降，得到的值为 $\theta$ 的新值，而非 $y$ 新值，$y$ 的新值是在 $\theta$ 的基础之上再增加 $\mu_{t+1} \cdot (\theta_{t+1}-\theta_t)$ 这么多的更新量。如图 3，<br><img src="/images/pytorch/NAS_0.png" alt> <center>图 3. NAG 过程示意图</center><br>如果 $\mu \equiv 0$，NAG 就是普通的梯度下降 SD。</p>
+<p>NAG 中我们对 $y$ 做梯度下降，得到的值为 $\theta$ 的新值，而非 $y$ 新值，$y$ 的新值是在 $\theta$ 的基础之上再增加 $\mu_{t+1} \cdot (\theta_{t+1}-\theta_t)$ 这么多的更新量。如图 3，<br><img src="/images/pytorch/NAS_0.png" alt=""> <center>图 3. NAG 过程示意图</center><br>如果 $\mu \equiv 0$，NAG 就是普通的梯度下降 SD。</p>
 <p>注意，这里将 $\mu, \ \epsilon$ 系数带上时刻下标。下面我们推导 velocity 的迭代计算式。</p>
 <h3 id="1-3-3-Sutskever-Nesterov-Momentum"><a href="#1-3-3-Sutskever-Nesterov-Momentum" class="headerlink" title="1.3.3 Sutskever Nesterov Momentum"></a>1.3.3 Sutskever Nesterov Momentum</h3><p>NAG 中参数 $\theta$ 的更新在梯度下降之后，在 momentum 之前。现在我们根据 NAG 推导出 velocity 项。首先要说明的是，需要将 NAG 迭代过程的两个步骤顺序对换，即 <code>momentum-GD-momentum-GD-...</code> 的顺序。</p>
 <p>已知，<br>$$y_t=\theta_t+\mu_t \cdot(\theta_t-\theta_{t-1})$$</p>
@@ -469,7 +469,7 @@
 <p>可根据 (4) 式消去 $y_t$，需要注意的是，(4) 式表示 t 时刻迭代过程中的梯度下降步骤，到 Sutskever Nesterov Momentum 中则为 t-1 时刻迭代中的 momentum 步骤，即 $\theta_{t+1} = y_t - \epsilon_t \cdot \nabla f(y_t)$，与上式联合可消去 $y_t$， 得<br>$$\theta_{t+1} = \theta_t+\mu_t \cdot v_t-\epsilon_t \cdot \nabla f(\theta_t + \mu_t \cdot v_t) \qquad(6)$$</p>
 <p>于是，</p>
 <p>$$v_{t+1} = \mu_t \cdot v_t - \epsilon_t \cdot \nabla f(\theta_t+\mu_t \cdot v_t)  \qquad(7) $$</p>
-<p>图 4 是经典 momentum 与 NAG 方法的图示比较。<br><img src="/images/pytorch/NAG.png" alt> <center>图 4 </center></p>
+<p>图 4 是经典 momentum 与 NAG 方法的图示比较。<br><img src="/images/pytorch/NAG.png" alt=""> <center>图 4 </center></p>
 <h3 id="1-3-4-Bengio-Nesterov-Momentum"><a href="#1-3-4-Bengio-Nesterov-Momentum" class="headerlink" title="1.3.4 Bengio Nesterov Momentum"></a>1.3.4 Bengio Nesterov Momentum</h3><p>NAG 中我们的模型参数是 $\theta$，但是其更新不是对自身做梯度下降，而是对 $y$ 做梯度下降，进一步地，$y$ 的更新则又反过来依赖于 $\theta$ 的 momentum。</p>
 <p>定义一个新变量，表示经过 momentum 更新后的 $\theta$ 值，或者更准确地讲，是 momentum 更新后的模型参数的值。</p>
 <p>$$\Theta_{t-1}=\theta_{t-1} + \mu_{t-1} \cdot v_{t-1}$$<br>这里可能感觉有点绕，一会 $\theta$，一会 $\Theta$，到底哪个是表示模型参数。我是这么理解的，初始时模型参数为 $\theta_0$，此后更新迭代过程中，$\Theta$ 才表示模型参数，$\theta$ 只作为中间变量。</p>
@@ -601,9 +601,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20archive">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">42</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -615,7 +615,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20th">
                     
                   
                     
@@ -636,7 +636,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -734,7 +734,7 @@
 </div>
 
 
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0</div>
 
 
 
@@ -742,7 +742,7 @@
 
 
 
-  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
 
 
 
@@ -845,7 +845,7 @@
   
 
 
-  <script src="/js/next-boot.js?v=7.1.2"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <script src="/js/next-boot.js?v=7.1.2"></script>
 
 
   
@@ -875,6 +875,46 @@
   
   
 
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
   
 
 

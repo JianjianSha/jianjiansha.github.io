@@ -15,11 +15,11 @@
 
 
 <html class="theme-next pisces use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -44,9 +44,9 @@
 
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+<link rel="stylesheet" href="/css/main.css?v=7.1.2"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
@@ -97,21 +97,21 @@
 
 
   <meta name="description" content="论文：Region Proposal by Guided Anchoring 目标检测中，通常使用 anchor 来生成 proposal（two-stage）或者直接对 anchor 进行分类和回归（one-stage）。以 two-stage 的 Faster R-CNN 为例，先在 feature map 上生成密集均匀分布的 anchors，然后对其进行二分类预测及坐标回归得到 propo">
-<meta name="keywords" content="object detection">
 <meta property="og:type" content="article">
 <meta property="og:title" content="GA-RPN">
 <meta property="og:url" content="https://shajianjian.github.io/2019/06/25/GA-RPN/index.html">
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="论文：Region Proposal by Guided Anchoring 目标检测中，通常使用 anchor 来生成 proposal（two-stage）或者直接对 anchor 进行分类和回归（one-stage）。以 two-stage 的 Faster R-CNN 为例，先在 feature map 上生成密集均匀分布的 anchors，然后对其进行二分类预测及坐标回归得到 propo">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/GA-RPN_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/GA-RPN_fig2.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/GA-RPN_fig3.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/GA-RPN_fig4.png">
-<meta property="og:updated_time" content="2019-06-27T12:16:05.328Z">
+<meta property="article:published_time" content="2019-06-25T09:01:57.000Z">
+<meta property="article:modified_time" content="2020-04-20T05:45:52.245Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="object detection">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="GA-RPN">
-<meta name="twitter:description" content="论文：Region Proposal by Guided Anchoring 目标检测中，通常使用 anchor 来生成 proposal（two-stage）或者直接对 anchor 进行分类和回归（one-stage）。以 two-stage 的 Faster R-CNN 为例，先在 feature map 上生成密集均匀分布的 anchors，然后对其进行二分类预测及坐标回归得到 propo">
 <meta name="twitter:image" content="https://shajianjian.github.io/images/GA-RPN_fig1.png">
 
 
@@ -120,7 +120,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/2019/06/25/GA-RPN/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/06/25/GA-RPN/"/>
 
 
 
@@ -167,9 +167,9 @@
   .use-motion .logo-line-before i { left: initial; }
   .use-motion .logo-line-after i { right: initial; }
   </style>
-</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</noscript>
 
-</head>
+<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -226,7 +226,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-home&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;首页</a>
 
   </li>
         
@@ -243,7 +243,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-user&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;关于</a>
 
   </li>
         
@@ -260,7 +260,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-tags&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;标签</a>
 
   </li>
         
@@ -277,7 +277,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+    <a href="/categories/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-th&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;分类</a>
 
   </li>
         
@@ -294,7 +294,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+    <a href="/archives/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-archive&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;归档</a>
 
   </li>
 
@@ -346,16 +346,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/25/GA-RPN/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/25/GA-RPN/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
+      <meta itemprop="name" content="SJJ"/>
     </span>
 
     
@@ -406,7 +406,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-27 20:16:05" itemprop="dateModified" datetime="2019-06-27T20:16:05+08:00">2019-06-27</time>
+                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
               
             
           </span>
@@ -470,7 +470,7 @@
 <li>shape 即 scale 和 aspect ratio 与 anchor 的位置有关</li>
 </ol>
 <p>根据以上公式，我们的 anchor 生成模块如图 1，</p>
-<p><img src="/images/GA-RPN_fig1.png" alt> <center>Fig 1 框架结构。每个feature map 均使用 anchor 生成模块，模块中有两个分支，分别预测 anchor 位置和 shape。应用 feature 适配模块到 feature map 上得到新的 feature map，使其注意到 anchor</center></p>
+<p><img src="/images/GA-RPN_fig1.png" alt=""> <center>Fig 1 框架结构。每个feature map 均使用 anchor 生成模块，模块中有两个分支，分别预测 anchor 位置和 shape。应用 feature 适配模块到 feature map 上得到新的 feature map，使其注意到 anchor</center></p>
 <p>给定 image $I$，首先得到 feature map $F_I$，在 $F_I$ 上 位置预测分支生成一个概率 map，表示每个位置处存在目标的概率，shape 预测分支生成位置相关的 shape，即预测每个位置的 w,h。使用一个概率阈值，选择大于阈值的位置，以及这些位置上最有可能的 shape，从而生成 anchor。考虑到 anchor 的 shape 可变，不同位置处的 feature 应该捕获不同范围内的视觉内容，所以我们进一步引入了特征适配模块，根据 anchor 的shape 使 feature 适配。</p>
 <p>由于最近的研究表面，使用不同 leve 的 feature maps 有助于目标检测，如 FPN 和 RetinaNet，所以如图 1，我们也使用了多 level 的 anchor 生成机制，需要注意的是，不同 level 的 anchor 生成分支所用的参数是相同的。</p>
 <h2 id="Anchor-位置预测"><a href="#Anchor-位置预测" class="headerlink" title="Anchor 位置预测"></a>Anchor 位置预测</h2><p>anchor 位置预测分支生成的概率 map $p(\cdot|F_I)$ 与 feature map $F_I$ 大小相同，其上每点位置的概率值 $p(i,j|F_I)$ 对应原输入 image $I$ 上位置 $((i+\frac 1 2)s,(j+\frac 1 2)s)$，其中 s 是  $F_I$ 相对于 $I$ 的步幅，即两个相邻 anchor 中心点的距离，$p(i,j|F_I)$ 表示在 $F_I$ 位置 (i,j) 处是某个目标中心的概率。</p>
@@ -493,7 +493,7 @@
 <p>$OR=F_I \setminus IR$，OR 内的像素点值为 0（negative）</p>
 </li>
 </ol>
-<p>由于我们使用多 level features，每个 level 的 feature map 应该仅瞄准特定 scale 范围的目标，故对某个 feature map 匹配的 scale 范围内的目标，我们设置相应（这些目标）的 CR，对 IR 也是同样处理，如图 2。如果多个目标重叠，那么 CR 抑制 IR， IR 抑制 OR，显然这是合理的，因为 CR, IR, OR 优先级应该逐步下降，才能保证 recall。由于 CR 只占 feature map 中的一小部分，所以我们采用 Focal Loss 平衡正负例来训练 anchor 位置分支。<br><img src="/images/GA-RPN_fig2.png" alt></p>
+<p>由于我们使用多 level features，每个 level 的 feature map 应该仅瞄准特定 scale 范围的目标，故对某个 feature map 匹配的 scale 范围内的目标，我们设置相应（这些目标）的 CR，对 IR 也是同样处理，如图 2。如果多个目标重叠，那么 CR 抑制 IR， IR 抑制 OR，显然这是合理的，因为 CR, IR, OR 优先级应该逐步下降，才能保证 recall。由于 CR 只占 feature map 中的一小部分，所以我们采用 Focal Loss 平衡正负例来训练 anchor 位置分支。<br><img src="/images/GA-RPN_fig2.png" alt=""></p>
 <h3 id="Anchor-shape-targets"><a href="#Anchor-shape-targets" class="headerlink" title="Anchor shape targets"></a>Anchor shape targets</h3><p>分两步来决定最佳 shape target：</p>
 <ol>
 <li>将 anchor 与某个 gt box 匹配起来</li>
@@ -510,7 +510,7 @@
 </ol>
 <p>那么，为何不直接用 shape 分支预测的 (w,h) 与所有 gt box 计算 IoU，然后选择最大 IoU 的那个 gt box 作为该位置 anchor 所匹配的 gt box 呢？</p>
 <p>当然不行，由于 shape 分支预测的 (w,h) 在每次训练迭代过程中均会变化，如果使用上述方法求匹配的 gt box，那么该位置 anchor 所匹配的 gt box 在每次迭代时都有可能不一样，如果 anchor 训练回归的 target 都一直会变化，那就没法训练了。</p>
-<h2 id="使用高质量-proposals"><a href="#使用高质量-proposals" class="headerlink" title="使用高质量 proposals"></a>使用高质量 proposals</h2><p>得到 guided anchoring 加强的 RPN（GA-RPN）可以生成更高质量的 proposals。通过使用这些高质量的 proposals，我们探索了如何提高传统的 two-stage 目标检测器的性能。首先，研究了 RPN 和 GA-RPN 生成的 proposals 的 IoU 分布，如图 3，<br><img src="/images/GA-RPN_fig3.png" alt> <center>Fig 3 不同 IoU 下的 proposals 数量</center></p>
+<h2 id="使用高质量-proposals"><a href="#使用高质量-proposals" class="headerlink" title="使用高质量 proposals"></a>使用高质量 proposals</h2><p>得到 guided anchoring 加强的 RPN（GA-RPN）可以生成更高质量的 proposals。通过使用这些高质量的 proposals，我们探索了如何提高传统的 two-stage 目标检测器的性能。首先，研究了 RPN 和 GA-RPN 生成的 proposals 的 IoU 分布，如图 3，<br><img src="/images/GA-RPN_fig3.png" alt=""> <center>Fig 3 不同 IoU 下的 proposals 数量</center></p>
 <p>比起 RPN，GA-RPN 有如下两个明显优点：</p>
 <ol>
 <li>正例 proposals 数量更多</li>
@@ -518,7 +518,7 @@
 </ol>
 <p>在现有模型下将 RPN 直接替换为 GA-RPN 然后端到端训练（从头开始训练），然而，如果采用相同的训练设置，性能指标提升会非常有限（不到 1 一个点）。通过我们的观察发现使用高质量 proposals 的前提条件是训练样本的分布需要与 proposal 分布一致。因此，设置一个更高的正负例阈值，从而使用更少的样本去训练。</p>
 <p>除了端到端训练，GA-RPN 还可以通过微调提升一个训练好的 two-stage 检测器的性能。具体而言，给定一个训练好的模型，我们舍弃其中的 proposal 生成模块，例如舍弃 RPN，然后使用预先计算好的 GA-RPN proposals 来微调这个模型，仅需要几个 epochs（默认是 3 个 epochs）即可。GA-RPN proposals 还可以用于 inference。这种简单的微调机制因为只需要少数 epochs，所以可以大大提高性能。</p>
-<p><img src="/images/GA-RPN_fig4.png" alt></p>
+<p><img src="/images/GA-RPN_fig4.png" alt=""></p>
 <h1 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h1><p>实验参数、实现细节以及结果分析这里不展开讨论，直接阅读原文。</p>
 <h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>提出了 Guided Anchoring 机制，利用语义特征生成位置非均匀且 shape 任意的 anchor。</p>
 
@@ -639,9 +639,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20archive">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">42</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -653,7 +653,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20th">
                     
                   
                     
@@ -674,7 +674,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -772,7 +772,7 @@
 </div>
 
 
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0</div>
 
 
 
@@ -780,7 +780,7 @@
 
 
 
-  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
 
 
 

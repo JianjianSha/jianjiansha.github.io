@@ -1,6 +1,7 @@
 ---
 title: Dynamic Programming (3)
 date: 2019-12-20 20:13:18
+p: dp/DP4
 tags:
     - math
     - DP

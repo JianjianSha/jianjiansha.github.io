@@ -3,6 +3,7 @@ title: PyTorch.optim.SGD
 p: pytorch/optim_SGD
 date: 2020-01-02 16:25:32
 tags: PyTorch
+mathjax: true
 ---
 
 # 1. SGD

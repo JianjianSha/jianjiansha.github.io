@@ -15,11 +15,11 @@
 
 
 <html class="theme-next pisces use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -44,9 +44,9 @@
 
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+<link rel="stylesheet" href="/css/main.css?v=7.1.2"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
@@ -97,19 +97,19 @@
 
 
   <meta name="description" content="论文 DetNet: A Backbone network for Object Detection 本文创作动机是当前大多数的目标检测器都是在 ImageNet 上预训练后 finetune 到目标检测集，目标检测器的 backbone 原本是为了图像分类任务而设计的，这样的 backbone 显然不是最佳的，较大的下采样率带来较大的感受野 RF，这对图像分类是有益的，对目标检测尤其是小目标而言">
-<meta name="keywords" content="object detection">
 <meta property="og:type" content="article">
 <meta property="og:title" content="DetNet">
 <meta property="og:url" content="https://shajianjian.github.io/2019/07/17/DetNet/index.html">
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="论文 DetNet: A Backbone network for Object Detection 本文创作动机是当前大多数的目标检测器都是在 ImageNet 上预训练后 finetune 到目标检测集，目标检测器的 backbone 原本是为了图像分类任务而设计的，这样的 backbone 显然不是最佳的，较大的下采样率带来较大的感受野 RF，这对图像分类是有益的，对目标检测尤其是小目标而言">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/DetNet_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/DetNet_fig2.png">
-<meta property="og:updated_time" content="2019-07-20T10:39:37.332Z">
+<meta property="article:published_time" content="2019-07-17T02:05:50.000Z">
+<meta property="article:modified_time" content="2020-04-20T05:45:52.243Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="object detection">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="DetNet">
-<meta name="twitter:description" content="论文 DetNet: A Backbone network for Object Detection 本文创作动机是当前大多数的目标检测器都是在 ImageNet 上预训练后 finetune 到目标检测集，目标检测器的 backbone 原本是为了图像分类任务而设计的，这样的 backbone 显然不是最佳的，较大的下采样率带来较大的感受野 RF，这对图像分类是有益的，对目标检测尤其是小目标而言">
 <meta name="twitter:image" content="https://shajianjian.github.io/images/DetNet_fig1.png">
 
 
@@ -118,7 +118,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/2019/07/17/DetNet/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/07/17/DetNet/"/>
 
 
 
@@ -165,9 +165,9 @@
   .use-motion .logo-line-before i { left: initial; }
   .use-motion .logo-line-after i { right: initial; }
   </style>
-</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</noscript>
 
-</head>
+<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -224,7 +224,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-home&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;首页</a>
 
   </li>
         
@@ -241,7 +241,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-user&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;关于</a>
 
   </li>
         
@@ -258,7 +258,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-tags&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;标签</a>
 
   </li>
         
@@ -275,7 +275,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+    <a href="/categories/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-th&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;分类</a>
 
   </li>
         
@@ -292,7 +292,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+    <a href="/archives/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-archive&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;归档</a>
 
   </li>
 
@@ -344,16 +344,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/17/DetNet/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/17/DetNet/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
+      <meta itemprop="name" content="SJJ"/>
     </span>
 
     
@@ -404,7 +404,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-07-20 18:39:37" itemprop="dateModified" datetime="2019-07-20T18:39:37+08:00">2019-07-20</time>
+                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
               
             
           </span>
@@ -441,7 +441,7 @@
         <p>论文 <a href="https://arxiv.org/abs/1804.06215" target="_blank" rel="noopener">DetNet: A Backbone network for Object Detection</a></p>
 <p>本文创作动机是当前大多数的目标检测器都是在 ImageNet 上预训练后 finetune 到目标检测集，目标检测器的 backbone 原本是为了图像分类任务而设计的，这样的 backbone 显然不是最佳的，较大的下采样率带来较大的感受野 RF，这对图像分类是有益的，对目标检测尤其是小目标而言则是不利的，所以像 FPN 和 RetinaNet 就使用了额外的网络结构（extra stage）来处理目标的多尺度问题，但是这总归不是一个优雅的解决办法，所以本文提出了 DetNet，这是一个专为目标检测而设计的新型 backbone。</p>
 <p>DetNet 保持了 FPN 中的额外网络结构（extra stage），毕竟是目标的多尺度问题的一个较为不错的解决方案。与 FPN 等基于 ImageNet 预训练的目标检测器不同的是，DetNet 的深层依然有较高的空间分辨率，不过考虑到高分辨率与计算资源的矛盾，我们采用了一种低复杂度的 dilated bottleneck 结构。</p>
-<h1 id="DetNet"><a href="#DetNet" class="headerlink" title="DetNet"></a>DetNet</h1><p>如图 1(A) 是 FPN 的部分网络结构，图像分类任务和目标分类任务本身就存在很大的不同，并且基于此结构的模型训练还存在以下问题：<br><img src="/images/DetNet_fig1.png" alt><center>A. 具有传统的 backbone 的 FPN 结构；B. 图像分类中传统的 backbone；C. DetNet 的 backbone，比 FPN 的分辨率高</center></p>
+<h1 id="DetNet"><a href="#DetNet" class="headerlink" title="DetNet"></a>DetNet</h1><p>如图 1(A) 是 FPN 的部分网络结构，图像分类任务和目标分类任务本身就存在很大的不同，并且基于此结构的模型训练还存在以下问题：<br><img src="/images/DetNet_fig1.png" alt=""><center>A. 具有传统的 backbone 的 FPN 结构；B. 图像分类中传统的 backbone；C. DetNet 的 backbone，比 FPN 的分辨率高</center></p>
 <ol>
 <li>网络 stage 的数量不同。图像分类的网络包含 5 个 stages，每个 stage 下采样率为 2，故输出分辨率为 32 倍的下采样，而 FPN 拥有更多的 stages，比如增加 P6 以处理更大的目标，在 RetinaNet 中也同样增加了 P6 和 P7。</li>
 <li>大目标的可视性较差。具有 32 的步幅的 feature map 包含较强的语义信息，然而这对目标定位是不利的，FPN 中大目标是由较深 layer 进行预测，难以回归到准确的目标边界。</li>
@@ -487,7 +487,7 @@
 <td align="center">$\begin{bmatrix} 1 \times 1 &amp; 256 \\ 3 \times 3 &amp; 256 \\ 1 \times 1 &amp; 1024\end{bmatrix} \times 6$</td>
 </tr>
 </tbody></table>
-<p>从第五个 stage 开始介绍 DetNet，如图 2 D 所示，DetNet-59 的设计细节如下：<br><img src="/images/DetNet_fig2.png" alt><center>fig 2. DetNet 的结构细节</center></p>
+<p>从第五个 stage 开始介绍 DetNet，如图 2 D 所示，DetNet-59 的设计细节如下：<br><img src="/images/DetNet_fig2.png" alt=""><center>fig 2. DetNet 的结构细节</center></p>
 <ol>
 <li>从上图中可见，我们在 backbone 中引入了 extra stage，即 P6，与 FPN 中一样，也是用于目标检测，只不过，从 stage 4 开始，我们就固定了步幅 16，即每个 stage 的输出空间大小。</li>
 <li>从 stage 4 开始的空间大小就固定不变，本文引入一种 dilated bottleneck 和 1x1 卷积并列的结构，用于之后每个 stage 的最开始，如图 2 B。</li>
@@ -613,9 +613,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20archive">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">42</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -627,7 +627,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20th">
                     
                   
                     
@@ -648,7 +648,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -746,7 +746,7 @@
 </div>
 
 
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0</div>
 
 
 
@@ -754,7 +754,7 @@
 
 
 
-  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
 
 
 

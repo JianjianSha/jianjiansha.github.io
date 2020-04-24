@@ -15,11 +15,11 @@
 
 
 <html class="theme-next pisces use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -44,9 +44,9 @@
 
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+<link rel="stylesheet" href="/css/main.css?v=7.1.2"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
@@ -97,19 +97,19 @@
 
 
   <meta name="description" content="CGAN论文 Conditional Generative Adversarial Nets 在 GAN 中我们知道 GAN 经过训练，生成器 G 可以根据一个随机噪声输入生成与训练集样本非常相似的样本（判别器 D 无法判别），但是 G 生成样本的标签是无法控制的，以 mnist 数据集为例，给 G 一个随机噪声输入，G 生成的样本图像可能表示数字 1，也可能是其他数字，GAN 无法控制，GAN">
-<meta name="keywords" content="GAN">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CGAN&#x2F;DCGAN">
 <meta property="og:url" content="https://shajianjian.github.io/2019/07/29/CGAN/index.html">
 <meta property="og:site_name" content="SJJ">
 <meta property="og:description" content="CGAN论文 Conditional Generative Adversarial Nets 在 GAN 中我们知道 GAN 经过训练，生成器 G 可以根据一个随机噪声输入生成与训练集样本非常相似的样本（判别器 D 无法判别），但是 G 生成样本的标签是无法控制的，以 mnist 数据集为例，给 G 一个随机噪声输入，G 生成的样本图像可能表示数字 1，也可能是其他数字，GAN 无法控制，GAN">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/CGAN_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/CGAN_fig2.png">
-<meta property="og:updated_time" content="2019-07-31T09:47:17.246Z">
+<meta property="article:published_time" content="2019-07-29T09:00:43.000Z">
+<meta property="article:modified_time" content="2020-04-20T05:45:52.229Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="GAN">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="CGAN&#x2F;DCGAN">
-<meta name="twitter:description" content="CGAN论文 Conditional Generative Adversarial Nets 在 GAN 中我们知道 GAN 经过训练，生成器 G 可以根据一个随机噪声输入生成与训练集样本非常相似的样本（判别器 D 无法判别），但是 G 生成样本的标签是无法控制的，以 mnist 数据集为例，给 G 一个随机噪声输入，G 生成的样本图像可能表示数字 1，也可能是其他数字，GAN 无法控制，GAN">
 <meta name="twitter:image" content="https://shajianjian.github.io/images/CGAN_fig1.png">
 
 
@@ -118,7 +118,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/2019/07/29/CGAN/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/07/29/CGAN/"/>
 
 
 
@@ -165,9 +165,9 @@
   .use-motion .logo-line-before i { left: initial; }
   .use-motion .logo-line-after i { right: initial; }
   </style>
-</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</noscript>
 
-</head>
+<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -224,7 +224,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-home&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;首页</a>
 
   </li>
         
@@ -241,7 +241,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-user&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;关于</a>
 
   </li>
         
@@ -258,7 +258,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-tags&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;标签</a>
 
   </li>
         
@@ -275,7 +275,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+    <a href="/categories/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-th&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;分类</a>
 
   </li>
         
@@ -292,7 +292,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+    <a href="/archives/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-archive&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;归档</a>
 
   </li>
 
@@ -344,16 +344,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/29/CGAN/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/29/CGAN/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
+      <meta itemprop="name" content="SJJ"/>
     </span>
 
     
@@ -404,7 +404,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-07-31 17:47:17" itemprop="dateModified" datetime="2019-07-31T17:47:17+08:00">2019-07-31</time>
+                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
               
             
           </span>
@@ -443,11 +443,11 @@
 <h2 id="Conditional-Adversarial-Nets"><a href="#Conditional-Adversarial-Nets" class="headerlink" title="Conditional Adversarial Nets"></a>Conditional Adversarial Nets</h2><p>GAN 中的 G 和 D 均使用额外信息 y 进行条件限制，则得到 CGAN。额外信息 y 可是是分类标签或者其他形式的数据。以 mnist 训练集为例，通常选择图像的分类标签作为额外信息 y。</p>
 <p>预先已知的输入噪声 z 和 图像分类标签 y 合并一起作为 G 的输入（这是本文所用的最简单的方法，这种处理方式可以很容易地使用传统的 GAN 网络而不需要重新设计网络）。训练样本数据 x 以及对应的图像分类标签 y 合并到一起作为 D 的输入。（G 和 D 的结构可以与 GAN 中保持一致，也可以将部分 fc 替换为 conv/deconv）</p>
 <p>训练目标函数为，<br>$$\min_G \max_D V(D,G)=\Bbb E_{x \sim p_{data}(x)} [\log D(x|y)] + \Bbb E_{z \sim p_z(z)}[1-\log (1-D(G(z|y)))]$$</p>
-<p>图 1 为 CGAN 过程示意图，<br><img src="/images/CGAN_fig1.png" alt></p>
+<p>图 1 为 CGAN 过程示意图，<br><img src="/images/CGAN_fig1.png" alt=""></p>
 <p>这里引用一个代码片段来进行说明</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line">y_dim=<span class="number">10</span>    <span class="comment"># one-hot vector for mnist-label</span></span><br><span class="line">z_dim=<span class="number">100</span>   <span class="comment"># length of noise input vector</span></span><br><span class="line">y=tf.placeholder(tf.float32, shape=[<span class="literal">None</span>,y_dim], name=<span class="string">'label'</span>)</span><br><span class="line">x=tf.placeholder(tf.float32, shape=[<span class="literal">None</span>,<span class="number">28</span>,<span class="number">28</span>,<span class="number">1</span>], name=<span class="string">'real_img'</span>)</span><br><span class="line">z=tf.placeholder(tf.float32, shape=[<span class="literal">None</span>,z_dim], name=<span class="string">'noise'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># G 的输入由 noise 与 label 合并，单个输入 vector 长度由原来的 100 变成 110</span></span><br><span class="line">x_for_g=tf.concat([z,y], axis=<span class="number">1</span>)    <span class="comment"># [batch_size, 100+10]</span></span><br><span class="line"><span class="comment"># 然后与 GAN 中 G 的处理相同</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># D 的输入由 real_img 与 label 合并</span></span><br><span class="line">new_y=tf.reshape(y,[batch_size,<span class="number">1</span>,<span class="number">1</span>,y_dim])</span><br><span class="line">new_y=new_y*tf.ones([batch_size,<span class="number">28</span>,<span class="number">28</span>,y_dim])   <span class="comment"># [batch_size,28,28,10]</span></span><br><span class="line">x_for_d=tf.concat([x,new_y],axis=<span class="number">-1</span>)    <span class="comment"># [batch_size,28,28,1+10]</span></span><br><span class="line"><span class="comment"># 然后与 GAN 中 D 的处理相同</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><h3 id="Unimodal"><a href="#Unimodal" class="headerlink" title="Unimodal"></a>Unimodal</h3><p>使用 mnist 数据集，分类标签 y 使用长度为 10 的 one-hot 向量。CGAN 的结构和训练方法介绍略，这部分可以查看原文。图 2 显示了生成样本，每一行使用一个标签作为模型的限制条件。<br><img src="/images/CGAN_fig2.png" alt></p>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><h3 id="Unimodal"><a href="#Unimodal" class="headerlink" title="Unimodal"></a>Unimodal</h3><p>使用 mnist 数据集，分类标签 y 使用长度为 10 的 one-hot 向量。CGAN 的结构和训练方法介绍略，这部分可以查看原文。图 2 显示了生成样本，每一行使用一个标签作为模型的限制条件。<br><img src="/images/CGAN_fig2.png" alt=""></p>
 <h3 id="Multimodal"><a href="#Multimodal" class="headerlink" title="Multimodal"></a>Multimodal</h3><p>对应一到多映射，即每个图像可以有多个不同的标签。例如 Flickr 数据集，包含图像和对应的 UGM（user-generated metadata）。UGM 通常更具有描述性，并且语义上与人类使用自然语言描述图像更为接近，而不仅仅是标记图中的目标。不同的用户可能使用不同的词汇来描述相同的概念，因此使用一个高效的方法来规范化这些标签显得尤其重要。概念词嵌入（word embedding）在此情况下非常有用，因为语义相似的词其词向量非常接近。</p>
 <p>根据图像特征，我们可以使用 CGAN 生成 tag-vectors 以进行对图像自动打标签。使用 AlexNet 在 ImageNet 上训练网络，网络的最后一个 fc 层输出单元为 4096 个，这个输出作为最终的图像表示。为了得到词表示，我们从 YFCC100M 数据集的 metadata 中收集 user-tags，title 和 descriptions 作为文本预料，经过预处理和文本清洗，使用 skip-gram 模型进行训练，得到长度为 200 的词向量，我们忽略词频低于 200 的词，最终得到的词典大小为 247465。生成器 G 生成样本为 tag 特征向量，额外信息 y 为图像特征（上述的 4096 向量）。</p>
 <p>实验使用 MIR Flickr 25000 数据集，使用上述卷积模型和语言模型（AlexNet，skip-gram）分布抽取图像特征和 tag 特征。数据集中前 15000 的样本作为训练集。训练阶段，数据集中没有 tag 的图像被忽略掉，而如果图像拥有多个 tag，那么对于每个 tag 均分别使用一次这个图像。</p>
@@ -572,9 +572,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20archive">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">42</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -586,7 +586,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20th">
                     
                   
                     
@@ -607,7 +607,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -705,7 +705,7 @@
 </div>
 
 
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0</div>
 
 
 
@@ -713,7 +713,7 @@
 
 
 
-  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
 
 
 

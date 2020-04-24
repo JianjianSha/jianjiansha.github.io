@@ -15,11 +15,11 @@
 
 
 <html class="theme-next pisces use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -44,9 +44,9 @@
 
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+<link rel="stylesheet" href="/css/main.css?v=7.1.2"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
@@ -96,23 +96,23 @@
 
 
 
-  <meta name="description" content="论文：Scale-Aware Trident Networks for Object Detection 代码：TuSimple/simpledet 简介目标检测通常分为：  one stage，如 YOLO, SSD two stage，如 Faster R-CNN, R-FCN  这些方法在目标尺度变化范围较大时，均存在问题，尤其在目标尺度很小或很大时，性能较差。为了解决目标尺寸多变性的问题，">
-<meta name="keywords" content="object detection">
+  <meta name="description" content="论文：Scale-Aware Trident Networks for Object Detection 代码：TuSimple&#x2F;simpledet 简介目标检测通常分为：  one stage，如 YOLO, SSD two stage，如 Faster R-CNN, R-FCN  这些方法在目标尺度变化范围较大时，均存在问题，尤其在目标尺度很小或很大时，性能较差。为了解决目标尺寸多变性的问题，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TridentNet">
 <meta property="og:url" content="https://shajianjian.github.io/2019/06/21/TridentNet/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="论文：Scale-Aware Trident Networks for Object Detection 代码：TuSimple/simpledet 简介目标检测通常分为：  one stage，如 YOLO, SSD two stage，如 Faster R-CNN, R-FCN  这些方法在目标尺度变化范围较大时，均存在问题，尤其在目标尺度很小或很大时，性能较差。为了解决目标尺寸多变性的问题，">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:description" content="论文：Scale-Aware Trident Networks for Object Detection 代码：TuSimple&#x2F;simpledet 简介目标检测通常分为：  one stage，如 YOLO, SSD two stage，如 Faster R-CNN, R-FCN  这些方法在目标尺度变化范围较大时，均存在问题，尤其在目标尺度很小或很大时，性能较差。为了解决目标尺寸多变性的问题，">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/TridentNet_fig1(a).png">
 <meta property="og:image" content="https://shajianjian.github.io/images/TridentNet_fig1(b).png">
 <meta property="og:image" content="https://shajianjian.github.io/images/TridentNet_fig1(c).png">
 <meta property="og:image" content="https://shajianjian.github.io/images/TridentNet_fig2.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/TridentNet_fig3.png">
-<meta property="og:updated_time" content="2019-06-27T12:17:29.335Z">
+<meta property="article:published_time" content="2019-06-21T08:24:19.000Z">
+<meta property="article:modified_time" content="2020-04-20T05:45:52.256Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="object detection">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="TridentNet">
-<meta name="twitter:description" content="论文：Scale-Aware Trident Networks for Object Detection 代码：TuSimple/simpledet 简介目标检测通常分为：  one stage，如 YOLO, SSD two stage，如 Faster R-CNN, R-FCN  这些方法在目标尺度变化范围较大时，均存在问题，尤其在目标尺度很小或很大时，性能较差。为了解决目标尺寸多变性的问题，">
 <meta name="twitter:image" content="https://shajianjian.github.io/images/TridentNet_fig1(a).png">
 
 
@@ -121,7 +121,7 @@
 
   
   
-  <link rel="canonical" href="https://shajianjian.github.io/2019/06/21/TridentNet/">
+  <link rel="canonical" href="https://shajianjian.github.io/2019/06/21/TridentNet/"/>
 
 
 
@@ -168,9 +168,9 @@
   .use-motion .logo-line-before i { left: initial; }
   .use-motion .logo-line-after i { right: initial; }
   </style>
-</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</noscript>
 
-</head>
+<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -227,7 +227,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-home&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;首页</a>
 
   </li>
         
@@ -244,7 +244,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-user&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;关于</a>
 
   </li>
         
@@ -261,7 +261,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-tags&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;标签</a>
 
   </li>
         
@@ -278,7 +278,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+    <a href="/categories/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-th&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;分类</a>
 
   </li>
         
@@ -295,7 +295,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+    <a href="/archives/" rel="section">&lt;i class&#x3D;&quot;menu-item-icon fa fa-fw fa-archive&quot;&gt;&lt;&#x2F;i&gt; &lt;br&#x2F;&gt;归档</a>
 
   </li>
 
@@ -347,16 +347,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/21/TridentNet/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/06/21/TridentNet/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
+      <meta itemprop="name" content="SJJ"/>
     </span>
 
     
@@ -407,7 +407,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-27 20:17:29" itemprop="dateModified" datetime="2019-06-27T20:17:29+08:00">2019-06-27</time>
+                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
               
             
           </span>
@@ -454,7 +454,7 @@
 <li>利用网络中的不同分辨率的 feature maps，不同分辨率的 feature maps 负责检测不同尺度的目标，如 SSD</li>
 <li>2 方法中 low level 的 feature 注重于局部细节，而 high level 的 feature 因为感受野 RF 更大，则注重于整体（语义）为了补偿 low level 的 feature 所缺失的语义，FPN 在原有 bottom-up 的基础上增加 top-down pathway 和 径向连接，如图 1(b)。但是由于不同分辨率 features 来自网络不同的 layers，所以对不同尺度的目标的表征能力差异较大，所以 feature pyramids 不能认为是 image pyramids 的替代。</li>
 </ol>
-<p><img src="/images/TridentNet_fig1(a).png" alt> <center> fig1(a)</center><br><img src="/images/TridentNet_fig1(b).png" alt> <center> fig1(b)</center><br><img src="/images/TridentNet_fig1(c).png" alt="fig1(c)"> <center> fig1(c)</center></p>
+<p><img src="/images/TridentNet_fig1(a).png" alt=""> <center> fig1(a)</center><br><img src="/images/TridentNet_fig1(b).png" alt=""> <center> fig1(b)</center><br><img src="/images/TridentNet_fig1(c).png" alt="fig1(c)"> <center> fig1(c)</center></p>
 <p>本文提出的新网络结构能适应不同的目标尺度，如图 1(c)，使用 trident 块生成多个尺度相关的 feature maps。trident 块的各个分支结构相同，且共享权重参数，但是由于使用了空洞卷积（膨胀系数不同），所以具有不同的 RF，每个分支负责处理一定尺度范围的目标。由于参数共享，所以 inference 阶段，可以使用一个主分支来近似 TridentNet 。</p>
 <h1 id="感受野"><a href="#感受野" class="headerlink" title="感受野"></a>感受野</h1><p>backbone 中的影响最终目标检测的几个设计因素为：下采样率、网络深度和感受野。更深的网络和更低的下采样率会增加网络的复杂度，但往往也有益于检测。为了研究 RF 在检测中的作用，可以将 backbone 的一些卷积层的卷积改为空洞卷积。</p>
 <p>假设膨胀率为 $d_s$，那么一个膨胀后的 3x3 卷积的 RF 与 kernel size 为 $3+2(d_s-1)$ 卷积核的 RF 相当。记当前 feature map 相对于输入 image 的下采样率为 s，那么此时膨胀率为 $d_s$ 的卷积相较于普通卷积，其 RF 将增加 $2(d_s-1)s$，因此，如果将 n 个卷积改为空洞卷积，那么 RF 将增加 $2(d_s-1)sn$，其中，这 n 个卷积所作用的 feature map 相对于输入 image 的下采样率均为 s。</p>
@@ -519,14 +519,14 @@
 <td align="center"><strong>0.538</strong></td>
 </tr>
 </tbody></table>
-<p><font size="2"> Table 1 COCO 数据集上具有不同 RF 的 Faster R-CNN 的检测结果</font></p>
+<p><font size=2> Table 1 COCO 数据集上具有不同 RF 的 Faster R-CNN 的检测结果</font></p>
 <p>从表中可见，当 RF 增加时，ResNet-50 和 ResNet-101 上的小目标的检测性能持续下降，而大目标的检测性能则越来越好。不难发现：</p>
 <ol>
 <li>网络的 RF 能影响不同尺度的目标上的检测性能。一个合适的 RF 是与目标尺度强相关的</li>
 <li>尽管 ResNet-101 拥有足够大的理论 RF 以覆盖大尺度（大于 96x96）的目标，但是当增大膨胀率，仍能提高大目标上的性能。这说明实际上有效 RF 比理论 RF 要小</li>
 </ol>
 <h1 id="Trident-网络"><a href="#Trident-网络" class="headerlink" title="Trident 网络"></a>Trident 网络</h1><p>TridentNet 包括共享权重参数的 trident 块，以及一个精心设计的与 scale-aware 训练机制。</p>
-<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p>如图 2，<br><img src="/images/TridentNet_fig2.png" alt></p>
+<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p>如图 2，<br><img src="/images/TridentNet_fig2.png" alt=""></p>
 <p>网络输入为一个单尺度的 image，然后通过并行的分支生成不同尺度的 feature maps，这些并行分支共享权重参数，但是其卷积层的空洞卷积具有不同的膨胀率。</p>
 <p><strong>多分支块</strong> 在目标检测器的 backbone 中，使用 trident 块代替普通卷积。trident 块包含多个并行的分支，这些分支结构与原先普通卷积相同，只是膨胀率不同（普通卷积可以看作是膨胀率为 1 的空洞卷积）。</p>
 <p>以 ResNet 为例作为 backbone，bottleneck 风格（ResNet-50, ResNet=101 等）的 residual 块包含三个卷积：1x1，3x3，1x1。trident 块则基于 residual 块构建，即，将单个 residual 块改为并行的多个 residual 块，其中每个块中 3x3 的空洞卷积的膨胀率不同。通过堆叠多个 trident 块我们可以有效的调整不同分支上的感受野 RF。通常将 backbone 中最后一个 stage 中的 residual 块替换为 trident 块，这是因为靠后的 stage 其 stride 较大，所以并行分支中的 RF 差距较大。</p>
@@ -544,7 +544,7 @@
 <h1 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h1><p>实验采用 COCO 数据集，模型训练使用 80k 训练图片和 35k 的验证图片子集（_trainval35k_），模型评估使用 5k 验证图片子集（_minival_）。</p>
 <h2 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h2><p>使用 Faster R-CNN 的 MXNet 版本作为 baseline。网络 backbone 使用 ImageNet 进行预训练，然后迁移网络到检测数据集上微调。resize 输入 image，使得短边为 800 像素。Baseline 和 TridentNet 均进行 end-to-end 训练。我们在 8 块 GPU 上训练，batch size 为16。总共训练了 12 epochs，学习率初始值为 0.02，在第 8 个 和 第 10 个 epoch 之后分别下降 10%。使用 ResNet 的 conv4 stage 的输出作为 backbone 的 feature maps，而 conv5 stage 作为 baseline 和 TridentNet 的 rcnn head。对 TridentNet 的每个分支， 从每个 image 中采样 128 个 ROIs。若无特别说明，我们使用三分支结构作为默认 TridentNet 结构，膨胀率分别为 1，2，3.采用 scale-aware 训练机制时，设置三个分支的有效范围为 [0,90]，[30,160]，[90,&infin;]。</p>
 <p>性能评估时采用 COCO 标准评估指标 AP，和 $AP_{50}/AP_{75}$，以及 $AP_s, AP_m, AP_l$，目标尺度范围分别为 小于 32x32, 32x32 ~ 96x96, 大于 96x96。</p>
-<h2 id="消融学习"><a href="#消融学习" class="headerlink" title="消融学习"></a>消融学习</h2><p><strong>TridentNet 组件</strong> Baseline (Table 2(a)) 的评估结果分别使用 ResNet-101 和 ResNet-101-Deformable 作为 backbone。然后我们逐步在 Baseline 上应用 多分支、权重共享和 scale-aware 训练机制。<br><img src="/images/TridentNet_fig3.png" alt></p>
+<h2 id="消融学习"><a href="#消融学习" class="headerlink" title="消融学习"></a>消融学习</h2><p><strong>TridentNet 组件</strong> Baseline (Table 2(a)) 的评估结果分别使用 ResNet-101 和 ResNet-101-Deformable 作为 backbone。然后我们逐步在 Baseline 上应用 多分支、权重共享和 scale-aware 训练机制。<br><img src="/images/TridentNet_fig3.png" alt=""></p>
 <ol>
 <li><strong>Multi-branch</strong><br>如 Table 2(b)，多分支版本比 baseline 的性能有所提升，尤其在大目标检测上，这种提升更加明显。这说明即使只应用最简单的多分支结构，也能受益于不同的 RF。</li>
 <li><strong>Scale-aware</strong><br>Table 2(d) 显示了在 Table 2(b) 多分支版本上增加 scale-aware 训练机制后的结果。在小目标检测上性能有所提升，但是在大目标检测上 $AP_s$ 值掉了。我们猜测，scale-sware 训练机制虽然能阻止分支去训练极端尺寸的目标，但也可能引入过拟合问题，因为每个分支上训练的有效样本数量减少。</li>
@@ -595,7 +595,7 @@
 <td align="center">51.9</td>
 </tr>
 </tbody></table>
-<p><font size="2"> Table 3 COCO <em>minival</em> 目标检测结果。ResNet-50，使用不同分支数量</font></p>
+<p><font size=2> Table 3 COCO <em>minival</em> 目标检测结果。ResNet-50，使用不同分支数量</font></p>
 <p>其他的消融学习，如在哪个 conv stage 上使用 trident 块，和 trident 块的数量等等，以及 TridentNet 与其他 SOTA 目标检测器的结果对比，可参考原文的实验结果及说明。</p>
 <h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>提出了 TridentNet 网络，可以生成具有相同表征能力的 scale 相关的 feature maps。提出 scale-aware 训练机制，使得不同的分支善于处理不同尺度范围的目标。快速 inference 方法使用一个主分支来近似 TridentNet，提高了检测效果（相比于 baseline），并且不引入额外的参数和计算量。</p>
 
@@ -716,9 +716,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20archive">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">42</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -730,7 +730,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20th">
                     
                   
                     
@@ -751,7 +751,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -849,7 +849,7 @@
 </div>
 
 
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0</div>
 
 
 
@@ -857,7 +857,7 @@
 
 
 
-  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.2</div>
 
 
 
