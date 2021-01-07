@@ -87,8 +87,8 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repository: https://github.com/shajian/shajian.github.io.git
+  repository: https://github.com/JianjianSha/jianjiansha.github.io.git
   branch: master
 
 social:
-  github: https://github.com/shajian
+  github: https://github.com/JianjianSha

@@ -30,7 +30,7 @@
 <meta property="og:image" content="https://shajianjian.github.io/images/GIoU_fig1.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/GIoU_fig2.png">
 <meta property="article:published_time" content="2019-06-13T07:00:48.000Z">
-<meta property="article:modified_time" content="2020-04-24T10:37:58.359Z">
+<meta property="article:modified_time" content="2020-05-15T01:24:49.573Z">
 <meta property="article:author" content="shajianjian">
 <meta property="article:tag" content="object detection">
 <meta name="twitter:card" content="summary">
@@ -199,7 +199,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-24 18:37:58" itemprop="dateModified" datetime="2020-04-24T18:37:58+08:00">2020-04-24</time>
+                <time title="修改时间：2020-05-15 09:24:49" itemprop="dateModified" datetime="2020-05-15T09:24:49+08:00">2020-05-15</time>
               </span>
 
           
@@ -221,7 +221,7 @@
 <p>然而，最小化损失如$l_n$范数与提高IoU并不是强相关。考虑一个2D场景，如图1(a)，<br><img src="/images/GIoU_fig1.png" alt=""></p>
 <!--  -->
 
-<p>预测box（黑矩形）和gt box（绿矩形）均由左上角和右下角坐标表示$(x_1,y_1,x_2,y_2)$，为简单起见，我们令两个box的其中一个corner的距离（例如$l_2$范数）固定，于是，以 gt box 另一个 corner 为圆心，某半径长的圆，无论预测 box 的另一个 corner 的坐标，只要其位于这个圆上，其 $l_2$ 距离均保持不变；然而IoU却不同。这个问题可以延伸到其他损失和bbox表示上，例如图1(b)。</p>
+<p>预测box（黑矩形）和gt box（绿矩形）均由左下角和右上角坐标表示$(x_1,y_1,x_2,y_2)$，为简单起见，我们令两个box的其中一个corner 左下角的距离（例如$l_2$范数）固定，于是，以 gt box 另一个 corner 为圆心，某半径长的圆，无论预测 box 的另一个 corner 的坐标，只要其位于这个圆上，其 $l_2$ 距离均保持不变；然而IoU却不同。这个问题可以延伸到其他损失和bbox表示上，例如图1(b)。</p>
 <p>直觉而言，这些类型的损失的一个较好的局部最优解可能并非 IoU 的局部最优解。而且，与 IoU 不同的是，$l_n$ 不具有尺度不变性，相同重叠程度的几对 bbox，其损失值各不相同。另外，一些 bbox 的表示方法，由于没有对不同类型的表示参数进行正则处理，使得这个问题更加严重。例如在 center+size 表示法中，$(x_c,y_c)$ 是中心坐标，$(w,h)$ 是 box size。当表示参数变多时，如旋转度，复杂度继续上升。</p>
 <p>为了解决这些问题，sota 检测器引入了 anchor 的概念，并使用了非线性表示方法简单地处理尺度问题（例如，faster-rcnn中坐标偏差的计算）。但即使使用了这些手工设计，优化回归损失和IoU值依然存在偏差。</p>
 <p>本文探索了轴对齐矩形之间的IoU计算，以及轴对齐超矩形（$ndim \ge 2$）之间的IoU计算，此时IoU 有解析解，并且可反向传播，也就是说，IoU 可以直接用作目标函数进行优化，而优化Iou目标函数与优化某个损失函数之间，显然选择优化IoU目标函数，能与提高Iou指标强相关，但是这也导致一个问题：如果两个目标没有重叠，IoU则为0，无法知道两个目标距离有多远，IoU为0，其梯度也将为0，导致无法优化。</p>
@@ -253,7 +253,7 @@
 <h1 id="泛化IoU"><a href="#泛化IoU" class="headerlink" title="泛化IoU"></a>泛化IoU</h1><p>用于比较两个任意形状 $A,B \subseteq S \in \mathbb{R}^n$ 的 IoU 计算方法为：<br>$$IoU = \frac {|A \cap B|} {|A \cup B|} $$<br>两个显著特性使得这种相似性测量方法流行于评估2D/3D计算机视觉任务中：</p>
 <ul>
 <li><p>IoU作为距离同时也作为评估指标。</p>
-<p>IoU距离即 $\mathcal L_{IoU}=1-IoU$，这意味着 $\mathcal L_{IoU}$ 满足 IoU 指标的所有性质，例如非负性，不可分的同一性，对称性和三角不等式</p>
+<p>IoU距离即 $\mathcal L_{IoU}=1-IoU$，这意味着 $\mathcal L_{IoU}$ 满足 IoU 指标的所有性质，例如非负性，不可区分的同一性，对称性和三角不等式</p>
 </li>
 <li><p>IoU具有尺度不变性。这意味着，两个任意形状A B的相似度与它们在 S 空间的尺度无关</p>
 </li>
@@ -283,7 +283,7 @@
 <hr>
 <p>作为新的指标，GIoU 具有性质：</p>
 <ul>
-<li><p>与 IoU 类似，GIoU 作为距离具有指标的所有性质：非负性，不可分的同一性，对称性和三角不等式</p>
+<li><p>与 IoU 类似，GIoU 作为距离具有指标的所有性质：非负性，不可区分的同一性，对称性和三角不等式</p>
 <p>IoU 距离即 $\mathcal L_{GIoU} = 1-GIoU$。</p>
 </li>
 <li><p>与 IoU 类似，GIoU 具有尺度不变性。</p>
@@ -295,7 +295,7 @@
 <p>$\forall A,B \subseteq \mathbb S, 0 \le IoU(A,B) \le 1$，但是 GIoU 的值域则关于零点对称，$-1 \le GIoU(A,B) \le 1$。</p>
 <p>我们看下如何获得边界值：</p>
 <ul>
-<li>与 IoU 相同，只有当 A B 完成重合的时候，即$|A \cup B|=|A \cap B|$，此时$GIoU =IoU=1$</li>
+<li>与 IoU 相同，只有当 A B 完全重合的时候，即$|A \cup B|=|A \cap B|$，此时$GIoU =IoU=1$</li>
 <li>当 A B 两个形所占面积（体积）与 C 所在面积（体积）之比趋于 0，GIoU 趋于 -1，即$\lim_{\frac{|A \cup B|}{|C|}\rightarrow 0} GIoU(A,B)=-1$</li>
 </ul>
 </li>
@@ -462,7 +462,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-count">44</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -502,7 +502,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

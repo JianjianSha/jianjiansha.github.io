@@ -1,7 +1,8 @@
 ---
 title: 深度学习环境搭建
+p: pytorch/DL-env
 date: 2019-09-09 16:38:11
-tags:
+tags: DL
 ---
 本文仅针对 ubuntu 系统进行讨论。
 
@@ -55,3 +56,29 @@ conda install pytorch torchvision cudatoolkit=10.0 -c pytorch
 conda install tensorflow-gpu
 ```
 这条命令会自动安装合适的 cuda 和 cudnn
+
+# PyTorch
+下载源码
+```
+git clone https://github.com/pytorch/pytorch.git
+```
+更新源码
+```
+git reset --hard
+git pull origin master
+git submodule sync
+git submodule update --init --recursive
+```
+
+安装
+```
+python setup.py install
+```
+如果不想安装，仅仅编译生成，那么执行
+```
+python setup.py build
+```
+由于我这里安装了 Clang 和 llvm，设置了 `CPLUS_INCLUDE_PATH`，导致生成的过程中 include 到 llvm 的头文件，所以可以临时屏蔽 llvm 的头文件路径，
+```
+export CPLUS_INCLUDE_PATH='' && python setup.py build
+```

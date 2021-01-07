@@ -26,3 +26,24 @@ c++filt -n _Z4fi
 // f(int)
 ```
 
+反汇编
+```
+objdump -d test.o
+```
+更多 option 可查看 `objdump --help`。
+
+查看头文件搜索路径
+```
+gcc -xc++ -E -v -
+```
+
+查看链接库依赖
+```
+ldd test.o
+```
+
+设置动态库、头文件搜索目录的相关环境变量
+```
+export LD_LIBRARY_PATH=/xx/xx:$LD_LIBRARY_PATH
+export CPLUS_INCLUDE_PATH=/xx/xx:$CPLUS_INCLUDE_PATH
+```
