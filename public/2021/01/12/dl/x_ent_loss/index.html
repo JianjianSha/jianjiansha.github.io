@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="深度学习中有很多损失计算方式，不同的损失适合不同的问题，所以有必要对损失进行归类总结一下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cross Entropy Loss">
+<meta property="og:url" content="https://shajianjian.github.io/2021/01/12/dl/x_ent_loss/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="深度学习中有很多损失计算方式，不同的损失适合不同的问题，所以有必要对损失进行归类总结一下。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-01-12T02:35:40.000Z">
+<meta property="article:modified_time" content="2021-01-12T09:33:12.331Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="Deep Learning">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/01/12/dl/x_ent_loss/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Cross Entropy Loss | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/01/12/dl/x_ent_loss/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Cross Entropy Loss
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-01-12 10:35:40 / 修改时间：17:33:12" itemprop="dateCreated datePublished" datetime="2021-01-12T10:35:40+08:00">2021-01-12</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>深度学习中有很多损失计算方式，不同的损失适合不同的问题，所以有必要对损失进行归类总结一下。</p>
+<a id="more"></a>
+<h1 id="分类问题"><a href="#分类问题" class="headerlink" title="分类问题"></a>分类问题</h1><p>考虑以下两种分类问题。</p>
+<h2 id="多分类"><a href="#多分类" class="headerlink" title="多分类"></a>多分类</h2><p>多分类（二分类可以看作是其特殊的一种情况）指每个样本属于<code>C</code> 个分类中的一个，预测值通常是一个长度为 <code>C</code> 的向量，ground truth 为 one-hot 向量。</p>
+<h2 id="多标签分类"><a href="#多标签分类" class="headerlink" title="多标签分类"></a>多标签分类</h2><p>共 <code>C</code> 种分类，每个样本可以属于其中一种或多种分类，网络输出依然是 <code>C</code> 长度的向量，ground truth 向量元素值为 <code>0</code> 或 <code>1</code>，且可以有多个 <code>1</code>。</p>
+<h1 id="激活函数"><a href="#激活函数" class="headerlink" title="激活函数"></a>激活函数</h1><p>对于分类问题，网络最后一层的输出为长度为<code>C</code> 的向量（通常使用全连接），其元素值的范围为实数域，所以需要一个激活层，从而方便损失计算（以及梯度反向传播计算）。激活层有以下几种：</p>
+<h2 id="Sigmoid"><a href="#Sigmoid" class="headerlink" title="Sigmoid"></a>Sigmoid</h2><p>对向量的每个元素（神经元）使用 Sigmoid 函数，使得输出向量位于 <code>(0,1)</code> 之间，此时向量中最大元素对应的就是样本的预测分类。</p>
+<p>Sigmoid 常用于二分类问题，此时标记为正类/负类，ground truth 为 <code>1/0</code>，网络最后一层可以使用单个神经元，神经元的输出经过 Sigmoid 后处于范围 <code>(0,1)</code>，如果值大于等于 0.5，那么就属于正类，否则属于负类。</p>
+<h2 id="Softmax"><a href="#Softmax" class="headerlink" title="Softmax"></a>Softmax</h2><p>Softmax 除了可以将神经元输出压缩到 <code>(0,1)</code> 之间，还使各元素值和为 1。Softmax 通常用于多分类。</p>
+<h1 id="分类损失"><a href="#分类损失" class="headerlink" title="分类损失"></a>分类损失</h1><h1 id="Cross-Entropy-Loss"><a href="#Cross-Entropy-Loss" class="headerlink" title="Cross-Entropy Loss"></a>Cross-Entropy Loss</h1><p>单个样本的交叉熵损失计算公式为，<br>$$CE=-\sum_{i=1}^C y_i \log (x_i)$$<br>其中 $y_i$ 为 ground truth 向量中的第<code>i</code>个元素值，$x_i$ 为预测向量中第 <code>i</code> 个值，从这里也可以看出，正是有了上述激活层，才使得 $\log(x_i)$ 这一项有意义。多分类问题中，由于 GT 是 one-hot 向量，所以只有 $i=c$ 这项保留下来，其他项均为零。</p>
+<p>二分类问题中，GT: $y=1$ 表示正，$y=0$ 表示负，最后一层输出为单个值（经过 Sigmoid 激活）<code>x</code>，所以单个样本的交叉熵损失为<br>$$CE=-y \log (x) - (1-y) \log(1-x)$$</p>
+<p>这跟负对数似然是一样的。</p>
+<p>多标签分类问题中，假设一共有 <code>C</code> 种分类，对于单个样本而言，需要做 <code>C</code> 次二分类预测，交叉熵损失为<br>$$CE=-\sum_{i=1}^C y_i \log(x_i) - (1-y_i) \log(1-x_i)$$</p>
+<h2 id="Balanced-Cross-Entropy"><a href="#Balanced-Cross-Entropy" class="headerlink" title="Balanced Cross Entropy"></a>Balanced Cross Entropy</h2><p>一种常见的解决分类不均衡的方法是引入一个权重因子 $\alpha \in [0,1]$，定义<br>$$\alpha_t=\begin{cases} \alpha &amp; y=1 \ 1-\alpha &amp; y=0 \end{cases}$$</p>
+<p>考虑二分类问题，为了表示简便，定义真实分类对应的预测值为<br>$$x_t=\begin{cases} x &amp; y=1 \ 1-x &amp; y=0 \end{cases}$$</p>
+<p>$\alpha$ 均衡交叉熵损失为<br>$$CE=-\alpha_t \log(x_t)$$<br>通常，取 $\alpha$ 为类别的频率的倒数，这样就增加了低频类别的贡献，降低了高频类别的贡献。也可以将 $\alpha$ 看作超参，并使用 cross validation 获取一个较好的值。</p>
+<h2 id="Focal-Loss"><a href="#Focal-Loss" class="headerlink" title="Focal Loss"></a>Focal Loss</h2><p>单个样本的 Focal loss 为，<br>$$FL=-(1-x_t) ^{\gamma} \log(x_t)$$<br>展开则为<br>$$FL=-y(1-x)^{\gamma} \log(x) -(1-y)x^{\gamma} \log(1-x)$$</p>
+<p>其中，$\gamma \ge 0$。</p>
+<p>相比于交叉熵损失，Focal loss 增加了一个 scale 因子 $(1-x_t)^{\gamma}$，当 $x_t$ 越大，表明分类越是正确，越是应该降低其对损失的贡献，所以这个 scale 因子动态降低了那些 easy 样本对损失的贡献，从而使模型更专注于处理 hard 样本。</p>
+<p>类似地，可以对 Focal loss 进行 $\alpha$ 均衡以处理类别不均衡的问题，此时 Focal loss 变体为<br>$$FL=-\alpha_t (1-x_t)^{\gamma} \log (x_t)$$</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Deep-Learning/" rel="tag"># Deep Learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/08/dl/tricks_1/" rel="prev" title="Deep Learning Tricks1">
+      <i class="fa fa-chevron-left"></i> Deep Learning Tricks1
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/01/12/pytorch/loss_1/" rel="next" title="Loss 1">
+      Loss 1 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#分类问题"><span class="nav-number">1.</span> <span class="nav-text">分类问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#多分类"><span class="nav-number">1.1.</span> <span class="nav-text">多分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多标签分类"><span class="nav-number">1.2.</span> <span class="nav-text">多标签分类</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#激活函数"><span class="nav-number">2.</span> <span class="nav-text">激活函数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Sigmoid"><span class="nav-number">2.1.</span> <span class="nav-text">Sigmoid</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Softmax"><span class="nav-number">2.2.</span> <span class="nav-text">Softmax</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分类损失"><span class="nav-number">3.</span> <span class="nav-text">分类损失</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Cross-Entropy-Loss"><span class="nav-number">4.</span> <span class="nav-text">Cross-Entropy Loss</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Balanced-Cross-Entropy"><span class="nav-number">4.1.</span> <span class="nav-text">Balanced Cross Entropy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Focal-Loss"><span class="nav-number">4.2.</span> <span class="nav-text">Focal Loss</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

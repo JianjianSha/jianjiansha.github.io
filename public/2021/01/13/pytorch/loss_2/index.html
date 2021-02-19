@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="继上一篇 loss 1，本篇介绍 PyTorch 的其他损失。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Loss 2">
+<meta property="og:url" content="https://shajianjian.github.io/2021/01/13/pytorch/loss_2/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="继上一篇 loss 1，本篇介绍 PyTorch 的其他损失。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-01-13T08:54:38.000Z">
+<meta property="article:modified_time" content="2021-01-15T07:12:11.771Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="PyTorch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/01/13/pytorch/loss_2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Loss 2 | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/01/13/pytorch/loss_2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Loss 2
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-13 16:54:38" itemprop="dateCreated datePublished" datetime="2021-01-13T16:54:38+08:00">2021-01-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-15 15:12:11" itemprop="dateModified" datetime="2021-01-15T15:12:11+08:00">2021-01-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>继上一篇 <a href="2021/1/12/pytorch/loss_1">loss 1</a>，本篇介绍 PyTorch 的其他损失。</p>
+<a id="more"></a>
+
+
+<h1 id="MarginRankingLoss"><a href="#MarginRankingLoss" class="headerlink" title="MarginRankingLoss"></a>MarginRankingLoss</h1><p>给定两个输入 $x_1, \ x_2$，以及一个 label 值 $y \in {1,-1}$。当 $y=1$，认为 $x_1$ 应该比 $x_2$ 大；当 $y=-1$，认为 $x_1$ 应该比 $x_2$ 小，所以损失为<br>$$l=\max(0, -y(x_1-x_2) + \text{margin})$$<br>上式中增加了一个 <code>margin</code> 项，根据<br>$$-y(x_1-x_2)+\text{margin} \le 0$$</p>
+<p>当 $y=1$ 时，需要满足 $x_1\ge x_2+\text{margin}$ 损失才降为 0。</p>
+<p>当 $y=-1$ 时，需要满足 $x_1+\text{margin} \le x_2$ 损失才降为 0。</p>
+<p>适用于（二）<b>分类</b>问题。</p>
+<h1 id="MultiLabelMarginLoss"><a href="#MultiLabelMarginLoss" class="headerlink" title="MultiLabelMarginLoss"></a>MultiLabelMarginLoss</h1><p>适用于多标签多分类问题。每个类别独立进行二分类（为正 or 为负）预测，预测值 x 是一个 2D tensor，shape 为 $(N,C)$，其中 $N$ 表示批大小，$C$ 表示类别数。target 与 x 同 shape。暂且考虑单个样本，此时 x 和 target 均为长度 <code>C</code> 的向量，x 表示各分类的预测概率，target （用 y 表示）表示样本所属分类索引，例如 $y=(3,0,-1,1)$，表示样本属于 <code>0</code> 分类和 <code>3</code> 分类，从第一个负值开始，之后的全部忽略。借鉴 <code>MarginRankingLoss</code> 思想，对于预测值 x，认为其中<b>样本所属分类的元素值比样本不属分类的元素值大</b>，这个例子中，样本所属分类为 ${0,3}$，所以认为应该是 $x_0,\ x_3 &gt; x_1,\ x_2$，据此不难理解单个样本的损失为<br>$$l=\sum_{i,j} \frac {\max[0, 1-(x_{y_j} - x_i)]} C$$<br>其中，$j \in \mathcal J={0,1,…,k-1}$，且 $y_k&lt;0$，$i \in {0,1,…,C-1}-{y_j|j \in \mathcal J}$，即， $j$ 为 target 向量中开始的连续非负元素索引，$y_j$ 表示样本所属分类索引，i 为样本不属分类索引。</p>
+<p>当分类正确时，损失为0，此时需要满足条件 $1-(x_{y_j}-x_i)\le 0 \Rightarrow x_{y_j}\ge 1+x_i$，这说明降低损失会使得样本所属分类的预测概率 $x_{y_j} \rightarrow 0$，样本不属分类的预测概率 $x_i \rightarrow 0$。在 test 阶段，对预测值 x 设置一个低阈值即可。</p>
+<h1 id="SoftMarginLoss"><a href="#SoftMarginLoss" class="headerlink" title="SoftMarginLoss"></a>SoftMarginLoss</h1><p>适用于二分类问题。上面两种 MarginLoss 均采用了 <code>max(0,x)</code> 函数，这个函数在 <code>x=0</code> 处不可导。<code>SoftMarginLoss</code> 借助 logistic 函数解决了这个问题。Logistic 函数<br>$$\sigma(x)=\frac 1 {1+\exp (-x)}$$<br>预测值 x，分类 $y\in {1,-1}$，似然函数为<br>$$\mathcal L =\mathbb I(y=1)f(x)+\mathbb I(y=-1)(1-f(x))=[1+\exp(-yx)]^{-1}$$<br> 负对数似然函数（损失）为<br>$$l= \log(1+\exp(-yx))$$<br>所以 <code>SoftMarginLoss</code> <b>就是 logistic 回归的负对数似然损失</b>。预测输入 input tensor 的 shape 为 $(<em>)$，其中 $</em>$ 表示任意维度，target 与 input 的 shape 相同。损失按像素计算，输出与 input 同 shape，如果按求和或平均归约，那么输出为一标量。</p>
+<h1 id="MultiLabelSoftMarginLoss"><a href="#MultiLabelSoftMarginLoss" class="headerlink" title="MultiLabelSoftMarginLoss"></a>MultiLabelSoftMarginLoss</h1><p>适用于多标签多分类问题。每个类别各自独立做二分类（为正或负）。input 和 target 有相同的 shape：$(N,C)$，target 值为 0 或 1（这与 SoftMarginLoss 的 1 或 -1 竟然不统一）。于是，单个样本的损失为，<br>$$l=-\frac 1 C \sum_{i=1}^C y_i \log \left(\frac 1 {1+\exp(-x_i)}\right )+(1-y_i)\log \left(\frac {\exp(-x_i)} {1+\exp(-x_i)}\right)$$<br>由于这里考虑单个样本，所以上式 $x, \ y$ 均为长度 $C$ 的向量，由于 y 值取值范围不同，所以上式与 <code>SoftMarginLoss</code> 的损失表达式略有不同，但是本质上都是 logistic 负对数似然损失。</p>
+<p>输出 tensor 的 shape 为 $(N,)$，如果按求和或平均归约，那么输出 tensor 为一标量。</p>
+<p>类签名：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MultiLabelSoftMarginLoss(weight: Optional[torch.Tensor] = <span class="literal">None</span>, size_average=<span class="literal">None</span>, reduce=<span class="literal">None</span>, reduction: str=<span class="string">'mean'</span>)</span><br></pre></td></tr></table></figure>
+<p><code>weight</code> 如果给定，那么是一个 shape 为 $(C,)$  的 tensor，用于给每个 channel/类别 一个权重。</p>
+<h1 id="MultiMarginLoss"><a href="#MultiMarginLoss" class="headerlink" title="MultiMarginLoss"></a>MultiMarginLoss</h1><p>适用于多分类（单标签）问题。input 为一个 2D tensor $(N,C)$，target shape 为 $(N,)$，表示样本的分类索引，故 $y_i \in {0,1,…,C-1}$，对于单个样本而言，此时输入为一个长度 C 的向量 x，target 为标量，也记为 y，表示样本分类索引，显然我们要 $x_y &gt; x_i$，其中 $i \neq y$，margin-based 损失为<br>$$l=\frac {\sum_{i \neq y} \max(0, d-(x_y-x_i))^p} C$$<br>其中 $d$ 为 margin，也就是说需要 $x_y \ge x_i+d$，样本所属分类的预测概率比其他分类的预测概率大 $d$，损失才为 0。</p>
+<p>p 值可为 1 或 2，用于控制损失变化速度。还可以给每个类型增加一个权重，此时损失为，<br>$$l=\frac {\sum_{i \neq y} \max[0, w_y(d-(x_y-x_i))^p]} C$$<br>注意，权重 $w_y$ 不参与幂运算，且只有样本所属分类对于的权重因子起作用。</p>
+<p>类签名：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MultiMarginLoss(p: int=<span class="number">1</span>, margin: float=<span class="number">1.0</span>, weight: Optional[torch.Tensor]=<span class="literal">None</span>, size_average=<span class="literal">None</span>, reduce=<span class="literal">None</span>, reduction: str=<span class="string">'mean'</span>)</span><br></pre></td></tr></table></figure>
+<p>input shape 为 $(N,C)$，target shape 为 $(N,)$，output 的 shape 为 $(N,)$，可以按求和或平均归约，此时 output 为一标量。</p>
+<h1 id="TripletMarginLoss"><a href="#TripletMarginLoss" class="headerlink" title="TripletMarginLoss"></a>TripletMarginLoss</h1><p>三个tensor：$a, \ p, \ n$，分别表示 anchor，正例和负例，shape 均为 $(N,D)$，其中 $N$ 为批大小，$D$ 为特征数。p 表示与 a 同类的另一个样本的特征，n 表示与 a 不同类的样本特征，显然，需要 p 与 a 的特征尽量相近，n 与 a 的特征尽量远离。<br>传统上是以 pair 的形式来度量损失，即 $(p,a)$ 为正例对，$(n,a)$ 为负例对，一般表示为 $(x_1, x_2， l)$，当 $l=1$ 表示是正例对，$l=-1$ 表示是负例对，此时损失定义为<br>$$l=\begin{cases} \Vert \mathbf x_1-\mathbf x_2 \Vert_2 &amp; l=1 \ \max(0, d-\Vert \mathbf x_1- \mathbf x_2\Vert_2) &amp; l=-1 \end{cases}$$<br>$l=1$ 是正例对，所以 $\mathbf x_1$ 应该要尽量接近 $\mathbf x_2$；$l=-1$ 是负例对，$\mathbf x_1$ 尽量要远离 $\mathbf x_2$，且要相距 $d$ 以上。</p>
+<p>这里 <code>TripletMarginLoss</code> 将 <code>(a,p,n)</code> 三者当成一个整体，margin ranking-based 损失定义如下，<br>$$l=\max[d(a,p) - d(a,n)+d_0, 0]$$<br>$$d(\mathbf x_1, \mathbf x_2)=\Vert \mathbf x_1 - \mathbf x_2 \Vert_p$$<br>其中，$d_0$ 为 margin，计算特征空间中的距离时，使用的是 p 范数，这个 p 与前面正例 p 不一样，根据上下文不难区分。</p>
+<p>类签名：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TripletMarginLoss(margin: float=<span class="number">1.0</span>, p: float=<span class="number">2.0</span>, eps: float=<span class="number">1e-06</span>, swap: bool=<span class="literal">False</span>, size_average=<span class="literal">None</span>, reduce=<span class="literal">None</span>, reduction: str=<span class="string">'mean'</span>)</span><br></pre></td></tr></table></figure>
+<p><code>swap</code> 指示是否交换 anchor 和 positive，这用于 hard negative mining。若 <code>swap=True</code>，那么 $d(a,n) = d(p,n)$，也就是说，使用 <code>(p,n)</code> 的距离作为 negative 与 anchor 的距离。</p>
+<p>forward 方法的参数为 anchor, positive 和 negative 三个特征 tensor，shape 均为 $(N,D)$，输出 tensor 的 shape 为 $(N,)$，如果按求和或平均归约，那么输出为一标量。</p>
+<p>更多细节可以参考 <a href="www.bmva.org/bmvc/2016/papers/paper119/paper119.pdf"><code>Learning local feature descriptors with triplets and shallow convolutional neural networks</code></a></p>
+<h1 id="TripletMarginWithDistanceLoss"><a href="#TripletMarginWithDistanceLoss" class="headerlink" title="TripletMarginWithDistanceLoss"></a>TripletMarginWithDistanceLoss</h1><p><code>TripletMarginLoss</code> 中距离使用的是 p 范数，这里是通过参数提供自定义的距离参数。anchor，positive 和 negative 三个 tensor 的 shape 为 $(N,<em>)$ ，其中 $</em>$ 为任意维度，输出 tensor 的未归约 shape 为 $(N,)$，否则为一标量。</p>
+<h1 id="HingeEmbeddingLoss"><a href="#HingeEmbeddingLoss" class="headerlink" title="HingeEmbeddingLoss"></a>HingeEmbeddingLoss</h1><p>$x$ 表示距离（例如 L1 范数），$y \in {1,-1}$ 标识是相似还是相反，损失为，<br>$$l = \begin{cases} x &amp; y=1 \ \max(0, d-x) &amp; y=-1 \end{cases}$$<br>其中 $d$ 为 margin。</p>
+<p>输入 x 和 y 的 shape 均为任意维度 $(<em>)$，输出未归约的 shape 也是 $(</em>)$，否则为一标量。</p>
+<h1 id="CosineEmbeddingLoss"><a href="#CosineEmbeddingLoss" class="headerlink" title="CosineEmbeddingLoss"></a>CosineEmbeddingLoss</h1><p><code>y=1</code> 表示两个（归一化）向量应该相近，<code>y=-1</code> 表示应该相差很远。<br>损失如下，<br>$$l=\begin{cases} 1- \cos(x_1,x_2) &amp; y=1 \ \max[0, \cos(x_1,x_2) - d] &amp; y=-1 \end{cases}$$<br>其中 $d$ 表示 margin，默认为 0。</p>
+<h1 id="CTCLoss"><a href="#CTCLoss" class="headerlink" title="CTCLoss"></a>CTCLoss</h1><p>参考文献 <a href="https://www.cs.toronto.edu/~graves/icml_2006.pdf" target="_blank" rel="noopener">Connectionist Temporal Classification: Labelling Unsegmented Sequence Data with Recurrent Neural Networks</a><br>RNN 相关的应用领域暂未涉及。略，以后填坑。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/12/pytorch/loss_1/" rel="prev" title="Loss 1">
+      <i class="fa fa-chevron-left"></i> Loss 1
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/01/19/img_cls/resnet/" rel="next" title="img_cls/resnet.md">
+      img_cls/resnet.md <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MarginRankingLoss"><span class="nav-number">1.</span> <span class="nav-text">MarginRankingLoss</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MultiLabelMarginLoss"><span class="nav-number">2.</span> <span class="nav-text">MultiLabelMarginLoss</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SoftMarginLoss"><span class="nav-number">3.</span> <span class="nav-text">SoftMarginLoss</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MultiLabelSoftMarginLoss"><span class="nav-number">4.</span> <span class="nav-text">MultiLabelSoftMarginLoss</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MultiMarginLoss"><span class="nav-number">5.</span> <span class="nav-text">MultiMarginLoss</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TripletMarginLoss"><span class="nav-number">6.</span> <span class="nav-text">TripletMarginLoss</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TripletMarginWithDistanceLoss"><span class="nav-number">7.</span> <span class="nav-text">TripletMarginWithDistanceLoss</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HingeEmbeddingLoss"><span class="nav-number">8.</span> <span class="nav-text">HingeEmbeddingLoss</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CosineEmbeddingLoss"><span class="nav-number">9.</span> <span class="nav-text">CosineEmbeddingLoss</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CTCLoss"><span class="nav-number">10.</span> <span class="nav-text">CTCLoss</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

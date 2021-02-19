@@ -82,3 +82,49 @@ python setup.py build
 ```
 export CPLUS_INCLUDE_PATH='' && python setup.py build
 ```
+
+现在增加了 develop 模式，conda 环境下执行
+```
+cd [pytorch github project root path]
+python setup.py develop
+```
+这样只会生成一个位于 site-packages 中的 torch 的 egg-link，可以随时修改 pytorch 源码，而不用重装 pytorch。
+
+容器运行 pytorch-gpu
+```
+docker pull pytorch/pytorch:1.7.1-cuda11.0-cudnn8-level
+docker run -p 9527:22 --gpus all -rm -itd --ipc=host -v /home/xx/xx:/home/xx/xx --name pytorch pytorch/pytorch:1.7.1-cuda11.0-cudnn8-level
+```
+
+# 安装 mmdetection
+以 conda 虚拟环境名称 `base` 为例，其中已经安装了 PyTorch，cudatoolkit 等包，还有一些包如`matplotlib, pillow, opencv` 等图像处理相关的包也需要安装，可以使用
+```
+conda list
+```
+查看。现在要安装 mmdetection，
+
+1. 安装 mmcv，这是 open-mmlab 一众库的基础，
+```
+git clone https://github.com/open-mmlab/mmcv.git
+```
+
+进入根目录
+```
+cd mmcv
+```
+以开发模式安装，
+```
+MMCV_WITH_OPS=1 pip install -e .
+```
+其中，MMCV_WITH_OPS 默认为 0，表示 cpu 模式下运行 mmcv（轻量级模式），为 1 时 启用 cuda 加速。`pip install -e .` 表示可编辑模型安装当前目录的库，等同于 `python setup.py develop`。
+
+下载 mmdetection 源码，
+```
+git clone https://github.com/open-mmlab/mmdetection.git
+```
+同样地，以开发模式安装，
+```
+cd mmdetection
+pip install -r requirements/build.txt
+python setup.py develop
+```

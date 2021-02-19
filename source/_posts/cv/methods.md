@@ -15,3 +15,5 @@ mathjax: true
 
 由于
 
+## resize
+图像resize 后，可能会变大，也可能变小。
