@@ -160,7 +160,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/02/19/dl/dilated_conv/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/25/cpp/string/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -174,7 +174,250 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/02/19/dl/dilated_conv/" class="post-title-link" itemprop="url">Dilated Convolution</a>
+            <a href="/2021/06/25/cpp/string/" class="post-title-link" itemprop="url">C++ 边学边忘——字符（串）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-06-25 12:02:49" itemprop="dateCreated datePublished" datetime="2021-06-25T12:02:49+08:00">2021-06-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-28 16:41:49" itemprop="dateModified" datetime="2021-06-28T16:41:49+08:00">2021-06-28</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h1><p>我们写的源码（source code）被保存在文件中，我们知道文件也是有编码格式的，例如打开微软的 VS 2019，新建一个C++ Console App，会自动生成一个 <code>ConsoleApplication1.cpp</code> 文件，这个文件的编码可以通过 VS 2019 的 “文件”菜单下的 “高级保存选项”命令进行设置（如果没有说明被 VS 隐藏了，请百度如何显示这个命令），默认是<code>GB2312</code>，可以把它改为 <code>utf-8</code> 等。vscode 中也可以更改文件编码，通过 <code>ctrl+shift+p</code> 打开命令搜索框，然后输入 <code>encode</code> 关键词，就有 <code>Change File Encoding</code> 命令出来，然后 vscode 右下角 也出现 <code>UTF-8</code>、<code>CRLF</code> 等按钮，可以直接点击进行修改。</p>
+<p>这里强调一下，unicode 与 UTF-8 的关系，准确的讲，unicode 是字符集（也有编码，分 UCS2 和 UCS4 两种），UTF-8 是 unicode 的一种编码，是一种变长编码，但所覆盖的字符集范围与 unicode 是相同的，而 unicode 是定长编码，UTF-8 是为了便于传输（省流量）以及与 ASCII 兼容。编码 gb2312 与 UTF-8 两者对应的字符集不兼容。编码 GBK 兼容 gb2312，GBK 字符集是 gb2312 字符集的超集。编码 UTF-8 、GBK 和 gb2312 兼容 ASCII，而 unicode 不兼容 ASCII。关于字符集和编码的更多知识请百度。</p>
+<p>对于一个源文件，我们可以在 Windows 上使用 ultraedit 或 UEStudio 来查看文件的十六进制数据，在 Linux 上使用 vim 打开源文件后，使用命令 <code>:%!xxd</code>，切换到十六进制，也可以使用命令 <code>hexdump &lt;filename&gt; -C</code> 查看文件的 16 进制数据。</p>
+<blockquote>
+<p>使用 vim <code>:%!xxd</code> 查看文件 16 进制时，发现 gb2312 的文件总是会先被转换为 utf-8 编码，导致查看的都是 utf-8 编码的 16 进制，由于对 vim 不是特别熟悉，不知道是什么原因。</p>
+</blockquote>
+<p>现在我们需要搞清楚的是：编译器读取源文件，将源文件中的字符映射得到编译时的字符，这个编译时字符集称为 <code>源字符集</code>，经过映射的字符作为预处理阶段的输入，经过预处理后，字符串和字符常量会再转换为 <code>执行字符集</code>，保存在可执行文件中。这里的映射均由编译器实现定义。</p>
+<h2 id="源字符集"><a href="#源字符集" class="headerlink" title="源字符集"></a>源字符集</h2><p>Windows 上编译 C++ 使用 <code>cl.exe</code> 工具。默认使用当前活动页对应的编码作为 <code>源字符集</code>，可以使用 <code>chcp</code> 查看当前活动页，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> chcp</span></span><br><span class="line">Active code page: 936</span><br></pre></td></tr></table></figure>
+<p>936 对应编码 <code>gb2312</code>。我们举一个例子说明，例如代码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">wchar_t</span> c = <span class="string">L'好'</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用 vs 2019 创建 Console App 项目后，直接将上面代码替换掉自动生成的代码，这里默认的源文件编码方式为 <code>gb2312</code>，在系统开始菜单中找到 Visual Studio 2019 文件夹，然后打开 <code>Developer Command Prompt for VS 2019</code>，输入以下命令进行预处理，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> <span class="built_in">cd</span> myproj</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> cl main.cpp /E &gt; main-gb2312.i</span></span><br></pre></td></tr></table></figure>
+<p>得到预处理后的文件 <code>main-gb2312.i</code> 编码为 <code>gb2312</code>，可以检测其中的中文 <code>好</code> 被编码为 <code>BAC3</code>。</p>
+<p>当然我们还可以修改源文件的编码方式，在 VS 2019 文件菜单下的 “高级保存选项” 窗口，设置为 <code>UTF-8 with signature</code>，保存好后，再次执行预处理，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> cl main.cpp /E &gt; main-utf8-sig.i</span></span><br></pre></td></tr></table></figure>
+<p>得到预处理后的文件 <code>main-utf8-sig.i</code> 编码为 <code>gb2312</code>，可以检测其中的中文 <code>好</code> 被编码为 <code>BAC3</code>。</p>
+<p>but，如果将源文件编码改为 <code>UTF-8 without signature</code>，那么源文件将是 <code>UTF-8</code> 编码，且 <code>cl.exe</code> 无法识别，此时采用默认的 <code>gb2312</code> 进行解码，那么将会导致编译出现意想不到的结果，甚至无法通过编译。在以上这个例子中，<code>好</code> 的 UTF-8 编码为 <code>E5A5BD</code>，后面一个字符单引号 <code>&#39;</code> 的UTF-8 编码为 <code>27</code>，而 <code>E5A5</code> 被 gb2312 错误的识别为 <code>濂</code>， 剩余的一个字节 <code>BD</code> 将会与后面的字节 <code>27</code> 连起来，但是这不是一个有效的 gb2312 字符编码，所以无法识别，预处理阶段，将它替换为一个问好 <code>?</code> 的编码 <code>3F</code>，这导致丢失了单引号字符 <code>&#39;</code>。我们使用 VS 直接编译这个源文件，报错如下，</p>
+<p><img src="/images/cpp/string1.png" alt=""></p>
+<p>有的时候，如果源码中出现的中文 utf-8 的编码全部处于 gb2312 编码范围内，那就不会报错，但却被编译器错误的识别为其他字符，导致程序能生成，但是执行结果不对。</p>
+<p>那么，对于这个 <code>UTF-8 without signature</code> 的源文件，我们就无法处理了吗？</p>
+<p>显然不是，一个是修改系统的 CODE PAGE 为 65001，这样，<code>源字符集</code> 默认就改成 UTF-8，肯定是可以的，预处理后的文件也是 <code>UTF-8</code> 编码的，但是这种方法牵一发而动全身，我们选用另一个方法， 即，通过命令行选项 <code>\source-charset:utf-8</code> 指定，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> cl /<span class="built_in">source</span>-charset:utf-8 main.cpp /E &gt; main-gb2312.i</span></span><br></pre></td></tr></table></figure>
+
+<p>Linux 上，我们以 GCC 为例，默认的 <code>源字符集</code> 为 UTF-8，预处理命令为</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -E main.cpp -o main-utf8.i</span></span><br></pre></td></tr></table></figure>
+<p>查看 <code>main-utf8.i</code> ，发现中文 <code>好</code> 编码为 <code>E5A5BD</code>，这说明确实是 UTF-8 编码。</p>
+<p>使用 vscode 将源文件编码改为 <code>gb2312</code> ，继续执行命令 <code>gcc -E main.cpp -o main-gb2312.i</code>，查看 <code>main-gb2312.i</code>，发现中文 <code>好</code> 编码为 <code>BAC3</code>，这是 gb2312 编码，加入其他中文，发现全部都保留了 gb2312 编码，事实上，这是因为 gcc 默认按照 UTF-8 解码，在第一个单引号 <code>&#39;</code> 之后，遇到 <code>好&#39;</code>，其 gb2312 编码为 <code>BAC327</code>，但是 gcc 使用 UTF-8 解码时，被解码成一个<code>ڃ&#39;</code>，这是一个乱码后跟一个单引号，也就是说，<code>BAC3</code> 在 UTF-8 中是有对应字符的，所以本质上<font color="red">不是 gb2312 编码，而仍然是 UTF-8 编码</font>，将中文的 gb2312 编码按 UTF-8 解码势必出错，所以我们需要通过 gcc 的 <code>-finput-charset</code> 命令选项来指出源文件的编码，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -finput-charset=gb2312 -E main.cpp -o main-gb2312-ic.i</span></span><br></pre></td></tr></table></figure>
+<p>注意这个选项仅用于指出源文件编码，而生成的预处理文件 <code>main-gb2312-ic.i</code> 仍然是 UTF-8 编码，可以发现，中文 <code>好</code> 的编码为 <code>E5A5BD</code>。GCC 中 <code>源字符集</code> 为 UTF-8，本人暂时没有找到可以更改 gcc <code>源字符集</code> 的方法。</p>
+<blockquote>
+<p>查询 UTF-8 编码可使用 <a href="https://www.branah.com/unicode-converter" target="_blank" rel="noopener">https://www.branah.com/unicode-converter</a> ， 查询 gb2312 编码可使用 <a href="https://www.qqxiuzi.cn/bianma/zifuji.php" target="_blank" rel="noopener">https://www.qqxiuzi.cn/bianma/zifuji.php</a> 。</p>
+</blockquote>
+<h2 id="执行字符集"><a href="#执行字符集" class="headerlink" title="执行字符集"></a>执行字符集</h2><p>预处理之后进行编译，字符串和字符常量将会被转换为 <code>执行字符集</code>，根据<a href="https://docs.microsoft.com/en-us/cpp/build/reference/execution-charset-set-execution-character-set?view=msvc-160" target="_blank" rel="noopener">微软官方说明</a>，<code>执行字符集</code> 是对文本进行编码然后作为在预处理之后的后续编译阶段的输入。</p>
+<p>在 VS 上，可以使用 <code>/execution-charset:&lt;charset&gt;</code> 命令选项进行设置，在 GCC 上可以设置命令选项 <code>-fexec-charset=&lt;charset&gt;</code> ，对于宽字符，则需要设置 <code>-fwide-exec-charset=&lt;charset&gt;</code>。</p>
+<p>以 GCC 为例（Ubuntu 上），首先修改源码如下，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> c = <span class="string">'好'</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里变量 <code>c</code> 的类型改为 char 类型，然后编译，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c main.cpp -o main.o</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> objdump -Sr main.o</span></span><br><span class="line"></span><br><span class="line">f:  c6 45 ff bd    movb    $0xbd,-0x1(%rbp)</span><br></pre></td></tr></table></figure>
+<p>注意到 <code>0xbd</code> 就是 <code>好</code> 的 utf-8 编码 <code>E5A5BD</code> 的低位的第一个字节，因为 char 类型只能存储一个字节，其他字节被截掉。现在加上 <code>执行字符集</code> 命令选项，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c main.cpp -o main.o -fexec-charset=gb2312</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> objdump -Sr main.o</span></span><br><span class="line"></span><br><span class="line">f:  c6 45 ff c3     movb    $0xc3,-0x1(%rbp)</span><br></pre></td></tr></table></figure>
+<p>这里 <code>0xc3</code> 是 <code>好</code> 的 gb2312 编码 <code>BAC3</code> 的低位字节。现在将源码改为，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">wchar_t</span> c = <span class="string">'好'</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意这里字符字面量没有前缀 <code>L</code>，编译和反编译如下，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c main.cpp -o main.o</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> objdump -Sr main.o</span></span><br><span class="line"></span><br><span class="line">f:  c7 45 fc bd a5 e5 00    movl    $0xe5a5bd,-0x4(%rbp)</span><br></pre></td></tr></table></figure>
+<p>可见 <code>好</code> 编码为 UTF-8 的 <code>E5A5BD</code>。加上 <code>执行字符集</code> 命令选项，那么有</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c main.cpp -o main.o -fexe-charset=gb2312</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> objdump -Sr main.o</span></span><br><span class="line"></span><br><span class="line">f:  c7 45 fc c3 ba 00 00    movl    $0xbac3,-0x4(%rbp)</span><br></pre></td></tr></table></figure>
+
+<p>这与预料的一样，<code>好</code> 编码为 gb2312 的 <code>BAC3</code>。现在我们继续修改源码，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">wchar_t</span> c = <span class="string">L'好'</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不使用 <code>源字符集</code> 命令选项，结果为，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c main.cpp -o main.o</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> objdump -Sr main.o</span></span><br><span class="line"></span><br><span class="line">f:  c7 45 fc 7d 59 00 00    movl    $0x597d,-0x4(%rbp)</span><br></pre></td></tr></table></figure>
+<p>这个 <code>0x597d</code> 为 <code>好</code> 的 UTF-32 编码。不难想象，如果源码改为 <code>char = L&#39;好&#39;</code>，那么目标文件中只有 <code>好</code> 的 UTF-32 编码的低位字节，即 <code>7D</code>，这个可以自己试一下。</p>
+<p>这是因为带 <code>L</code> 前缀的字符（串）字面量的默认 <code>执行字符集</code> 为 <code>UTF-32</code> （我这里的 wchar_t 为 4 字节，如果是 2 字节，那么对应 <code>执行字符集</code> 为 <code>UTF-16</code>）。我们现在增加 <code>-fwide-exec-charset</code> 命令选项修改 <strong>宽</strong> 字符（串）字面量的 <code>执行字符集</code>，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c main.cpp -o main.o -fwide-exec-charset=gb2312</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> objdump -Sr main.o</span></span><br><span class="line"></span><br><span class="line">f:  c7 45 fc 00 00 ba c3   movl    $0xc3ba0000,-0x4(%rbp)</span><br></pre></td></tr></table></figure>
+<p>可见确实将宽字符编码为 <code>gb2312</code>。</p>
+<p>总结：</p>
+<ol>
+<li><code>-fexec-charset</code> 改变窄字符（例如 <code>&#39;好&#39;</code>）的字符集</li>
+<li><code>-fwide-exec-char</code> 改变宽字符（带前缀 <code>L</code>）的字符集</li>
+<li>GCC 默认，窄字符的 <code>执行字符集</code> 为 <code>UTF-8</code>，宽字符的 <code>执行字符集</code> 为 <code>UTF-32</code></li>
+</ol>
+<p>可以使用如下源码试一试，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">wchar_t</span> c = <span class="string">L'好'</span>;      <span class="comment">// -fwide-exec-charset=gb2312</span></span><br><span class="line">    <span class="keyword">wchar_t</span> d = <span class="string">'好'</span>;       <span class="comment">// -fexec-charset=gb2312</span></span><br><span class="line">    <span class="keyword">char32_t</span> e = <span class="string">U'好'</span>;     <span class="comment">// 宽字符，对应 -fwide-exec-charset 命令选项</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h1><p>本节内容以 GCC 作为编译器进行讨论说明。现在我们来看字符（串）的输出。给出测试代码如下，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">wchar_t</span> a = <span class="string">L'好'</span>;</span><br><span class="line">    <span class="keyword">char32_t</span> b = <span class="string">U'好'</span>;</span><br><span class="line">    <span class="keyword">char</span> c = <span class="string">'好'</span>;</span><br><span class="line">    <span class="keyword">int</span> d = <span class="number">0x597D</span>;</span><br><span class="line">    <span class="keyword">wint_t</span> e = <span class="number">0x597D</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"a-&gt;%c, b-&gt;%c, c-&gt;%c, d-&gt;%c, e-&gt;%c\n"</span>, a, b, c, d, e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>生成命令如下，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> g++ main.cpp -o main</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./main</span></span><br><span class="line"></span><br><span class="line"><span class="meta">a-&gt;</span><span class="bash">&#125;, b-&gt;&#125;, c-&gt;?, d-&gt;&#125;, e-&gt;&#125;</span></span><br></pre></td></tr></table></figure>
+<p><code>c</code> 打印为乱码（这里乱码使用 问号 <code>?</code> 表示，这里乱码仅指无法识别为 ASCII 和 中文的意思），<code>a,b,d,e</code> 打印为右大括号 <code>}</code>，这很好理解，参考 <a href="http://www.cplusplus.com/reference/cstdio/printf/" target="_blank" rel="noopener">printf 函数格式串说明</a>，<code>a,b</code> 在执行文件中才有 UTF-32 编码 <code>597D</code>，与 <code>d,e</code> 相同，在格式化过程时先被转换为了 char 类型，即 <code>7D</code>，这是 <code>}</code> 的 ASCII。<code>c</code> 保存了 <code>好</code> 的 UTF-8 编码的低位字节（GCC 中窄字符采用 UTF-8 编码）， 为 <code>BD</code>（等效于设置 <code>char c = 0xBD</code>），超出了 <code>%c</code> 的有效范围（127），在 ASCII 的扩展字符集（即 128~255）中才有，我们应该明确避免这种打印超过范围字符。可以改为 <code>wchar_t c=0xBD</code>，并使用 <code>%lc</code> 来打印这个 ASCII 扩展字符，同样的 <code>好</code> 的编码值也超出了 <code>char</code> 类型的有效范围，故上面使用 <code>wchar_t</code> 类型变量保存，同时也应该改为使用 <code>%lc</code> 打印。这里需要说明，C 程序执行时默认使用标准的 <code>C</code> locale，这个 locale 使得在终端上无法正常显示宽字符，而显示乱码，可以增加 locale 设置语句，可以使用指令 <code>locale</code> 查看系统相关配置，打印代码如下，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;wchar.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    setlocale(LC_CTYPE, <span class="string">""</span>);</span><br><span class="line">    <span class="keyword">wchar_t</span> a = <span class="string">L'好'</span>;</span><br><span class="line">    <span class="keyword">char32_t</span> b = <span class="string">U'好'</span>;</span><br><span class="line">    <span class="keyword">wchar_t</span> c = <span class="number">0xBD</span>;   <span class="comment">// ASCII 扩展字符</span></span><br><span class="line">    <span class="keyword">int</span> d = <span class="number">0x597D</span>;</span><br><span class="line">    <span class="keyword">wint_t</span> e = <span class="number">0x597D</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"a-&gt;%lc, b-&gt;%lc, c-&gt;%c, d-&gt;%lc, e-&gt;%lc\n"</span>, a, b, c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果为 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a-&gt;好, b-&gt;好, c-&gt;½, d-&gt;好, e-&gt;好</span><br></pre></td></tr></table></figure>
+
+<p>注意这里打印 <code>c</code> 变量使用 <code>%lc</code>，以宽字符形式打印，打印结果为 <code>½</code>（分数 1/2），可以查看 <a href="https://www.w3school.com.cn/charsets/ref_html_8859.asp" target="_blank" rel="noopener">扩展 ASCII 表</a>。另外注意到 <code>好</code> 使用 unicode 编码值 <code>597D</code>，所以如果 <code>wchar_t c=0xE5A5BD</code>（ UTF-8 编码值），那么将无法在终端正确打印 <code>好</code>。可能有人会好奇，前面说 GCC 中 <code>exec-charset</code> 默认为 <code>UTF-8</code>，为什么 <code>UTF-8</code> 编码值就无法用来打印字符呢？</p>
+<p>因为 <code>exec-charset</code> 是对应窄字符的，所以不能使用 <code>%lc</code> 来打印，但是我们可以使用 <code>%s</code> 来打印，即打印字符串，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;locale.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;wchar.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    setlocale(LC_CTYPE, <span class="string">""</span>);    <span class="comment">// 设置系统当前 locale</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">wchar_t</span>* a = <span class="string">L"好"</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char32_t</span>* b = <span class="string">U"好"</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* c = <span class="string">"好"</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* d = <span class="string">"\xE5\xA5\xBD"</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> e[<span class="number">4</span>] = &#123;<span class="number">0xE5</span>, <span class="number">0xA5</span>, <span class="number">0xBD</span>&#125;;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> f[<span class="number">4</span>] = &#123;<span class="string">'\xE5'</span>, <span class="string">'\xA5'</span>, <span class="string">'\xBD'</span>&#125;;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"a-&gt;%ls, b-&gt;%ls, c-&gt;%s, d-&gt;%s, e-&gt;%s, f-&gt;%s\n"</span>, a, b, c, d, e, f);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，<code>c</code> 对应 <code>%s</code>，用于打印窄字符，而 <code>a,b</code> 均需要用 <code>%ls</code> 来打印宽字符（否则无法正确打印），我们不能搞混，否则可能无法正常打印。</p>
+<p>结果为 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a-&gt;好, b-&gt;好, c-&gt;好, d-&gt;好, e-&gt;好, f-&gt;好</span><br></pre></td></tr></table></figure>
+
+<p>上面，<code>d,f</code> 是字符串 <code>&quot;好&quot;</code> 的 16 进制表示（UTF-8 编码），<code>e</code> 存储了 <code>好</code> 和 <code>\0</code> 两个字符，其中 <code>好</code> 依然是 UTF-8 编码。<code>d,e,f</code> 变量的字符串打印使用 <code>%s</code>，如上结果所示，可正常打印。此外，<code>d,f</code> 可以直接打印，即 <code>printf(d);printf(f);</code>。</p>
+<blockquote>
+<ol>
+<li>可以使用 printf(“%x\n”, a); 打印一个字符变量的 16 进制值。</li>
+</ol>
+</blockquote>
+<blockquote>
+<ol start="2">
+<li>GCC 中不要混用 <code>printf</code> 和 <code>wprintf</code>，相关知识点可搜索 <code>fwide</code> 函数.</li>
+</ol>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/16/python/ext3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/06/16/python/ext3/" class="post-title-link" itemprop="url">python C/C++ Extension Type</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-06-16 18:23:47" itemprop="dateCreated datePublished" datetime="2021-06-16T18:23:47+08:00">2021-06-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-17 17:25:34" itemprop="dateModified" datetime="2021-06-17T17:25:34+08:00">2021-06-17</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>每个 Python 对象均是 <code>PyObject*</code> 的变体，<code>PyObject</code> 仅包含 引用计数 以及 类型对象的指针。因为 Python 是动态类型语言，每个对象自身包含了其类型，这个 类型对象决定了可以用 Python 解释器 对这个对象调用哪些函数，例如获取对象的属性，调用对象方法等。要定义一个新对象，需要创建一个新的类型对象。例子，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PY_SSIZE_T_CLEAN</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;Python.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    PyObject_HEAD</span><br><span class="line">    <span class="comment">/* Type-specific fields go here. */</span></span><br><span class="line">&#125; CustomObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> PyTypeObject CustomType = &#123;</span><br><span class="line">    PyVarObject_HEAD_INIT(<span class="literal">NULL</span>, <span class="number">0</span>)</span><br><span class="line">    .tp_name = <span class="string">"custom.Custom"</span>,</span><br><span class="line">    .tp_doc = <span class="string">"Custom objects"</span>,</span><br><span class="line">    .tp_basicsize = <span class="keyword">sizeof</span>(CustomObject),</span><br><span class="line">    .tp_itemsize = <span class="number">0</span>,</span><br><span class="line">    .tp_flags = Py_TPFLAGS_DEFAULT,</span><br><span class="line">    .tp_new = PyType_GenericNew,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> PyModuleDef custommodule = &#123;</span><br><span class="line">    PyModuleDef_HEAD_INIT,</span><br><span class="line">    .m_name = <span class="string">"custom"</span>,</span><br><span class="line">    .m_doc = <span class="string">"Example module that creates an extension type."</span>,</span><br><span class="line">    .m_size = <span class="number">-1</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">PyMODINIT_FUNC</span><br><span class="line">PyInit_custom(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    PyObject *m;</span><br><span class="line">    <span class="keyword">if</span> (PyType_Ready(&amp;CustomType) &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    m = PyModule_Create(&amp;custommodule);</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    Py_INCREF(&amp;CustomType);</span><br><span class="line">    <span class="keyword">if</span> (PyModule_AddObject(m, <span class="string">"Custom"</span>, (PyObject *) &amp;CustomType) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        Py_DECREF(&amp;CustomType);</span><br><span class="line">        Py_DECREF(m);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码，首先定义了一个结构体，表示自定义对象，<br><code>CustomObject</code> 结构体中，<code>PyObject_HEAD</code> 是强制必须有的，且在结构体第一个位置，这个宏定义了 <code>ob_base</code> 字段，类型为 <code>PyObject</code>，这个字段中包含一个类型对象 <code>ob_type</code> 和一个引用计数 <code>ob_refcnt</code>，可以分别使用 <code>Py_TYPE</code> 和 <code>Py_REFCNT</code> 进行访问。<code>PyObject_HEAD</code> 之后可以列出类型的其他字段，例如</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    PyObject_HEAD</span><br><span class="line">    <span class="keyword">double</span> ob_fval;</span><br><span class="line">&#125; PyFloatObject;</span><br></pre></td></tr></table></figure>
+
+<p>然后是对象的类型定义（这个类型本身也是一个对象），</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyTypeObject CustomType = &#123;</span><br><span class="line">    PyVarObject_HEAD_INIT(<span class="literal">NULL</span>, <span class="number">0</span>)</span><br><span class="line">    .tp_name = <span class="string">"custom.Custom"</span>,</span><br><span class="line">    .tp_doc = <span class="string">"Custom objects"</span>,</span><br><span class="line">    .tp_basicsize = <span class="keyword">sizeof</span>(CustomObject),</span><br><span class="line">    .tp_itemsize = <span class="number">0</span>,</span><br><span class="line">    .tp_flags = Py_TPFLAGS_DEFAULT,</span><br><span class="line">    .tp_new = PyType_GenericNew,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这里使用的是 C99 的初始化风格，这样不用列出所有的字段，且不用考虑字段的顺序，实际上 <code>PyTypeObject</code> 有很多的字段，上面没有列出来的字段，均由编译器初始化为 <code>0</code>。如果不使用 C99 初始化风格，那么将会是，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyTypeObject CustomType = &#123;</span><br><span class="line">    PyVarObject_HEAD_INIT(<span class="literal">NULL</span>, <span class="number">0</span>)</span><br><span class="line">    <span class="string">"custom.Custom"</span>,</span><br><span class="line">    <span class="string">"Custom objects"</span>,</span><br><span class="line">    <span class="keyword">sizeof</span>(CustomObject),</span><br><span class="line">    <span class="number">0</span>,</span><br><span class="line">    ...</span><br><span class="line">    Py_TPFLAGS_DEFAULT,</span><br><span class="line">    PyType_GenericNew,</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>来依次分析，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PyVarObject_HEAD_INIT(NULL, 0)</span><br></pre></td></tr></table></figure>
+<p>这句是强制的，用于初始化 <code>ob_base</code>，这个宏是初始化可变对象的头部，宏定义为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#define PyVarObject_HEAD_INIT(type, size) 1, type, size,</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.tp_name &#x3D; &quot;custom.Custom&quot;, # 类型名</span><br><span class="line">.tp_basicsize &#x3D; sizeof(CustomObject),   # 指示如何分配内存</span><br><span class="line">.tp_itemsize &#x3D; 0,   # 可变大小的对象用到，不可变大小例如 bool，int，则为0</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.tp_new &#x3D; PyType_GenericNew,</span><br></pre></td></tr></table></figure>
+<p>提供一个 <code>tp_new</code> 句柄，等价于 <code>__new__()</code>，用于创建对象，<code>PyType_GenericNew</code> 是创建对象的默认实现。</p>
+<h2 id="添加数据成员和方法"><a href="#添加数据成员和方法" class="headerlink" title="添加数据成员和方法"></a>添加数据成员和方法</h2><p>参考<a href="https://docs.python.org/3.9/extending/newtypes_tutorial.html" target="_blank" rel="noopener">官方文档</a></p>
+<h1 id="循环垃圾回收"><a href="#循环垃圾回收" class="headerlink" title="循环垃圾回收"></a>循环垃圾回收</h1><p>循环垃圾回收机制使得 Python 可以识别 引用计数不为 0 但是已经不再需要的对象，并将其回收，例如</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>l = []</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>l.append(l)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">del</span> l</span><br></pre></td></tr></table></figure>
+<p>当删除 <code>l</code> 这个列表时，它仍然有引用，引用计数不为 0，但是 Python 的循环垃圾回收器可以识别并释放这个对象。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/16/python/ext2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/06/16/python/ext2/" class="post-title-link" itemprop="url">python C/C++ Extension（二）</a>
         </h2>
 
         <div class="post-meta">
@@ -185,7 +428,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-02-19 09:27:01 / 修改时间：10:18:49" itemprop="dateCreated datePublished" datetime="2021-02-19T09:27:01+08:00">2021-02-19</time>
+              <time title="创建时间：2021-06-16 14:09:08 / 修改时间：18:03:03" itemprop="dateCreated datePublished" datetime="2021-06-16T14:09:08+08:00">2021-06-16</time>
             </span>
 
           
@@ -199,14 +442,515 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>膨胀卷积在卷积核中引入 空洞（holes），将卷积核变大，记膨胀率为 $\alpha$，卷积核大小为 $k$，那么膨胀后卷积核大小变为 $\alpha(k-1)+1$，使用膨胀后的卷积核来做卷积计算。</p>
-<p>膨胀卷积在图像（实例）分割中应用较多，为了扩大感知区域，同时减少计算量，膨胀卷积效果较好。</p>
-<p>Dilated Convolution 的设计是为了获取 long-range information，故对大物体比较适用，对小物体则不太适用。Dilated Convolution 一个明显的缺点是 kernel 不连续，产生栅格效应，所以又提出了 Hybrid Dilated Convolution（HDC）混合膨胀卷积。</p>
-<p>HDC 的一般设计原则：</p>
+          <h1 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h1><p>C/C++ 动态申请的内存，需要手动释放，否则出现内存泄漏。同时已经释放掉的内存块，不可以再次使用。Python 中采取的策略是引用计数，原理：每个对象包含一个计数器，当对象的一个引用被存储，那么增加一次计数，当对象的一个引用被删除，则减小一次计数，当计数归 0，表示对象的最后一个引用被删除，此时是否对象所占内存。</p>
+<p>另一种策略是自动垃圾回收，这种策略的优点是使用者无需显式调用 <code>free()</code> 释放内存，缺点是 C 中没有一个真正的轻便的自动垃圾回收器，而引用计数则可以很方便的实现。</p>
+<h2 id="Python-中的引用计数"><a href="#Python-中的引用计数" class="headerlink" title="Python 中的引用计数"></a>Python 中的引用计数</h2><p><code>Py_INCREF(x)</code> 和 <code>Py_DECREF(x)</code> 这两个宏，用于增加和减小计数。当计数将为 0 时，<code>Py_DECREF(x)</code> 会释放对象。如何使用这两个宏？</p>
+<p>为此我们需要弄清楚一些概念。我们不直接拥有对象，而是拥有对象的一个引用，对象的引用计数就是拥有引用的数量。当引用不再被需要时，引用的拥有者负责调用 <code>Py_DECREF()</code> 。引用的拥有关系可以被转移。有三种方式处置所拥有的引用：1. 将引用转移；2. 存储引用；3. 调用 <code>Py_DECREF()</code>。不处理引用将导致内存泄漏。</p>
+<p>可以借用一个对象的引用，但是借方不能比这个引用的拥有者存活更久。通过调用 <code>Py_INCREF()</code>，这个出借的引用可以变成借方拥有的引用，这不影响原先拥有者的状态。</p>
+<h2 id="拥有关系规则"><a href="#拥有关系规则" class="headerlink" title="拥有关系规则"></a>拥有关系规则</h2><p>大部分返回对象引用的函数，都是转移引用的拥有关系。具体而言，所有用于创建一个新对象的函数，例如 <code>PyLong_FromLong()</code> 和 <code>Py_BuildValue()</code>，将拥有关系转移给接收者。</p>
+<p>当你将一个对象引用传递给一个函数时，通常，函数是向你借用引用，如果函数需要存储这个引用，那么它将使用 <code>Py_INCREF()</code>，从而成为一个独立的引用拥有者。</p>
+<p>python 中调用一个 C 函数时，C 函数从调用者那里借用对象引用。调用者拥有引用，在 C 函数中，引用的生命周期可以得到保证。</p>
+<h1 id="为扩展模块提供-C-API"><a href="#为扩展模块提供-C-API" class="headerlink" title="为扩展模块提供 C API"></a>为扩展模块提供 C API</h1><p>大多数时候扩展模块的函数都是在 Python 中使用，但是有时候扩展模块的函数可以在另一个扩展模块中使用。例如，一个扩展模块中可以实现一个类似 <code>list</code> 的集合类型，但是元素是无序的，这个新集合类型包含一些 C 函数，可以在其他扩展模块中直接使用。</p>
+<p>乍一看好像很简单，C 函数不再声明 static 即可。这在扩展模块静态链接至 Python 解释器时有效，如果扩展模块是动态链接库，那么一个模块中的符号在另一个模块中将不可见。</p>
+<p>所以我们不应该对符号可见性有任何预先设定，所以除了模块初始化函数，其他符号都应该声明为 <code>static</code>，以避免名称冲突。Python 提供一个特殊机制以实现 C level 的信息传输————从一个扩展模块到另一个扩展模块————胶囊。胶囊是一个Python 数据类型，存储了一个 <code>void *</code> 类型指针，胶囊仅在它的 C API 中被创建和访问，无法传递到其他 Python 对象。每个胶囊在扩展模块的命名空间里有自己的名称，其他扩展模块可以导入这个扩展模块，然后得到胶囊的名称，从而获取胶囊的指针。</p>
+<p>用于导出 C API 的胶囊应该遵循以下命名规则：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">modulename.attributename</span><br></pre></td></tr></table></figure>
+
+<p>以一个例子说明，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span></span><br><span class="line">PySpam_System(<span class="keyword">const</span> <span class="keyword">char</span> *command)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> system(command);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> PyObject *</span><br><span class="line">spam_system(PyObject *self, PyObject *args)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *command;</span><br><span class="line">    <span class="keyword">int</span> sts;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PyArg_ParseTuple(args, <span class="string">"s"</span>, &amp;command))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    sts = PySpam_System(command);</span><br><span class="line">    <span class="keyword">return</span> PyLong_FromLong(sts);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>紧接着 <code>#include &lt;Python.h&gt;</code> 之后添加 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#define SPAM_MODULE</span><br><span class="line">#include &quot;spammodule.h&quot;</span><br></pre></td></tr></table></figure>
+<p>然后定义模块初始化函数，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">PyMODINIT_FUNC</span><br><span class="line">PyInit_spam(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    PyObject *m;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">void</span> *PySpam_API[PySpam_API_pointers];</span><br><span class="line">    PyObject *c_api_object;</span><br><span class="line"></span><br><span class="line">    m = PyModule_Create(&amp;spammodule);</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Initialize the C API pointer array */</span></span><br><span class="line">    PySpam_API[PySpam_System_NUM] = (<span class="keyword">void</span> *)PySpam_System;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Create a Capsule containing the API pointer array's address */</span></span><br><span class="line">    c_api_object = PyCapsule_New((<span class="keyword">void</span> *)PySpam_API, <span class="string">"spam._C_API"</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (PyModule_AddObject(m, <span class="string">"_C_API"</span>, c_api_object) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        Py_XDECREF(c_api_object);</span><br><span class="line">        Py_DECREF(m);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>spammodule.h</code> 头文件内容如下，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> Py_SPAMMODULE_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> Py_SPAMMODULE_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> __cplusplus</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">"C"</span> &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Header file for spammodule */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* C API functions */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PySpam_System_NUM 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PySpam_System_RETURN int</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PySpam_System_PROTO (const char *command)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Total number of C API pointers */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PySpam_API_pointers 1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> SPAM_MODULE</span></span><br><span class="line"><span class="comment">/* This section is used when compiling spammodule.c */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> PySpam_System_RETURN PySpam_System PySpam_System_PROTO;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="comment">/* This section is used in modules that use spammodule's API */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> **PySpam_API;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PySpam_System \</span></span><br><span class="line"> (*(PySpam_System_RETURN (*)PySpam_System_PROTO) PySpam_API[PySpam_System_NUM])</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Return -1 on error, 0 on success.</span></span><br><span class="line"><span class="comment"> * PyCapsule_Import will set an exception if there's an error.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span></span><br><span class="line">import_spam(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    PySpam_API = (<span class="keyword">void</span> **)PyCapsule_Import(<span class="string">"spam._C_API"</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span> (PySpam_API != <span class="literal">NULL</span>) ? <span class="number">0</span> : <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> __cplusplus</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/* !defined(Py_SPAMMODULE_H) */</span></span></span><br></pre></td></tr></table></figure>
+
+<p>客户端模块内容如下，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">PyMODINIT_FUNC</span><br><span class="line">PyInit_client(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    PyObject *m;</span><br><span class="line"></span><br><span class="line">    m = PyModule_Create(&amp;clientmodule);</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">if</span> (import_spam() &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="comment">/* additional initialization can happen here */</span></span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/15/python/ext1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/06/15/python/ext1/" class="post-title-link" itemprop="url">python C/C++ Extensions（一）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-06-15 14:06:41" itemprop="dateCreated datePublished" datetime="2021-06-15T14:06:41+08:00">2021-06-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-19 10:30:57" itemprop="dateModified" datetime="2021-06-19T10:30:57+08:00">2021-06-19</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文假设已经熟悉了 Python 的基本知识。 对于 Python 的更多介绍，可参考<a href="https://docs.python.org/3/tutorial/index.html#tutorial-index" target="_blank" rel="noopener"> The Python Tutorial</a>。 <a href="https://docs.python.org/3/reference/index.html#reference-index" target="_blank" rel="noopener">The Python Language Reference</a> 提供了更多关于 Python 语言的介绍。<a href="https://docs.python.org/3/library/index.html#library-index" target="_blank" rel="noopener">The Python Standard Library</a> 则归档了 Python 对象类型，函数以及模块。 </p>
+<p>如要获取更全面的 Python/C API, 请参考 <a href="https://docs.python.org/3/c-api/index.html#c-api-index" target="_blank" rel="noopener">Python/C API Reference Manual</a>。</p>
+<p>有很多第三方工具可用来创建 python 扩展，例如 Cython， cffi， SWIG 以及 Numba，但这里不借助这些第三方工具。</p>
+<h1 id="使用-C-C-扩展-Python"><a href="#使用-C-C-扩展-Python" class="headerlink" title="使用 C/C++ 扩展 Python"></a>使用 C/C++ 扩展 Python</h1><p>Python API 定义了一系列的 函数，宏 以及变量用以访问 Python 运行时系统，方便扩展。Python API 包含在头文件 <code>Python.h</code> 中。</p>
+<p>举一个例子，创建 <code>spam</code> 扩展模块，其中提供对应于 C 语言库函数 <code>system()</code> 的 python 接口。这个库函数的参数为 null 结尾的字符串，函数返回为一个整数。我们希望 <code>spam</code> 模块中这个接口使用形式为，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> spam</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>status = spam.system(<span class="string">"ls -l"</span>)</span><br></pre></td></tr></table></figure>
+<p>首先创建一个文件 <code>spammodule.c</code>，这个源文件中实现 <code>spam</code> 模块，头两行代码为</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PY_SSIZE_T_CLEAN</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;Python.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>注意：Python 中可能会包含一些预处理定义，这些定义会影响其他标准头文件，所以通常第一个包含 <code>&lt;Python.h&gt;</code>，然后再考虑包含其他头文件。此外，推荐定义 <code>PY_SSIZE_T_CLEAN</code> 宏。</p>
+<p>下一步定义一个 C 函数，当调用 <code>spam.system(string)</code> 时，这个 C 函数将被调用，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyObject *</span><br><span class="line">spam_system(PyObject *self, PyObject *args)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *command;</span><br><span class="line">    <span class="keyword">int</span> sts;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PyArg_ParseTuple(args, <span class="string">"s"</span>, &amp;command))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    sts = system(command);</span><br><span class="line">    <span class="keyword">return</span> PyLong_FromLong(sts);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个 C 函数有两个参数，按惯例命名为 <code>self</code> 和 <code>args</code>，其中 <code>self</code> 对模块级别的函数而言表示 模块对象自身，对于 类方法而言表示 类实例自身；<code>args</code> 指向 Python 元组对象，这个元组包含了函数参数，元组中每个 item 均为 Python 对象，需要将他们转为 C 类型值，才能调用 C 函数 <code>system()</code>，使用 <code>PyArg_ParseTuple</code> 完成这种转换，如果元组中每个 item 均转换成功，那么返回 true。</p>
+<h2 id="错误和异常"><a href="#错误和异常" class="headerlink" title="错误和异常"></a>错误和异常</h2><p>当函数调用失败，设置一个异常，并返回一个错误值（通常为 <code>NULL</code>），异常保存再一个静态全局变量中，如果这个变量为 <code>null</code>，那么说明没有异常发生。第二个全局变量存储了异常的关联值 （raise 中第二个参数：<code>raise expr from expr</code> 中后一个 <code>expr</code>，表示原始异常对象），第三个变量包含了堆栈的 traceback 信息，这三个变量是 Python 中执行 <code>sys.exc_info()</code> 返回结果的 C 等价体。</p>
+<p>Python API 中有一系列的函数用于设置异常类型。最常见的是 <code>PyErr_SetString()</code>，参数是一个异常对象和一个 C 字符串，其中 异常对象通常是预定义类型对象，例如 <code>PyExc_ZeroDivisionError</code>，C 字符串表明错误原因。调用这个函数就完成了异常设置（相当于 python 中抛出异常）。</p>
+<p>我们可以使用 <code>PyErr_Occurred()</code> 测试是否有异常发生，如有，则返回异常对象，否则返回 <code>NULL</code>。</p>
+<p>当调用了 函数 <code>g</code> 的函数 <code>f</code> 检测出 <code>g</code> 函数调用失败，<code>f</code> 应该返回一个错误值 <code>NULL</code> 或者 <code>-1</code>，而不需要调用 <code>PyErr_*()</code> 函数来设置异常，因为在 <code>g</code> 中已经设置过。调用 <code>f</code> 的函数也应该返回一个错误值，同样不需要调用 <code>PyErr_*()</code>。</p>
+<p>通过显示调用 <code>PyErr_Clear()</code> 可以忽略异常。调用 <code>malloc</code> 或者 <code>realloc</code> 失败时，需要设置异常，调用 <code>PyErr_NoMemory</code>。所有的创建对象的函数（例如 <code>PyLong_FromLong()</code> 已经实现了这个规则，这里说明一下，仅是为了针对那些直接调用  <code>malloc</code> 或者 <code>realloc</code> 的地方，在调用失败时不要忘记设置 <code>PyErr_NoMemory</code>。</p>
+<p>注意，除了 <code>PyArg_ParseTuple()</code> 以及其他类似的函数之外，其他返回一个整型状态值的函数都在执行成功时返回一个非负值，在执行失败时，返回 <code>-1</code>，这与 Unix 系统类似。</p>
+<p>最后需要注意，当返回一个错误值时，需要对我们自己创建的对象清除和垃圾回收（调用 <code>Py_XDECREF()</code> 或者 <code>Py_DECREF()</code>）。</p>
+<p>有很多预定义的 异常类型，当然也可以自定义异常，例如要定义对当前模块唯一的异常，为此，在模块实现文件的开始处定义一个静态对象变量，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyObject *SpamError;</span><br></pre></td></tr></table></figure>
+<p>然后在模块初始化函数 <code>PyInit_spam()</code> 中进行初始化，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">PyMODINIT_FUNC</span><br><span class="line">PyInit_spam(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    PyObject *m;</span><br><span class="line"></span><br><span class="line">    m = PyModule_Create(&amp;spammodule);</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    SpamError = PyErr_NewException(<span class="string">"spam.error"</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    Py_XINCREF(SpamError);</span><br><span class="line">    <span class="keyword">if</span> (PyModule_AddObject(m, <span class="string">"error"</span>, SpamError) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        Py_XDECREF(SpamError);</span><br><span class="line">        Py_CLEAR(SpamError);</span><br><span class="line">        Py_DECREF(m);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>PyErr_NewException()</code> 函数将创建一个 Exception 类型的子类，对应的 python 类型为 <code>spam.error</code>。现在我们在<code>system()</code> 调用失败时设置异常，代码如下，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyObject *</span><br><span class="line">spam_system(PyObject *self, PyObject *args)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *command;</span><br><span class="line">    <span class="keyword">int</span> sts;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PyArg_ParseTuple(args, <span class="string">"s"</span>, &amp;command))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    sts = system(command);</span><br><span class="line">    <span class="keyword">if</span> (sts &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        PyErr_SetString(SpamError, <span class="string">"System command failed"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> PyLong_FromLong(sts);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果调用的是一个返回 void 的 C 函数，那么对应的 Python 函数则应该返回 None，所以使用如下代码实现，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Py_INCREF(Py_None);</span><br><span class="line"><span class="keyword">return</span> Py_None;</span><br></pre></td></tr></table></figure>
+<p>或者使用宏 <code>Py_RETURN_NONE</code> 更简洁。</p>
+<h2 id="模块的方法表以及初始化"><a href="#模块的方法表以及初始化" class="headerlink" title="模块的方法表以及初始化"></a>模块的方法表以及初始化</h2><p>以下代码显示了如何从 Python 程序中调用 <code>spam_system()</code>，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyMethodDef SpamMethods[] = &#123;</span><br><span class="line">    ...</span><br><span class="line">    &#123;<span class="string">"system"</span>,  spam_system, METH_VARARGS,</span><br><span class="line">     <span class="string">"Execute a shell command."</span>&#125;,</span><br><span class="line">    ...</span><br><span class="line">    &#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;        <span class="comment">/* Sentinel */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这个数组中每一项表示一个模块方法（python 到 C 方法映射）。数组的每个条目中，第一个为字符串，表示 python 方法明，第二个为 C 方法，第三个参数可以是 <code>METH_VARARGS</code> 或者 <code>METH_VARARGS | METH_KEYWORDS</code>，对于<code>METH_VARARGS</code>，表示在 python 侧，参数以元组形式传递进来，然后使用 <code>PyArg_ParseTuple()</code> 解析成 C 类型变量。对于 <code>METH_KEYWORDS</code>，表示传递关键字参数（参数有默认值），这种情况下，C 侧函数还有第三个参数 <code>PyObject *</code> 类型，使用 <code>PyArg_ParseTupleAndKeywords()</code> 解析。</p>
+<p>整个模块定义为，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">PyModuleDef</span> <span class="title">spammodule</span> = &#123;</span></span><br><span class="line">    PyModuleDef_HEAD_INIT,</span><br><span class="line">    <span class="string">"spam"</span>,   <span class="comment">/* name of module */</span></span><br><span class="line">    spam_doc, <span class="comment">/* module documentation, may be NULL */</span></span><br><span class="line">    <span class="number">-1</span>,       <span class="comment">/* size of per-interpreter state of the module,</span></span><br><span class="line"><span class="comment">                 or -1 if the module keeps state in global variables. */</span></span><br><span class="line">    SpamMethods</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这个结构体需要传给 python 解释器的模块初始化函数，初始化函数名为 <code>PyInit_&lt;modulename&gt;()</code>，其中 <code>&lt;modulename&gt;</code> 表示 python 模块名，在模块定义文件中，初始化函数是唯一非静态修饰的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PyMODULEINIT_FUNC</span><br><span class="line">PyInit_spam(<span class="keyword">void</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> PyModule_Create(&amp;spammodule);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当在 python 程序中首次 import  <code>spam</code> 模块时，<code>PyInit_spam()</code> 方法被调用，其中调用 <code>PyModule_Create()</code>，返回一个模块对象指针。</p>
+<p>在 C 代码中嵌入 Python 时，<code>PyInit_spam()</code> 不会自动调用，除非 <code>PyImport_Inittab</code> 中插入相应的一项。如下代码所示，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span></span><br><span class="line">main(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">wchar_t</span> *program = Py_DecodeLocale(argv[<span class="number">0</span>], <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (program == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Fatal error: cannot decode argv[0]\n"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Add a built-in module, before Py_Initialize */</span></span><br><span class="line">    <span class="keyword">if</span> (PyImport_AppendInittab(<span class="string">"spam"</span>, PyInit_spam) == <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Error: could not extend in-built modules table\n"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Pass argv[0] to the Python interpreter */</span></span><br><span class="line">    Py_SetProgramName(program);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Initialize the Python interpreter.  Required.</span></span><br><span class="line"><span class="comment">       If this step fails, it will be a fatal error. */</span></span><br><span class="line">    Py_Initialize();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Optionally import the module; alternatively,</span></span><br><span class="line"><span class="comment">       import can be deferred until the embedded script</span></span><br><span class="line"><span class="comment">       imports it. */</span></span><br><span class="line">    PyObject *pmodule = PyImport_ImportModule(<span class="string">"spam"</span>);</span><br><span class="line">    <span class="keyword">if</span> (!pmodule) &#123;</span><br><span class="line">        PyErr_Print();</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Error: could not import module 'spam'\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    PyMem_RawFree(program);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注：所谓嵌入 python，是指将 CPython 运行时嵌入到一个更大的程序中，而不仅仅局限在实现 Python 的 C 扩展并在 Python 解释器中执行。</p>
+<h2 id="编译和链接"><a href="#编译和链接" class="headerlink" title="编译和链接"></a>编译和链接</h2><p>实现 C 扩展代码后，还需要进行编译和链接。后面会专门讨论如何实现编译链接成动态库，这里简单介绍如何将实现的 C 扩展模块作为 python 解释器的一部分，即内置模块。</p>
+<p>将 <code>spammodule.c</code> 文件至于 python 源码的 <code>Modules/</code> 目录下，然后再 <code>Modules/Setup.local</code> 中添加一行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spam spammodule.o</span><br></pre></td></tr></table></figure>
+
+<p>然后在 top-level 目录下运行 <code>make</code> 以重新生成 python 解释器。</p>
+<p>如果我们自己实现的C扩展模块需要额外的链接库，也可以在配置文件 <code>Modules/Setup.local</code> 中列出，例如，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spam spammodule.o -lX11</span><br></pre></td></tr></table></figure>
+
+<p>这种将自定义模块作为解释器一部分的思路并不常见，所以不过多介绍，重点还是后面即将介绍的动态库生成。</p>
+<h2 id="从-C-中调用-Python-函数"><a href="#从-C-中调用-Python-函数" class="headerlink" title="从 C 中调用 Python 函数"></a>从 C 中调用 Python 函数</h2><p>前面介绍了如何从 Python 中调用 C 函数，现在反过来，从 C 中如何调用 python？这在支持回调的函数中尤其有用，Python 侧调用 C 扩展时，需要提供一个 回调。</p>
+<p>还以上面那个 <code>spammodule.c</code> 文件为例，我们现在需要提供一个函数，用于接收 Python 侧提供的回调，并将回调函数对象保存到一个全局变量中，代码如下，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyObject *my_callback = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> PyObject *</span><br><span class="line">my_set_callback(PyObject *dummy, PyObject *args)</span><br><span class="line">&#123;</span><br><span class="line">    PyObject *result = <span class="literal">NULL</span>;</span><br><span class="line">    PyObject *temp;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (PyArg_ParseTuple(args, <span class="string">"O:set_callback"</span>, &amp;temp)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!PyCallable_Check(temp)) &#123;</span><br><span class="line">            PyErr_SetString(PyExc_TypeError, <span class="string">"parameter must be callable"</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        Py_XINCREF(temp);         <span class="comment">/* Add a reference to new callback */</span></span><br><span class="line">        Py_XDECREF(my_callback);  <span class="comment">/* Dispose of previous callback */</span></span><br><span class="line">        my_callback = temp;       <span class="comment">/* Remember new callback */</span></span><br><span class="line">        <span class="comment">/* Boilerplate to return "None" */</span></span><br><span class="line">        Py_INCREF(Py_None);</span><br><span class="line">        result = Py_None;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同样的，这个函数，需要注册到 <code>spam</code> 模块中，与上面 <code>spam_system()</code> 类似，例如 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">static PyMethodDef SpamMethods[] &#x3D; &#123;</span><br><span class="line">    ...</span><br><span class="line">    &#123;&quot;set_cb&quot;,  my_set_callback, METH_VARARGS,</span><br><span class="line">     &quot;Set a callback function&quot;&#125;,</span><br><span class="line">    ...</span><br><span class="line">    &#123;NULL, NULL, 0, NULL&#125;        &#x2F;* Sentinel *&#x2F;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>在 Python 侧调用 <code>spam.set_cb()</code> 就可以设置回调函数了，之后可以在 C 代码中任意其他地方调用这个回调， 例如另一个 C 函数 <code>use_cb()</code> 中，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> arg;</span><br><span class="line">PyObject *arglist;</span><br><span class="line">PyObject *result;</span><br><span class="line">...</span><br><span class="line">arg = <span class="number">123</span>;</span><br><span class="line">...</span><br><span class="line"><span class="comment">/* Time to call the callback */</span></span><br><span class="line">arglist = Py_BuildValue(<span class="string">"(i)"</span>, arg);</span><br><span class="line">result = PyObject_CallObject(my_callback, arglist);</span><br><span class="line">Py_DECREF(arglist);</span><br></pre></td></tr></table></figure>
+<p>使用 <code>PyObject_CallObject()</code> 调用回调，有两个参数，第一个是回调对象，第二个是回调函数的参数列表，这个参数列表是一个 tuple 对象，如果回调函数无参数，那么这个参数列表可以是 <code>NULL</code>，或者一个 empty tuple。不能使用 C 类型参数，而应该使用 <code>Py_BuildValue()</code> 转换为 Python相关的类型。</p>
+<p><code>PyObject_CallObject()</code> 对于其参数而言，是“引用计数中立”的，所以在调用 <code>PyObject_CallObject()</code> 之后，需要立即将参数 <code>Py_DECREF()</code>。</p>
+<p><code>PyObject_CallObject()</code> 的返回值也需要 <code>Py_DECREF()</code>，除非将返回值保存至一个全局变量中（这个变量已经增加其引用计数）。当然在降低引用计数之前需要检查返回值是否为 <code>NULL</code>，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PyObject *arglist;</span><br><span class="line">...</span><br><span class="line">arglist &#x3D; Py_BuildValue(&quot;(l)&quot;, eventcode);</span><br><span class="line">result &#x3D; PyObject_CallObject(my_callback, arglist);</span><br><span class="line">Py_DECREF(arglist);</span><br><span class="line">if (result &#x3D;&#x3D; NULL)</span><br><span class="line">    return NULL; &#x2F;* Pass error back *&#x2F;</span><br><span class="line">&#x2F;* Here maybe use the result *&#x2F;</span><br><span class="line">Py_DECREF(result);</span><br></pre></td></tr></table></figure>
+
+<p>也可以使用 <code>PyObject_Call()</code> 来调用有关键字参数的函数，例如，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PyObject *dict;</span><br><span class="line">...</span><br><span class="line">dict &#x3D; Py_BuildValue(&quot;&#123;s:i&#125;&quot;, &quot;name&quot;, val);</span><br><span class="line">result &#x3D; PyObject_Call(my_callback, NULL, dict);</span><br><span class="line">Py_DECREF(dict);</span><br><span class="line">if (result &#x3D;&#x3D; NULL)</span><br><span class="line">    return NULL; &#x2F;* Pass error back *&#x2F;</span><br><span class="line">&#x2F;* Here maybe use the result *&#x2F;</span><br><span class="line">Py_DECREF(result);</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/12/python/setup/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/06/12/python/setup/" class="post-title-link" itemprop="url">python setup</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-06-12 17:03:32" itemprop="dateCreated datePublished" datetime="2021-06-12T17:03:32+08:00">2021-06-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-15 14:05:31" itemprop="dateModified" datetime="2021-06-15T14:05:31+08:00">2021-06-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>研究 python setup.py 脚本中的 setup 方法使用。</p>
+<p>一个简单的例子</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">from distutils.core import setup</span><br><span class="line"></span><br><span class="line">setup(name&#x3D;&#39;Distutils&#39;,</span><br><span class="line">      version&#x3D;&#39;1.0&#39;,</span><br><span class="line">      description&#x3D;&#39;Python Distribution Utilities&#39;,</span><br><span class="line">      author&#x3D;&#39;Greg Ward&#39;,</span><br><span class="line">      author_email&#x3D;&#39;gward@python.net&#39;,</span><br><span class="line">      url&#x3D;&#39;https:&#x2F;&#x2F;www.python.org&#x2F;sigs&#x2F;distutils-sig&#x2F;&#39;,</span><br><span class="line">      packages&#x3D;[&#39;distutils&#39;, &#39;distutils.command&#39;],</span><br><span class="line">     )</span><br></pre></td></tr></table></figure>
+
+<p>下面分别对各参数进行解释说明</p>
+<h2 id="packages"><a href="#packages" class="headerlink" title="packages"></a>packages</h2><p>packages 列举了需要处理（生成、分发以及安装等）的纯 python 包。这里需要注意 包名称与文件路径之间的映射关系。例如，<code>distutils</code> 包应该对应 root 目录下的 <code>distutils</code> 文件夹，root 目录即 <code>setup.py</code> 文件所在目录。如果指定 <code>packages=[&#39;foo&#39;]</code>，那么 root 目录下应该有 <code>foo/__init__.py</code> 文件。</p>
+<p>当然，以上是默认约定规则，也可以手动建议映射关系：使用 <code>package_dir</code> 参数。</p>
+<h2 id="package-dir"><a href="#package-dir" class="headerlink" title="package_dir"></a>package_dir</h2><p>例如所有的 python 源文件均位于 root 目录下的 <code>lib</code> 文件夹中，也就是说 “root package” 实际上对应 <code>lib</code> 文件夹，例如 <code>foo</code> 包则对应 <code>lib/foo</code>文件夹，那么设置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">package_dir &#x3D; &#123;&#39;&#39;: &#39;lib&#39;&#125;</span><br></pre></td></tr></table></figure>
+<p>这是一个字典，key 表示包名称，empty string 表示 “root package”，value 表示文件目录（相对于 setup.py 所在目录），故如果此时设置 <code>packages=[&#39;foo&#39;]</code>，这表示 <code>lib/foo/__init__.py</code> 一定存在。</p>
+<p>如果 <code>package_dir = {&#39;foo&#39;: &#39;lib&#39;}</code>，这表示只有 <code>foo</code> 包不对应 root 目录下的 <code>foo</code> 文件夹，而直接对应 <code>lib</code> 文件夹，即 <code>lib/__init__.py</code> 一定存在。package_dir 的规则将（递归）应用到某个包内的所有包上，所以 <code>foo.bar</code> 包对应 <code>lib/bar</code>，即 <code>lib/bar/__init__.py</code> 一定存在。</p>
+<p>注意：<code>packages</code> 不会递归应用到某个包的所有子包上，所以如果要处理子包，需要显式的列出来。</p>
+<h2 id="py-modules"><a href="#py-modules" class="headerlink" title="py_modules"></a>py_modules</h2><p>对于小的模块分发，可能想直接列出模块，而不是包，那么使用这个参数，例如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">py_modules &#x3D; [&#39;mod1&#39;, &#39;pkg.mod2&#39;]</span><br></pre></td></tr></table></figure>
+<p>记住，模块以根目录为相对起点，所以上面例子中 <code>pkg</code> 必须是一个包，即 <code>pkg/__init__.py</code> 必须要存在。</p>
+<p>当然也可以通过设置 <code>package_dir</code> 来手动定义 包 - 目录 的映射关系。</p>
+<h2 id="ext-modules"><a href="#ext-modules" class="headerlink" title="ext_modules"></a>ext_modules</h2><p>写 python 扩展模块比写 纯 python 模块复杂一些，同样，描述如何处理这些 模块模块 也比 描述如何处理纯 python 模块要复杂，需要指定扩展模块名称，源文件，编译链接需求（头文件包含路径，链接库，flags 等）</p>
+<p>ext_modules 是 <code>Extension</code> 的列表， <code>Extension</code> 描述扩展模块。一个简单的例子，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Extension(&#39;foo&#39;, [&#39;foo.c&#39;])</span><br></pre></td></tr></table></figure>
+<p>表示扩展模块名称为 <code>foo</code>，相关的源文件为 <code>foo.c</code>。</p>
+<h3 id="扩展名和包"><a href="#扩展名和包" class="headerlink" title="扩展名和包"></a>扩展名和包</h3><p><code>Extension</code> 构造器的第一个参数为扩展模块的名称，也可以是包名称，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Extension(&#39;foo&#39;, [&#39;src&#x2F;foo1.c&#39;, &#39;src&#x2F;foo2.c&#39;])</span><br></pre></td></tr></table></figure>
+<p>指定了一个名为 <code>foo</code> 且位于 root package 下的扩展模块，而</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Extension(&#39;pkg.foo&#39;, [&#39;src&#x2F;foo1.c&#39;, &#39;src&#x2F;foo2.c&#39;])</span><br></pre></td></tr></table></figure>
+<p>制定了一个相同的扩展模块，但是位于 <code>pkg</code> 包内。</p>
+<h3 id="扩展源文件"><a href="#扩展源文件" class="headerlink" title="扩展源文件"></a>扩展源文件</h3><p><code>Extension</code> 构造器的第二个参数为扩展源文件，目前支持 C/C++/Objective-C，也可以是 SWIG 接口文件 (<code>.i</code> 后缀)。</p>
+<h3 id="预处理器选项"><a href="#预处理器选项" class="headerlink" title="预处理器选项"></a>预处理器选项</h3><p><code>Extension</code> 有三个可选参数，1. <code>include_dirs</code>，2. <code>define_macros</code>，3. <code>undef_macros</code>，分别指定头文件包含路径，定义宏，取消定义宏。</p>
+<p>例如，指定相对于项目 root 路径的 <code>include</code> 文件夹为头文件包含路径，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Extension(&#39;foo&#39;, [&#39;foo.c&#39;], include_dirs&#x3D;[&#39;include&#39;])</span><br></pre></td></tr></table></figure>
+
+<p>当然也可以使用绝对路径，但是尽量避免使用绝对路径，这对分发不友好。</p>
+<p>生成 python 扩展库时，Python 包含目录会自动被搜索，例如我的机器上 python 包含目录为 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~&#x2F;tool&#x2F;miniconda3&#x2F;include&#x2F;python3.8</span><br></pre></td></tr></table></figure>
+<p>所以这个头文件目录不需要手动添加到 <code>include_dirs</code> 中。</p>
+<p>这个路径可以使用 sysconfig 模块中的方法获得。</p>
+<p><code>define_macros</code> 用于定义宏，它是一个 <code>(name, value)</code> 元组的列表，其中 <code>name</code> 为宏名称，<code>value</code> 为宏值，是字符串类型或者 <code>None</code> 类型，<code>value</code> 等于 <code>None</code> 时，相当于 C 中定义宏 <code>#define FOO</code> ，这在一些编译器中，<code>FOO</code> 值为 <code>1</code> 。</p>
+<p><code>undef_macros</code> 则是取消定义宏的列表。例如，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Extension(...,</span><br><span class="line">          define_macros&#x3D;[(&#39;NDEBUG&#39;, &#39;1&#39;),</span><br><span class="line">                         (&#39;HAVE_STRFTIME&#39;, None)],</span><br><span class="line">          undef_macros&#x3D;[&#39;HAVE_FOO&#39;, &#39;HAVE_BAR&#39;])</span><br></pre></td></tr></table></figure>
+
+<p>等价于 C 源码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#define NDEBUG 1</span><br><span class="line">#define HAVE_STRFTIME</span><br><span class="line">#undef HAVE_FOO</span><br><span class="line">#undef HAVE_BAR</span><br></pre></td></tr></table></figure>
+
+<h3 id="库选项"><a href="#库选项" class="headerlink" title="库选项"></a>库选项</h3><p><code>Extension</code> 构造器中，可以指定链接库： <code>libraries</code> 参数，链接库的链接时搜索目录：<code>library_dirs</code> 参数，链接库运行时的搜索目录（动态库加载时搜索目录）：<code>runtime_library_dirs</code>。</p>
+<h3 id="其他选项"><a href="#其他选项" class="headerlink" title="其他选项"></a>其他选项</h3><p><code>Extension</code> 构造器还有一些其他选项参数。</p>
 <ol>
-<li>各膨胀卷积的膨胀率不能有大于 1 的公约数（例如 [2,4,6] 公约数为 2），否则会有栅格效应</li>
-<li>膨胀率设计为锯齿状结构，例如 [1,2,5,1,2,5] 这样的循环结构</li>
-<li>膨胀率满足如下关系<br>$$M_i=\max[M_{i+1}-2r_i, 2r_i-M_{i+1}, r_i]$$<br>其中 $r_i$ 为第 <code>i</code> 层的膨胀率，$M_i$ 为第 <code>i</code> 层的最大 dilated rate，网络总共 <code>L</code> 层，$M_L=r_L$。</li>
+<li><p><code>optional</code> bool 类型，如为 true，那么扩展库生成失败时不会导致整个 生成过程退出。</p>
+</li>
+<li><p><code>extra_objects</code> 是目标文件的列表，这些目标文件提供给连接器进行链接。</p>
+</li>
+<li><p><code>extra_compile_args</code> 指定额外的命令行选项供编译器使用，<code>extra_link_args</code> 指定命令行选项供链接器使用。</p>
+</li>
+<li><p><code>export_symbols</code> Windows 系统上使用，这里略。</p>
+</li>
+<li><p><code>depends</code> 是文件列表，指定扩展库所依赖的文件，例如头文件，那么当依赖文件有所改变时，生成命令将调用编译器重新编译。</p>
+</li>
+</ol>
+<p>以上是 <code>Extension</code> 扩展的参数介绍。</p>
+<h2 id="分发和包之间的联系"><a href="#分发和包之间的联系" class="headerlink" title="分发和包之间的联系"></a>分发和包之间的联系</h2><p>分发可以 依赖/提供/废除 包或者模块，这在 <code>distutils.core.setup()</code> 中实现。</p>
+<p>对其他 python 模块/包 的依赖可以通过 <code>setup()</code> 中的 <code>requires</code> 参数指定，这个参数值是字符串列表，其他每个字符串指示一个包，并且可选择是否附加包的 version。例如指定任意 version 模块 <code>mymodule</code> 或者 <code>xml.parsers.expat</code>，如果需要指定版本，那么在括号中指定版本修饰，可以有多个版本修饰，每个修饰之间使用 <code>,</code> 逗号分隔，修饰可以包含一个比较符，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;   &gt;   &#x3D;&#x3D;</span><br><span class="line">&lt;&#x3D;  &gt;&#x3D;  !&#x3D;</span><br></pre></td></tr></table></figure>
+<p>例如，<br>|依赖库版本| 解释|<br>|–|–|<br>|==1.0| 仅 1.0 版本兼容|<br>|&gt;1.0, !=1.5.1, &lt;2.0|在 1.0 以后 2.0 以前的版本兼容，其中 1.5.1 除外|</p>
+<p>上面指定了所依赖的版本，我们也可以提供当前项目包/模块的版本，供其他项目依赖，通过<code>setup()</code> 中的 <code>provides</code> 参数指定，参数值是字符串列表，每个字符串指示 python 的模块或包名称，且可选地提供其版本，如果未提供版本，那么认为与分发版本一致。例如，<br>|提供库表达式|解释|<br>|–|–|<br>|mypkg| 提供库 <code>mypkg</code>，使用分发版本|<br>|mypkg (1.1)| 提供库 <code>mypkg</code>，版本为 1.1|</p>
+<p>通过 <code>obsoletes</code> 参数指定废除一些包/模块，与上面的 <code>requires</code> 值类似，是字符串列表，其他每个字符串指定 包/模块 地名称，后面可跟一个或多个版本修饰，版本修饰至于 <code>()</code> 中。</p>
+<h2 id="安装脚本"><a href="#安装脚本" class="headerlink" title="安装脚本"></a>安装脚本</h2><p>上面介绍的内容，处理了 python 的包和模块，这些包和模块自己不会运行，而是在脚本中被导入使用。</p>
+<p>脚本中包含 python 源码，且可以在命令行中启动执行。<code>scripts</code> 参数指定了脚本文件列表，这样，分发安装后，脚本文件就被复制到 <code>PATH</code> 下。例如，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">setup(...,</span><br><span class="line">      scripts&#x3D;[&#39;scripts&#x2F;xmlproc_parse&#39;, &#39;scripts&#x2F;xmlproc_val&#39;]</span><br><span class="line">      )</span><br></pre></td></tr></table></figure>
+<p>文件路径是相对于分发 root 路径，安装后，脚本文件被拷贝到<code>PATH</code> 下，于是就可以直接在命令行中，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ xmlproc_parse</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">$ xmlproc_val</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装包数据"><a href="#安装包数据" class="headerlink" title="安装包数据"></a>安装包数据</h2><p>有时，其他一些文件也需要被安装，例如一些数据文件，或者包含文档的文本文件。这些文件统称为 包数据。</p>
+<p>使用 <code>package_data</code> 参数指定包数据，参数值是一个映射（字典类型），从包名称到相对路径列表的映射，相对路径指示数据文件，这些文件应该被拷贝到对应的包。相对路径是相对于 包 对应的目录（注意，可能由 <code>package_dir</code> 修改过，而非默认目录）。</p>
+<p>例如，源码目录如下，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">setup.py</span><br><span class="line">src&#x2F;</span><br><span class="line">    mypkg&#x2F;</span><br><span class="line">        __init__.py</span><br><span class="line">        module.py</span><br><span class="line">        data&#x2F;</span><br><span class="line">            tables.dat</span><br><span class="line">            spoons.dat</span><br><span class="line">            forks.dat</span><br></pre></td></tr></table></figure>
+
+<p><code>setup()</code> 函数调用为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">setup(...,</span><br><span class="line">     packages&#x3D;[&#39;mypkg&#39;],</span><br><span class="line">     package_dir&#x3D;&#123;&#39;mypkg&#39;: &#39;src&#x2F;mypkg&#39;&#125;,</span><br><span class="line">     package_data&#x3D;&#123;&#39;mypkg&#39;: [&#39;data&#x2F;*.dat&#39;]&#125;,</span><br><span class="line">     )</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装其他文件"><a href="#安装其他文件" class="headerlink" title="安装其他文件"></a>安装其他文件</h2><p>安装分发所需的其他文件，可以使用 <code>data_files</code> 参数，参数值是 <code>(directory, files)</code> 元组的列表，例如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">setup(...,</span><br><span class="line">      data_files&#x3D;[(&#39;bitmaps&#39;, [&#39;bm&#x2F;b1.gif&#39;, &#39;bm&#x2F;b2.gif&#39;]),</span><br><span class="line">                  (&#39;config&#39;, [&#39;cfg&#x2F;data.cfg&#39;])],</span><br><span class="line">     )</span><br></pre></td></tr></table></figure>
+
+<p><code>files</code> 中每个文件均相对于 <code>setup.py</code> 所在目录。可以重定义文件被安装的目录，但不能改变文件名。</p>
+<p><code>directory</code> 相对于安装 prefix，系统级安装则为 <code>sys.prefix</code>，用户级安装则为 <code>site.USER_BASE</code>。 <code>directory</code> 也可以为绝对路径，但是通常不建议，会导致与 wheel 包格式的不兼容。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/08/cpp/cmake_target/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/06/08/cpp/cmake_target/" class="post-title-link" itemprop="url">cmake TARGET</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-06-08 17:15:50" itemprop="dateCreated datePublished" datetime="2021-06-08T17:15:50+08:00">2021-06-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-09 13:58:53" itemprop="dateModified" datetime="2021-06-09T13:58:53+08:00">2021-06-09</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="target-compile-definitions"><a href="#target-compile-definitions" class="headerlink" title="target_compile_definitions"></a>target_compile_definitions</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">target_compile_definitions(&lt;target&gt;</span><br><span class="line">  &lt;INTERFACE|PUBLIC|PRIVATE&gt; [items1...]</span><br><span class="line">  [&lt;INTERFACE|PUBLIC|PRIVATE&gt; [items2...] ...])</span><br></pre></td></tr></table></figure>
+
+<p>指定编译给定目标 <code>&lt;target&gt;</code> 时的编译定义。目标 <code>&lt;target&gt;</code> 由 <code>add_executable()</code> 或者 <code>add_library()</code> 创建。</p>
+<ul>
+<li><p>PRIVATE, PUBLIC</p>
+<p>  这两个选项指定给 <code>&lt;target&gt;</code> 的 <code>COMPILE_DEFINITIONS</code> 属性赋值（append）</p>
+</li>
+<li><p>PUBLIC, INTERFACE</p>
+<p>  指定给 <code>&lt;target&gt;</code> 的 <code>INTERFACE_COMPILE_DEFINITIONS</code> 属性赋值（append）</p>
+</li>
+</ul>
+<p>编译定义中的前导 <code>-D</code> 会被移除，空定义项被忽略。以下各行等价，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">target_compile_definitions(foo PUBLIC FOO)</span><br><span class="line">target_compile_definitions(foo PUBLIC -DFOO)  # -D removed</span><br><span class="line">target_compile_definitions(foo PUBLIC &quot;&quot; FOO) # &quot;&quot; ignored</span><br><span class="line">target_compile_definitions(foo PUBLIC -D FOO) # -D becomes &quot;&quot;, then ignored</span><br></pre></td></tr></table></figure>
+
+<h1 id="set-target-properties"><a href="#set-target-properties" class="headerlink" title="set_target_properties"></a>set_target_properties</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set_target_properties(target1 target2 ...</span><br><span class="line">                      PROPERTIES prop1 value1</span><br><span class="line">                      prop2 value2 ...)</span><br></pre></td></tr></table></figure>
+<p>设置目标的属性。</p>
+<h1 id="target-include-directories"><a href="#target-include-directories" class="headerlink" title="target_include_directories"></a>target_include_directories</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">target_include_directories(&lt;target&gt; [SYSTEM] [AFTER|BEFORE]</span><br><span class="line">  &lt;INTERFACE|PUBLIC|PRIVATE&gt; [items1...]</span><br><span class="line">  [&lt;INTERFACE|PUBLIC|PRIVATE&gt; [items2...] ...])</span><br></pre></td></tr></table></figure>
+<p>为目标添加头文件路径。</p>
+<ul>
+<li><p>PRIVATE, PUBLIC</p>
+<p>  给目标的 <code>INCLUDE_DIRECTORIES</code> 属性添加值</p>
+</li>
+<li><p>PUBLIC, INTERFACE</p>
+<p>  给目标的 <code>INTERFACE_INCLUDE_DIRECTORIES</code> 属性添加值</p>
+</li>
+</ul>
+<p>指定的包含目录可以是绝对或相对路径，对同一个目标调用多次这个命令，则会按顺序附加包含目录。</p>
+<p><code>target_include_directories</code> 命令参数可能会使用 “生成器表达式”，语法为 <code>$&lt;...&gt;</code>。关于生成器表达式可参考<a href="https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html#manual:cmake-generator-expressions(7)" target="_blank" rel="noopener">这里</a>。 例如，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">target_include_directories(mylib PUBLIC</span><br><span class="line">  $&lt;BUILD_INTERFACE:$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;&#x2F;include&#x2F;mylib&gt;</span><br><span class="line">  $&lt;INSTALL_INTERFACE:include&#x2F;mylib&gt;  # &lt;prefix&gt;&#x2F;include&#x2F;mylib</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>给目标添加包含目录。如果使用 <code>export()</code> 导出这个目标的包含目录属性，那么使用 <code>${CMAKE_CURRENT_SOURCE_DIR}/include/mylib&gt;</code>，如果使用 <code>install(EXPORT)</code> 导出目标的包含目录属性，那么使用 <code>include/mylib&gt;</code>。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/08/cpp/cmake_find/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/06/08/cpp/cmake_find/" class="post-title-link" itemprop="url">cmake 查找</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-06-08 14:08:47 / 修改时间：16:40:32" itemprop="dateCreated datePublished" datetime="2021-06-08T14:08:47+08:00">2021-06-08</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="find-package"><a href="#find-package" class="headerlink" title="find_package"></a>find_package</h1><ol>
+<li>CMake 内置模型引入依赖包</li>
+</ol>
+<p>为了方便我们在项目中引入外部依赖包，cmake官方为我们预定义了许多寻找依赖包的Module，他们存储在<code>path_to_your_cmake/share/cmake-&lt;version&gt;/Modules</code>目录下。每个以<code>Find&lt;LibaryName&gt;.cmake</code>命名的文件都可以帮我们找到一个包。我们也可以在官方文档中查看到哪些库官方已经为我们定义好了，我们可以直接使用find_package函数进行引用官方文档：<a href="https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html" target="_blank" rel="noopener">Find Modules</a>。</p>
+<p>例如 <code>CURL</code>，可直接使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find_package(CURL)</span><br></pre></td></tr></table></figure>
+
+<p>每一个模块都会定义以下几个变量 -</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;LibaryName&gt;_FOUND</span><br><span class="line"></span><br><span class="line">&lt;LibaryName&gt;_INCLUDE_DIR or &lt;LibaryName&gt;_INCLUDES &lt;LibaryName&gt;_LIBRARY or &lt;LibaryName&gt;_LIBRARIES</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>引入支持 cmake 编译安装的库</li>
+</ol>
+<p>例如项目引用库 <code>glog</code>，cmake 的 Module 目录下没有 <code>FindGlog.cmake</code>，于是需要自行安装 glog 库，安装过程如下，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># clone该项目</span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;google&#x2F;glog.git </span><br><span class="line"># 切换到需要的版本 </span><br><span class="line">cd glog</span><br><span class="line">git checkout v0.40  </span><br><span class="line"></span><br><span class="line"># 根据官网的指南进行安装</span><br><span class="line">cmake -H. -Bbuild -G &quot;Unix Makefiles&quot;</span><br><span class="line">cmake --build build</span><br><span class="line">cmake --build build --target install</span><br></pre></td></tr></table></figure>
+
+<p>此时我们便可以通过与引入curl库一样的方式引入glog库了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">find_package(GLOG)</span><br><span class="line">add_executable(glogtest glogtest.cc)</span><br><span class="line">if(GLOG_FOUND)</span><br><span class="line">    # 由于glog在连接时将头文件直接链接到了库里面，所以这里不用显示调用target_include_directories</span><br><span class="line">    target_link_libraries(glogtest glog::glog)</span><br><span class="line">else(GLOG_FOUND)</span><br><span class="line">    message(FATAL_ERROR ”GLOG library not found”)</span><br><span class="line">endif(GLOG_FOUND)</span><br></pre></td></tr></table></figure>
+
+<p>find_package 内部是如何查找依赖库的呢？有两种模式，</p>
+<h2 id="Module-模式"><a href="#Module-模式" class="headerlink" title="Module 模式"></a>Module 模式</h2><p>如 curl 库的引用方式。cmake 首先找到 <code>Find&lt;LibraryName&gt;.cmake</code> 文件，这个 <code>.cmake</code> 文件可以从 <code>share/cmake-&lt;version&gt;/Modules</code> 目录下寻找，还可以从 <code>CMAKE_MODULE_PATH</code> 这个变量指定的搜索目录下搜索。</p>
+<p>如果 Module 模式没有找到这个 <code>.cmake</code> 文件，那么尝试 Config 模式，这就是另外一个模式。</p>
+<h2 id="Config-模式"><a href="#Config-模式" class="headerlink" title="Config 模式"></a>Config 模式</h2><p>通过 <code>&lt;LibraryName&gt;Config.cmake</code> 或 <code>&lt;lower-case-package-name&gt;-config.cmake</code> 这个配置文件来引入依赖库。创建包配置文件可以参考我的另一篇文章 <a href="/2021/06/03/cpp/cmake_im_ex">cmake 导入导出</a>。</p>
+<h1 id="find-library"><a href="#find-library" class="headerlink" title="find_library"></a>find_library</h1><p>简单形式为 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find_library (&lt;VAR&gt; name1 [path1 path2 ...])</span><br></pre></td></tr></table></figure>
+<p>一般形式为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">find_library (</span><br><span class="line">          &lt;VAR&gt;</span><br><span class="line">          name | NAMES name1 [name2 ...] [NAMES_PER_DIR]</span><br><span class="line">          [HINTS path1 [path2 ... ENV var]]</span><br><span class="line">          [PATHS path1 [path2 ... ENV var]]</span><br><span class="line">          [PATH_SUFFIXES suffix1 [suffix2 ...]]</span><br><span class="line">          [DOC &quot;cache documentation string&quot;]</span><br><span class="line">          [NO_DEFAULT_PATH]</span><br><span class="line">          [NO_CMAKE_ENVIRONMENT_PATH]</span><br><span class="line">          [NO_CMAKE_PATH]</span><br><span class="line">          [NO_SYSTEM_ENVIRONMENT_PATH]</span><br><span class="line">          [NO_CMAKE_SYSTEM_PATH]</span><br><span class="line">          [CMAKE_FIND_ROOT_PATH_BOTH |</span><br><span class="line">           ONLY_CMAKE_FIND_ROOT_PATH |</span><br><span class="line">           NO_CMAKE_FIND_ROOT_PATH]</span><br><span class="line">         )</span><br></pre></td></tr></table></figure>
+<p>命令用于查找库，结果保存在一个名为 <code>&lt;VAR&gt;</code> 的缓存条目里面。如果没有找到，那么结果为 <code>&lt;VAR&gt;-NOTFOUND</code>。搜索库的名为 <code>name1</code> 等。搜索路径可以通过 <code>PATHS</code> 选项指定。<code>PATH-SUFFIXES</code> 指定在查找搜索路径之外还查找搜索路径的子目录。如果 <code>NO_DEFAULT_PATH</code> 指定，那么不使用默认搜索路径，否则，搜索过程如下：</p>
+<ol>
+<li><p>搜索某些特定 cmake 的缓存变量中的路径，例如在命令行中指定 <code>-DVAR=value</code>。如果设置了 <code>NO_CMAKE_PATH</code>，那么不考虑这条搜索规则。下面考虑这些特定 cmake 缓存变量</p>
+<ul>
+<li>如果设置了 <code>CMAKE_LIBRARY_ARCHITECTURE</code>，那么搜索 <code>&lt;prefix&gt;/lib/&lt;arch&gt;</code> 路径；以及 <code>&lt;prefix&gt;/lib</code> 路径，其中 <code>&lt;prefix&gt;</code> 是 <code>CMAKE_PREFIX_PATH</code> 指定的路径集合之一。</li>
+<li>搜索 <code>CMAKE_LIBRARY_PATH</code> 中的路径</li>
+<li>搜索 <code>CMAKE_FRAMEWORD_PATH</code> 中的路径</li>
+</ul>
+</li>
+<li><p>搜索某些特征 cmake 的环境变量中的路径。环境变量在用户的 shell 配置中设置，例如 <code>~/.bashrc</code>。如果设置了 <code>NO_CMAKE_ENVIRONMENT_PATH</code>，那么不考虑这条规则。</p>
+<ul>
+<li>如果设置了 <code>CMAKE_LIBRARY_ARCHITECTURE</code>，那么搜索 <code>&lt;prefix&gt;/lib/&lt;arch&gt;</code> 路径；以及 <code>&lt;prefix&gt;/lib</code> 路径，其中 <code>&lt;prefix&gt;</code> 是 <code>CMAKE_PREFIX_PATH</code> 指定的路径集合之一。</li>
+<li>搜索 <code>CMAKE_LIBRARY_PATH</code> 中的路径</li>
+<li>搜索 <code>CMAKE_FRAMEWORD_PATH</code> 中的路径</li>
+</ul>
+</li>
+<li><p>搜索由 <code>HINTS</code> 指定的路径。这个选项不是特别理解。暂不详述。</p>
+</li>
+<li><p>搜索标准的系统环境变量，如果设置了 <code>NO_SYSTEM_ENVIRONMENT_PATH</code>，那么这条规则不启用。</p>
+<ul>
+<li>如果设置了 <code>CMAKE_LIBRARY_ARCHITECTURE</code>，那么搜索 <code>&lt;prefix&gt;/lib/&lt;arch&gt;</code>，此外搜索 <code>PATH</code> 环境变量中每个路径条目，如果路径条目形式为 <code>&lt;prefix&gt;/[s]bin</code>，那么搜索路径 <code>&lt;prefix&gt;/lib</code>，否则就以路径条目为 <code>&lt;prefix&gt;</code> 来搜索路径 <code>&lt;prefix&gt;/lib</code>已经路径条目自身 <code>&lt;prefix&gt;</code></li>
+</ul>
+</li>
+<li><p>搜索与当前操作系统相关的 cmake 变量。如果设置了 <code>NO_CMAKE_SYSTEM_PATH</code>，那么这条规则不启用。</p>
+<ul>
+<li>如果设置了 <code>CMAKE_LIBRARY_ARCHITECTURE</code>，那么搜索 <code>&lt;prefix&gt;/lib/&lt;arch&gt;</code> 路径；以及 <code>&lt;prefix&gt;/lib</code> 路径，其中 <code>&lt;prefix&gt;</code> 是 <code>CMAKE_SYSTEM_PREFIX_PATH</code> 指定的路径集合之一。</li>
+<li>搜索 <code>CMAKE_SYSTEM_LIBRARY_PATH</code> 中的路径</li>
+<li>搜索 <code>CMAKE_SYSTEM_FRAMEWORD_PATH</code> 中的路径</li>
+</ul>
+</li>
 </ol>
 
       
@@ -227,7 +971,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/02/18/dl/receptive_field/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/08/cpp/link/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -241,7 +985,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/02/18/dl/receptive_field/" class="post-title-link" itemprop="url">Receptive Field</a>
+            <a href="/2021/06/08/cpp/link/" class="post-title-link" itemprop="url">链接</a>
         </h2>
 
         <div class="post-meta">
@@ -251,14 +995,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-18 10:51:00" itemprop="dateCreated datePublished" datetime="2021-02-18T10:51:00+08:00">2021-02-18</time>
+              <time title="创建时间：2021-06-08 11:06:44" itemprop="dateCreated datePublished" datetime="2021-06-08T11:06:44+08:00">2021-06-08</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-02-19 10:18:58" itemprop="dateModified" datetime="2021-02-19T10:18:58+08:00">2021-02-19</time>
+                <time title="修改时间：2021-06-25 11:09:55" itemprop="dateModified" datetime="2021-06-25T11:09:55+08:00">2021-06-25</time>
               </span>
 
           
@@ -272,25 +1016,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Size"><a href="#Size" class="headerlink" title="Size"></a>Size</h1><p>对于一个 fully CNN 的网络，第 <code>k</code> layer 的 receptive field 大小为，<br>$$l_k=l_{k-1} + ((f_k-1)*\prod_{i=1}^{k-1} s_i)$$<br>其中，$l_{k-1}$ 表示第 <code>k-1</code> layer 上的 receptive field 大小，$f_k$ 是第 <code>k</code> layer 的 filter 大小，$s_i$ 是第 <code>i</code> layer 上的 stride 大小。这是自底向上计算，从 $l_1$ 开始，$l_1=f_1$。</p>
-<p>还有一种自顶向下的计算方法。假设总共有 <code>L</code> 个 layer，每个 layer 的输出 feature map 记为 $f_l, \ l=1,…,L$，每个 layer 的 filter 大小为 $k_l$，stride 大小记为 $s_l$，记 $r_l$ 为最后一个 layer 关于 feature map $f_l$ 的 receptive field 大小，也就是说，$r_l$ 表示 $f_l$ 上多少个像素点对 $f_L$ 的一个像素点有贡献（这里仅考虑一维 feature map，如果是多维，那么分别独立考虑即可）。那么易知，$r_L=1$，</p>
-<p>$r_{L-1}=k_L$，这个也很好理解，上一层 feature map 中，$k_L$ 个像素点对应本层（最后一层）一个像素点。考虑一般情况，已知 $r_l$，求 $r_{l-1}$。</p>
-<p>首先假设 $k_l=1$，这样情况就简单些，若 $s_l=1$，那么 $r_{l-1}=r_l$，若 $s_l&gt;1$，那么 $r_{l-1}=s_l \cdot r_l -(s_l-1)$，因为 $r_l$ 中每两个像素点之间对应到 $f_{l-1}$ 上有 $s_l-1$ 个点，所以 $r_{l-1}=(s_l-1)\cdot(r_l-1)+ r_l=s_l \cdot r_l-s_l+1$。</p>
-<p>然后当 $k_l&gt;1$，那么需要在 $f_{l-1}$ 上增加 $k_l-1$ 个像素点，于是<br>$$r_{l-1}=s_l \cdot r_l + (k_l-s_l)$$<br>其中，$r_L=1, \ r_{L-1}=k_L$。求解上式过程如下：<br>$$r_{L-2}=s_{L-1} r_{L-1}+(k_{L-1}-s_{L-1})=s_{L-1}(k_L-1)+k_{L-1}$$<br>$$r_{L-3}=s_{L-2} r_{L-2}+(k_{L-2}-s_{L-2})=s_{L-2}s_{L-1}(k_L-1)+s_{L-2}(k_{L-1}-1)+k_{L-2}$$<br>$$\cdots$$<br>$$r_{l}=s_{l+1}\cdots s_{L-1}(k_L-1)+s_{l+1}\cdots s_{L-2}(k_{L-1}-1)+ \cdots s_{l+1}(k_{l+2}-1)+k_{l+1}=1+\sum_{j=l+1}^{L} \left[(k_{j}-1) \prod_{i=l+1}^{j-1}s_i \right]$$<br>其中令 $$\prod_{l+1}^{l}s_i=1$$</p>
-<p>于是，<br>$$\begin{aligned} r_{l-1}&amp;=1+\sum_{j=l}^{L} \left[(k_{j}-1) \prod_{i=l}^{j-1}s_i \right] \ &amp;=1+(k_l-1)+\sum_{j=l+1}^{L} \left[(k_{j}-1) \prod_{i=l+1}^{j-1}s_i \cdot s_l \right] \&amp;=k_l-s_l+s_l \left(1+\sum_{j=l+1}^{L} \left[(k_{j}-1) \prod_{i=l+1}^{j-1}s_i \right] \right) \&amp;=s_l \cdot r_l +k_l-s_l\end{aligned}$$<br>与前面递推式一致，说明通项式计算正确。</p>
-<p>output feature size 的计算为，<br>$$w_l=\frac {w_{l-1}+2p_l-k_l} {s_l}+1$$<br>其中 $w$ 表示宽，高 $h$ 的计算类似（以 2D image 数据为例）。</p>
-<h1 id="Region"><a href="#Region" class="headerlink" title="Region"></a>Region</h1><p>对输出 feature map 上一点有贡献的 region （Receptive Field）大小计算如上，还有一个参数也很重要：定位这个 region 的位置。例如输出 feature map 上一点 $f_L(i,j)$，产生这个特征的输入图像上的 region 位置如何求得。</p>
-<p>记在特征平面 $f_l$ 上这个 region 的左端和右端的坐标分别为 $u_l, \ v_l$，这里的<b>坐标从 0 开始</b>，即，第一个像素点的坐标为 <code>0</code>，在输出特征平面 $f_L$ 上有 $u_L=v_L=i$，同样地，仅考虑一维情况，对于二维情况，另一维度独立地进行类似计算可得。</p>
-<p>同样使用递推的思想，已知 $u_l, \ v_l$，求 $u_{l-1}, v_{l-1}$。</p>
-<p>首先从一个简单的情况开始，假设 $u_l=0$，这表示 $f_l$ 中的 region 左侧位于第一个像素点，此时 $u_{l-1}=-p_l$，即$f_{l-1}$ 左侧填充 $p_l$ 个像素；如果 $u_l=1$，那么 $u_{l-1}=s_l-p_l$，这也很好理解，从 $f_{l-1}$ 最左侧第一个像素点（填充之后为 $-p_l$）向右移动 $s_l$；如果 $u_l=2$，那么继续向右移动 $s_l$，即 $u_{l-1}=2s_l-p_l$，于是一般地，<br>$$u_{l-1}=u_l \cdot s_l -p_l$$<br>$$v_{l-1}=v_l \cdot s_l - p_l + k_l-1$$<br>完全式的计算过程如下：<br>$$u_{L-1}=u_L \cdot s_L - p_L$$<br>$$u_{L-2}=u_{L-1} \cdot s_{L-1}-p_{L-1}=s_{L-1}s_L u_L-s_{L-1}p_L-p_{L-1}$$<br>$$u_{L-3}=u_{L-2} \cdot s_{L-2}-p_{L-2}=s_{L-2}s_{L-1}s_L u_L-s_{L-2}s_{L-1}p_L-s_{L-2}p_{L-1}-p_{L-2}$$<br>$$\cdots$$<br>$$u_l=s_{l+1}\cdots s_L u_L-s_{l+1}\cdots s_{L-1} p_{L}-\cdots-s_{l+1} p_{l+2}-p_{l+1}=u_L\prod_{i=l+1}^L s_i-\sum_{j=l+1}^L p_j \prod_{i=l+1}^{j-1} s_i$$</p>
-<p>其中，$\prod_{i=l+1}^l s_i=1$, 类似地，<br>$$v_l=v_L \prod_{i=l+1}^L s_i - \sum_{j=l+1}^L(1+p_j-k_j)\prod_{i=l+1}^{j-1} s_i$$</p>
-<h1 id="Relation"><a href="#Relation" class="headerlink" title="Relation"></a>Relation</h1><p>Receptive Field size 与 region 之间的联系，<br>$$r_l=v_l-u_l+1$$</p>
-<h1 id="Stride-amp-Padding"><a href="#Stride-amp-Padding" class="headerlink" title="Stride &amp; Padding"></a>Stride &amp; Padding</h1><p>定义两个变量，有效 stride 和 有效 padding，这两者分别定义如下：</p>
-<p>$$S_l=\prod_{i=l+1}^L s_i$$</p>
-<p>$$P_l=\sum_{j=l+1}^L p_j \prod_{i=l+1}^{j-1}s_i$$</p>
-<p>他们的递推公式为，<br>$$S_{l-1}=s_l \cdot S_l$$<br>$$P_{l-1}=p_l+s_l \cdot P_l$$</p>
-<p>有着这两个定义变量，region 位置公式可表示为，<br>$$u_l=u_L \cdot S_l - P_l$$</p>
-<h1 id="Center"><a href="#Center" class="headerlink" title="Center"></a>Center</h1><p>receptive field 的中心可由 region 位置计算得到，在第 <code>l</code> layer 上为，<br>$$c_l=\frac {u_l+v_l} 2$$</p>
+          <h2 id="动态库目录"><a href="#动态库目录" class="headerlink" title="动态库目录"></a>动态库目录</h2><ol>
+<li>加入 <code>/lib</code>, <code>/usr/lib</code> 等默认搜索路径</li>
+<li>设置 <code>export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:&lt;YOUR LIB PATH&gt;</code></li>
+<li>修改配置文件 <code>/etc/ld.so.conf</code>，然后执行 <code>ldconfig</code></li>
+<li><code>gcc</code> 添加选项 <code>-Wl,-rpath=&lt;YOUR LIB PATH&gt;</code>。这个路径会保存到程序中。</li>
+</ol>
+<h3 id="Wl"><a href="#Wl" class="headerlink" title="-Wl"></a>-Wl</h3><p>这个参数表示后面的参数传递给链接器 <code>ld</code></p>
+<h3 id="rpath"><a href="#rpath" class="headerlink" title="-rpath"></a>-rpath</h3><p>添加一个目录到运行库搜索路径</p>
 
       
     </div>
@@ -310,7 +1043,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/02/18/obj_det/faster_rcnn/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/04/cpp/cmake_cmds_1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -324,203 +1057,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/02/18/obj_det/faster_rcnn/" class="post-title-link" itemprop="url">Faster RCNN</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-02-18 10:19:31 / 修改时间：10:20:34" itemprop="dateCreated datePublished" datetime="2021-02-18T10:19:31+08:00">2021-02-18</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/02/02/TODO/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/02/02/TODO/" class="post-title-link" itemprop="url">TODO</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-02-02 11:51:13 / 修改时间：14:02:42" itemprop="dateCreated datePublished" datetime="2021-02-02T11:51:13+08:00">2021-02-02</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>牛顿法/拟牛顿法</p>
-<p><a href="https://blog.csdn.net/songbinxu/article/details/79677948" target="_blank" rel="noopener">https://blog.csdn.net/songbinxu/article/details/79677948</a></p>
-<p><a href="https://blog.csdn.net/itplus/article/details/21896453" target="_blank" rel="noopener">https://blog.csdn.net/itplus/article/details/21896453</a></p>
-<p><a href="https://blog.csdn.net/itplus/article/details/21896619" target="_blank" rel="noopener">https://blog.csdn.net/itplus/article/details/21896619</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/01/23/tools/shell/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/01/23/tools/shell/" class="post-title-link" itemprop="url">ubuntu zsh 使用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-01-23 18:27:51 / 修改时间：18:40:35" itemprop="dateCreated datePublished" datetime="2021-01-23T18:27:51+08:00">2021-01-23</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>安装 zsh</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install zsh</span><br></pre></td></tr></table></figure>
-<p>查看版本，验证是否安装成功</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zsh --version</span><br></pre></td></tr></table></figure>
-<p>更改默认 shell 为 zsh</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chsh -s &#x2F;bin&#x2F;zsh</span><br></pre></td></tr></table></figure>
-<p>查看 shell</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo $SHELL</span><br></pre></td></tr></table></figure>
-<p>如果失败，那么重启 shell 即可。</p>
-<p>安装 oh-my-zsh，这是一个 zsh 配置框架。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https:&#x2F;&#x2F;raw.github.com&#x2F;robbyrussell&#x2F;oh-my-zsh&#x2F;master&#x2F;tools&#x2F;install.sh</span><br></pre></td></tr></table></figure>
-<p>修改文件权限，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod +x install.sh</span><br></pre></td></tr></table></figure>
-<p> 执行安装，<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;install.sh</span><br></pre></td></tr></table></figure></p>
-<p>安装 powerlevel10k 这个主题，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone --depth&#x3D;1 https:&#x2F;&#x2F;github.com&#x2F;romkatv&#x2F;powerlevel10k.git $&#123;ZSH_CUSTOM:-$HOME&#x2F;.oh-my-zsh&#x2F;custom&#125;&#x2F;themes&#x2F;powerlevel10k</span><br></pre></td></tr></table></figure>
-
-<p>设置主题，将以下内容添加到 <code>~/.zshrc</code>，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ZSH_THEME&#x3D;&quot;powerlevel10k&#x2F;powerlevel10k&quot;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/01/19/img_cls/resnet/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/01/19/img_cls/resnet/" class="post-title-link" itemprop="url">img_cls/resnet.md</a>
+            <a href="/2021/06/04/cpp/cmake_cmds_1/" class="post-title-link" itemprop="url">cmake 常用命令（一）</a>
         </h2>
 
         <div class="post-meta">
@@ -530,14 +1067,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-01-19 17:25:25" itemprop="dateCreated datePublished" datetime="2021-01-19T17:25:25+08:00">2021-01-19</time>
+              <time title="创建时间：2021-06-04 18:50:48" itemprop="dateCreated datePublished" datetime="2021-06-04T18:50:48+08:00">2021-06-04</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-28 16:12:36" itemprop="dateModified" datetime="2021-01-28T16:12:36+08:00">2021-01-28</time>
+                <time title="修改时间：2021-06-09 10:33:25" itemprop="dateModified" datetime="2021-06-09T10:33:25+08:00">2021-06-09</time>
               </span>
 
           
@@ -551,15 +1088,44 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本篇罗列一些 Resnet 网络的细节。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/01/19/img_cls/resnet/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
+          <h2 id="find-program"><a href="#find-program" class="headerlink" title="find_program"></a>find_program</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">find_program (</span><br><span class="line">          &lt;VAR&gt;</span><br><span class="line">          name | NAMES name1 [name2 ...] [NAMES_PER_DIR]</span><br><span class="line">          [HINTS path1 [path2 ... ENV var]]</span><br><span class="line">          [PATHS path1 [path2 ... ENV var]]</span><br><span class="line">          [PATH_SUFFIXES suffix1 [suffix2 ...]]</span><br><span class="line">          [DOC &quot;cache documentation string&quot;]</span><br><span class="line">          [REQUIRED]</span><br><span class="line">          [NO_DEFAULT_PATH]</span><br><span class="line">          [NO_PACKAGE_ROOT_PATH]</span><br><span class="line">          [NO_CMAKE_PATH]</span><br><span class="line">          [NO_CMAKE_ENVIRONMENT_PATH]</span><br><span class="line">          [NO_SYSTEM_ENVIRONMENT_PATH]</span><br><span class="line">          [NO_CMAKE_SYSTEM_PATH]</span><br><span class="line">          [CMAKE_FIND_ROOT_PATH_BOTH |</span><br><span class="line">           ONLY_CMAKE_FIND_ROOT_PATH |</span><br><span class="line">           NO_CMAKE_FIND_ROOT_PATH]</span><br><span class="line">         )</span><br></pre></td></tr></table></figure>
+<p>简单形式为 <code>find_program (&lt;VAR&gt; name1 [path1 path2 ...])</code>。</p>
+<p>查找程序。一个缓存条目 <code>VAR</code> 存储命令结果，如果没有找到，结果为 <code>&lt;VAR&gt;-NOTFOUND</code>。</p>
+<ul>
+<li>NAMES</li>
+</ul>
+<p>指定一个或多个程序名称</p>
+<ul>
+<li>HINTS, PATHS</li>
+</ul>
+<p>指定在默认目录之外的搜索路径。<code>ENV var</code> 指定环境变量。</p>
+<ul>
+<li>PATH-SUFFIXES</li>
+</ul>
+<p>指定在每个搜索路径下要检查的子路径。</p>
+<p>如果 <code>NO_DEFAULT_PATH</code> 指定，那么默认搜索路径不再考虑，否则搜索过程如下：</p>
+<p>…</p>
+<h2 id="file"><a href="#file" class="headerlink" title="file"></a>file</h2><p><code>file(WRITE filename &quot;message to write&quot; ...)</code><br>将信息写如文件 <code>filename</code> 中。</p>
+<p><code>file(APPEND filename &quot;message to write&quot; ...)</code><br>将信息追加到文件末尾</p>
+<p><code>file(READ filename variable [LIMIT numBytes] [OFFSET offset] [HEX])</code><br>读取文件内容并存储到 <code>variable</code> 中。<code>HEX</code> 表示二进制数据转为为十进制。</p>
+<p><code>file({GLOB|GLOB_RECURESE} &lt;variable&gt; ... [&lt;globbing-expressions&gt;...])</code><br>根据表达式 <code>&lt;globbing-expressions&gt;</code> 匹配文件，并将文件列表保存到 <code>&lt;variable&gt;</code> 中。</p>
+<p><code>GLOB_RECURSE</code> 将会遍历匹配的目录的子目录，从而匹配文件，例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;dir&#x2F;*.py  - match all python files in &#x2F;dir and subdirectories</span><br></pre></td></tr></table></figure>
+
+<h2 id="configure-file"><a href="#configure-file" class="headerlink" title="configure_file"></a>configure_file</h2><p><code>configure_file(&lt;input&gt; &lt;output&gt;
+               [NO_SOURCE_PERMISSIONS | USE_SOURCE_PERMISSIONS |
+                FILE_PERMISSIONS &lt;permissions&gt;...]
+               [COPYONLY] [ESCAPE_QUOTES] [@ONLY]
+               [NEWLINE_STYLE [UNIX|DOS|WIN32|LF|CRLF] ])</code><br>将 <code>input</code> 文件内容复制到 <code>output</code> 文件中。根据参数规则，替换 <code>@VAR@</code> 或 <code>${VAR}</code> 变量。</p>
+<p><code>&lt;input&gt;</code> 文件中 <code>#cmakedefine VAR</code> 会被替换为：</p>
+<ol>
+<li>如果 <code>VAR</code> 设置为 <code>ON</code>，那么替换为 <code>#define VAR</code></li>
+<li>如果 <code>VAR</code> 设置为 <code>OFF</code>，那么替换为 <code>/* #undef VAR */</code></li>
+</ol>
+<p>同理，<code>#cmakedefone01 VAR</code> 则会被替换为 <code>#define VAR 1</code> 或 <code>#define VAR 0</code></p>
+<p>注：这个命令的 <code>IMMEDIATE</code> 选项已经被弃用，因为文件复制已经是立即执行。</p>
+<h2 id="内置模块"><a href="#内置模块" class="headerlink" title="内置模块"></a>内置模块</h2><p>cmake 提供了一些内置模块，可以直接 include 然后使用，参见 <a href="https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html" target="_blank" rel="noopener">这里</a></p>
+
       
     </div>
 
@@ -578,7 +1144,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/01/13/pytorch/loss_2/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/03/cpp/cmake_im_ex/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -592,7 +1158,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/01/13/pytorch/loss_2/" class="post-title-link" itemprop="url">Loss 2</a>
+            <a href="/2021/06/03/cpp/cmake_im_ex/" class="post-title-link" itemprop="url">cmake import export</a>
         </h2>
 
         <div class="post-meta">
@@ -602,14 +1168,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-01-13 16:54:38" itemprop="dateCreated datePublished" datetime="2021-01-13T16:54:38+08:00">2021-01-13</time>
+              <time title="创建时间：2021-06-03 13:59:06" itemprop="dateCreated datePublished" datetime="2021-06-03T13:59:06+08:00">2021-06-03</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-15 15:12:11" itemprop="dateModified" datetime="2021-01-15T15:12:11+08:00">2021-01-15</time>
+                <time title="修改时间：2021-06-04 18:03:42" itemprop="dateModified" datetime="2021-06-04T18:03:42+08:00">2021-06-04</time>
               </span>
 
           
@@ -623,219 +1189,60 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>继上一篇 <a href="2021/1/12/pytorch/loss_1">loss 1</a>，本篇介绍 PyTorch 的其他损失。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/01/13/pytorch/loss_2/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
+          <h1 id="导入目标"><a href="#导入目标" class="headerlink" title="导入目标"></a>导入目标</h1><p>被导入的目标位于当前 cmake 项目的外部。要创建一个被导入目标，可在 <code>add_executable()</code> 和 <code>add_library()</code> 中加入 <code>IMPORTED</code> 选项，<code>IMPORTED</code> 选项是的这两个命令不会生成真正的目标文件（即，没有物理文件生成，而是将外部的目标文件作为当前cmake 项目的逻辑目标）。使用这两个命令导入后，被导入目标可以像其他目标一样被引用并使用。被导入目标的默认 scope 为当前目录以及子目录，可以使用 <code>GLOBAL</code> 使得被导入目标在 cmake 生成系统全局可见，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_executable(&lt;name&gt; IMPORTED [GLOBAL])</span><br></pre></td></tr></table></figure>
+<h2 id="导入可执行体"><a href="#导入可执行体" class="headerlink" title="导入可执行体"></a>导入可执行体</h2><p>以一个例子说明，完整代码位于 cmake 官方代码库的 Help/guide/importing-exporting 目录下。</p>
+<p>操作命令如下，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> Help/guide/importing-exporting/MyExe</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mkdir build</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> build</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cmake ..</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cmake --build .</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cmake --install . --prefix &lt;install location&gt;</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> &lt;install location&gt;/myexe</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ls</span></span><br><span class="line">[...] main.cc [...]</span><br></pre></td></tr></table></figure>
+<p>为了方便，也给出了 CMakeLists.txt 文件内容，</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.15</span>)</span><br><span class="line"><span class="keyword">project</span>(MyExe)</span><br><span class="line"></span><br><span class="line"><span class="comment"># specify the C++ standard</span></span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD <span class="number">11</span>)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD_REQUIRED <span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Add executable</span></span><br><span class="line"><span class="keyword">add_executable</span>(myexe main.cxx)</span><br><span class="line"></span><br><span class="line"><span class="comment"># install executable</span></span><br><span class="line"><span class="keyword">install</span>(TARGETS myexe)</span><br></pre></td></tr></table></figure>
+<p>整个文件目录为，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">MyExe&#x2F;</span><br><span class="line">    CMakeLists.txt</span><br><span class="line">    main.cxx</span><br></pre></td></tr></table></figure>
+<p>main.cxx 文件 main 函数执行后会创建一个 main.cc 的文件。</p>
+<p>现在我们将这个生成的 <code>myexe</code> 可执行体导入到另一个项目中。另一个项目源码位于 Help/guide/importing-exporting/Importing，其中 CMakeLists.txt 文件内容为，</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.15</span>)</span><br><span class="line"><span class="keyword">project</span>(Importing)</span><br><span class="line"></span><br><span class="line"><span class="comment"># specify the C++ standard</span></span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD <span class="number">11</span>)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD_REQUIRED <span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Add executable</span></span><br><span class="line"><span class="keyword">add_executable</span>(myexe IMPORTED)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Set imported location</span></span><br><span class="line"><span class="keyword">set_property</span>(<span class="keyword">TARGET</span> myexe PROPERTY</span><br><span class="line">             IMPORTED_LOCATION <span class="string">"../InstallMyExe/bin/myexe"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Add custom command to create source file</span></span><br><span class="line"><span class="keyword">add_custom_command</span>(OUTPUT main.cc <span class="keyword">COMMAND</span> myexe)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Use source file</span></span><br><span class="line"><span class="keyword">add_executable</span>(mynewexe main.cc)</span><br></pre></td></tr></table></figure>
 
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+<p>以上，<code>myexe</code> 使用 <code>IMPORTED</code> 告诉 CMAKE 这是一个外部引用，并设置其属性 <code>IMPORTED_LOCATION</code>，这样就知道外部目标文件的位置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_custom_command(OUTPUT main.cc COMMAND myexe)</span><br></pre></td></tr></table></figure>
+<p>上面这句命令指定构建时执行的命令为 <code>myexe</code>，生成的输出文件为 <code>main.cc</code> （这是一个相对于当前源目录的文件路径），这句指令本身不会让 cmake 构建，而是下一句，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_executable(mynewexe main.cc)</span><br></pre></td></tr></table></figure>
+<p>这句构建一个可执行目标，该目标构建依赖于 <code>main.cc</code>。</p>
+<h2 id="导入库"><a href="#导入库" class="headerlink" title="导入库"></a>导入库</h2><p>与可执行目标导入类似，库文件也可以被导入。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">add_library(foo STATIC IMPORTED)</span><br><span class="line">set_property(TARGET foo PROPERTY</span><br><span class="line">             IMPORTED_LOCATION &quot;path&#x2F;to&#x2F;libfoo.a&quot;)</span><br></pre></td></tr></table></figure>
+<p>添加一个导入静态库，并设置其路径属性。</p>
+<p>使用这个导入库如下，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">add_executable(myexe src1.c src2.c)</span><br><span class="line">target_link_libraries(myexe PRIVATE foo)</span><br></pre></td></tr></table></figure>
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/01/12/pytorch/loss_1/">
+<h1 id="导出目标"><a href="#导出目标" class="headerlink" title="导出目标"></a>导出目标</h1><p>导入库有用，但是需要知道被导入库的文件路径。被导入目标的真正强大之处在于，当 cmake 项目提供目标文件时，cmake 项目同时提供一个 CMake 文件 .cmake，使得在其他地方可以非常方便的导入这些目标。</p>
+<p>首先定位到 cmake 官方代码库的 Help/guide/importing-exporting/MathFunctions 目录，其中头文件 <code>MathFunctions.h</code> 的内容为，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> once</span></span><br><span class="line"><span class="keyword">namespace</span> MathFunctions &#123;</span><br><span class="line"><span class="function"><span class="keyword">double</span> <span class="title">sqrt</span><span class="params">(<span class="keyword">double</span> x)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>源文件 <code>MathFunctions.cxx</code> 为，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"MathFunctions.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="keyword">namespace</span> MathFunctions &#123;</span><br><span class="line"><span class="function"><span class="keyword">double</span> <span class="title">sqrt</span><span class="params">(<span class="keyword">double</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">std</span>::<span class="built_in">sqrt</span>(x);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>CMakeLists.txt 文件内容较多，</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.15</span>)</span><br><span class="line"><span class="keyword">project</span>(MathFunctions)</span><br><span class="line"></span><br><span class="line"><span class="comment"># make cache variables for install destinations</span></span><br><span class="line"><span class="keyword">include</span>(GNUInstallDirs)</span><br><span class="line"></span><br><span class="line"><span class="comment"># specify the C++ standard</span></span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD <span class="number">11</span>)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD_REQUIRED <span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># create library</span></span><br><span class="line"><span class="keyword">add_library</span>(MathFunctions STATIC MathFunctions.cxx)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add include directories</span></span><br><span class="line"><span class="keyword">target_include_directories</span>(MathFunctions</span><br><span class="line">                           PUBLIC</span><br><span class="line">                           <span class="string">"$&lt;BUILD_INTERFACE:$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;&gt;"</span></span><br><span class="line">                           <span class="string">"$&lt;INSTALL_INTERFACE:$&#123;CMAKE_INSTALL_INCLUDEDIR&#125;&gt;"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># install the target and create export-set</span></span><br><span class="line"><span class="keyword">install</span>(TARGETS MathFunctions</span><br><span class="line">        <span class="keyword">EXPORT</span> MathFunctionsTargets</span><br><span class="line">        LIBRARY DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_LIBDIR&#125;</span></span><br><span class="line">        ARCHIVE DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_LIBDIR&#125;</span></span><br><span class="line">        RUNTIME DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_BINDIR&#125;</span></span><br><span class="line">        INCLUDES DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_INCLUDEDIR&#125;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># install header file</span></span><br><span class="line"><span class="keyword">install</span>(FILES MathFunctions.h DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_INCLUDEDIR&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># generate and install export file</span></span><br><span class="line"><span class="keyword">install</span>(<span class="keyword">EXPORT</span> MathFunctionsTargets</span><br><span class="line">        <span class="keyword">FILE</span> MathFunctionsTargets.cmake</span><br><span class="line">        NAMESPACE MathFunctions::</span><br><span class="line">        DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_LIBDIR&#125;</span>/cmake/MathFunctions</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># include CMakePackageConfigHelpers macro</span></span><br><span class="line"><span class="keyword">include</span>(CMakePackageConfigHelpers)</span><br><span class="line"></span><br><span class="line"><span class="comment"># set version</span></span><br><span class="line"><span class="keyword">set</span>(version <span class="number">3.4</span>.<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">set_property</span>(<span class="keyword">TARGET</span> MathFunctions PROPERTY VERSION <span class="variable">$&#123;version&#125;</span>)</span><br><span class="line"><span class="keyword">set_property</span>(<span class="keyword">TARGET</span> MathFunctions PROPERTY SOVERSION <span class="number">3</span>)</span><br><span class="line"><span class="keyword">set_property</span>(<span class="keyword">TARGET</span> MathFunctions PROPERTY</span><br><span class="line">  INTERFACE_MathFunctions_MAJOR_VERSION <span class="number">3</span>)</span><br><span class="line"><span class="keyword">set_property</span>(<span class="keyword">TARGET</span> MathFunctions APPEND PROPERTY</span><br><span class="line">  COMPATIBLE_INTERFACE_STRING MathFunctions_MAJOR_VERSION</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># generate the version file for the config file</span></span><br><span class="line">write_basic_package_version_file(</span><br><span class="line">  <span class="string">"$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsConfigVersion.cmake"</span></span><br><span class="line">  VERSION <span class="string">"$&#123;version&#125;"</span></span><br><span class="line">  COMPATIBILITY AnyNewerVersion</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># create config file</span></span><br><span class="line">configure_package_config_file(<span class="variable">$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;</span>/Config.cmake.in</span><br><span class="line">  <span class="string">"$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsConfig.cmake"</span></span><br><span class="line">  INSTALL_DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_LIBDIR&#125;</span>/cmake/MathFunctions</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># install config files</span></span><br><span class="line"><span class="keyword">install</span>(FILES</span><br><span class="line">          <span class="string">"$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsConfig.cmake"</span></span><br><span class="line">          <span class="string">"$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsConfigVersion.cmake"</span></span><br><span class="line">        DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_LIBDIR&#125;</span>/cmake/MathFunctions</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># generate the export targets for the build tree</span></span><br><span class="line"><span class="keyword">export</span>(<span class="keyword">EXPORT</span> MathFunctionsTargets</span><br><span class="line">       <span class="keyword">FILE</span> <span class="string">"$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsTargets.cmake"</span></span><br><span class="line">       NAMESPACE MathFunctions::</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
+<p>构建库 <code>MathFunctions</code> 之后需要为其指定头文件目录，根据是生成库还是从已安装路径使用库，分别指定不同的头文件目录，如果对头文件目录不加以区分，那么 CMake 在创建导出信息时，将会导出依赖于当前生成目录的一个路径，这个路径显然在其他项目中无效。</p>
+<p><code>install(TARGETS)</code> 和 <code>install(EXPORT)</code> 安装库目标和 .cmake 文件，这里 .cmake 文件则方便其他 CMake 项目导入这个库目标。生成的导出文件（.cmake文件）中包含了创建导入库的代码，</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Create imported target MathFunctions::MathFunctions</span></span><br><span class="line"><span class="keyword">add_library</span>(MathFunctions::MathFunctions STATIC IMPORTED)</span><br><span class="line"></span><br><span class="line"><span class="keyword">set_target_properties</span>(MathFunctions::MathFunctions PROPERTIES</span><br><span class="line">  INTERFACE_INCLUDE_DIRECTORIES <span class="string">"$&#123;_IMPORT_PREFIX&#125;/include"</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>这段代码与上面我们手动导入库的 cmake 代码很相似。外部其他项目可以 include 这个 .cmake 文件，从而引用导入库 <code>MathFunctions</code>，</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">include</span>(<span class="variable">$&#123;INSTALL_PREFIX&#125;</span>/lib/cmake/MathFunctionTargets.cmake)</span><br><span class="line"><span class="keyword">add_executable</span>(myexe src1.c src2.c )</span><br><span class="line"><span class="keyword">target_link_libraries</span>(myexe PRIVATE MathFunctions::MathFunctions)</span><br></pre></td></tr></table></figure>
+<p>注：这段代码来自官方文档，但是个人觉得这里路径错了，应该是<br><code>include(${INSTALL_PREFIX}/lib/cmake/MathFunctions/MathFunctionTargets.cmake)</code>。</p>
+<p>任意数量的目标都可以关联到相同的导出名称，且 <code>install(EXPORT)</code> 只需要调用一次。<strong>导出名称是全局 scope 的，所以任何目录都可以使用</strong> 。例如以下的导出名称 <code>myproj-targets</code>，</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># A/CMakeLists.txt</span></span><br><span class="line"><span class="keyword">add_executable</span>(myexe src1.c)</span><br><span class="line"><span class="keyword">install</span>(TARGETS myexe DESTINATION lib/myproj</span><br><span class="line">        <span class="keyword">EXPORT</span> myproj-targets)</span><br><span class="line"></span><br><span class="line"><span class="comment"># B/CMakeLists.txt</span></span><br><span class="line"><span class="keyword">add_library</span>(foo STATIC foo1.c)</span><br><span class="line"><span class="keyword">install</span>(TARGETS foo DESTINATION lib EXPORTS myproj-targets)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Top CMakeLists.txt</span></span><br><span class="line"><span class="keyword">add_subdirectory</span> (A)</span><br><span class="line"><span class="keyword">add_subdirectory</span> (B)</span><br><span class="line"><span class="keyword">install</span>(<span class="keyword">EXPORT</span> myproj-targets DESTINATION lib/myproj)</span><br></pre></td></tr></table></figure>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/01/12/pytorch/loss_1/" class="post-title-link" itemprop="url">Loss 1</a>
-        </h2>
+<h2 id="创建包"><a href="#创建包" class="headerlink" title="创建包"></a>创建包</h2><p>我们还可以生成一个配置文件，以便 <code>find_package()</code> 可以发现目标。步骤如下，</p>
+<ol>
+<li>include <code>CMakePackageConfigHelpers</code> 模块，获得创建配置文件的函数。</li>
+</ol>
+<h3 id="创建包配置文件"><a href="#创建包配置文件" class="headerlink" title="创建包配置文件"></a>创建包配置文件</h3><p>使用 <code>CMakePackageConfigHelpers</code> 模块中的 <code>configure_package_config_file()</code> 命令生成包配置文件，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">configure_package_config_file($&#123;CMAKE_CURRENT_SOURCE_DIR&#125;&#x2F;Config.cmake.in</span><br><span class="line">  &quot;$&#123;CMAKE_CURRENT_BINARY_DIR&#125;&#x2F;MathFunctionsConfig.cmake&quot;</span><br><span class="line">  INSTALL_DESTINATION $&#123;CMAKE_INSTALL_LIBDIR&#125;&#x2F;cmake&#x2F;MathFunctions</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><code>INSTALL_DESTINATION</code> 的路径值为 <code>MathFunctionsConfig.cmake</code> 安装路径。</p>
+<p><code>configure_package_config_file</code> 命令用于创建一个配置文件 <code>&lt;PackageName&gt;Config.cmake</code> 或者 <code>&lt;PackageName&gt;-Config.cmake</code>，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">configure_package_config_file(&lt;input&gt; &lt;output&gt;</span><br><span class="line">  INSTALL_DESTINATION &lt;path&gt;</span><br><span class="line">  [PATH_VARS &lt;var1&gt; &lt;var2&gt; ... &lt;varN&gt;]</span><br><span class="line">  [NO_SET_AND_CHECK_MACRO]</span><br><span class="line">  [NO_CHECK_REQUIRED_COMPONENTS_MACRO]</span><br><span class="line">  [INSTALL_PREFIX &lt;path&gt;]</span><br><span class="line">  )</span><br></pre></td></tr></table></figure>
+<p><code>INSTALL_DESTINATION</code> 可以是绝对路径，或者是相对 <code>INSTALL_PREFIX</code> 的路径。这个命令根据输入文件替换变量（@@包围的变量）的值得到输出文件。然后再安装到指定路径，这个配置文件中设置了 <code>MathFunctionsTargets.cmake</code> 的路径。</p>
+<h2 id="创建包版本文件"><a href="#创建包版本文件" class="headerlink" title="创建包版本文件"></a>创建包版本文件</h2><p>使用 <code>write_basic_package_version_file()</code> 创建包版本文件，当 CMAKE 使用 <code>find_package</code> 时，这个包版本文件将被 CMAKE 读取以决定版本是否兼容。</p>
+<h2 id="从生成树中导出目标"><a href="#从生成树中导出目标" class="headerlink" title="从生成树中导出目标"></a>从生成树中导出目标</h2><p>通常，一个项目都是在被外部其他项目使用之前就生成并安装完成，但是有些情况下，我们想在生成项目后直接导出目标，跳过安装过程，这时可以使用 <code>export()</code> 达成这一目的，如上文那一大段 CMakeLists.txt 内容的最后一个命令调用，在这个调用中，我们在生成目录创建文件 <code>MathFunctionsTargets.cmake</code>，但是需要注意，这个文件与 <code>lib/cmake/MathFunctions/MathFunctionsTargets.cmake</code> 不同，不具有路径重定向功能，因为其中 <code>MathFunctions</code> 目标的几个路径属性值全部是 hardcode 的，而非使用 <code>${_IMPORT_PREFIX}</code>。</p>
 
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-01-12 17:35:17" itemprop="dateCreated datePublished" datetime="2021-01-12T17:35:17+08:00">2021-01-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-15 11:59:35" itemprop="dateModified" datetime="2021-01-15T11:59:35+08:00">2021-01-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>前面介绍了 <a href="2021/1/12/dl/x_ent_loss">交叉熵损失</a>，本篇就 PyTorch 中的各种 <a href="https://pytorch.org/docs/stable/nn.html#loss-functions" target="_blank" rel="noopener">Loss</a> 进行分解并掌握其用法。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/01/12/pytorch/loss_1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/01/12/dl/x_ent_loss/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/01/12/dl/x_ent_loss/" class="post-title-link" itemprop="url">Cross Entropy Loss</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-01-12 10:35:40 / 修改时间：17:33:12" itemprop="dateCreated datePublished" datetime="2021-01-12T10:35:40+08:00">2021-01-12</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>深度学习中有很多损失计算方式，不同的损失适合不同的问题，所以有必要对损失进行归类总结一下。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/01/12/dl/x_ent_loss/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/01/08/dl/tricks_1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/01/08/dl/tricks_1/" class="post-title-link" itemprop="url">Deep Learning Tricks1</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-01-08 14:32:52 / 修改时间：19:11:04" itemprop="dateCreated datePublished" datetime="2021-01-08T14:32:52+08:00">2021-01-08</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>深度学习中有很多训练技巧，这里做一些总结。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/01/08/dl/tricks_1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
       
     </div>
 
@@ -853,7 +1260,7 @@
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -919,7 +1326,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">71</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -932,7 +1339,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -994,7 +1401,7 @@
 <script src="/js/schemes/pisces.js"></script>
 
 
-<script src="/js/next-boot.js"></script>
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 
@@ -1018,59 +1425,6 @@
   
 
   
-      
-
-<script>
-  if (typeof MathJax === 'undefined') {
-    window.MathJax = {
-      loader: {
-        source: {
-          '[tex]/amsCd': '[tex]/amscd',
-          '[tex]/AMScd': '[tex]/amscd'
-        }
-      },
-      tex: {
-        inlineMath: {'[+]': [['$', '$']]},
-        tags: 'ams'
-      },
-      options: {
-        renderActions: {
-          findScript: [10, doc => {
-            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
-              const display = !!node.type.match(/; *mode=display/);
-              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
-              const text = document.createTextNode('');
-              node.parentNode.replaceChild(text, node);
-              math.start = {node: text, delim: '', n: 0};
-              math.end = {node: text, delim: '', n: 0};
-              doc.math.push(math);
-            });
-          }, '', false],
-          insertedScript: [200, () => {
-            document.querySelectorAll('mjx-container').forEach(node => {
-              let target = node.parentNode;
-              if (target.nodeName.toLowerCase() === 'li') {
-                target.parentNode.classList.add('has-jax');
-              }
-            });
-          }, '', false]
-        }
-      }
-    };
-    (function () {
-      var script = document.createElement('script');
-      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
-      script.defer = true;
-      document.head.appendChild(script);
-    })();
-  } else {
-    MathJax.startup.document.state(0);
-    MathJax.texReset();
-    MathJax.typeset();
-  }
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-
-    
 
   
 

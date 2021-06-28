@@ -160,7 +160,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/25/WGAN/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2020/04/20/obj_det/YOLO/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -174,7 +174,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/07/25/WGAN/" class="post-title-link" itemprop="url">WGAN</a>
+            <a href="/2020/04/20/obj_det/YOLO/" class="post-title-link" itemprop="url">YOLO</a>
         </h2>
 
         <div class="post-meta">
@@ -184,14 +184,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-07-25 20:24:41" itemprop="dateCreated datePublished" datetime="2019-07-25T20:24:41+08:00">2019-07-25</time>
+              <time title="创建时间：2020-04-20 13:58:33" itemprop="dateCreated datePublished" datetime="2020-04-20T13:58:33+08:00">2020-04-20</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-20 13:45:52" itemprop="dateModified" datetime="2020-04-20T13:45:52+08:00">2020-04-20</time>
+                <time title="修改时间：2021-02-23 16:14:31" itemprop="dateModified" datetime="2021-02-23T16:14:31+08:00">2021-02-23</time>
               </span>
 
           
@@ -205,75 +205,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>论文 <a href="https://arxiv.org/abs/1701.07875" target="_blank" rel="noopener">Wasserstein GAN</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/23/GAN/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/07/23/GAN/" class="post-title-link" itemprop="url">GAN</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-07-23 10:15:08" itemprop="dateCreated datePublished" datetime="2019-07-23T10:15:08+08:00">2019-07-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-24 18:37:46" itemprop="dateModified" datetime="2020-04-24T18:37:46+08:00">2020-04-24</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>论文 <a href="https://arxiv.org/abs/1406.2661" target="_blank" rel="noopener">Generative Adversarial Nets</a></p>
+          <h1 id="YOLOv1"><a href="#YOLOv1" class="headerlink" title="YOLOv1"></a>YOLOv1</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>one-stage 检测方法，从图像像素到bbox 坐标和分类概率，一步到位。优点为：</p>
+<ol>
+<li>快。YOLO 每秒可处理 45 帧，可实时处理视频流。</li>
+<li>从图像全局出发，作出预测。这种策略有效利用了上下文信息。</li>
+<li>能学习目标的泛化特征。基于天然图像数据集上的训练，用于人工图像数据集上的测试，也能取得较好的结果。</li>
+</ol>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/07/23/GAN/#more" rel="contents">
+              <a class="btn" href="/2020/04/20/obj_det/YOLO/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -297,7 +237,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/19/Grid-RCNN/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2020/01/08/pytorch/optim-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -311,7 +251,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/07/19/Grid-RCNN/" class="post-title-link" itemprop="url">Grid-RCNN</a>
+            <a href="/2020/01/08/pytorch/optim-2/" class="post-title-link" itemprop="url">PyTorch.optim</a>
         </h2>
 
         <div class="post-meta">
@@ -321,14 +261,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-07-19 17:44:19" itemprop="dateCreated datePublished" datetime="2019-07-19T17:44:19+08:00">2019-07-19</time>
+              <time title="创建时间：2020-01-08 18:19:54" itemprop="dateCreated datePublished" datetime="2020-01-08T18:19:54+08:00">2020-01-08</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-24 18:38:03" itemprop="dateModified" datetime="2020-04-24T18:38:03+08:00">2020-04-24</time>
+                <time title="修改时间：2020-04-24 18:34:13" itemprop="dateModified" datetime="2020-04-24T18:34:13+08:00">2020-04-24</time>
               </span>
 
           
@@ -342,11 +282,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Grid-R-CNN"><a href="#Grid-R-CNN" class="headerlink" title="Grid R-CNN"></a>Grid R-CNN</h1><p>论文 <a href="https://arxiv.org/abs/1811.12030" target="_blank" rel="noopener">Grid R-CNN</a></p>
-<p>源码 <a href="https://github.com/STVIR/Grid-R-CNN" target="_blank" rel="noopener">Grid R-CNN</a></p>
+          <h1 id="1-Adam"><a href="#1-Adam" class="headerlink" title="1. Adam"></a>1. Adam</h1><p>Adam 表示 Adaptive Moment Estimation。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/07/19/Grid-RCNN/#more" rel="contents">
+              <a class="btn" href="/2020/01/08/pytorch/optim-2/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -370,7 +309,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/17/RepPoints/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2020/01/06/pytorch/optim-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -384,7 +323,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/07/17/RepPoints/" class="post-title-link" itemprop="url">RepPoints</a>
+            <a href="/2020/01/06/pytorch/optim-1/" class="post-title-link" itemprop="url">PyTorch.optim</a>
         </h2>
 
         <div class="post-meta">
@@ -394,14 +333,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-07-17 16:05:41" itemprop="dateCreated datePublished" datetime="2019-07-17T16:05:41+08:00">2019-07-17</time>
+              <time title="创建时间：2020-01-06 14:38:40" itemprop="dateCreated datePublished" datetime="2020-01-06T14:38:40+08:00">2020-01-06</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-24 18:36:17" itemprop="dateModified" datetime="2020-04-24T18:36:17+08:00">2020-04-24</time>
+                <time title="修改时间：2020-04-24 18:34:05" itemprop="dateModified" datetime="2020-04-24T18:34:05+08:00">2020-04-24</time>
               </span>
 
           
@@ -415,10 +354,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>论文 <a href="https://arxiv.org/abs/1904.11490" target="_blank" rel="noopener">RepPoints: Point Set Representation for Object Detection</a></p>
+          <h1 id="1-Adagrad"><a href="#1-Adagrad" class="headerlink" title="1. Adagrad"></a>1. Adagrad</h1>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/07/17/RepPoints/#more" rel="contents">
+              <a class="btn" href="/2020/01/06/pytorch/optim-1/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -442,7 +381,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/17/DetNet/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2020/01/02/pytorch/optim_SGD/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -456,7 +395,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/07/17/DetNet/" class="post-title-link" itemprop="url">DetNet</a>
+            <a href="/2020/01/02/pytorch/optim_SGD/" class="post-title-link" itemprop="url">PyTorch.optim.SGD</a>
         </h2>
 
         <div class="post-meta">
@@ -466,14 +405,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-07-17 10:05:50" itemprop="dateCreated datePublished" datetime="2019-07-17T10:05:50+08:00">2019-07-17</time>
+              <time title="创建时间：2020-01-02 16:25:32" itemprop="dateCreated datePublished" datetime="2020-01-02T16:25:32+08:00">2020-01-02</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-24 18:36:48" itemprop="dateModified" datetime="2020-04-24T18:36:48+08:00">2020-04-24</time>
+                <time title="修改时间：2020-04-24 18:33:35" itemprop="dateModified" datetime="2020-04-24T18:33:35+08:00">2020-04-24</time>
               </span>
 
           
@@ -487,10 +426,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>论文 <a href="https://arxiv.org/abs/1804.06215" target="_blank" rel="noopener">DetNet: A Backbone network for Object Detection</a></p>
+          <h1 id="1-SGD"><a href="#1-SGD" class="headerlink" title="1. SGD"></a>1. SGD</h1>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/07/17/DetNet/#more" rel="contents">
+              <a class="btn" href="/2020/01/02/pytorch/optim_SGD/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -514,7 +453,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/16/loss/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/12/31/img_cls/densenet/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -528,7 +467,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/07/16/loss/" class="post-title-link" itemprop="url">loss</a>
+            <a href="/2019/12/31/img_cls/densenet/" class="post-title-link" itemprop="url">DenseNet</a>
         </h2>
 
         <div class="post-meta">
@@ -538,14 +477,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-07-16 17:32:26" itemprop="dateCreated datePublished" datetime="2019-07-16T17:32:26+08:00">2019-07-16</time>
+              <time title="创建时间：2019-12-31 15:27:49" itemprop="dateCreated datePublished" datetime="2019-12-31T15:27:49+08:00">2019-12-31</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-24 18:36:36" itemprop="dateModified" datetime="2020-04-24T18:36:36+08:00">2020-04-24</time>
+                <time title="修改时间：2020-04-24 18:33:15" itemprop="dateModified" datetime="2020-04-24T18:33:15+08:00">2020-04-24</time>
               </span>
 
           
@@ -559,10 +498,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>总结一些常见的损失（虽然我把本文归类到 CV，但实际上这些损失函数并不仅仅用于 CV 中，只是目前我只关注 CV 而已）</p>
+          <p>论文 <a href="https://arxiv.org/abs/1608.06993" target="_blank" rel="noopener">Densely Connected Convolutional Networks</a></p>
+<p>随着现在数据集越来越大，网络容量也需要增大，否则容易出现过拟合现象，一种增大网络容量的方法是增加更多的 layer ，让网络更深（deep），但是这也会带来新的问题：随着输入（或梯度）经过越来越多的 layer，信息可能在到达最后一层（对于梯度则是反向传播在到达网络第一层）之前就消失了。ResNet 增加 shortcut，即 early layer 到 later layer 之间直接连接，以此来解决这个问题。本文提出 densenet，将这种连接风格贯彻到底，网络结构如图1，</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/07/16/loss/#more" rel="contents">
+              <a class="btn" href="/2019/12/31/img_cls/densenet/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -586,7 +526,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/15/DeRPN/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/12/20/dp/DP4/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -600,7 +540,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/07/15/DeRPN/" class="post-title-link" itemprop="url">DeRPN</a>
+            <a href="/2019/12/20/dp/DP4/" class="post-title-link" itemprop="url">Dynamic Programming (3)</a>
         </h2>
 
         <div class="post-meta">
@@ -610,14 +550,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-07-15 15:04:18" itemprop="dateCreated datePublished" datetime="2019-07-15T15:04:18+08:00">2019-07-15</time>
+              <time title="创建时间：2019-12-20 20:13:18" itemprop="dateCreated datePublished" datetime="2019-12-20T20:13:18+08:00">2019-12-20</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-24 18:35:49" itemprop="dateModified" datetime="2020-04-24T18:35:49+08:00">2020-04-24</time>
+                <time title="修改时间：2020-04-24 18:33:06" itemprop="dateModified" datetime="2020-04-24T18:33:06+08:00">2020-04-24</time>
               </span>
 
           
@@ -631,10 +571,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>论文 <a href="https://arxiv.org/abs/1811.06700" target="_blank" rel="noopener">DeRPN: Taking a further step toward more general object detection</a></p>
+          <h2 id="1-库存问题"><a href="#1-库存问题" class="headerlink" title="1. 库存问题"></a>1. 库存问题</h2><p>一产品可通过生产或者购买获得，获得产品需要一定的成本，然后产品随着时间也会逐步被消耗掉。产品的库存也伴随着存储成本，而当需求未得到满足（供应不足，某个阶段库存为负表示消耗需求未得到满足）时也有一个惩罚损失。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/07/15/DeRPN/#more" rel="contents">
+              <a class="btn" href="/2019/12/20/dp/DP4/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -658,7 +598,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/11/cpp-aux-tools/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/12/07/DIP-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -672,7 +612,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/07/11/cpp-aux-tools/" class="post-title-link" itemprop="url">cpp-aux-tools</a>
+            <a href="/2019/12/07/DIP-2/" class="post-title-link" itemprop="url">数字图像处理（二）</a>
         </h2>
 
         <div class="post-meta">
@@ -682,14 +622,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-07-11 19:16:23" itemprop="dateCreated datePublished" datetime="2019-07-11T19:16:23+08:00">2019-07-11</time>
+              <time title="创建时间：2019-12-07 11:08:24" itemprop="dateCreated datePublished" datetime="2019-12-07T11:08:24+08:00">2019-12-07</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-07-21 17:12:50" itemprop="dateModified" datetime="2020-07-21T17:12:50+08:00">2020-07-21</time>
+                <time title="修改时间：2020-04-24 18:37:04" itemprop="dateModified" datetime="2020-04-24T18:37:04+08:00">2020-04-24</time>
               </span>
 
           
@@ -703,10 +643,13 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>来看一个 c++ 程序片段</p>
+          <blockquote>
+<p>参考教材《数字图像处理》(Gonzalez)</p>
+</blockquote>
+<h1 id="1-空间滤波"><a href="#1-空间滤波" class="headerlink" title="1. 空间滤波"></a>1. 空间滤波</h1><p>使用空间滤波器（也称空间掩模，核，窗口）直接作用于图像，得到当前位置的像素值，通过平移得到其他位置的像素值。熟悉深度学习中的卷积操作的话，不难理解这个概念。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/07/11/cpp-aux-tools/#more" rel="contents">
+              <a class="btn" href="/2019/12/07/DIP-2/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -730,7 +673,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/08/mask-rcnn/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/12/05/DIP-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -744,7 +687,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/07/08/mask-rcnn/" class="post-title-link" itemprop="url">mask-rcnn</a>
+            <a href="/2019/12/05/DIP-1/" class="post-title-link" itemprop="url">数字图像处理（一）</a>
         </h2>
 
         <div class="post-meta">
@@ -754,14 +697,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-07-08 17:39:57" itemprop="dateCreated datePublished" datetime="2019-07-08T17:39:57+08:00">2019-07-08</time>
+              <time title="创建时间：2019-12-05 11:37:39" itemprop="dateCreated datePublished" datetime="2019-12-05T11:37:39+08:00">2019-12-05</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-24 18:36:21" itemprop="dateModified" datetime="2020-04-24T18:36:21+08:00">2020-04-24</time>
+                <time title="修改时间：2020-04-24 18:36:56" itemprop="dateModified" datetime="2020-04-24T18:36:56+08:00">2020-04-24</time>
               </span>
 
           
@@ -775,10 +718,16 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>论文 <a href="https://arxiv.org/abs/1703.06870" target="_blank" rel="noopener">Mask R-CNN</a></p>
+          <blockquote>
+<p>根据教材《数字图像处理》(Gonzalez)</p>
+</blockquote>
+<h1 id="1-坐标变换"><a href="#1-坐标变换" class="headerlink" title="1. 坐标变换"></a>1. 坐标变换</h1><h2 id="1-1-仿射变换"><a href="#1-1-仿射变换" class="headerlink" title="1.1 仿射变换"></a>1.1 仿射变换</h2><p>特点：</p>
+<ol>
+<li>平直性：原图中的直线段在仿射变换后的图像中依然是直线段。</li>
+<li>平行性：原图中平行的两个线段在仿射变换后的图中依然是平行的
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/07/08/mask-rcnn/#more" rel="contents">
+              <a class="btn" href="/2019/12/05/DIP-1/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -802,7 +751,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/08/DSOD/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/11/01/pytorch/PyTorch-mtd/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -816,7 +765,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/07/08/DSOD/" class="post-title-link" itemprop="url">DSOD</a>
+            <a href="/2019/11/01/pytorch/PyTorch-mtd/" class="post-title-link" itemprop="url">PyTorch 方法总结</a>
         </h2>
 
         <div class="post-meta">
@@ -826,14 +775,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-07-08 09:14:40" itemprop="dateCreated datePublished" datetime="2019-07-08T09:14:40+08:00">2019-07-08</time>
+              <time title="创建时间：2019-11-01 11:26:25" itemprop="dateCreated datePublished" datetime="2019-11-01T11:26:25+08:00">2019-11-01</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-24 18:37:33" itemprop="dateModified" datetime="2020-04-24T18:37:33+08:00">2020-04-24</time>
+                <time title="修改时间：2020-04-24 18:35:09" itemprop="dateModified" datetime="2020-04-24T18:35:09+08:00">2020-04-24</time>
               </span>
 
           
@@ -847,10 +796,84 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>论文 <a href="https://arxiv.org/abs/1708.01241" target="_blank" rel="noopener">DSOD: Learning Deeply Supervised Object Detectors from Scratch</a></p>
+          <h1 id="1-Fold-Unfold"><a href="#1-Fold-Unfold" class="headerlink" title="1. Fold / Unfold"></a>1. Fold / Unfold</h1><h2 id="Fold"><a href="#Fold" class="headerlink" title="Fold"></a>Fold</h2><p>这是 torch.nn.Fold 类。</p>
+<p>首先我们来复习一下卷积过程，设输入 size 为 <code>(N,C,H,W)</code>，卷积 kernel size 为 <code>(C,h,w)</code>，碰撞系数为 <code>d</code>，padding 为 <code>p</code>，stride 记为 <code>s</code>，那么整个过程相当于将 <code>Cxhxw</code> 大小的数据块在输入数据中滑动，每一次滑动做一次卷积，记共有 <code>L</code> 次卷积，即，从输入数据中切分出 <code>L</code> 个数据块与卷积核做卷积，当然每个数据块的大小与卷积核相同，为 <code>(C,h,w)</code>，最后得到的输出 map 大小为</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/07/08/DSOD/#more" rel="contents">
+              <a class="btn" href="/2019/11/01/pytorch/PyTorch-mtd/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/09/09/pytorch/DL-env/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/09/09/pytorch/DL-env/" class="post-title-link" itemprop="url">深度学习环境搭建</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-09-09 16:38:11" itemprop="dateCreated datePublished" datetime="2019-09-09T16:38:11+08:00">2019-09-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-02-09 09:22:35" itemprop="dateModified" datetime="2021-02-09T09:22:35+08:00">2021-02-09</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文仅针对 ubuntu 系统进行讨论。</p>
+<p>搭建深度学习环境 tensorflow，pytorch 等，如需要 GPU 加速，一般选择安装 </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/09/09/pytorch/DL-env/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -873,7 +896,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -939,7 +962,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">71</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -952,7 +975,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

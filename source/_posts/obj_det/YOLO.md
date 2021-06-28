@@ -91,13 +91,13 @@ $$L_p=\sum_{i=1}^{S^2} \sum_{j=1}^B \sum_{c=1}^{20} \mathbf 1_{ij}^{obj} [\hat p
 
 __坐标损失__
 
-$$L_{box}=\lambda_{obj}^{coord} \sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{obj} (\hat x_{ij} - x_{ij})^2 + (\hat y_{ij} - y_{ij})^2+ (\hat w_{ij} - w_{ij})^2+ (\hat h_{ij} - h_{ij})^2 
-\\\\ + \lambda_{noobj}^{coord} \sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{noobj} (\hat x_{ij} - x_{ij}^a)^2 + (\hat y_{ij} - y_{ij}^a)^2+ (\hat w_{ij} - w_{ij}^a)^2+ (\hat h_{ij} - h_{ij}^a)^2$$
+$$\begin{aligned}L_{box}&=\lambda_{obj}^{coord} \sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{obj} (\hat x_{ij} - x_{ij})^2 + (\hat y_{ij} - y_{ij})^2+ (\hat w_{ij} - w_{ij})^2+ (\hat h_{ij} - h_{ij})^2 
+\\ &+ \lambda_{noobj}^{coord} \sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{noobj} (\hat x_{ij} - x_{ij}^a)^2 + (\hat y_{ij} - y_{ij}^a)^2+ (\hat w_{ij} - w_{ij}^a)^2+ (\hat h_{ij} - h_{ij}^a)^2 \end{aligned}$$
 
 __置信度损失__
 
-$$L_C=\lambda_{obj}^{conf}\sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{obj}[\hat C_{ij}-iou(\hat \text{box}_{ij}, \text{box}_{ij})]^2  
-\\\\+ \lambda_{noobj}^{conf}\sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{noobj}[\hat C_{ij}-0]^2$$
+$$\begin{aligned}L_C &=\lambda_{obj}^{conf}\sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{obj}[\hat C_{ij}-iou(\hat \text{box}_{ij}, \text{box}_{ij})]^2  
+\\&+ \lambda_{noobj}^{conf}\sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{noobj}[\hat C_{ij}-0]^2 \end{aligned}$$
 
 以上，带 ^ 表示 network 输出，带 a 表示 anchor，不带这两个修饰的表示 GT label。
 

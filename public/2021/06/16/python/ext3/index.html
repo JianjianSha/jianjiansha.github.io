@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="每个 Python 对象均是 PyObject* 的变体，PyObject 仅包含 引用计数 以及 类型对象的指针。因为 Python 是动态类型语言，每个对象自身包含了其类型，这个 类型对象决定了可以用 Python 解释器 对这个对象调用哪些函数，例如获取对象的属性，调用对象方法等。要定义一个新对象，需要创建一个新的类型对象。例子， 123456789101112131415161718192">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python C&#x2F;C++ Extension Type">
+<meta property="og:url" content="https://shajianjian.github.io/2021/06/16/python/ext3/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="每个 Python 对象均是 PyObject* 的变体，PyObject 仅包含 引用计数 以及 类型对象的指针。因为 Python 是动态类型语言，每个对象自身包含了其类型，这个 类型对象决定了可以用 Python 解释器 对这个对象调用哪些函数，例如获取对象的属性，调用对象方法等。要定义一个新对象，需要创建一个新的类型对象。例子， 123456789101112131415161718192">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-16T10:23:47.000Z">
+<meta property="article:modified_time" content="2021-06-17T09:25:34.573Z">
+<meta property="article:author" content="shajianjian">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/06/16/python/ext3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>python C/C++ Extension Type | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/16/python/ext3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          python C/C++ Extension Type
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-06-16 18:23:47" itemprop="dateCreated datePublished" datetime="2021-06-16T18:23:47+08:00">2021-06-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-17 17:25:34" itemprop="dateModified" datetime="2021-06-17T17:25:34+08:00">2021-06-17</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>每个 Python 对象均是 <code>PyObject*</code> 的变体，<code>PyObject</code> 仅包含 引用计数 以及 类型对象的指针。因为 Python 是动态类型语言，每个对象自身包含了其类型，这个 类型对象决定了可以用 Python 解释器 对这个对象调用哪些函数，例如获取对象的属性，调用对象方法等。要定义一个新对象，需要创建一个新的类型对象。例子，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PY_SSIZE_T_CLEAN</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;Python.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    PyObject_HEAD</span><br><span class="line">    <span class="comment">/* Type-specific fields go here. */</span></span><br><span class="line">&#125; CustomObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> PyTypeObject CustomType = &#123;</span><br><span class="line">    PyVarObject_HEAD_INIT(<span class="literal">NULL</span>, <span class="number">0</span>)</span><br><span class="line">    .tp_name = <span class="string">"custom.Custom"</span>,</span><br><span class="line">    .tp_doc = <span class="string">"Custom objects"</span>,</span><br><span class="line">    .tp_basicsize = <span class="keyword">sizeof</span>(CustomObject),</span><br><span class="line">    .tp_itemsize = <span class="number">0</span>,</span><br><span class="line">    .tp_flags = Py_TPFLAGS_DEFAULT,</span><br><span class="line">    .tp_new = PyType_GenericNew,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> PyModuleDef custommodule = &#123;</span><br><span class="line">    PyModuleDef_HEAD_INIT,</span><br><span class="line">    .m_name = <span class="string">"custom"</span>,</span><br><span class="line">    .m_doc = <span class="string">"Example module that creates an extension type."</span>,</span><br><span class="line">    .m_size = <span class="number">-1</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">PyMODINIT_FUNC</span><br><span class="line">PyInit_custom(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    PyObject *m;</span><br><span class="line">    <span class="keyword">if</span> (PyType_Ready(&amp;CustomType) &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    m = PyModule_Create(&amp;custommodule);</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    Py_INCREF(&amp;CustomType);</span><br><span class="line">    <span class="keyword">if</span> (PyModule_AddObject(m, <span class="string">"Custom"</span>, (PyObject *) &amp;CustomType) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        Py_DECREF(&amp;CustomType);</span><br><span class="line">        Py_DECREF(m);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码，首先定义了一个结构体，表示自定义对象，<br><code>CustomObject</code> 结构体中，<code>PyObject_HEAD</code> 是强制必须有的，且在结构体第一个位置，这个宏定义了 <code>ob_base</code> 字段，类型为 <code>PyObject</code>，这个字段中包含一个类型对象 <code>ob_type</code> 和一个引用计数 <code>ob_refcnt</code>，可以分别使用 <code>Py_TYPE</code> 和 <code>Py_REFCNT</code> 进行访问。<code>PyObject_HEAD</code> 之后可以列出类型的其他字段，例如</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    PyObject_HEAD</span><br><span class="line">    <span class="keyword">double</span> ob_fval;</span><br><span class="line">&#125; PyFloatObject;</span><br></pre></td></tr></table></figure>
+
+<p>然后是对象的类型定义（这个类型本身也是一个对象），</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyTypeObject CustomType = &#123;</span><br><span class="line">    PyVarObject_HEAD_INIT(<span class="literal">NULL</span>, <span class="number">0</span>)</span><br><span class="line">    .tp_name = <span class="string">"custom.Custom"</span>,</span><br><span class="line">    .tp_doc = <span class="string">"Custom objects"</span>,</span><br><span class="line">    .tp_basicsize = <span class="keyword">sizeof</span>(CustomObject),</span><br><span class="line">    .tp_itemsize = <span class="number">0</span>,</span><br><span class="line">    .tp_flags = Py_TPFLAGS_DEFAULT,</span><br><span class="line">    .tp_new = PyType_GenericNew,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这里使用的是 C99 的初始化风格，这样不用列出所有的字段，且不用考虑字段的顺序，实际上 <code>PyTypeObject</code> 有很多的字段，上面没有列出来的字段，均由编译器初始化为 <code>0</code>。如果不使用 C99 初始化风格，那么将会是，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyTypeObject CustomType = &#123;</span><br><span class="line">    PyVarObject_HEAD_INIT(<span class="literal">NULL</span>, <span class="number">0</span>)</span><br><span class="line">    <span class="string">"custom.Custom"</span>,</span><br><span class="line">    <span class="string">"Custom objects"</span>,</span><br><span class="line">    <span class="keyword">sizeof</span>(CustomObject),</span><br><span class="line">    <span class="number">0</span>,</span><br><span class="line">    ...</span><br><span class="line">    Py_TPFLAGS_DEFAULT,</span><br><span class="line">    PyType_GenericNew,</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>来依次分析，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PyVarObject_HEAD_INIT(NULL, 0)</span><br></pre></td></tr></table></figure>
+<p>这句是强制的，用于初始化 <code>ob_base</code>，这个宏是初始化可变对象的头部，宏定义为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#define PyVarObject_HEAD_INIT(type, size) 1, type, size,</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.tp_name &#x3D; &quot;custom.Custom&quot;, # 类型名</span><br><span class="line">.tp_basicsize &#x3D; sizeof(CustomObject),   # 指示如何分配内存</span><br><span class="line">.tp_itemsize &#x3D; 0,   # 可变大小的对象用到，不可变大小例如 bool，int，则为0</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.tp_new &#x3D; PyType_GenericNew,</span><br></pre></td></tr></table></figure>
+<p>提供一个 <code>tp_new</code> 句柄，等价于 <code>__new__()</code>，用于创建对象，<code>PyType_GenericNew</code> 是创建对象的默认实现。</p>
+<h2 id="添加数据成员和方法"><a href="#添加数据成员和方法" class="headerlink" title="添加数据成员和方法"></a>添加数据成员和方法</h2><p>参考<a href="https://docs.python.org/3.9/extending/newtypes_tutorial.html" target="_blank" rel="noopener">官方文档</a></p>
+<h1 id="循环垃圾回收"><a href="#循环垃圾回收" class="headerlink" title="循环垃圾回收"></a>循环垃圾回收</h1><p>循环垃圾回收机制使得 Python 可以识别 引用计数不为 0 但是已经不再需要的对象，并将其回收，例如</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>l = []</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>l.append(l)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">del</span> l</span><br></pre></td></tr></table></figure>
+<p>当删除 <code>l</code> 这个列表时，它仍然有引用，引用计数不为 0，但是 Python 的循环垃圾回收器可以识别并释放这个对象。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/06/16/python/ext2/" rel="prev" title="python C/C++ Extension（二）">
+      <i class="fa fa-chevron-left"></i> python C/C++ Extension（二）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/06/25/cpp/string/" rel="next" title="C++ 边学边忘——字符（串）">
+      C++ 边学边忘——字符（串） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#添加数据成员和方法"><span class="nav-number">1.</span> <span class="nav-text">添加数据成员和方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#循环垃圾回收"><span class="nav-number"></span> <span class="nav-text">循环垃圾回收</span></a></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

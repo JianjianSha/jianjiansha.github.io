@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="编码我们写的源码（source code）被保存在文件中，我们知道文件也是有编码格式的，例如打开微软的 VS 2019，新建一个C++ Console App，会自动生成一个 ConsoleApplication1.cpp 文件，这个文件的编码可以通过 VS 2019 的 “文件”菜单下的 “高级保存选项”命令进行设置（如果没有说明被 VS 隐藏了，请百度如何显示这个命令），默认是GB2312，可">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ 边学边忘——字符（串）">
+<meta property="og:url" content="https://shajianjian.github.io/2021/06/25/cpp/string/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="编码我们写的源码（source code）被保存在文件中，我们知道文件也是有编码格式的，例如打开微软的 VS 2019，新建一个C++ Console App，会自动生成一个 ConsoleApplication1.cpp 文件，这个文件的编码可以通过 VS 2019 的 “文件”菜单下的 “高级保存选项”命令进行设置（如果没有说明被 VS 隐藏了，请百度如何显示这个命令），默认是GB2312，可">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/cpp/string1.png">
+<meta property="article:published_time" content="2021-06-25T04:02:49.000Z">
+<meta property="article:modified_time" content="2021-06-28T08:41:49.112Z">
+<meta property="article:author" content="shajianjian">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/cpp/string1.png">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/06/25/cpp/string/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>C++ 边学边忘——字符（串） | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/25/cpp/string/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++ 边学边忘——字符（串）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-06-25 12:02:49" itemprop="dateCreated datePublished" datetime="2021-06-25T12:02:49+08:00">2021-06-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-28 16:41:49" itemprop="dateModified" datetime="2021-06-28T16:41:49+08:00">2021-06-28</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h1><p>我们写的源码（source code）被保存在文件中，我们知道文件也是有编码格式的，例如打开微软的 VS 2019，新建一个C++ Console App，会自动生成一个 <code>ConsoleApplication1.cpp</code> 文件，这个文件的编码可以通过 VS 2019 的 “文件”菜单下的 “高级保存选项”命令进行设置（如果没有说明被 VS 隐藏了，请百度如何显示这个命令），默认是<code>GB2312</code>，可以把它改为 <code>utf-8</code> 等。vscode 中也可以更改文件编码，通过 <code>ctrl+shift+p</code> 打开命令搜索框，然后输入 <code>encode</code> 关键词，就有 <code>Change File Encoding</code> 命令出来，然后 vscode 右下角 也出现 <code>UTF-8</code>、<code>CRLF</code> 等按钮，可以直接点击进行修改。</p>
+<p>这里强调一下，unicode 与 UTF-8 的关系，准确的讲，unicode 是字符集（也有编码，分 UCS2 和 UCS4 两种），UTF-8 是 unicode 的一种编码，是一种变长编码，但所覆盖的字符集范围与 unicode 是相同的，而 unicode 是定长编码，UTF-8 是为了便于传输（省流量）以及与 ASCII 兼容。编码 gb2312 与 UTF-8 两者对应的字符集不兼容。编码 GBK 兼容 gb2312，GBK 字符集是 gb2312 字符集的超集。编码 UTF-8 、GBK 和 gb2312 兼容 ASCII，而 unicode 不兼容 ASCII。关于字符集和编码的更多知识请百度。</p>
+<p>对于一个源文件，我们可以在 Windows 上使用 ultraedit 或 UEStudio 来查看文件的十六进制数据，在 Linux 上使用 vim 打开源文件后，使用命令 <code>:%!xxd</code>，切换到十六进制，也可以使用命令 <code>hexdump &lt;filename&gt; -C</code> 查看文件的 16 进制数据。</p>
+<blockquote>
+<p>使用 vim <code>:%!xxd</code> 查看文件 16 进制时，发现 gb2312 的文件总是会先被转换为 utf-8 编码，导致查看的都是 utf-8 编码的 16 进制，由于对 vim 不是特别熟悉，不知道是什么原因。</p>
+</blockquote>
+<p>现在我们需要搞清楚的是：编译器读取源文件，将源文件中的字符映射得到编译时的字符，这个编译时字符集称为 <code>源字符集</code>，经过映射的字符作为预处理阶段的输入，经过预处理后，字符串和字符常量会再转换为 <code>执行字符集</code>，保存在可执行文件中。这里的映射均由编译器实现定义。</p>
+<h2 id="源字符集"><a href="#源字符集" class="headerlink" title="源字符集"></a>源字符集</h2><p>Windows 上编译 C++ 使用 <code>cl.exe</code> 工具。默认使用当前活动页对应的编码作为 <code>源字符集</code>，可以使用 <code>chcp</code> 查看当前活动页，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> chcp</span></span><br><span class="line">Active code page: 936</span><br></pre></td></tr></table></figure>
+<p>936 对应编码 <code>gb2312</code>。我们举一个例子说明，例如代码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">wchar_t</span> c = <span class="string">L'好'</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用 vs 2019 创建 Console App 项目后，直接将上面代码替换掉自动生成的代码，这里默认的源文件编码方式为 <code>gb2312</code>，在系统开始菜单中找到 Visual Studio 2019 文件夹，然后打开 <code>Developer Command Prompt for VS 2019</code>，输入以下命令进行预处理，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> <span class="built_in">cd</span> myproj</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> cl main.cpp /E &gt; main-gb2312.i</span></span><br></pre></td></tr></table></figure>
+<p>得到预处理后的文件 <code>main-gb2312.i</code> 编码为 <code>gb2312</code>，可以检测其中的中文 <code>好</code> 被编码为 <code>BAC3</code>。</p>
+<p>当然我们还可以修改源文件的编码方式，在 VS 2019 文件菜单下的 “高级保存选项” 窗口，设置为 <code>UTF-8 with signature</code>，保存好后，再次执行预处理，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> cl main.cpp /E &gt; main-utf8-sig.i</span></span><br></pre></td></tr></table></figure>
+<p>得到预处理后的文件 <code>main-utf8-sig.i</code> 编码为 <code>gb2312</code>，可以检测其中的中文 <code>好</code> 被编码为 <code>BAC3</code>。</p>
+<p>but，如果将源文件编码改为 <code>UTF-8 without signature</code>，那么源文件将是 <code>UTF-8</code> 编码，且 <code>cl.exe</code> 无法识别，此时采用默认的 <code>gb2312</code> 进行解码，那么将会导致编译出现意想不到的结果，甚至无法通过编译。在以上这个例子中，<code>好</code> 的 UTF-8 编码为 <code>E5A5BD</code>，后面一个字符单引号 <code>&#39;</code> 的UTF-8 编码为 <code>27</code>，而 <code>E5A5</code> 被 gb2312 错误的识别为 <code>濂</code>， 剩余的一个字节 <code>BD</code> 将会与后面的字节 <code>27</code> 连起来，但是这不是一个有效的 gb2312 字符编码，所以无法识别，预处理阶段，将它替换为一个问好 <code>?</code> 的编码 <code>3F</code>，这导致丢失了单引号字符 <code>&#39;</code>。我们使用 VS 直接编译这个源文件，报错如下，</p>
+<p><img src="/images/cpp/string1.png" alt=""></p>
+<p>有的时候，如果源码中出现的中文 utf-8 的编码全部处于 gb2312 编码范围内，那就不会报错，但却被编译器错误的识别为其他字符，导致程序能生成，但是执行结果不对。</p>
+<p>那么，对于这个 <code>UTF-8 without signature</code> 的源文件，我们就无法处理了吗？</p>
+<p>显然不是，一个是修改系统的 CODE PAGE 为 65001，这样，<code>源字符集</code> 默认就改成 UTF-8，肯定是可以的，预处理后的文件也是 <code>UTF-8</code> 编码的，但是这种方法牵一发而动全身，我们选用另一个方法， 即，通过命令行选项 <code>\source-charset:utf-8</code> 指定，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> cl /<span class="built_in">source</span>-charset:utf-8 main.cpp /E &gt; main-gb2312.i</span></span><br></pre></td></tr></table></figure>
+
+<p>Linux 上，我们以 GCC 为例，默认的 <code>源字符集</code> 为 UTF-8，预处理命令为</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -E main.cpp -o main-utf8.i</span></span><br></pre></td></tr></table></figure>
+<p>查看 <code>main-utf8.i</code> ，发现中文 <code>好</code> 编码为 <code>E5A5BD</code>，这说明确实是 UTF-8 编码。</p>
+<p>使用 vscode 将源文件编码改为 <code>gb2312</code> ，继续执行命令 <code>gcc -E main.cpp -o main-gb2312.i</code>，查看 <code>main-gb2312.i</code>，发现中文 <code>好</code> 编码为 <code>BAC3</code>，这是 gb2312 编码，加入其他中文，发现全部都保留了 gb2312 编码，事实上，这是因为 gcc 默认按照 UTF-8 解码，在第一个单引号 <code>&#39;</code> 之后，遇到 <code>好&#39;</code>，其 gb2312 编码为 <code>BAC327</code>，但是 gcc 使用 UTF-8 解码时，被解码成一个<code>ڃ&#39;</code>，这是一个乱码后跟一个单引号，也就是说，<code>BAC3</code> 在 UTF-8 中是有对应字符的，所以本质上<font color="red">不是 gb2312 编码，而仍然是 UTF-8 编码</font>，将中文的 gb2312 编码按 UTF-8 解码势必出错，所以我们需要通过 gcc 的 <code>-finput-charset</code> 命令选项来指出源文件的编码，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -finput-charset=gb2312 -E main.cpp -o main-gb2312-ic.i</span></span><br></pre></td></tr></table></figure>
+<p>注意这个选项仅用于指出源文件编码，而生成的预处理文件 <code>main-gb2312-ic.i</code> 仍然是 UTF-8 编码，可以发现，中文 <code>好</code> 的编码为 <code>E5A5BD</code>。GCC 中 <code>源字符集</code> 为 UTF-8，本人暂时没有找到可以更改 gcc <code>源字符集</code> 的方法。</p>
+<blockquote>
+<p>查询 UTF-8 编码可使用 <a href="https://www.branah.com/unicode-converter" target="_blank" rel="noopener">https://www.branah.com/unicode-converter</a> ， 查询 gb2312 编码可使用 <a href="https://www.qqxiuzi.cn/bianma/zifuji.php" target="_blank" rel="noopener">https://www.qqxiuzi.cn/bianma/zifuji.php</a> 。</p>
+</blockquote>
+<h2 id="执行字符集"><a href="#执行字符集" class="headerlink" title="执行字符集"></a>执行字符集</h2><p>预处理之后进行编译，字符串和字符常量将会被转换为 <code>执行字符集</code>，根据<a href="https://docs.microsoft.com/en-us/cpp/build/reference/execution-charset-set-execution-character-set?view=msvc-160" target="_blank" rel="noopener">微软官方说明</a>，<code>执行字符集</code> 是对文本进行编码然后作为在预处理之后的后续编译阶段的输入。</p>
+<p>在 VS 上，可以使用 <code>/execution-charset:&lt;charset&gt;</code> 命令选项进行设置，在 GCC 上可以设置命令选项 <code>-fexec-charset=&lt;charset&gt;</code> ，对于宽字符，则需要设置 <code>-fwide-exec-charset=&lt;charset&gt;</code>。</p>
+<p>以 GCC 为例（Ubuntu 上），首先修改源码如下，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> c = <span class="string">'好'</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里变量 <code>c</code> 的类型改为 char 类型，然后编译，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c main.cpp -o main.o</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> objdump -Sr main.o</span></span><br><span class="line"></span><br><span class="line">f:  c6 45 ff bd    movb    $0xbd,-0x1(%rbp)</span><br></pre></td></tr></table></figure>
+<p>注意到 <code>0xbd</code> 就是 <code>好</code> 的 utf-8 编码 <code>E5A5BD</code> 的低位的第一个字节，因为 char 类型只能存储一个字节，其他字节被截掉。现在加上 <code>执行字符集</code> 命令选项，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c main.cpp -o main.o -fexec-charset=gb2312</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> objdump -Sr main.o</span></span><br><span class="line"></span><br><span class="line">f:  c6 45 ff c3     movb    $0xc3,-0x1(%rbp)</span><br></pre></td></tr></table></figure>
+<p>这里 <code>0xc3</code> 是 <code>好</code> 的 gb2312 编码 <code>BAC3</code> 的低位字节。现在将源码改为，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">wchar_t</span> c = <span class="string">'好'</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意这里字符字面量没有前缀 <code>L</code>，编译和反编译如下，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c main.cpp -o main.o</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> objdump -Sr main.o</span></span><br><span class="line"></span><br><span class="line">f:  c7 45 fc bd a5 e5 00    movl    $0xe5a5bd,-0x4(%rbp)</span><br></pre></td></tr></table></figure>
+<p>可见 <code>好</code> 编码为 UTF-8 的 <code>E5A5BD</code>。加上 <code>执行字符集</code> 命令选项，那么有</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c main.cpp -o main.o -fexe-charset=gb2312</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> objdump -Sr main.o</span></span><br><span class="line"></span><br><span class="line">f:  c7 45 fc c3 ba 00 00    movl    $0xbac3,-0x4(%rbp)</span><br></pre></td></tr></table></figure>
+
+<p>这与预料的一样，<code>好</code> 编码为 gb2312 的 <code>BAC3</code>。现在我们继续修改源码，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">wchar_t</span> c = <span class="string">L'好'</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不使用 <code>源字符集</code> 命令选项，结果为，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c main.cpp -o main.o</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> objdump -Sr main.o</span></span><br><span class="line"></span><br><span class="line">f:  c7 45 fc 7d 59 00 00    movl    $0x597d,-0x4(%rbp)</span><br></pre></td></tr></table></figure>
+<p>这个 <code>0x597d</code> 为 <code>好</code> 的 UTF-32 编码。不难想象，如果源码改为 <code>char = L&#39;好&#39;</code>，那么目标文件中只有 <code>好</code> 的 UTF-32 编码的低位字节，即 <code>7D</code>，这个可以自己试一下。</p>
+<p>这是因为带 <code>L</code> 前缀的字符（串）字面量的默认 <code>执行字符集</code> 为 <code>UTF-32</code> （我这里的 wchar_t 为 4 字节，如果是 2 字节，那么对应 <code>执行字符集</code> 为 <code>UTF-16</code>）。我们现在增加 <code>-fwide-exec-charset</code> 命令选项修改 <strong>宽</strong> 字符（串）字面量的 <code>执行字符集</code>，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c main.cpp -o main.o -fwide-exec-charset=gb2312</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> objdump -Sr main.o</span></span><br><span class="line"></span><br><span class="line">f:  c7 45 fc 00 00 ba c3   movl    $0xc3ba0000,-0x4(%rbp)</span><br></pre></td></tr></table></figure>
+<p>可见确实将宽字符编码为 <code>gb2312</code>。</p>
+<p>总结：</p>
+<ol>
+<li><code>-fexec-charset</code> 改变窄字符（例如 <code>&#39;好&#39;</code>）的字符集</li>
+<li><code>-fwide-exec-char</code> 改变宽字符（带前缀 <code>L</code>）的字符集</li>
+<li>GCC 默认，窄字符的 <code>执行字符集</code> 为 <code>UTF-8</code>，宽字符的 <code>执行字符集</code> 为 <code>UTF-32</code></li>
+</ol>
+<p>可以使用如下源码试一试，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">wchar_t</span> c = <span class="string">L'好'</span>;      <span class="comment">// -fwide-exec-charset=gb2312</span></span><br><span class="line">    <span class="keyword">wchar_t</span> d = <span class="string">'好'</span>;       <span class="comment">// -fexec-charset=gb2312</span></span><br><span class="line">    <span class="keyword">char32_t</span> e = <span class="string">U'好'</span>;     <span class="comment">// 宽字符，对应 -fwide-exec-charset 命令选项</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h1><p>本节内容以 GCC 作为编译器进行讨论说明。现在我们来看字符（串）的输出。给出测试代码如下，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">wchar_t</span> a = <span class="string">L'好'</span>;</span><br><span class="line">    <span class="keyword">char32_t</span> b = <span class="string">U'好'</span>;</span><br><span class="line">    <span class="keyword">char</span> c = <span class="string">'好'</span>;</span><br><span class="line">    <span class="keyword">int</span> d = <span class="number">0x597D</span>;</span><br><span class="line">    <span class="keyword">wint_t</span> e = <span class="number">0x597D</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"a-&gt;%c, b-&gt;%c, c-&gt;%c, d-&gt;%c, e-&gt;%c\n"</span>, a, b, c, d, e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>生成命令如下，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> g++ main.cpp -o main</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./main</span></span><br><span class="line"></span><br><span class="line"><span class="meta">a-&gt;</span><span class="bash">&#125;, b-&gt;&#125;, c-&gt;?, d-&gt;&#125;, e-&gt;&#125;</span></span><br></pre></td></tr></table></figure>
+<p><code>c</code> 打印为乱码（这里乱码使用 问号 <code>?</code> 表示，这里乱码仅指无法识别为 ASCII 和 中文的意思），<code>a,b,d,e</code> 打印为右大括号 <code>}</code>，这很好理解，参考 <a href="http://www.cplusplus.com/reference/cstdio/printf/" target="_blank" rel="noopener">printf 函数格式串说明</a>，<code>a,b</code> 在执行文件中才有 UTF-32 编码 <code>597D</code>，与 <code>d,e</code> 相同，在格式化过程时先被转换为了 char 类型，即 <code>7D</code>，这是 <code>}</code> 的 ASCII。<code>c</code> 保存了 <code>好</code> 的 UTF-8 编码的低位字节（GCC 中窄字符采用 UTF-8 编码）， 为 <code>BD</code>（等效于设置 <code>char c = 0xBD</code>），超出了 <code>%c</code> 的有效范围（127），在 ASCII 的扩展字符集（即 128~255）中才有，我们应该明确避免这种打印超过范围字符。可以改为 <code>wchar_t c=0xBD</code>，并使用 <code>%lc</code> 来打印这个 ASCII 扩展字符，同样的 <code>好</code> 的编码值也超出了 <code>char</code> 类型的有效范围，故上面使用 <code>wchar_t</code> 类型变量保存，同时也应该改为使用 <code>%lc</code> 打印。这里需要说明，C 程序执行时默认使用标准的 <code>C</code> locale，这个 locale 使得在终端上无法正常显示宽字符，而显示乱码，可以增加 locale 设置语句，可以使用指令 <code>locale</code> 查看系统相关配置，打印代码如下，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;wchar.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    setlocale(LC_CTYPE, <span class="string">""</span>);</span><br><span class="line">    <span class="keyword">wchar_t</span> a = <span class="string">L'好'</span>;</span><br><span class="line">    <span class="keyword">char32_t</span> b = <span class="string">U'好'</span>;</span><br><span class="line">    <span class="keyword">wchar_t</span> c = <span class="number">0xBD</span>;   <span class="comment">// ASCII 扩展字符</span></span><br><span class="line">    <span class="keyword">int</span> d = <span class="number">0x597D</span>;</span><br><span class="line">    <span class="keyword">wint_t</span> e = <span class="number">0x597D</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"a-&gt;%lc, b-&gt;%lc, c-&gt;%c, d-&gt;%lc, e-&gt;%lc\n"</span>, a, b, c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果为 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a-&gt;好, b-&gt;好, c-&gt;½, d-&gt;好, e-&gt;好</span><br></pre></td></tr></table></figure>
+
+<p>注意这里打印 <code>c</code> 变量使用 <code>%lc</code>，以宽字符形式打印，打印结果为 <code>½</code>（分数 1/2），可以查看 <a href="https://www.w3school.com.cn/charsets/ref_html_8859.asp" target="_blank" rel="noopener">扩展 ASCII 表</a>。另外注意到 <code>好</code> 使用 unicode 编码值 <code>597D</code>，所以如果 <code>wchar_t c=0xE5A5BD</code>（ UTF-8 编码值），那么将无法在终端正确打印 <code>好</code>。可能有人会好奇，前面说 GCC 中 <code>exec-charset</code> 默认为 <code>UTF-8</code>，为什么 <code>UTF-8</code> 编码值就无法用来打印字符呢？</p>
+<p>因为 <code>exec-charset</code> 是对应窄字符的，所以不能使用 <code>%lc</code> 来打印，但是我们可以使用 <code>%s</code> 来打印，即打印字符串，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;locale.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;wchar.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    setlocale(LC_CTYPE, <span class="string">""</span>);    <span class="comment">// 设置系统当前 locale</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">wchar_t</span>* a = <span class="string">L"好"</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char32_t</span>* b = <span class="string">U"好"</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* c = <span class="string">"好"</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* d = <span class="string">"\xE5\xA5\xBD"</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> e[<span class="number">4</span>] = &#123;<span class="number">0xE5</span>, <span class="number">0xA5</span>, <span class="number">0xBD</span>&#125;;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> f[<span class="number">4</span>] = &#123;<span class="string">'\xE5'</span>, <span class="string">'\xA5'</span>, <span class="string">'\xBD'</span>&#125;;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"a-&gt;%ls, b-&gt;%ls, c-&gt;%s, d-&gt;%s, e-&gt;%s, f-&gt;%s\n"</span>, a, b, c, d, e, f);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，<code>c</code> 对应 <code>%s</code>，用于打印窄字符，而 <code>a,b</code> 均需要用 <code>%ls</code> 来打印宽字符（否则无法正确打印），我们不能搞混，否则可能无法正常打印。</p>
+<p>结果为 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a-&gt;好, b-&gt;好, c-&gt;好, d-&gt;好, e-&gt;好, f-&gt;好</span><br></pre></td></tr></table></figure>
+
+<p>上面，<code>d,f</code> 是字符串 <code>&quot;好&quot;</code> 的 16 进制表示（UTF-8 编码），<code>e</code> 存储了 <code>好</code> 和 <code>\0</code> 两个字符，其中 <code>好</code> 依然是 UTF-8 编码。<code>d,e,f</code> 变量的字符串打印使用 <code>%s</code>，如上结果所示，可正常打印。此外，<code>d,f</code> 可以直接打印，即 <code>printf(d);printf(f);</code>。</p>
+<blockquote>
+<ol>
+<li>可以使用 printf(“%x\n”, a); 打印一个字符变量的 16 进制值。</li>
+</ol>
+</blockquote>
+<blockquote>
+<ol start="2">
+<li>GCC 中不要混用 <code>printf</code> 和 <code>wprintf</code>，相关知识点可搜索 <code>fwide</code> 函数.</li>
+</ol>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/06/16/python/ext3/" rel="prev" title="python C/C++ Extension Type">
+      <i class="fa fa-chevron-left"></i> python C/C++ Extension Type
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#编码"><span class="nav-number">1.</span> <span class="nav-text">编码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#源字符集"><span class="nav-number">1.1.</span> <span class="nav-text">源字符集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#执行字符集"><span class="nav-number">1.2.</span> <span class="nav-text">执行字符集</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#输出"><span class="nav-number">2.</span> <span class="nav-text">输出</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

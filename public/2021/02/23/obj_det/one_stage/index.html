@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="YOLOv1 one-stage detector  unified detection：image 经过网络得到 SxS 大小的 feature map，相当于把 image 划分为 SxS 的 grid，如果其中目标中心落于某个 grid cell，那么这个 grid cell 负责预测这个目标，网络最终的输出为 S*S*(C+B*5)，其中 C 表示分类数量，最多 B 个目标中心落于同一个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="One-stage Object Detection">
+<meta property="og:url" content="https://shajianjian.github.io/2021/02/23/obj_det/one_stage/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="YOLOv1 one-stage detector  unified detection：image 经过网络得到 SxS 大小的 feature map，相当于把 image 划分为 SxS 的 grid，如果其中目标中心落于某个 grid cell，那么这个 grid cell 负责预测这个目标，网络最终的输出为 S*S*(C+B*5)，其中 C 表示分类数量，最多 B 个目标中心落于同一个">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-02-23T02:36:44.000Z">
+<meta property="article:modified_time" content="2021-02-26T07:41:20.627Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="Object Detection">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/02/23/obj_det/one_stage/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>One-stage Object Detection | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/02/23/obj_det/one_stage/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          One-stage Object Detection
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-23 10:36:44" itemprop="dateCreated datePublished" datetime="2021-02-23T10:36:44+08:00">2021-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-02-26 15:41:20" itemprop="dateModified" datetime="2021-02-26T15:41:20+08:00">2021-02-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="YOLOv1"><a href="#YOLOv1" class="headerlink" title="YOLOv1"></a>YOLOv1</h1><ol>
+<li><p>one-stage detector</p>
+</li>
+<li><p>unified detection：image 经过网络得到 <code>SxS</code> 大小的 feature map，相当于把 image 划分为 <code>SxS</code> 的 grid，如果其中目标中心落于某个 grid cell，那么这个 grid cell 负责预测这个目标，网络最终的输出为 <code>S*S*(C+B*5)</code>，其中 C 表示分类数量，最多 B 个目标中心落于同一个 grid cell，每个 box 有 4 个坐标和 1 个 conf，这个 conf 表示预测 box 包含目标的置信度，也可以认为是预测 box 与 gt box 的 IOU。C 个预测值表示在此处有目标时的条件概率值，<code>Pr(Classi|Object)</code>，这里分类条件概率与 box 数量 <code>B</code> 无关。测试阶段，分类类型相关的 conf 值则为<br> $$Pr(Class_i|Object) * P(conf)$$</p>
+</li>
+<li><p>没有 SSD 中的 default box，也没有 Faster R-CNN 中的 anchor/proposal，YOLO 直接在 feature map 上每个点预测 box 坐标和分类概率，所以还需要一个 conf，表示预测 box 包含目标的置信度</p>
+</li>
+<li><p>文中input image size 为 <code>448x448</code>，经过6次下采样，得到<code>7x7</code>的feature，通过一个 fully connection（输出unit数量 <code>1470=7*7*30</code>），得到feature 上所有 box 的预测坐标、conf 以及分类得分</p>
+</li>
+<li><p>在 feature map 上使用 fully connection生成每个 grid cell 的预测数据，其中 (x,y) 表示预测目标中心坐标，这是归一化的，且表示<b>距所在 cell 的左端和上端的距离</b>。</p>
+</li>
+</ol>
+<h1 id="YOLOv2"><a href="#YOLOv2" class="headerlink" title="YOLOv2"></a>YOLOv2</h1><p>YOLOv1 虽然是 fast 的，但是比起 SOTA 检测系统，缺点在于定位错误较明显，相较于 region proposal-based 的检测方法，YOLOv1 的 recall 低。YOLOv2 中对其进行改善，使用了：</p>
+<ol>
+<li><p>Batch Normalization。</p>
+</li>
+<li><p>High Resolution<br> <br> YOLOv1 中baseline 分类预训练时 image size 为 <code>224x224</code>，然后迁移到检测数据集上训练时，image size 为 <code>448x448</code>，这种输入大小的突变对目标检测不友好，所以训练过程中一直调整输入大小，使得网络适应以增加稳定性，具体策略为：每隔 10 个训练 batch，调整输入大小为</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int dim &#x3D; (rand() % 10 + 10) * 32</span><br></pre></td></tr></table></figure>
+<p> 保证输入大小是 32 的整数倍，YOLOv2 中有 5 次下采样，这是匹配的。YOLOv1 有 6 次下采样，这里去掉一次下采样，为了使feature 具有 higher resolution，而这又是为了配合下面的 anchor box，在feature 上每个 position 使用一组 anchor box 来预测，可以降低定位误差。</p>
+</li>
+<li><p>Convolution with Anchor Boxes<br> <br> 参考 Faster R-CNN 中的 RPN，使用 anchor box。feature 上每个 position 使用大小形状不同的 k 个 anchor 进行预测，k 的取值以及各 anchor 的大小形状，根据数据集中gt box 聚类（k-means）计算得到，聚类使用的距离采用 IOU，</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">d(anchor, cluster-center)&#x3D;1-IOU(anchor, cluster-center)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Direct location prediction<br> <br> 基于 region proposal 的位置预测过程为：记位置预测值 $(t_x, t_y)$ 为相对offset，根据anchor box坐标，计算最终预测box 中心坐标为<br> $$x=t_x \cdot w_a+x_a, \quad y=t_y \cdot h_a + y_a$$<br> 在训练开始阶段，由于是随机初始化模型参数，上式会导致预测 box 位置与 anchor 偏差很大，这会使得训练要花很长一段时间才能使得 box 的预测位置稳定下来（<b>注意：不使用上式</b>）。YOLOv2 沿用 YOLOv1 中预测中心坐标与所在 cell 的左边线和上边线的距离，这样偏差就不会很大，设cell <code>(i,j)</code> 处的某个 anchor 对应的坐标预测值记为 $t_x, t_y, t_w, t_h$，feature 大小为 $(w_f, h_f)$，anchor 基于 feature 的宽高为 $(w_a,h_a)$，那么计算预测 box 的实际归一化坐标为<br> $$x=(i+t_x)/w_f$$<br> $$y=(j+t_y)/h_f$$<br> $$w=\exp(t_w) \cdot w_a/w_f$$<br> $$h=\exp(t_h) \cdot h_a/h_f$$</p>
+</li>
+</ol>
+<p>每个 box 均有 5 个坐标预测值（包括 4 个坐标偏差和 1 个是否包含目标的 conf）和 C 个分类得分预测值，最终输出大小则为 $k \cdot s \cdot s \cdot (5+C)$，其中 k 为 anchor 数量。</p>
+<h1 id="YOLOv3"><a href="#YOLOv3" class="headerlink" title="YOLOv3"></a>YOLOv3</h1><p>主要是借鉴别的好的 idea 整合到 YOLO 里面来。</p>
+<ol>
+<li><p>沿用 YOLOv2 中 anchor box，使用聚类得到 k 个 anchor，每个 anchor 预测 4 个坐标 offset，1 个 objectness conf，以及 C 个分类概率。坐标 offset 的计算与 YOLOv2 中相同</p>
+</li>
+<li><p>与 gt box 有最大 IOU 的 anchor 的 conf target 值为 1，而其他非最佳 IOU 但是 IOU 大于某个阈值（0.5）的 anchor 则被忽略。IOU 低于 0.5 的则为负例 anchor，负例 anchor 只需要计算 conf 损失，不需要计算坐标 offset 损失和分类损失。</p>
+</li>
+<li><p>YOLOv3 在三个 scale 的 feature 上进行预测，YOLOv1 和 YOLOv2 均只有单个 scale 的 feature。这是为了借鉴 FPN 的思想。由于有了 multi-scale 的 features，每个 feature 上的每个 position 处只预测 3 个 anchor boxes，假设某个 feature size 为 <code>NxN</code>，那么预测 tensor 为 <code>NxNx[3*(4+1+C)]</code>，其中 C 为 foreground 分类数量。</p>
+</li>
+<li><p>Baseline 结构如 darknet-53 所示，用于抽取 feature，在 ImageNet 上预训练。目标检测网络结构如 yolov3.cfg 配置文件中所示。借鉴了 ResNet 中 shortcut 技巧（主要也是因为网络更 deep 了）。聚类得到 9 个 anchor size，然后按大小排序，每 3 个一组作为对应 scale feature 上所用的 anchor。</p>
+</li>
+</ol>
+<h1 id="SSD"><a href="#SSD" class="headerlink" title="SSD"></a>SSD</h1><ol>
+<li>baseline: VGG 等</li>
+<li>one-stage detector。与 Faster R-CNN 相比，省去了 proposals 生成过程，而是在 feature map 上每个 position 有一组 prior box（k 个），然后 feature maps 上使用具有 <code>(c+4)k</code> filters 的 conv，而非 fully connection，进行预测输出，每个position 输出 <code>(c+4)k</code> 个值，表示预 c 个分类得分，和此处 box 的坐标 offsets。同时，使用 multi scale 的 feature maps，以覆盖多个不同大小级别的目标预测。</li>
+<li>论文中针对 300x300 的输入图像，一共使用了 6 个不同 scale 的 feature，每个 feature 上的各点生成 prior box 的数量为 <code>4,6,6,6,4,4</code>，因为认为数据集中，中间 scale 的目标数量要多一些。各 feature 的边长为 <code>38, 19, 10, 5, 3, 1</code>，单个 image 上所有 prior box 数量为 <code>(38*38+3*3+1*1)*4+(19*19+10*10+5*5)+6=8732</code></li>
+<li>由于使用 multi scale feature maps，所以不同 level 的 feature 负责不同大小的目标检测，假设共 m 个不同 scale 的 feature（文中 m=6），那么每个 level 的 feature 上的 default box 的基础边长为<br> $$s_k=s_{min}+\frac {s_{max}-s_{min}}{m-1}(k-1), \ k \in [1,m]$$<br> 其中最小最大边长为 <code>[min, max]=[0.2, 0.9]</code>，所有不同 scale 的边长 s 均匀散落在这个区间上</li>
+<li>一个image上的 default box 数量非常多（第3点中指出高达 8732个），其中匹配的 default box是指与 gt 有最大 IOU 或者 IOU &gt; 0.5 的那些，称为正例，其余的为负例，显然负例会特别多，导致数据 unbalanced，所以将负例按 conf 预测损失倒序排列，选择 top N 的负例，这里 N 取正例数量的 3 倍，每个 level 的 feature 独立进行这种 hard negative mining</li>
+</ol>
+<h1 id="DSSD"><a href="#DSSD" class="headerlink" title="DSSD"></a>DSSD</h1><p>在 SSD 的基础上增加 deconvolution layer，具体是对 SSD 中用于预测所有 level 的 feautre，自顶向下，最顶 level 的 feature 上使用一个 prediction module 进行预测，然后这个 feature 经过 deconvolution，再与 SSD 中 resolution 更大一级的 feature 进行融合，然后使用 prediction module 进行预测，上一个融合后的 feature 再经 deconvolution，与 SSD 中 resolution 更大一级的 feature 进行融合，递归进行这个过程，直到原 SSD 中所有 level 的 feature 均进行了融合和预测，整个网络形成一个 hour-glass 结构，也就是 “encoder-decoder”。这与 FPN 其实很类似，只是这个 top-down 模块中的 upsample 换成了 deconvolution。</p>
+<h1 id="RetinaNet-Focal-Loss"><a href="#RetinaNet-Focal-Loss" class="headerlink" title="RetinaNet(Focal Loss)"></a>RetinaNet(Focal Loss)</h1><h2 id="Loss"><a href="#Loss" class="headerlink" title="Loss"></a>Loss</h2><p>one-stage 速度更快，结构更简单，但是比起 two-stage，准确率还差的不少，其中一个原因是 one-stage 使用了密集 location 采样，这就导致 fg-bg 分类不均衡，本文使用 Focal Loss，通过附加低权重，降低已经分类好的样本的对 loss 的贡献，从而 focus on hard examples。</p>
+<blockquote>
+<p>他方法如 OHEM 等也可以解决 one-stage 中的分类不平衡问题</p>
+</blockquote>
+<h3 id="Balanced-Cross-Entropy"><a href="#Balanced-Cross-Entropy" class="headerlink" title="Balanced Cross Entropy"></a>Balanced Cross Entropy</h3><p>$$CE(p,y)=\begin{cases} - \alpha \log p &amp; y=1 \ -(1-\alpha) \log(1-p) &amp; y=0\end{cases}$$<br>其中 $\alpha \in [0, 1]$，其值可取类频数的倒数，例如数据集大小 N，fg 数量为 $N_1$，bg 数量为 $N_0$（$N=N_1+N_0$），那么<br>$\alpha=\frac {N_0} N$，表示增大正例的损失贡献。</p>
+<h3 id="Focal-Loss"><a href="#Focal-Loss" class="headerlink" title="Focal Loss"></a>Focal Loss</h3><p>$$FL(p,y)=\begin{cases} - （1-p)^{\gamma} \log p &amp; y=1 \ -p^{\gamma} \log(1-p) &amp; y=0\end{cases}$$<br>其中 $\gamma&gt;0$。</p>
+<p>记<br>$$p_t=\begin{cases} p &amp; y=1 \ 1-p &amp; y=0\end{cases}$$<br>$$\alpha_t=\begin{cases} \alpha &amp; y=1 \ 1-\alpha &amp; y=0\end{cases}$$</p>
+<p>于是 $\alpha$ balanced CE 损失为<br>$$CE(p_t)=-\alpha_t \log(p_t)$$</p>
+<p>Base Focal Loss 为<br>$$FL(p_t)=-(1-p_t)^{\gamma} \log (p_t)$$</p>
+<p>$\alpha$ balanced Focal Loss 为<br>$$FL(p_t)=-\alpha_t (1-p_t)^{\gamma} \log (p_t)$$</p>
+<h2 id="RetinaNet"><a href="#RetinaNet" class="headerlink" title="RetinaNet"></a>RetinaNet</h2><p>为了验证 Focal Loss 的有效性，设计了这个 RetinaNet。Focal Loss 用在 Classification Subnet 中。</p>
+<p><strong>backbone:</strong> FPN on ResNet。使用 $P_3 \sim P_7$ level 的 feature，其中 $P_3 \sim P_5$ 由 ResNet 的 $C_3 \sim C_5$ 获得，然后再使用一个 $3 \times 3$-s2 的 conv（无 ReLU） 得到 $P_6$，最后使用 ReLU + $3 \times 3$-s2 conv 得到 $P_7$。$P_l$ feature 的 stride 是 $2^l$，每个 feature 均为 C=256 channels。feature 上 anchor 的 base size 为 $2^{l+2}$，每个 position 有 9 个 anchors，aspect ratio 由配置给出，每个 anchor 均有 K 个分类得分（包含了背景），4 个位置坐标。</p>
+<p>$IOU \ge 0.5$ 的为 正 anchor，$IOU &lt; 0.4$ 的为负 anchor，$0.4 \le IOU &lt; 0.5$ 的 anchor 忽略，不参加训练。正 anchor 与 对应的 gt box 之间计算 offset，作为 box regression target，classification target 则为 one-hot vector，向量中 anchor 所对应的目标分类的 entry 为 1， 其余 entry 为 0。</p>
+<p>backbone 后接两个 subnetworks：用于分类和 box 回归（每个 level 的 feature 上均如此）。</p>
+<p><strong>Classification Subnet:</strong> 这是一个 FCN 子网络，参数在所有 pyramid level 之间共享。在 pyramid feature 上，使用 4 个 <code>3x3</code> conv，每个 conv 均有 C=256 个 filters，且每个 conv 后跟一个 ReLU，然后是一个 <code>3x3</code> 的 conv，有 <code>KA</code> 个 filters，其中 K 为分类数量，A 为 anchor 数量。这个子网络比 RPN 有更 deep 的结构，文中发现，这种设计比某些超参数的选择还要重要。</p>
+<p><strong>Box Regression Subnet:</strong> 与 Classification Subnet 结构类似，只是最后一个 conv 的 filters 数量为 <code>4A</code>。</p>
+<p>这两个 subnet 的结构就像天线一样位于 FPN 之上，故称 RetinaNet。</p>
+<p>以前使用 heuristic sampling（RPN）或 hard example mining(OHEM, SSD) 来选择 mini-batch（数量为 256）的 anchors，但是这里使用 Focal Loss，单个 image 上的 anchor 数量达到 ~100k（正例 anchor 与 负例 anchor 之和），总的 focal loss 则是这所有 anchor 上 Focal Loss 之和，并除以正例 anchor 数量。</p>
+<h1 id="STDN"><a href="#STDN" class="headerlink" title="STDN"></a>STDN</h1><p>Scale-Transferrable Detection Network，为了解决目标 scale 多样性的问题。</p>
+<p>主流的目标检测方法中， Faster RCNN 中只有单一 scale 的 feature，其 receptive field 是固定的，而目标的 scale 和 aspect ratio 则是各不相同的，所以存在不一致问题。 SSD 在不同 depth 的 layer 的 feature 上预测，anchor 的 scale 与 feature 的 scale 有关，这一定程度上解决了目标 scale 多样性的问题，但是在小目标上表现并不好，因为 low feature 用于预测小目标，而 low feature 的语义性较弱，于是使用 FPN，通过径向连接和 top-down 模块，将高层 feature 与低层 feature 融合，使得低层特征在保持更多细节信息的同时，兼具语义特征，FPN 缺点在于需要谨慎地构建 feature pyramids，并且 FPN 网络结构带来了一定的计算负担（FPN 是在 Faster RCNN 基础上将 baseline 增加 FPN 结构，所以是一个 two-stage 检测器）。</p>
+<p>STDN 以 DenseNet 为 baseline，利用了 DenseNet 中高低层 feature concatenation 的特性，使得 feature 具有更强的表征能力。在 DenseNet 最后一个 DenseBlock 的最后一个 Layer 之上， 使用Scale-Transfer Module（STM），获得 multi scale features，用于预测，STM 没有参数，不会引入很多计算负担。</p>
+<ol>
+<li><p>使用 DenseNet-169 为 baseline (growth rate=32)</p>
+</li>
+<li><p>将 stem block 改为 3 个 <code>3x3</code> 的 conv 和一个 <code>2x2</code> 的 mean-pooling，其中第一个 <code>3x3</code> conv 的 stride=2。原来 DenseNet 中采用 <code>7x7-s2</code> 和 <code>3x3-s2</code> 的 conv，我们认为大卷积核和连续的下采样对检测小目标的准确性不利。</p>
+</li>
+<li><p>当 input size 为 <code>300x300</code>，DenseNet 的 输出 feature size 为 <code>9x9</code>。</p>
+</li>
+<li><p>网络结构为 stem –&gt; DB1 –&gt; T1 –&gt; DB2 –&gt; T2 –&gt; DB3 –&gt; T3 –&gt; DB4 =&gt; STM，其中 DB 表示 DenseBlock，T 表示 Transition Layer。T3 输出为 <code>640x9x9</code>，STM 包含 6 个 scale 的 features，如下表所示</p>
+<table>
+<thead>
+<tr>
+<th>output size</th>
+<th>layer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>800x1x1</td>
+<td>9x9 mean-pool, stride 9 (Input DB4_concat5)</td>
+</tr>
+<tr>
+<td>960x3x3</td>
+<td>3x3 mean-pool, stride 3 (Input DB4_concat10)</td>
+</tr>
+<tr>
+<td>1120x5x5</td>
+<td>2x2 mean-pool, stride 2 (Input DB4_concat15)</td>
+</tr>
+<tr>
+<td>1280x9x9</td>
+<td>Identity layer (Input DB4_concat20)</td>
+</tr>
+<tr>
+<td>360x18x18</td>
+<td>2x scale-transfer layer (Input DB4_concat25)</td>
+</tr>
+<tr>
+<td>104x36x36</td>
+<td>4x scale-transfer layer (Input DB4_concat32)</td>
+</tr>
+</tbody></table>
+<p> 已知 DenseBlock 中第 $l$ 个 layer 的 output channen 为 $k_0+l*32$，那么上表中第一个 layer 为 <code>9x9</code> 的均值池化层，输出为最小 scale 的 feature，输出 size 为 <code>800x1x1</code>，这个 layer 的输入为 DB4 中第 5 个 layer 的 output，根据公式其输出 channel 为 $640+5\times 32=800$。其他 layer 的输入也是 DB4 中某个 layer 的输出。</p>
+<ul>
+<li>Identity layer 表示输出就是输入本身</li>
+<li>scale-transfer layer 表示将输入的 channel 压缩 $r^2$ 倍（$r \times$ scale-transfer layer），而 $W, H$ 则均增大 $r$ 倍，rearrange 公式为，<br>  $$I_{x,y,c}^{SR}=I_{\lfloor x/r \rfloor,\lfloor y/r \rfloor, r\cdot mod(y,r)+mod(x,r)+c\cdot r^2}^{LR}$$</li>
+</ul>
+</li>
+<li><p>每个 scale 的 feature 分别根据 dense anchor 进行预测，anchor 与 gt box 匹配标准为：有最大 IOU 或者 IOU &gt; 0.5，其余 anchor 为负例，根据 hard negative mining 使得正负例数量比为 <code>1:3</code>。</p>
+</li>
+<li><p>抽取的 feature 分两路，分别到分类分支和 box 回归分支。分类分支由一个 <code>1x1</code> conv 和两个 <code>3x3</code> conv 组成，每个 conv 后接 BN+ReLU，最后一个 conv 的 channel 为 <code>KA</code>，其中 K 为分类数量（fg 数量 + 一个 bg），A 为每个 position 预测的 anchor 数量。回归分支的结构与分类分支相同，只是最后一个 conv 的 channel 为 <code>4A</code>。</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Object-Detection/" rel="tag"># Object Detection</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/20/obj_det/two_stage/" rel="prev" title="Two-stage Object Detection">
+      <i class="fa fa-chevron-left"></i> Two-stage Object Detection
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/02/25/obj_det/anchor_free/" rel="next" title="Anchor-free Object Detection">
+      Anchor-free Object Detection <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLOv1"><span class="nav-number">1.</span> <span class="nav-text">YOLOv1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLOv2"><span class="nav-number">2.</span> <span class="nav-text">YOLOv2</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLOv3"><span class="nav-number">3.</span> <span class="nav-text">YOLOv3</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SSD"><span class="nav-number">4.</span> <span class="nav-text">SSD</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DSSD"><span class="nav-number">5.</span> <span class="nav-text">DSSD</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RetinaNet-Focal-Loss"><span class="nav-number">6.</span> <span class="nav-text">RetinaNet(Focal Loss)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Loss"><span class="nav-number">6.1.</span> <span class="nav-text">Loss</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Balanced-Cross-Entropy"><span class="nav-number">6.1.1.</span> <span class="nav-text">Balanced Cross Entropy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Focal-Loss"><span class="nav-number">6.1.2.</span> <span class="nav-text">Focal Loss</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RetinaNet"><span class="nav-number">6.2.</span> <span class="nav-text">RetinaNet</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#STDN"><span class="nav-number">7.</span> <span class="nav-text">STDN</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

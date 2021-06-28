@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Faster R-CNN baseline: VGG, resnet RPN: 生成 proposals ROIPooling: RPN 生成的 proposals 在 conv5_3 上对应的 feature region 被 Pooling 成固定的 7x7 大小，然后在经 FC layer detection head: 与 Fast R-CNN 中一样，两个分支，分别预测分类和坐标 从一个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Two-stage Object Detection">
+<meta property="og:url" content="https://shajianjian.github.io/2021/02/20/obj_det/two_stage/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="Faster R-CNN baseline: VGG, resnet RPN: 生成 proposals ROIPooling: RPN 生成的 proposals 在 conv5_3 上对应的 feature region 被 Pooling 成固定的 7x7 大小，然后在经 FC layer detection head: 与 Fast R-CNN 中一样，两个分支，分别预测分类和坐标 从一个">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/obj_det/two_stage_fig2.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/obj_det/two_stage_fig1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/obj_det/two_stage_fig3.png">
+<meta property="article:published_time" content="2021-02-20T06:50:40.000Z">
+<meta property="article:modified_time" content="2021-03-05T11:00:19.491Z">
+<meta property="article:author" content="shajianjian">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/obj_det/two_stage_fig2.png">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/02/20/obj_det/two_stage/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Two-stage Object Detection | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/02/20/obj_det/two_stage/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Two-stage Object Detection
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-20 14:50:40" itemprop="dateCreated datePublished" datetime="2021-02-20T14:50:40+08:00">2021-02-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-05 19:00:19" itemprop="dateModified" datetime="2021-03-05T19:00:19+08:00">2021-03-05</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Faster-R-CNN"><a href="#Faster-R-CNN" class="headerlink" title="Faster R-CNN"></a>Faster R-CNN</h1><ol>
+<li>baseline: VGG, resnet</li>
+<li>RPN: 生成 proposals</li>
+<li>ROIPooling: RPN 生成的 proposals 在 conv5_3 上对应的 feature region 被 Pooling 成固定的 <code>7x7</code> 大小，然后在经 FC layer</li>
+<li>detection head: 与 Fast R-CNN 中一样，两个分支，分别预测分类和坐标</li>
+<li>从一个图中取 top 256 个 proposals 作为 mini-batch，送入 detection subnetwork</li>
+<li>多个 scale 和 aspect ratio 组合，以应对不同尺寸和形状的目标检测</li>
+</ol>
+<h1 id="FPN"><a href="#FPN" class="headerlink" title="FPN"></a>FPN</h1><ol start="0">
+<li>在 Faster R-CNN 基础上，将 baseline 由 ResNet/VGG 换成 FPN（multi-scale + top-down feature fused)</li>
+<li>in-network feature pyramids，每个 level 的 feature 独立做检测</li>
+<li>low-level feature 有利于小目标检测，但是单纯的 low-level feature 还不够，因为其特征表达能力不够强，所以使用 top-down 和 径向连接，合并了 high-level feature。这对检测多种 scale 的目标非常有用。</li>
+<li>backbone 选用 resnet，利用 FPN 生成 feature pyramids，而原来 faster rcnn 中为 single feature，故给每个 level 的 feature 配备 RPN 和 rcnn head 分支，这些分支在所有 level feature 上共享参数。resnet 有 conv2，conv3，conv4，conv5，这里在 conv5 之上增加一个 1x1 conv（有 subsampling），专门用于检测大目标，这样共 5 个 level。</li>
+<li>feature level 为 P2，P3，P4，P5，P6，每个 level 上的 anchor 使用一个 scale <code>8</code>，由于stride 分别为 4，8，16，32，64，故 anchor 在 input image 上实际 size 为 32，64，128，256，512，分别作为每个 level 上的 base anchor，每个 anchor 的 aspect ratio 为 <code>[0.5, 1, 2]</code>。</li>
+<li>RPN 生成的 proposals，根据不同的尺寸，使用不同的 level 分支来负责检测，分支 <code>Pk</code> 的下标确定方法为<br> $$k=\lfloor 4 + \log_2(\sqrt {wh} / 224) \rfloor$$</li>
+</ol>
+<h1 id="Deformable-ConvNet"><a href="#Deformable-ConvNet" class="headerlink" title="Deformable ConvNet"></a>Deformable ConvNet</h1><p>可变形卷积网络提出两个模块。</p>
+<h2 id="Deformable-Conv"><a href="#Deformable-Conv" class="headerlink" title="Deformable Conv"></a>Deformable Conv</h2><p>为卷积操作的 feature grid 中每一个 position 增加 2-d offset（横纵坐标偏差）。记输出 feature map 上某一点位置 $p_0$，输入 feature 上的 grid sampling 根据感受野<br>$$\mathcal R={(-1,-1),(-1,0),…,(0,1),(1,1)}$$<br>确定，那么这一点的常规卷积输出为<br>$$y(p_0)=\sum_{p_n \in \mathcal R} w(p_n) \cdot x(p_0+p_n)$$</p>
+<p>输入 feature grid 每一点 $p_n$ 增加一个坐标偏差 $\Delta p_n$，于是可变形卷积为<br>$$y(p_0)=\sum_{p_n \in \mathcal R} w(p_n) \cdot x(p_0+p_n+\Delta p_n)$$</p>
+<p>在这个输入 feature 上使用一个 conv，得到 resolution 相同，但是 channal 为 2N 的输出，表示没一点的 offset，显然 offset 不是整数。</p>
+<p>记 $p=p_0+p_n+\Delta p_n$，使用双线性插值计算 $p$ 点的像素值，<br>$$x(p)=\sum_{q} G(q,p) \cdot x(p)$$<br>其中 $q$ 是输入 feature 上任意一点，$G(q,p)$ 表示关联权重，<br>$$G(q,p)=g(q_x, p_x) \cdot g(q_y, p_y)$$<br>$$g(a,b)=\max(0, 1-|a-b|)$$<br>显然最多只用到 p 周围最近的 4 个点来做双线性插值。也就是说，p和 q 的坐标相差不超过 1，但是注意，$\Delta p_n$ 表示的坐标偏差可能会超过 1。</p>
+<p>得到 offset 后，再在原来的 input feature 上进行变形卷积，得到 output feature map。</p>
+<h2 id="Deformable-ROI-Pooling"><a href="#Deformable-ROI-Pooling" class="headerlink" title="Deformable ROI Pooling"></a>Deformable ROI Pooling</h2><p>Region proposal-based 目标检测均采样 ROI Pooling 将输入特征 池化到一个固定大小的 feature（例如 7x7）。先来看常规 ROI Pooling 操作，记 ROI Pooling 将 <code>wxh</code> 大小的输入特征池化为一个 <code>kxk</code> 的特征，输入特征的左上角记为 <code>p_0</code>，那么 output feature map 上一点 <code>(i,j)</code> 的值为<br>$$y(i,j)=\sum_{p \in bin(i,j)} x(p_0+p)/n_{ij}$$<br>其中 $n_{ij}=|bin(i,j)|$，$bin(i,j)$ 表示输出上一点 <code>(i,j)</code> 对应到输入平面上一个 bin 中的各点（相对于左上角）的位置，这个 bin 由下式确定，<br>$$\lfloor i \cdot w /k \rfloor \le p_x &lt; \lceil (i+1) \cdot w / k \rceil$$<br>$$\lfloor j \cdot h /k \rfloor \le p_y &lt; \lceil (j+1) \cdot h / k \rceil$$</p>
+<p>现在同样地，我们需要为这个 bin 生成坐标偏差，每一个 bin 对应一个 2-d offset，记 $bin(i,j)$ 的 2-d offset 为 $\Delta p_{ij}$，得到变形 ROI Pooling 为<br>$$y(i,j)=\sum_{p \in bin(i,j)} x(p_0+p+\Delta p_{ij}) / n_{ij}$$</p>
+<p>如何得到这个 bin 的坐标偏差呢?</p>
+<p>在 input feature 上使用 ROI Pooling 得到池化后的 feature，然后再经过一个 fc（全连接层）生成归一化后的 offset，记为 $\Delta \hat p_{ij}$，再 element-wise 乘上 ROI 的 w 和 h，得到 bin 的坐标偏差 offset<br>$$\Delta p_{ij}=\gamma \cdot \Delta \hat p_{ij} \ \circ \ (w,h)$$<br>其中 $\gamma$ 是一个预定义标量值，用于调节 offset 的幅度。文中取 $\gamma=0.1$。</p>
+<p><b>offset 的归一化是必须的，这样使得 offset 的学习不受 ROI size 的影响。</b></p>
+<h3 id="Position-Sentive-PS-ROI-Pooling"><a href="#Position-Sentive-PS-ROI-Pooling" class="headerlink" title="Position-Sentive(PS) ROI Pooling"></a>Position-Sentive(PS) ROI Pooling</h3><p>这里的 Position-Sentive 是指与 bin 的位置 <code>(i,j)</code> 有关。分类 subnet 和 box 回归 subnet 情况不同。</p>
+<ol>
+<li>分类分支。input feature 经过 conv 后得到 channel 为 $k^2(C+1)$，其中 k 为 池化后特征平面边长，C 为分类 fg 数量，每个分类每个 bin 有自己独立的 feature，池化时，使用这个独立的 feature，而上面的池化过程，对每个 bin 均采用同一个 feature（即 input feature）。</li>
+<li>box 回归分支。同分类分支类似，input feature 经过 conv 得到 channel 为 $2k^2(C+1)$ 的 feature，同样特征值表示归一化后的 offset，element-wise 乘上 ROI 的 w 和 h，得到实际的 offset 值。</li>
+</ol>
+<h1 id="Deformable-ConvNet-v2"><a href="#Deformable-ConvNet-v2" class="headerlink" title="Deformable ConvNet v2"></a>Deformable ConvNet v2</h1><p>可变形卷积网络 v1 的缺点是对目标边界信息的捕获不够准确，在可变形卷积网络 v2（DCNv2）中，使用更多的 conv layer 学习 offset，且每个样本不仅学习 offset，还学习 feature 的幅值调整。</p>
+<p>为了更好的理解可变形卷积，文中给出了如下视图：</p>
+<ol>
+<li>有效感受野</li>
+<li>有效取样点位置</li>
+<li>有界误差（小误差）的显著性区域</li>
+</ol>
+<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p>Baseline 组成：Faster R-CNN + ResNet + aligned RoIPooling</p>
+<p>应用 <strong>可变形：</strong><br>RPN 加在 stage4 的输出特征之上，conv5 中的 conv 则采用可变性卷积，RoIPooling 采用可变形 RoIPooling。conv5 中的 stride=16，而非原来的 32，这是为了提高 feature map 的 resolution，将 conv5_1 的 stride 改为 1 即可实现。</p>
+<p>conv5 的输出特征之上，采用 Fast R-CNN 检测head，其他包括 RoIPooling 和两个 fc（全连接层），然后是两个并列的分类分支和回归分支。</p>
+<h2 id="提升可变形能力"><a href="#提升可变形能力" class="headerlink" title="提升可变形能力"></a>提升可变形能力</h2><p>可变形卷积应用到 conv3，conv4 和 conv5 中所有的 3x3 conv 上（DCNv1 中仅 conv5 中的 3x3 conv 应用了可变形卷积）</p>
+<p><strong>调整可变形 conv:</strong></p>
+<p>引入一个调制机制，使得可变形卷积不但可以调整 offset，还可以调整 feature 的各 location 处的幅值。极端情况下，这个模块可以通过设置 feature 某处幅值为 0 从而决定不再注意这个 location 处的信号。</p>
+<p>记卷积核卷积采样点（location）为 $K$，其中第 $k$ 个 location 的权值和 offset 分别为 $w_k, \ p_k$，例如 <code>3x3</code> 卷积的采样点数量为 $K=9$，且<br>$$p_k \in {(-1,-1), (-1,0),…,(1,1)}$$</p>
+<p>输入特征 x 和输出特征 y 上一点 p 处的特征值分别记为 $x(p), \ y(p)$，调整后的可变形卷积为<br>$$y(p)=\sum_{k=1}^K w_k \cdot x(p+p_k+\Delta p_k)\cdot \Delta m_k$$<br>其中 $\Delta p_k$ 是可学习的 offset，$\Delta p_k$ 是非归一化的。$\Delta m_k \in [0,1]$ 是幅值修正系数。$x(p+p_k+\Delta p_k)$ 使用双线性插值求得。</p>
+<p>$\Delta p_k, \ \Delta m_k$ 通过输入 feature map 上使用另一 conv layer 获得 <code>3K</code> channel 的输出，前 2K 表示 $\Delta p_k$，后 K channel 的数据继续经 sigmoid，得到 $\Delta m_k$。</p>
+<p><strong>调整可变形RoIPooling:</strong></p>
+<p>RoIPooling 将 RoI 划分为 <strong>K</strong> 个 bins（例如 <code>7x7</code>），每个 bin 中，取若干个采样点（例如 <code>2x2</code>），采样点的平均作为这个 bin 的输出。对 RoIPooling 赋予调整后的可变形能力，同可变形卷积一样，除了 offset 还有幅值，分别记为 $\Delta p_k$ 和 $\Delta m_k$，表示第 <code>k</code> 个 bin，那么这个 bin 的输出改为，<br>$$y(k)=\sum_{j=1}^n x(p_{kj}+\Delta p_k) \cdot \Delta m_k / n$$<br>其中 $n$ 表示 bin 中采样点数量，$p_{kj}$ 表示第 <code>k</code> 个 bin 中第 <code>j</code> 个采样点坐标。与 DCNv1 中类似，针对每个 bin 有 offset 和幅值变化。$x(p_{kj}+\Delta p_K)$ 采样双线性插值计算该处特征值。</p>
+<p><strong>分支结构：</strong></p>
+<p>RoIPooling 从 feature maps 上得到 RoI feature patch，后跟 2x fc（两个全连接层），dimension 均为 1024，然后是一个 3K channel 的 fc，其他前 2K 表示归一化的 offset，乘以 RoI 的宽高得到实际的坐标 offset ${\Delta p_k}<em>{k=1}^K$。剩余的 K 通过 sigmoid layer 得到幅值伸缩系数 ${\Delta m_k}</em>{k=1}^K$。</p>
+<h2 id="R-CNN-特征模拟"><a href="#R-CNN-特征模拟" class="headerlink" title="R-CNN 特征模拟"></a>R-CNN 特征模拟</h2><p>可视化显示，对于常规 ConvNet 和可变形 ConvNet，分类 node 对应的 error-bounded saliency region 超出 RoI 区域，导致 RoI 之外的 Image 内容影响了目标检测结果的准确性。R-CNN 论文中，分类预测集中在根据 RoI 来 crop 得到的 image 上，这使得分类准确性得到提升。我们这里的可变形 ConvNet 基于 Faster R-CNN，而直接结合 Faster R-CNN 和 R-CNN，使得训练和推断均变得缓慢。另一方面，可变形 ConvNet 可调整 bin 输出的幅值，通过令 幅值放缩系数为 0，可屏蔽范围之外多余的 context，但是实验效果并不理想，猜想这可能是因为传统的 Faster R-CNN 训练损失无法有效驱动这种表征（指可变形 RoIPooling）的学习过程。</p>
+<p>于是，引进一个 feature 模拟的损失，与 R-CNN 从 cropped image 中抽取的特征类似，可以驱动可变形 Faster R-CNN 学习如何着重于特征表示。这种特征模拟仅用于正例 RoI 上，对负例 RoI 效果不好。<br>下图是网络结构，<br><img src="/images/obj_det/two_stage_fig2.png" alt=""></p>
+<center>图2. 基于 Faster R-CNN 的可变形卷积和 R-CNN 特征模拟</center>
+
+<p>给定一个 RoI <code>b</code>，在 feature 模拟分支上，<code>b</code> 对应的原输入 image 上的部分 crop 出来，并 resize 到 <code>224x224</code> 大小，经调整后的可变形卷积网络后得到 <code>14x14</code> 的 feature，然后使用调整的 RoIPooling 得到 <code>7x7</code>（这里的 <code>7x7</code> 是一个示例，其他情况下可修改），然后经 2x fc 得到最终的 RCNN 分支 1024-D 的特征，记为 $f_{RCNN}(b)$，这个特征经过 <code>C+1</code>-way 的 softmax 分类（这里笔者觉得应该再使用一个 <code>C+1</code>-D 的 fc 层后使用 softmax）。另外，Faster R-CNN 分支的输出特征也是 1024-D（由 Fast R-CNN head 输出得到），记为 $f_{FRCNN}(b)$，那么 feature 模拟损失定义如下，<br>$$L_{mimic}=\sum_{b \in \Omega}[1-\cos (f_{RCNN}(b), f_{FRCNN}(b))]$$<br>其中，$\Omega$ 表示图中的 RoI 集，$\cos(\cdot, \cdot)$ 表示向量的余弦相似度。</p>
+<h1 id="Mask-R-CNN"><a href="#Mask-R-CNN" class="headerlink" title="Mask R-CNN"></a>Mask R-CNN</h1><p>在 Faster R-CNN 基础上，增加一个预测目标 mask 的分支，实现 instance segmentation。</p>
+<p>mask 分支为每个 ROI 生成 binary mask。Mask R-CNN 与其他系统不同，其他系统将 classification 和 segmentation 耦合起来（生成 K+1 dimension 的 mask）。</p>
+<p><strong>损失</strong><br>$$L=L_{cls}+L_{box}+L_{mask}$$<br>其中，前两项与 Faster R-CNN 中一致。mask 分支的输出为 $Km^2$ 维度，K 表示 foreground 分类数量 ，<code>mxm</code> 表示 resolution，每个 pixel 上应用 sigmoid，于是 $L_{mask}$ 为 binary cross-entropy 损失平均，$L_{mask}$ 中仅对 resolution 每个 position 实际所属分类 <code>k</code> 的那一项，相当于 $L_{mask}$ 实际是 $m^2$ 个 binary cross-entropy loss 的平均。</p>
+<p>每个 ROI 经 mask 分支得到 <code>mxm</code> 的 mask，mask 分支是 FCN（全卷积网络），其中每个 layer 均可保留目标的空间信息，比起使用 fc（全连接层），FCN 使用更少的参数，预测也更准确。</p>
+<h2 id="RoIAlign"><a href="#RoIAlign" class="headerlink" title="RoIAlign"></a>RoIAlign</h2><p>Faster R-CNN 中利用 RoIPool 从 RoI feature（例如在 conv4 上根据 RoI 抠出）抽取得到一个更小的固定的 feature map（例如 <code>7x7</code>），而在 conv4 的输出 feature 上抠出 RoI，这就带来了不对齐问题，因为 conv4 的 feature 上 stride=16，那么 RoI 在 conv4 的 feature 上的坐标为 $[x/16]$，其中 $[\cdot]$ 表示四舍五入，浮点数被离散化处理，同样地，RoI feature 映射到 <code>7x7</code> 上（相当于在 RoI feature 上划分得到 <code>7x7</code> bins）时，也进行了这种离散化处理，这就使得原 input image 上的 RoI 与最终抽取的feature 之间不对齐，这个问题对分类没有影响，但是对 pixel 级别的 mask 预测则有很大的影响。</p>
+<p>解决办法就是去掉离散化处理，使用 $x/16$ 浮点数代替 $[x /16]$ 整数，在 conv4 feature 上得到准确的浮点数 RoI 的坐标，如图 1，<br><img src="/images/obj_det/two_stage_fig1.png" alt=""><center>fig1. RoIAlign 示意图</center></p>
+<p>图1 中示例为 <code>2x2</code> bins，虽然与我们的 <code>7x7</code> bins 不同，但是这不影响，原理都差不多，那么，如何得到每个 bin 中 的 feature patch 呢？（得到每个 bin 的 feature patch，才能做 pooling）</p>
+<p>对每个 bin，取 4 个采样点，每个采样点坐标不一定是整数，所以使用双线性插值计算每个点处的特征值，然后使用 max 或 average 进行 pooling，如图 1。</p>
+<h2 id="网络架构"><a href="#网络架构" class="headerlink" title="网络架构"></a>网络架构</h2><p><strong>backbone:</strong></p>
+<p>backbone 采样两种：1. <code>ResNet-50-C4</code>，其中 <code>C4</code> 表示 ResNet stage 4 的输出 feature；2. <code>ResNet-FPN</code>。ResNet 可以替换为 ResNeXt。</p>
+<p><strong>detection head:</strong></p>
+<p>将 C4 中 RoI 对应的 feature 区域经过 RoIAlign 得到 <code>7x7x1024</code> 的输出，然后经 <code>res5</code>（ResNet 中的 stage 5，共 9 个 layer），输出 feature  tensor 的大小不变，然后分两路，其中一路用于分类预测和 box 坐标回归预测，另一路用于生成 mask。</p>
+<h2 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h2><p>resize image，使得短边固定在 800，训练时，每个 mini-batch 有 2 个 images，每个 image 有 N 个 RoIs，正负例比为 <code>1:3</code>。</p>
+<h1 id="R-FCN"><a href="#R-FCN" class="headerlink" title="R-FCN"></a>R-FCN</h1><p>region-based fully convolutional networks</p>
+<p>目标检测的 backbone 通常都是来自分类网络，而分类问题中 translation invariance 与目标检测中 translation variance 是不一致的，目标检测中，移动 proposal box 将会影响与 gt box 的 IOU。</p>
+<p>R-FCN 中使用共享的全卷积网络，为了使 FCN 具有 translation variance，设计了一组 position-sensitive score maps，每个 score map encode 位置信息，如下图，<br><img src="/images/obj_det/two_stage_fig3.png" alt=""></p>
+<p>RPN 网络用于生成 proposal box（RoI），RoI 被划分为 <code>kxk</code> grid，每个 cell 对于一个 score map（包含 C+1 个 channel，每个 channel 对应一个分类），执行 RoIPooling 时，不同的 cell 区域使用不同的 score maps。</p>
+<p>Backbone 使用 ResNet-101，由于最后一个 conv 为 2048-d，为了降低 dimension，增加一个 <code>1x1</code> 1024-d 的 conv，然后再用 $k^2(C+1)$-d 的 conv 生成 positive-sensitive score maps。</p>
+<h2 id="position-sensitive-roi-pooling"><a href="#position-sensitive-roi-pooling" class="headerlink" title="position-sensitive roi pooling"></a>position-sensitive roi pooling</h2><p>得到 positive-sensitive score maps 后，根据 RPN 生成的每个 RoI，划分出 <code>kxk</code> bin，每个 bin 对应一个 score map，在其上使用 pooling，记 RoI size 为 <code>wxh</code>，每个 bin 的 size 为 $\frac w k \times \frac h k$，对于第 <code>(i,j)</code> 个 bin， RoI pooling 在第 <code>(i,j)</code> 个 score map 上执行 average pooling，得到 <code>kxkx(C+1)</code> 的输出，然后进行 <strong>vote</strong> （averaging），得到 <code>C+1</code> 的 vector（对单个 RoI 而言），然后使用 softmax 计算分类得分。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/20/dl/Metrics/" rel="prev" title="Metrics">
+      <i class="fa fa-chevron-left"></i> Metrics
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/02/23/obj_det/one_stage/" rel="next" title="One-stage Object Detection">
+      One-stage Object Detection <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Faster-R-CNN"><span class="nav-number">1.</span> <span class="nav-text">Faster R-CNN</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FPN"><span class="nav-number">2.</span> <span class="nav-text">FPN</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Deformable-ConvNet"><span class="nav-number">3.</span> <span class="nav-text">Deformable ConvNet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Deformable-Conv"><span class="nav-number">3.1.</span> <span class="nav-text">Deformable Conv</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Deformable-ROI-Pooling"><span class="nav-number">3.2.</span> <span class="nav-text">Deformable ROI Pooling</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Position-Sentive-PS-ROI-Pooling"><span class="nav-number">3.2.1.</span> <span class="nav-text">Position-Sentive(PS) ROI Pooling</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Deformable-ConvNet-v2"><span class="nav-number">4.</span> <span class="nav-text">Deformable ConvNet v2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#网络结构"><span class="nav-number">4.1.</span> <span class="nav-text">网络结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#提升可变形能力"><span class="nav-number">4.2.</span> <span class="nav-text">提升可变形能力</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#R-CNN-特征模拟"><span class="nav-number">4.3.</span> <span class="nav-text">R-CNN 特征模拟</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mask-R-CNN"><span class="nav-number">5.</span> <span class="nav-text">Mask R-CNN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RoIAlign"><span class="nav-number">5.1.</span> <span class="nav-text">RoIAlign</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络架构"><span class="nav-number">5.2.</span> <span class="nav-text">网络架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现细节"><span class="nav-number">5.3.</span> <span class="nav-text">实现细节</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#R-FCN"><span class="nav-number">6.</span> <span class="nav-text">R-FCN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#position-sensitive-roi-pooling"><span class="nav-number">6.1.</span> <span class="nav-text">position-sensitive roi pooling</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

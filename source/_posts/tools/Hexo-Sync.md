@@ -50,7 +50,7 @@ hexo g -d
 ```
 上面这个命令将文章更新到远程网站上，我这里配置为 github 上 master 分支，
 
-然后提交到仓库的hexo分支，进行备份
+然后提交到仓库的hexo分支，进行备份，注意最后一个命令中 `hexo` 必须要带上，
 ```
 $ git add .
 $ git commit -m "new post 'title'"

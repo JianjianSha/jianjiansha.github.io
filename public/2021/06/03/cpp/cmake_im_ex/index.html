@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="导入目标被导入的目标位于当前 cmake 项目的外部。要创建一个被导入目标，可在 add_executable() 和 add_library() 中加入 IMPORTED 选项，IMPORTED 选项是的这两个命令不会生成真正的目标文件（即，没有物理文件生成，而是将外部的目标文件作为当前cmake 项目的逻辑目标）。使用这两个命令导入后，被导入目标可以像其他目标一样被引用并使用。被导入目标的默认">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cmake import export">
+<meta property="og:url" content="https://shajianjian.github.io/2021/06/03/cpp/cmake_im_ex/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="导入目标被导入的目标位于当前 cmake 项目的外部。要创建一个被导入目标，可在 add_executable() 和 add_library() 中加入 IMPORTED 选项，IMPORTED 选项是的这两个命令不会生成真正的目标文件（即，没有物理文件生成，而是将外部的目标文件作为当前cmake 项目的逻辑目标）。使用这两个命令导入后，被导入目标可以像其他目标一样被引用并使用。被导入目标的默认">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-03T05:59:06.000Z">
+<meta property="article:modified_time" content="2021-06-04T10:03:42.884Z">
+<meta property="article:author" content="shajianjian">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/06/03/cpp/cmake_im_ex/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>cmake import export | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/03/cpp/cmake_im_ex/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          cmake import export
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-06-03 13:59:06" itemprop="dateCreated datePublished" datetime="2021-06-03T13:59:06+08:00">2021-06-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-04 18:03:42" itemprop="dateModified" datetime="2021-06-04T18:03:42+08:00">2021-06-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="导入目标"><a href="#导入目标" class="headerlink" title="导入目标"></a>导入目标</h1><p>被导入的目标位于当前 cmake 项目的外部。要创建一个被导入目标，可在 <code>add_executable()</code> 和 <code>add_library()</code> 中加入 <code>IMPORTED</code> 选项，<code>IMPORTED</code> 选项是的这两个命令不会生成真正的目标文件（即，没有物理文件生成，而是将外部的目标文件作为当前cmake 项目的逻辑目标）。使用这两个命令导入后，被导入目标可以像其他目标一样被引用并使用。被导入目标的默认 scope 为当前目录以及子目录，可以使用 <code>GLOBAL</code> 使得被导入目标在 cmake 生成系统全局可见，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_executable(&lt;name&gt; IMPORTED [GLOBAL])</span><br></pre></td></tr></table></figure>
+<h2 id="导入可执行体"><a href="#导入可执行体" class="headerlink" title="导入可执行体"></a>导入可执行体</h2><p>以一个例子说明，完整代码位于 cmake 官方代码库的 Help/guide/importing-exporting 目录下。</p>
+<p>操作命令如下，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> Help/guide/importing-exporting/MyExe</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mkdir build</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> build</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cmake ..</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cmake --build .</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cmake --install . --prefix &lt;install location&gt;</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> &lt;install location&gt;/myexe</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ls</span></span><br><span class="line">[...] main.cc [...]</span><br></pre></td></tr></table></figure>
+<p>为了方便，也给出了 CMakeLists.txt 文件内容，</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.15</span>)</span><br><span class="line"><span class="keyword">project</span>(MyExe)</span><br><span class="line"></span><br><span class="line"><span class="comment"># specify the C++ standard</span></span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD <span class="number">11</span>)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD_REQUIRED <span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Add executable</span></span><br><span class="line"><span class="keyword">add_executable</span>(myexe main.cxx)</span><br><span class="line"></span><br><span class="line"><span class="comment"># install executable</span></span><br><span class="line"><span class="keyword">install</span>(TARGETS myexe)</span><br></pre></td></tr></table></figure>
+<p>整个文件目录为，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">MyExe&#x2F;</span><br><span class="line">    CMakeLists.txt</span><br><span class="line">    main.cxx</span><br></pre></td></tr></table></figure>
+<p>main.cxx 文件 main 函数执行后会创建一个 main.cc 的文件。</p>
+<p>现在我们将这个生成的 <code>myexe</code> 可执行体导入到另一个项目中。另一个项目源码位于 Help/guide/importing-exporting/Importing，其中 CMakeLists.txt 文件内容为，</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.15</span>)</span><br><span class="line"><span class="keyword">project</span>(Importing)</span><br><span class="line"></span><br><span class="line"><span class="comment"># specify the C++ standard</span></span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD <span class="number">11</span>)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD_REQUIRED <span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Add executable</span></span><br><span class="line"><span class="keyword">add_executable</span>(myexe IMPORTED)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Set imported location</span></span><br><span class="line"><span class="keyword">set_property</span>(<span class="keyword">TARGET</span> myexe PROPERTY</span><br><span class="line">             IMPORTED_LOCATION <span class="string">"../InstallMyExe/bin/myexe"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Add custom command to create source file</span></span><br><span class="line"><span class="keyword">add_custom_command</span>(OUTPUT main.cc <span class="keyword">COMMAND</span> myexe)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Use source file</span></span><br><span class="line"><span class="keyword">add_executable</span>(mynewexe main.cc)</span><br></pre></td></tr></table></figure>
+
+<p>以上，<code>myexe</code> 使用 <code>IMPORTED</code> 告诉 CMAKE 这是一个外部引用，并设置其属性 <code>IMPORTED_LOCATION</code>，这样就知道外部目标文件的位置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_custom_command(OUTPUT main.cc COMMAND myexe)</span><br></pre></td></tr></table></figure>
+<p>上面这句命令指定构建时执行的命令为 <code>myexe</code>，生成的输出文件为 <code>main.cc</code> （这是一个相对于当前源目录的文件路径），这句指令本身不会让 cmake 构建，而是下一句，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_executable(mynewexe main.cc)</span><br></pre></td></tr></table></figure>
+<p>这句构建一个可执行目标，该目标构建依赖于 <code>main.cc</code>。</p>
+<h2 id="导入库"><a href="#导入库" class="headerlink" title="导入库"></a>导入库</h2><p>与可执行目标导入类似，库文件也可以被导入。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">add_library(foo STATIC IMPORTED)</span><br><span class="line">set_property(TARGET foo PROPERTY</span><br><span class="line">             IMPORTED_LOCATION &quot;path&#x2F;to&#x2F;libfoo.a&quot;)</span><br></pre></td></tr></table></figure>
+<p>添加一个导入静态库，并设置其路径属性。</p>
+<p>使用这个导入库如下，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">add_executable(myexe src1.c src2.c)</span><br><span class="line">target_link_libraries(myexe PRIVATE foo)</span><br></pre></td></tr></table></figure>
+
+<h1 id="导出目标"><a href="#导出目标" class="headerlink" title="导出目标"></a>导出目标</h1><p>导入库有用，但是需要知道被导入库的文件路径。被导入目标的真正强大之处在于，当 cmake 项目提供目标文件时，cmake 项目同时提供一个 CMake 文件 .cmake，使得在其他地方可以非常方便的导入这些目标。</p>
+<p>首先定位到 cmake 官方代码库的 Help/guide/importing-exporting/MathFunctions 目录，其中头文件 <code>MathFunctions.h</code> 的内容为，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> once</span></span><br><span class="line"><span class="keyword">namespace</span> MathFunctions &#123;</span><br><span class="line"><span class="function"><span class="keyword">double</span> <span class="title">sqrt</span><span class="params">(<span class="keyword">double</span> x)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>源文件 <code>MathFunctions.cxx</code> 为，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"MathFunctions.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="keyword">namespace</span> MathFunctions &#123;</span><br><span class="line"><span class="function"><span class="keyword">double</span> <span class="title">sqrt</span><span class="params">(<span class="keyword">double</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">std</span>::<span class="built_in">sqrt</span>(x);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>CMakeLists.txt 文件内容较多，</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.15</span>)</span><br><span class="line"><span class="keyword">project</span>(MathFunctions)</span><br><span class="line"></span><br><span class="line"><span class="comment"># make cache variables for install destinations</span></span><br><span class="line"><span class="keyword">include</span>(GNUInstallDirs)</span><br><span class="line"></span><br><span class="line"><span class="comment"># specify the C++ standard</span></span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD <span class="number">11</span>)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD_REQUIRED <span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># create library</span></span><br><span class="line"><span class="keyword">add_library</span>(MathFunctions STATIC MathFunctions.cxx)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add include directories</span></span><br><span class="line"><span class="keyword">target_include_directories</span>(MathFunctions</span><br><span class="line">                           PUBLIC</span><br><span class="line">                           <span class="string">"$&lt;BUILD_INTERFACE:$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;&gt;"</span></span><br><span class="line">                           <span class="string">"$&lt;INSTALL_INTERFACE:$&#123;CMAKE_INSTALL_INCLUDEDIR&#125;&gt;"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># install the target and create export-set</span></span><br><span class="line"><span class="keyword">install</span>(TARGETS MathFunctions</span><br><span class="line">        <span class="keyword">EXPORT</span> MathFunctionsTargets</span><br><span class="line">        LIBRARY DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_LIBDIR&#125;</span></span><br><span class="line">        ARCHIVE DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_LIBDIR&#125;</span></span><br><span class="line">        RUNTIME DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_BINDIR&#125;</span></span><br><span class="line">        INCLUDES DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_INCLUDEDIR&#125;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># install header file</span></span><br><span class="line"><span class="keyword">install</span>(FILES MathFunctions.h DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_INCLUDEDIR&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># generate and install export file</span></span><br><span class="line"><span class="keyword">install</span>(<span class="keyword">EXPORT</span> MathFunctionsTargets</span><br><span class="line">        <span class="keyword">FILE</span> MathFunctionsTargets.cmake</span><br><span class="line">        NAMESPACE MathFunctions::</span><br><span class="line">        DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_LIBDIR&#125;</span>/cmake/MathFunctions</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># include CMakePackageConfigHelpers macro</span></span><br><span class="line"><span class="keyword">include</span>(CMakePackageConfigHelpers)</span><br><span class="line"></span><br><span class="line"><span class="comment"># set version</span></span><br><span class="line"><span class="keyword">set</span>(version <span class="number">3.4</span>.<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">set_property</span>(<span class="keyword">TARGET</span> MathFunctions PROPERTY VERSION <span class="variable">$&#123;version&#125;</span>)</span><br><span class="line"><span class="keyword">set_property</span>(<span class="keyword">TARGET</span> MathFunctions PROPERTY SOVERSION <span class="number">3</span>)</span><br><span class="line"><span class="keyword">set_property</span>(<span class="keyword">TARGET</span> MathFunctions PROPERTY</span><br><span class="line">  INTERFACE_MathFunctions_MAJOR_VERSION <span class="number">3</span>)</span><br><span class="line"><span class="keyword">set_property</span>(<span class="keyword">TARGET</span> MathFunctions APPEND PROPERTY</span><br><span class="line">  COMPATIBLE_INTERFACE_STRING MathFunctions_MAJOR_VERSION</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># generate the version file for the config file</span></span><br><span class="line">write_basic_package_version_file(</span><br><span class="line">  <span class="string">"$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsConfigVersion.cmake"</span></span><br><span class="line">  VERSION <span class="string">"$&#123;version&#125;"</span></span><br><span class="line">  COMPATIBILITY AnyNewerVersion</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># create config file</span></span><br><span class="line">configure_package_config_file(<span class="variable">$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;</span>/Config.cmake.in</span><br><span class="line">  <span class="string">"$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsConfig.cmake"</span></span><br><span class="line">  INSTALL_DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_LIBDIR&#125;</span>/cmake/MathFunctions</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># install config files</span></span><br><span class="line"><span class="keyword">install</span>(FILES</span><br><span class="line">          <span class="string">"$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsConfig.cmake"</span></span><br><span class="line">          <span class="string">"$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsConfigVersion.cmake"</span></span><br><span class="line">        DESTINATION <span class="variable">$&#123;CMAKE_INSTALL_LIBDIR&#125;</span>/cmake/MathFunctions</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># generate the export targets for the build tree</span></span><br><span class="line"><span class="keyword">export</span>(<span class="keyword">EXPORT</span> MathFunctionsTargets</span><br><span class="line">       <span class="keyword">FILE</span> <span class="string">"$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/MathFunctionsTargets.cmake"</span></span><br><span class="line">       NAMESPACE MathFunctions::</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>构建库 <code>MathFunctions</code> 之后需要为其指定头文件目录，根据是生成库还是从已安装路径使用库，分别指定不同的头文件目录，如果对头文件目录不加以区分，那么 CMake 在创建导出信息时，将会导出依赖于当前生成目录的一个路径，这个路径显然在其他项目中无效。</p>
+<p><code>install(TARGETS)</code> 和 <code>install(EXPORT)</code> 安装库目标和 .cmake 文件，这里 .cmake 文件则方便其他 CMake 项目导入这个库目标。生成的导出文件（.cmake文件）中包含了创建导入库的代码，</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Create imported target MathFunctions::MathFunctions</span></span><br><span class="line"><span class="keyword">add_library</span>(MathFunctions::MathFunctions STATIC IMPORTED)</span><br><span class="line"></span><br><span class="line"><span class="keyword">set_target_properties</span>(MathFunctions::MathFunctions PROPERTIES</span><br><span class="line">  INTERFACE_INCLUDE_DIRECTORIES <span class="string">"$&#123;_IMPORT_PREFIX&#125;/include"</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>这段代码与上面我们手动导入库的 cmake 代码很相似。外部其他项目可以 include 这个 .cmake 文件，从而引用导入库 <code>MathFunctions</code>，</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">include</span>(<span class="variable">$&#123;INSTALL_PREFIX&#125;</span>/lib/cmake/MathFunctionTargets.cmake)</span><br><span class="line"><span class="keyword">add_executable</span>(myexe src1.c src2.c )</span><br><span class="line"><span class="keyword">target_link_libraries</span>(myexe PRIVATE MathFunctions::MathFunctions)</span><br></pre></td></tr></table></figure>
+<p>注：这段代码来自官方文档，但是个人觉得这里路径错了，应该是<br><code>include(${INSTALL_PREFIX}/lib/cmake/MathFunctions/MathFunctionTargets.cmake)</code>。</p>
+<p>任意数量的目标都可以关联到相同的导出名称，且 <code>install(EXPORT)</code> 只需要调用一次。<strong>导出名称是全局 scope 的，所以任何目录都可以使用</strong> 。例如以下的导出名称 <code>myproj-targets</code>，</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># A/CMakeLists.txt</span></span><br><span class="line"><span class="keyword">add_executable</span>(myexe src1.c)</span><br><span class="line"><span class="keyword">install</span>(TARGETS myexe DESTINATION lib/myproj</span><br><span class="line">        <span class="keyword">EXPORT</span> myproj-targets)</span><br><span class="line"></span><br><span class="line"><span class="comment"># B/CMakeLists.txt</span></span><br><span class="line"><span class="keyword">add_library</span>(foo STATIC foo1.c)</span><br><span class="line"><span class="keyword">install</span>(TARGETS foo DESTINATION lib EXPORTS myproj-targets)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Top CMakeLists.txt</span></span><br><span class="line"><span class="keyword">add_subdirectory</span> (A)</span><br><span class="line"><span class="keyword">add_subdirectory</span> (B)</span><br><span class="line"><span class="keyword">install</span>(<span class="keyword">EXPORT</span> myproj-targets DESTINATION lib/myproj)</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建包"><a href="#创建包" class="headerlink" title="创建包"></a>创建包</h2><p>我们还可以生成一个配置文件，以便 <code>find_package()</code> 可以发现目标。步骤如下，</p>
+<ol>
+<li>include <code>CMakePackageConfigHelpers</code> 模块，获得创建配置文件的函数。</li>
+</ol>
+<h3 id="创建包配置文件"><a href="#创建包配置文件" class="headerlink" title="创建包配置文件"></a>创建包配置文件</h3><p>使用 <code>CMakePackageConfigHelpers</code> 模块中的 <code>configure_package_config_file()</code> 命令生成包配置文件，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">configure_package_config_file($&#123;CMAKE_CURRENT_SOURCE_DIR&#125;&#x2F;Config.cmake.in</span><br><span class="line">  &quot;$&#123;CMAKE_CURRENT_BINARY_DIR&#125;&#x2F;MathFunctionsConfig.cmake&quot;</span><br><span class="line">  INSTALL_DESTINATION $&#123;CMAKE_INSTALL_LIBDIR&#125;&#x2F;cmake&#x2F;MathFunctions</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><code>INSTALL_DESTINATION</code> 的路径值为 <code>MathFunctionsConfig.cmake</code> 安装路径。</p>
+<p><code>configure_package_config_file</code> 命令用于创建一个配置文件 <code>&lt;PackageName&gt;Config.cmake</code> 或者 <code>&lt;PackageName&gt;-Config.cmake</code>，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">configure_package_config_file(&lt;input&gt; &lt;output&gt;</span><br><span class="line">  INSTALL_DESTINATION &lt;path&gt;</span><br><span class="line">  [PATH_VARS &lt;var1&gt; &lt;var2&gt; ... &lt;varN&gt;]</span><br><span class="line">  [NO_SET_AND_CHECK_MACRO]</span><br><span class="line">  [NO_CHECK_REQUIRED_COMPONENTS_MACRO]</span><br><span class="line">  [INSTALL_PREFIX &lt;path&gt;]</span><br><span class="line">  )</span><br></pre></td></tr></table></figure>
+<p><code>INSTALL_DESTINATION</code> 可以是绝对路径，或者是相对 <code>INSTALL_PREFIX</code> 的路径。这个命令根据输入文件替换变量（@@包围的变量）的值得到输出文件。然后再安装到指定路径，这个配置文件中设置了 <code>MathFunctionsTargets.cmake</code> 的路径。</p>
+<h2 id="创建包版本文件"><a href="#创建包版本文件" class="headerlink" title="创建包版本文件"></a>创建包版本文件</h2><p>使用 <code>write_basic_package_version_file()</code> 创建包版本文件，当 CMAKE 使用 <code>find_package</code> 时，这个包版本文件将被 CMAKE 读取以决定版本是否兼容。</p>
+<h2 id="从生成树中导出目标"><a href="#从生成树中导出目标" class="headerlink" title="从生成树中导出目标"></a>从生成树中导出目标</h2><p>通常，一个项目都是在被外部其他项目使用之前就生成并安装完成，但是有些情况下，我们想在生成项目后直接导出目标，跳过安装过程，这时可以使用 <code>export()</code> 达成这一目的，如上文那一大段 CMakeLists.txt 内容的最后一个命令调用，在这个调用中，我们在生成目录创建文件 <code>MathFunctionsTargets.cmake</code>，但是需要注意，这个文件与 <code>lib/cmake/MathFunctions/MathFunctionsTargets.cmake</code> 不同，不具有路径重定向功能，因为其中 <code>MathFunctions</code> 目标的几个路径属性值全部是 hardcode 的，而非使用 <code>${_IMPORT_PREFIX}</code>。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/06/02/cpp/cmake_1/" rel="prev" title="cmake tutorial">
+      <i class="fa fa-chevron-left"></i> cmake tutorial
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/06/04/cpp/cmake_cmds_1/" rel="next" title="cmake 常用命令（一）">
+      cmake 常用命令（一） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#导入目标"><span class="nav-number">1.</span> <span class="nav-text">导入目标</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#导入可执行体"><span class="nav-number">1.1.</span> <span class="nav-text">导入可执行体</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#导入库"><span class="nav-number">1.2.</span> <span class="nav-text">导入库</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#导出目标"><span class="nav-number">2.</span> <span class="nav-text">导出目标</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建包"><span class="nav-number">2.1.</span> <span class="nav-text">创建包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建包配置文件"><span class="nav-number">2.1.1.</span> <span class="nav-text">创建包配置文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建包版本文件"><span class="nav-number">2.2.</span> <span class="nav-text">创建包版本文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从生成树中导出目标"><span class="nav-number">2.3.</span> <span class="nav-text">从生成树中导出目标</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

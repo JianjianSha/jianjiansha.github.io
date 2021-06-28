@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="引用计数C&#x2F;C++ 动态申请的内存，需要手动释放，否则出现内存泄漏。同时已经释放掉的内存块，不可以再次使用。Python 中采取的策略是引用计数，原理：每个对象包含一个计数器，当对象的一个引用被存储，那么增加一次计数，当对象的一个引用被删除，则减小一次计数，当计数归 0，表示对象的最后一个引用被删除，此时是否对象所占内存。 另一种策略是自动垃圾回收，这种策略的优点是使用者无需显式调用 free()">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python C&#x2F;C++ Extension（二）">
+<meta property="og:url" content="https://shajianjian.github.io/2021/06/16/python/ext2/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="引用计数C&#x2F;C++ 动态申请的内存，需要手动释放，否则出现内存泄漏。同时已经释放掉的内存块，不可以再次使用。Python 中采取的策略是引用计数，原理：每个对象包含一个计数器，当对象的一个引用被存储，那么增加一次计数，当对象的一个引用被删除，则减小一次计数，当计数归 0，表示对象的最后一个引用被删除，此时是否对象所占内存。 另一种策略是自动垃圾回收，这种策略的优点是使用者无需显式调用 free()">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-16T06:09:08.000Z">
+<meta property="article:modified_time" content="2021-06-16T10:03:03.935Z">
+<meta property="article:author" content="shajianjian">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/06/16/python/ext2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>python C/C++ Extension（二） | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/16/python/ext2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          python C/C++ Extension（二）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-06-16 14:09:08 / 修改时间：18:03:03" itemprop="dateCreated datePublished" datetime="2021-06-16T14:09:08+08:00">2021-06-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h1><p>C/C++ 动态申请的内存，需要手动释放，否则出现内存泄漏。同时已经释放掉的内存块，不可以再次使用。Python 中采取的策略是引用计数，原理：每个对象包含一个计数器，当对象的一个引用被存储，那么增加一次计数，当对象的一个引用被删除，则减小一次计数，当计数归 0，表示对象的最后一个引用被删除，此时是否对象所占内存。</p>
+<p>另一种策略是自动垃圾回收，这种策略的优点是使用者无需显式调用 <code>free()</code> 释放内存，缺点是 C 中没有一个真正的轻便的自动垃圾回收器，而引用计数则可以很方便的实现。</p>
+<h2 id="Python-中的引用计数"><a href="#Python-中的引用计数" class="headerlink" title="Python 中的引用计数"></a>Python 中的引用计数</h2><p><code>Py_INCREF(x)</code> 和 <code>Py_DECREF(x)</code> 这两个宏，用于增加和减小计数。当计数将为 0 时，<code>Py_DECREF(x)</code> 会释放对象。如何使用这两个宏？</p>
+<p>为此我们需要弄清楚一些概念。我们不直接拥有对象，而是拥有对象的一个引用，对象的引用计数就是拥有引用的数量。当引用不再被需要时，引用的拥有者负责调用 <code>Py_DECREF()</code> 。引用的拥有关系可以被转移。有三种方式处置所拥有的引用：1. 将引用转移；2. 存储引用；3. 调用 <code>Py_DECREF()</code>。不处理引用将导致内存泄漏。</p>
+<p>可以借用一个对象的引用，但是借方不能比这个引用的拥有者存活更久。通过调用 <code>Py_INCREF()</code>，这个出借的引用可以变成借方拥有的引用，这不影响原先拥有者的状态。</p>
+<h2 id="拥有关系规则"><a href="#拥有关系规则" class="headerlink" title="拥有关系规则"></a>拥有关系规则</h2><p>大部分返回对象引用的函数，都是转移引用的拥有关系。具体而言，所有用于创建一个新对象的函数，例如 <code>PyLong_FromLong()</code> 和 <code>Py_BuildValue()</code>，将拥有关系转移给接收者。</p>
+<p>当你将一个对象引用传递给一个函数时，通常，函数是向你借用引用，如果函数需要存储这个引用，那么它将使用 <code>Py_INCREF()</code>，从而成为一个独立的引用拥有者。</p>
+<p>python 中调用一个 C 函数时，C 函数从调用者那里借用对象引用。调用者拥有引用，在 C 函数中，引用的生命周期可以得到保证。</p>
+<h1 id="为扩展模块提供-C-API"><a href="#为扩展模块提供-C-API" class="headerlink" title="为扩展模块提供 C API"></a>为扩展模块提供 C API</h1><p>大多数时候扩展模块的函数都是在 Python 中使用，但是有时候扩展模块的函数可以在另一个扩展模块中使用。例如，一个扩展模块中可以实现一个类似 <code>list</code> 的集合类型，但是元素是无序的，这个新集合类型包含一些 C 函数，可以在其他扩展模块中直接使用。</p>
+<p>乍一看好像很简单，C 函数不再声明 static 即可。这在扩展模块静态链接至 Python 解释器时有效，如果扩展模块是动态链接库，那么一个模块中的符号在另一个模块中将不可见。</p>
+<p>所以我们不应该对符号可见性有任何预先设定，所以除了模块初始化函数，其他符号都应该声明为 <code>static</code>，以避免名称冲突。Python 提供一个特殊机制以实现 C level 的信息传输————从一个扩展模块到另一个扩展模块————胶囊。胶囊是一个Python 数据类型，存储了一个 <code>void *</code> 类型指针，胶囊仅在它的 C API 中被创建和访问，无法传递到其他 Python 对象。每个胶囊在扩展模块的命名空间里有自己的名称，其他扩展模块可以导入这个扩展模块，然后得到胶囊的名称，从而获取胶囊的指针。</p>
+<p>用于导出 C API 的胶囊应该遵循以下命名规则：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">modulename.attributename</span><br></pre></td></tr></table></figure>
+
+<p>以一个例子说明，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span></span><br><span class="line">PySpam_System(<span class="keyword">const</span> <span class="keyword">char</span> *command)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> system(command);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> PyObject *</span><br><span class="line">spam_system(PyObject *self, PyObject *args)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *command;</span><br><span class="line">    <span class="keyword">int</span> sts;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PyArg_ParseTuple(args, <span class="string">"s"</span>, &amp;command))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    sts = PySpam_System(command);</span><br><span class="line">    <span class="keyword">return</span> PyLong_FromLong(sts);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>紧接着 <code>#include &lt;Python.h&gt;</code> 之后添加 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#define SPAM_MODULE</span><br><span class="line">#include &quot;spammodule.h&quot;</span><br></pre></td></tr></table></figure>
+<p>然后定义模块初始化函数，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">PyMODINIT_FUNC</span><br><span class="line">PyInit_spam(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    PyObject *m;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">void</span> *PySpam_API[PySpam_API_pointers];</span><br><span class="line">    PyObject *c_api_object;</span><br><span class="line"></span><br><span class="line">    m = PyModule_Create(&amp;spammodule);</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Initialize the C API pointer array */</span></span><br><span class="line">    PySpam_API[PySpam_System_NUM] = (<span class="keyword">void</span> *)PySpam_System;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Create a Capsule containing the API pointer array's address */</span></span><br><span class="line">    c_api_object = PyCapsule_New((<span class="keyword">void</span> *)PySpam_API, <span class="string">"spam._C_API"</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (PyModule_AddObject(m, <span class="string">"_C_API"</span>, c_api_object) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        Py_XDECREF(c_api_object);</span><br><span class="line">        Py_DECREF(m);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>spammodule.h</code> 头文件内容如下，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> Py_SPAMMODULE_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> Py_SPAMMODULE_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> __cplusplus</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">"C"</span> &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Header file for spammodule */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* C API functions */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PySpam_System_NUM 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PySpam_System_RETURN int</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PySpam_System_PROTO (const char *command)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Total number of C API pointers */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PySpam_API_pointers 1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> SPAM_MODULE</span></span><br><span class="line"><span class="comment">/* This section is used when compiling spammodule.c */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> PySpam_System_RETURN PySpam_System PySpam_System_PROTO;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="comment">/* This section is used in modules that use spammodule's API */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> **PySpam_API;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PySpam_System \</span></span><br><span class="line"> (*(PySpam_System_RETURN (*)PySpam_System_PROTO) PySpam_API[PySpam_System_NUM])</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Return -1 on error, 0 on success.</span></span><br><span class="line"><span class="comment"> * PyCapsule_Import will set an exception if there's an error.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span></span><br><span class="line">import_spam(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    PySpam_API = (<span class="keyword">void</span> **)PyCapsule_Import(<span class="string">"spam._C_API"</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span> (PySpam_API != <span class="literal">NULL</span>) ? <span class="number">0</span> : <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> __cplusplus</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/* !defined(Py_SPAMMODULE_H) */</span></span></span><br></pre></td></tr></table></figure>
+
+<p>客户端模块内容如下，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">PyMODINIT_FUNC</span><br><span class="line">PyInit_client(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    PyObject *m;</span><br><span class="line"></span><br><span class="line">    m = PyModule_Create(&amp;clientmodule);</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">if</span> (import_spam() &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="comment">/* additional initialization can happen here */</span></span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/06/15/python/ext1/" rel="prev" title="python C/C++ Extensions（一）">
+      <i class="fa fa-chevron-left"></i> python C/C++ Extensions（一）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/06/16/python/ext3/" rel="next" title="python C/C++ Extension Type">
+      python C/C++ Extension Type <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引用计数"><span class="nav-number">1.</span> <span class="nav-text">引用计数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Python-中的引用计数"><span class="nav-number">1.1.</span> <span class="nav-text">Python 中的引用计数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#拥有关系规则"><span class="nav-number">1.2.</span> <span class="nav-text">拥有关系规则</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为扩展模块提供-C-API"><span class="nav-number">2.</span> <span class="nav-text">为扩展模块提供 C API</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

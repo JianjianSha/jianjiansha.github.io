@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="研究 python setup.py 脚本中的 setup 方法使用。 一个简单的例子 12345678910from distutils.core import setupsetup(name&#x3D;&#39;Distutils&#39;,      version&#x3D;&#39;1.0&#39;,      description&#x3D;&#39;Python Distribut">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python setup">
+<meta property="og:url" content="https://shajianjian.github.io/2021/06/12/python/setup/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="研究 python setup.py 脚本中的 setup 方法使用。 一个简单的例子 12345678910from distutils.core import setupsetup(name&#x3D;&#39;Distutils&#39;,      version&#x3D;&#39;1.0&#39;,      description&#x3D;&#39;Python Distribut">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-12T09:03:32.000Z">
+<meta property="article:modified_time" content="2021-06-15T06:05:31.990Z">
+<meta property="article:author" content="shajianjian">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/06/12/python/setup/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>python setup | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/12/python/setup/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          python setup
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-06-12 17:03:32" itemprop="dateCreated datePublished" datetime="2021-06-12T17:03:32+08:00">2021-06-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-15 14:05:31" itemprop="dateModified" datetime="2021-06-15T14:05:31+08:00">2021-06-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>研究 python setup.py 脚本中的 setup 方法使用。</p>
+<p>一个简单的例子</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">from distutils.core import setup</span><br><span class="line"></span><br><span class="line">setup(name&#x3D;&#39;Distutils&#39;,</span><br><span class="line">      version&#x3D;&#39;1.0&#39;,</span><br><span class="line">      description&#x3D;&#39;Python Distribution Utilities&#39;,</span><br><span class="line">      author&#x3D;&#39;Greg Ward&#39;,</span><br><span class="line">      author_email&#x3D;&#39;gward@python.net&#39;,</span><br><span class="line">      url&#x3D;&#39;https:&#x2F;&#x2F;www.python.org&#x2F;sigs&#x2F;distutils-sig&#x2F;&#39;,</span><br><span class="line">      packages&#x3D;[&#39;distutils&#39;, &#39;distutils.command&#39;],</span><br><span class="line">     )</span><br></pre></td></tr></table></figure>
+
+<p>下面分别对各参数进行解释说明</p>
+<h2 id="packages"><a href="#packages" class="headerlink" title="packages"></a>packages</h2><p>packages 列举了需要处理（生成、分发以及安装等）的纯 python 包。这里需要注意 包名称与文件路径之间的映射关系。例如，<code>distutils</code> 包应该对应 root 目录下的 <code>distutils</code> 文件夹，root 目录即 <code>setup.py</code> 文件所在目录。如果指定 <code>packages=[&#39;foo&#39;]</code>，那么 root 目录下应该有 <code>foo/__init__.py</code> 文件。</p>
+<p>当然，以上是默认约定规则，也可以手动建议映射关系：使用 <code>package_dir</code> 参数。</p>
+<h2 id="package-dir"><a href="#package-dir" class="headerlink" title="package_dir"></a>package_dir</h2><p>例如所有的 python 源文件均位于 root 目录下的 <code>lib</code> 文件夹中，也就是说 “root package” 实际上对应 <code>lib</code> 文件夹，例如 <code>foo</code> 包则对应 <code>lib/foo</code>文件夹，那么设置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">package_dir &#x3D; &#123;&#39;&#39;: &#39;lib&#39;&#125;</span><br></pre></td></tr></table></figure>
+<p>这是一个字典，key 表示包名称，empty string 表示 “root package”，value 表示文件目录（相对于 setup.py 所在目录），故如果此时设置 <code>packages=[&#39;foo&#39;]</code>，这表示 <code>lib/foo/__init__.py</code> 一定存在。</p>
+<p>如果 <code>package_dir = {&#39;foo&#39;: &#39;lib&#39;}</code>，这表示只有 <code>foo</code> 包不对应 root 目录下的 <code>foo</code> 文件夹，而直接对应 <code>lib</code> 文件夹，即 <code>lib/__init__.py</code> 一定存在。package_dir 的规则将（递归）应用到某个包内的所有包上，所以 <code>foo.bar</code> 包对应 <code>lib/bar</code>，即 <code>lib/bar/__init__.py</code> 一定存在。</p>
+<p>注意：<code>packages</code> 不会递归应用到某个包的所有子包上，所以如果要处理子包，需要显式的列出来。</p>
+<h2 id="py-modules"><a href="#py-modules" class="headerlink" title="py_modules"></a>py_modules</h2><p>对于小的模块分发，可能想直接列出模块，而不是包，那么使用这个参数，例如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">py_modules &#x3D; [&#39;mod1&#39;, &#39;pkg.mod2&#39;]</span><br></pre></td></tr></table></figure>
+<p>记住，模块以根目录为相对起点，所以上面例子中 <code>pkg</code> 必须是一个包，即 <code>pkg/__init__.py</code> 必须要存在。</p>
+<p>当然也可以通过设置 <code>package_dir</code> 来手动定义 包 - 目录 的映射关系。</p>
+<h2 id="ext-modules"><a href="#ext-modules" class="headerlink" title="ext_modules"></a>ext_modules</h2><p>写 python 扩展模块比写 纯 python 模块复杂一些，同样，描述如何处理这些 模块模块 也比 描述如何处理纯 python 模块要复杂，需要指定扩展模块名称，源文件，编译链接需求（头文件包含路径，链接库，flags 等）</p>
+<p>ext_modules 是 <code>Extension</code> 的列表， <code>Extension</code> 描述扩展模块。一个简单的例子，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Extension(&#39;foo&#39;, [&#39;foo.c&#39;])</span><br></pre></td></tr></table></figure>
+<p>表示扩展模块名称为 <code>foo</code>，相关的源文件为 <code>foo.c</code>。</p>
+<h3 id="扩展名和包"><a href="#扩展名和包" class="headerlink" title="扩展名和包"></a>扩展名和包</h3><p><code>Extension</code> 构造器的第一个参数为扩展模块的名称，也可以是包名称，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Extension(&#39;foo&#39;, [&#39;src&#x2F;foo1.c&#39;, &#39;src&#x2F;foo2.c&#39;])</span><br></pre></td></tr></table></figure>
+<p>指定了一个名为 <code>foo</code> 且位于 root package 下的扩展模块，而</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Extension(&#39;pkg.foo&#39;, [&#39;src&#x2F;foo1.c&#39;, &#39;src&#x2F;foo2.c&#39;])</span><br></pre></td></tr></table></figure>
+<p>制定了一个相同的扩展模块，但是位于 <code>pkg</code> 包内。</p>
+<h3 id="扩展源文件"><a href="#扩展源文件" class="headerlink" title="扩展源文件"></a>扩展源文件</h3><p><code>Extension</code> 构造器的第二个参数为扩展源文件，目前支持 C/C++/Objective-C，也可以是 SWIG 接口文件 (<code>.i</code> 后缀)。</p>
+<h3 id="预处理器选项"><a href="#预处理器选项" class="headerlink" title="预处理器选项"></a>预处理器选项</h3><p><code>Extension</code> 有三个可选参数，1. <code>include_dirs</code>，2. <code>define_macros</code>，3. <code>undef_macros</code>，分别指定头文件包含路径，定义宏，取消定义宏。</p>
+<p>例如，指定相对于项目 root 路径的 <code>include</code> 文件夹为头文件包含路径，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Extension(&#39;foo&#39;, [&#39;foo.c&#39;], include_dirs&#x3D;[&#39;include&#39;])</span><br></pre></td></tr></table></figure>
+
+<p>当然也可以使用绝对路径，但是尽量避免使用绝对路径，这对分发不友好。</p>
+<p>生成 python 扩展库时，Python 包含目录会自动被搜索，例如我的机器上 python 包含目录为 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~&#x2F;tool&#x2F;miniconda3&#x2F;include&#x2F;python3.8</span><br></pre></td></tr></table></figure>
+<p>所以这个头文件目录不需要手动添加到 <code>include_dirs</code> 中。</p>
+<p>这个路径可以使用 sysconfig 模块中的方法获得。</p>
+<p><code>define_macros</code> 用于定义宏，它是一个 <code>(name, value)</code> 元组的列表，其中 <code>name</code> 为宏名称，<code>value</code> 为宏值，是字符串类型或者 <code>None</code> 类型，<code>value</code> 等于 <code>None</code> 时，相当于 C 中定义宏 <code>#define FOO</code> ，这在一些编译器中，<code>FOO</code> 值为 <code>1</code> 。</p>
+<p><code>undef_macros</code> 则是取消定义宏的列表。例如，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Extension(...,</span><br><span class="line">          define_macros&#x3D;[(&#39;NDEBUG&#39;, &#39;1&#39;),</span><br><span class="line">                         (&#39;HAVE_STRFTIME&#39;, None)],</span><br><span class="line">          undef_macros&#x3D;[&#39;HAVE_FOO&#39;, &#39;HAVE_BAR&#39;])</span><br></pre></td></tr></table></figure>
+
+<p>等价于 C 源码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#define NDEBUG 1</span><br><span class="line">#define HAVE_STRFTIME</span><br><span class="line">#undef HAVE_FOO</span><br><span class="line">#undef HAVE_BAR</span><br></pre></td></tr></table></figure>
+
+<h3 id="库选项"><a href="#库选项" class="headerlink" title="库选项"></a>库选项</h3><p><code>Extension</code> 构造器中，可以指定链接库： <code>libraries</code> 参数，链接库的链接时搜索目录：<code>library_dirs</code> 参数，链接库运行时的搜索目录（动态库加载时搜索目录）：<code>runtime_library_dirs</code>。</p>
+<h3 id="其他选项"><a href="#其他选项" class="headerlink" title="其他选项"></a>其他选项</h3><p><code>Extension</code> 构造器还有一些其他选项参数。</p>
+<ol>
+<li><p><code>optional</code> bool 类型，如为 true，那么扩展库生成失败时不会导致整个 生成过程退出。</p>
+</li>
+<li><p><code>extra_objects</code> 是目标文件的列表，这些目标文件提供给连接器进行链接。</p>
+</li>
+<li><p><code>extra_compile_args</code> 指定额外的命令行选项供编译器使用，<code>extra_link_args</code> 指定命令行选项供链接器使用。</p>
+</li>
+<li><p><code>export_symbols</code> Windows 系统上使用，这里略。</p>
+</li>
+<li><p><code>depends</code> 是文件列表，指定扩展库所依赖的文件，例如头文件，那么当依赖文件有所改变时，生成命令将调用编译器重新编译。</p>
+</li>
+</ol>
+<p>以上是 <code>Extension</code> 扩展的参数介绍。</p>
+<h2 id="分发和包之间的联系"><a href="#分发和包之间的联系" class="headerlink" title="分发和包之间的联系"></a>分发和包之间的联系</h2><p>分发可以 依赖/提供/废除 包或者模块，这在 <code>distutils.core.setup()</code> 中实现。</p>
+<p>对其他 python 模块/包 的依赖可以通过 <code>setup()</code> 中的 <code>requires</code> 参数指定，这个参数值是字符串列表，其他每个字符串指示一个包，并且可选择是否附加包的 version。例如指定任意 version 模块 <code>mymodule</code> 或者 <code>xml.parsers.expat</code>，如果需要指定版本，那么在括号中指定版本修饰，可以有多个版本修饰，每个修饰之间使用 <code>,</code> 逗号分隔，修饰可以包含一个比较符，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;   &gt;   &#x3D;&#x3D;</span><br><span class="line">&lt;&#x3D;  &gt;&#x3D;  !&#x3D;</span><br></pre></td></tr></table></figure>
+<p>例如，<br>|依赖库版本| 解释|<br>|–|–|<br>|==1.0| 仅 1.0 版本兼容|<br>|&gt;1.0, !=1.5.1, &lt;2.0|在 1.0 以后 2.0 以前的版本兼容，其中 1.5.1 除外|</p>
+<p>上面指定了所依赖的版本，我们也可以提供当前项目包/模块的版本，供其他项目依赖，通过<code>setup()</code> 中的 <code>provides</code> 参数指定，参数值是字符串列表，每个字符串指示 python 的模块或包名称，且可选地提供其版本，如果未提供版本，那么认为与分发版本一致。例如，<br>|提供库表达式|解释|<br>|–|–|<br>|mypkg| 提供库 <code>mypkg</code>，使用分发版本|<br>|mypkg (1.1)| 提供库 <code>mypkg</code>，版本为 1.1|</p>
+<p>通过 <code>obsoletes</code> 参数指定废除一些包/模块，与上面的 <code>requires</code> 值类似，是字符串列表，其他每个字符串指定 包/模块 地名称，后面可跟一个或多个版本修饰，版本修饰至于 <code>()</code> 中。</p>
+<h2 id="安装脚本"><a href="#安装脚本" class="headerlink" title="安装脚本"></a>安装脚本</h2><p>上面介绍的内容，处理了 python 的包和模块，这些包和模块自己不会运行，而是在脚本中被导入使用。</p>
+<p>脚本中包含 python 源码，且可以在命令行中启动执行。<code>scripts</code> 参数指定了脚本文件列表，这样，分发安装后，脚本文件就被复制到 <code>PATH</code> 下。例如，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">setup(...,</span><br><span class="line">      scripts&#x3D;[&#39;scripts&#x2F;xmlproc_parse&#39;, &#39;scripts&#x2F;xmlproc_val&#39;]</span><br><span class="line">      )</span><br></pre></td></tr></table></figure>
+<p>文件路径是相对于分发 root 路径，安装后，脚本文件被拷贝到<code>PATH</code> 下，于是就可以直接在命令行中，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ xmlproc_parse</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">$ xmlproc_val</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装包数据"><a href="#安装包数据" class="headerlink" title="安装包数据"></a>安装包数据</h2><p>有时，其他一些文件也需要被安装，例如一些数据文件，或者包含文档的文本文件。这些文件统称为 包数据。</p>
+<p>使用 <code>package_data</code> 参数指定包数据，参数值是一个映射（字典类型），从包名称到相对路径列表的映射，相对路径指示数据文件，这些文件应该被拷贝到对应的包。相对路径是相对于 包 对应的目录（注意，可能由 <code>package_dir</code> 修改过，而非默认目录）。</p>
+<p>例如，源码目录如下，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">setup.py</span><br><span class="line">src&#x2F;</span><br><span class="line">    mypkg&#x2F;</span><br><span class="line">        __init__.py</span><br><span class="line">        module.py</span><br><span class="line">        data&#x2F;</span><br><span class="line">            tables.dat</span><br><span class="line">            spoons.dat</span><br><span class="line">            forks.dat</span><br></pre></td></tr></table></figure>
+
+<p><code>setup()</code> 函数调用为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">setup(...,</span><br><span class="line">     packages&#x3D;[&#39;mypkg&#39;],</span><br><span class="line">     package_dir&#x3D;&#123;&#39;mypkg&#39;: &#39;src&#x2F;mypkg&#39;&#125;,</span><br><span class="line">     package_data&#x3D;&#123;&#39;mypkg&#39;: [&#39;data&#x2F;*.dat&#39;]&#125;,</span><br><span class="line">     )</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装其他文件"><a href="#安装其他文件" class="headerlink" title="安装其他文件"></a>安装其他文件</h2><p>安装分发所需的其他文件，可以使用 <code>data_files</code> 参数，参数值是 <code>(directory, files)</code> 元组的列表，例如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">setup(...,</span><br><span class="line">      data_files&#x3D;[(&#39;bitmaps&#39;, [&#39;bm&#x2F;b1.gif&#39;, &#39;bm&#x2F;b2.gif&#39;]),</span><br><span class="line">                  (&#39;config&#39;, [&#39;cfg&#x2F;data.cfg&#39;])],</span><br><span class="line">     )</span><br></pre></td></tr></table></figure>
+
+<p><code>files</code> 中每个文件均相对于 <code>setup.py</code> 所在目录。可以重定义文件被安装的目录，但不能改变文件名。</p>
+<p><code>directory</code> 相对于安装 prefix，系统级安装则为 <code>sys.prefix</code>，用户级安装则为 <code>site.USER_BASE</code>。 <code>directory</code> 也可以为绝对路径，但是通常不建议，会导致与 wheel 包格式的不兼容。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/06/08/cpp/cmake_target/" rel="prev" title="cmake TARGET">
+      <i class="fa fa-chevron-left"></i> cmake TARGET
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/06/15/python/ext1/" rel="next" title="python C/C++ Extensions（一）">
+      python C/C++ Extensions（一） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#packages"><span class="nav-number">1.</span> <span class="nav-text">packages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#package-dir"><span class="nav-number">2.</span> <span class="nav-text">package_dir</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#py-modules"><span class="nav-number">3.</span> <span class="nav-text">py_modules</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ext-modules"><span class="nav-number">4.</span> <span class="nav-text">ext_modules</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#扩展名和包"><span class="nav-number">4.1.</span> <span class="nav-text">扩展名和包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扩展源文件"><span class="nav-number">4.2.</span> <span class="nav-text">扩展源文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#预处理器选项"><span class="nav-number">4.3.</span> <span class="nav-text">预处理器选项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#库选项"><span class="nav-number">4.4.</span> <span class="nav-text">库选项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他选项"><span class="nav-number">4.5.</span> <span class="nav-text">其他选项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分发和包之间的联系"><span class="nav-number">5.</span> <span class="nav-text">分发和包之间的联系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装脚本"><span class="nav-number">6.</span> <span class="nav-text">安装脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装包数据"><span class="nav-number">7.</span> <span class="nav-text">安装包数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装其他文件"><span class="nav-number">8.</span> <span class="nav-text">安装其他文件</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文假设已经熟悉了 Python 的基本知识。 对于 Python 的更多介绍，可参考 The Python Tutorial。 The Python Language Reference 提供了更多关于 Python 语言的介绍。The Python Standard Library 则归档了 Python 对象类型，函数以及模块。  如要获取更全面的 Python&#x2F;C API, 请参考 Pyt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python C&#x2F;C++ Extensions（一）">
+<meta property="og:url" content="https://shajianjian.github.io/2021/06/15/python/ext1/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="本文假设已经熟悉了 Python 的基本知识。 对于 Python 的更多介绍，可参考 The Python Tutorial。 The Python Language Reference 提供了更多关于 Python 语言的介绍。The Python Standard Library 则归档了 Python 对象类型，函数以及模块。  如要获取更全面的 Python&#x2F;C API, 请参考 Pyt">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-15T06:06:41.000Z">
+<meta property="article:modified_time" content="2021-06-19T02:30:57.870Z">
+<meta property="article:author" content="shajianjian">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/06/15/python/ext1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>python C/C++ Extensions（一） | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/15/python/ext1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          python C/C++ Extensions（一）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-06-15 14:06:41" itemprop="dateCreated datePublished" datetime="2021-06-15T14:06:41+08:00">2021-06-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-19 10:30:57" itemprop="dateModified" datetime="2021-06-19T10:30:57+08:00">2021-06-19</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文假设已经熟悉了 Python 的基本知识。 对于 Python 的更多介绍，可参考<a href="https://docs.python.org/3/tutorial/index.html#tutorial-index" target="_blank" rel="noopener"> The Python Tutorial</a>。 <a href="https://docs.python.org/3/reference/index.html#reference-index" target="_blank" rel="noopener">The Python Language Reference</a> 提供了更多关于 Python 语言的介绍。<a href="https://docs.python.org/3/library/index.html#library-index" target="_blank" rel="noopener">The Python Standard Library</a> 则归档了 Python 对象类型，函数以及模块。 </p>
+<p>如要获取更全面的 Python/C API, 请参考 <a href="https://docs.python.org/3/c-api/index.html#c-api-index" target="_blank" rel="noopener">Python/C API Reference Manual</a>。</p>
+<p>有很多第三方工具可用来创建 python 扩展，例如 Cython， cffi， SWIG 以及 Numba，但这里不借助这些第三方工具。</p>
+<h1 id="使用-C-C-扩展-Python"><a href="#使用-C-C-扩展-Python" class="headerlink" title="使用 C/C++ 扩展 Python"></a>使用 C/C++ 扩展 Python</h1><p>Python API 定义了一系列的 函数，宏 以及变量用以访问 Python 运行时系统，方便扩展。Python API 包含在头文件 <code>Python.h</code> 中。</p>
+<p>举一个例子，创建 <code>spam</code> 扩展模块，其中提供对应于 C 语言库函数 <code>system()</code> 的 python 接口。这个库函数的参数为 null 结尾的字符串，函数返回为一个整数。我们希望 <code>spam</code> 模块中这个接口使用形式为，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> spam</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>status = spam.system(<span class="string">"ls -l"</span>)</span><br></pre></td></tr></table></figure>
+<p>首先创建一个文件 <code>spammodule.c</code>，这个源文件中实现 <code>spam</code> 模块，头两行代码为</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PY_SSIZE_T_CLEAN</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;Python.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>注意：Python 中可能会包含一些预处理定义，这些定义会影响其他标准头文件，所以通常第一个包含 <code>&lt;Python.h&gt;</code>，然后再考虑包含其他头文件。此外，推荐定义 <code>PY_SSIZE_T_CLEAN</code> 宏。</p>
+<p>下一步定义一个 C 函数，当调用 <code>spam.system(string)</code> 时，这个 C 函数将被调用，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyObject *</span><br><span class="line">spam_system(PyObject *self, PyObject *args)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *command;</span><br><span class="line">    <span class="keyword">int</span> sts;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PyArg_ParseTuple(args, <span class="string">"s"</span>, &amp;command))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    sts = system(command);</span><br><span class="line">    <span class="keyword">return</span> PyLong_FromLong(sts);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个 C 函数有两个参数，按惯例命名为 <code>self</code> 和 <code>args</code>，其中 <code>self</code> 对模块级别的函数而言表示 模块对象自身，对于 类方法而言表示 类实例自身；<code>args</code> 指向 Python 元组对象，这个元组包含了函数参数，元组中每个 item 均为 Python 对象，需要将他们转为 C 类型值，才能调用 C 函数 <code>system()</code>，使用 <code>PyArg_ParseTuple</code> 完成这种转换，如果元组中每个 item 均转换成功，那么返回 true。</p>
+<h2 id="错误和异常"><a href="#错误和异常" class="headerlink" title="错误和异常"></a>错误和异常</h2><p>当函数调用失败，设置一个异常，并返回一个错误值（通常为 <code>NULL</code>），异常保存再一个静态全局变量中，如果这个变量为 <code>null</code>，那么说明没有异常发生。第二个全局变量存储了异常的关联值 （raise 中第二个参数：<code>raise expr from expr</code> 中后一个 <code>expr</code>，表示原始异常对象），第三个变量包含了堆栈的 traceback 信息，这三个变量是 Python 中执行 <code>sys.exc_info()</code> 返回结果的 C 等价体。</p>
+<p>Python API 中有一系列的函数用于设置异常类型。最常见的是 <code>PyErr_SetString()</code>，参数是一个异常对象和一个 C 字符串，其中 异常对象通常是预定义类型对象，例如 <code>PyExc_ZeroDivisionError</code>，C 字符串表明错误原因。调用这个函数就完成了异常设置（相当于 python 中抛出异常）。</p>
+<p>我们可以使用 <code>PyErr_Occurred()</code> 测试是否有异常发生，如有，则返回异常对象，否则返回 <code>NULL</code>。</p>
+<p>当调用了 函数 <code>g</code> 的函数 <code>f</code> 检测出 <code>g</code> 函数调用失败，<code>f</code> 应该返回一个错误值 <code>NULL</code> 或者 <code>-1</code>，而不需要调用 <code>PyErr_*()</code> 函数来设置异常，因为在 <code>g</code> 中已经设置过。调用 <code>f</code> 的函数也应该返回一个错误值，同样不需要调用 <code>PyErr_*()</code>。</p>
+<p>通过显示调用 <code>PyErr_Clear()</code> 可以忽略异常。调用 <code>malloc</code> 或者 <code>realloc</code> 失败时，需要设置异常，调用 <code>PyErr_NoMemory</code>。所有的创建对象的函数（例如 <code>PyLong_FromLong()</code> 已经实现了这个规则，这里说明一下，仅是为了针对那些直接调用  <code>malloc</code> 或者 <code>realloc</code> 的地方，在调用失败时不要忘记设置 <code>PyErr_NoMemory</code>。</p>
+<p>注意，除了 <code>PyArg_ParseTuple()</code> 以及其他类似的函数之外，其他返回一个整型状态值的函数都在执行成功时返回一个非负值，在执行失败时，返回 <code>-1</code>，这与 Unix 系统类似。</p>
+<p>最后需要注意，当返回一个错误值时，需要对我们自己创建的对象清除和垃圾回收（调用 <code>Py_XDECREF()</code> 或者 <code>Py_DECREF()</code>）。</p>
+<p>有很多预定义的 异常类型，当然也可以自定义异常，例如要定义对当前模块唯一的异常，为此，在模块实现文件的开始处定义一个静态对象变量，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyObject *SpamError;</span><br></pre></td></tr></table></figure>
+<p>然后在模块初始化函数 <code>PyInit_spam()</code> 中进行初始化，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">PyMODINIT_FUNC</span><br><span class="line">PyInit_spam(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    PyObject *m;</span><br><span class="line"></span><br><span class="line">    m = PyModule_Create(&amp;spammodule);</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    SpamError = PyErr_NewException(<span class="string">"spam.error"</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    Py_XINCREF(SpamError);</span><br><span class="line">    <span class="keyword">if</span> (PyModule_AddObject(m, <span class="string">"error"</span>, SpamError) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        Py_XDECREF(SpamError);</span><br><span class="line">        Py_CLEAR(SpamError);</span><br><span class="line">        Py_DECREF(m);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>PyErr_NewException()</code> 函数将创建一个 Exception 类型的子类，对应的 python 类型为 <code>spam.error</code>。现在我们在<code>system()</code> 调用失败时设置异常，代码如下，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyObject *</span><br><span class="line">spam_system(PyObject *self, PyObject *args)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *command;</span><br><span class="line">    <span class="keyword">int</span> sts;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PyArg_ParseTuple(args, <span class="string">"s"</span>, &amp;command))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    sts = system(command);</span><br><span class="line">    <span class="keyword">if</span> (sts &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        PyErr_SetString(SpamError, <span class="string">"System command failed"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> PyLong_FromLong(sts);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果调用的是一个返回 void 的 C 函数，那么对应的 Python 函数则应该返回 None，所以使用如下代码实现，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Py_INCREF(Py_None);</span><br><span class="line"><span class="keyword">return</span> Py_None;</span><br></pre></td></tr></table></figure>
+<p>或者使用宏 <code>Py_RETURN_NONE</code> 更简洁。</p>
+<h2 id="模块的方法表以及初始化"><a href="#模块的方法表以及初始化" class="headerlink" title="模块的方法表以及初始化"></a>模块的方法表以及初始化</h2><p>以下代码显示了如何从 Python 程序中调用 <code>spam_system()</code>，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyMethodDef SpamMethods[] = &#123;</span><br><span class="line">    ...</span><br><span class="line">    &#123;<span class="string">"system"</span>,  spam_system, METH_VARARGS,</span><br><span class="line">     <span class="string">"Execute a shell command."</span>&#125;,</span><br><span class="line">    ...</span><br><span class="line">    &#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;        <span class="comment">/* Sentinel */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这个数组中每一项表示一个模块方法（python 到 C 方法映射）。数组的每个条目中，第一个为字符串，表示 python 方法明，第二个为 C 方法，第三个参数可以是 <code>METH_VARARGS</code> 或者 <code>METH_VARARGS | METH_KEYWORDS</code>，对于<code>METH_VARARGS</code>，表示在 python 侧，参数以元组形式传递进来，然后使用 <code>PyArg_ParseTuple()</code> 解析成 C 类型变量。对于 <code>METH_KEYWORDS</code>，表示传递关键字参数（参数有默认值），这种情况下，C 侧函数还有第三个参数 <code>PyObject *</code> 类型，使用 <code>PyArg_ParseTupleAndKeywords()</code> 解析。</p>
+<p>整个模块定义为，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">PyModuleDef</span> <span class="title">spammodule</span> = &#123;</span></span><br><span class="line">    PyModuleDef_HEAD_INIT,</span><br><span class="line">    <span class="string">"spam"</span>,   <span class="comment">/* name of module */</span></span><br><span class="line">    spam_doc, <span class="comment">/* module documentation, may be NULL */</span></span><br><span class="line">    <span class="number">-1</span>,       <span class="comment">/* size of per-interpreter state of the module,</span></span><br><span class="line"><span class="comment">                 or -1 if the module keeps state in global variables. */</span></span><br><span class="line">    SpamMethods</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这个结构体需要传给 python 解释器的模块初始化函数，初始化函数名为 <code>PyInit_&lt;modulename&gt;()</code>，其中 <code>&lt;modulename&gt;</code> 表示 python 模块名，在模块定义文件中，初始化函数是唯一非静态修饰的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PyMODULEINIT_FUNC</span><br><span class="line">PyInit_spam(<span class="keyword">void</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> PyModule_Create(&amp;spammodule);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当在 python 程序中首次 import  <code>spam</code> 模块时，<code>PyInit_spam()</code> 方法被调用，其中调用 <code>PyModule_Create()</code>，返回一个模块对象指针。</p>
+<p>在 C 代码中嵌入 Python 时，<code>PyInit_spam()</code> 不会自动调用，除非 <code>PyImport_Inittab</code> 中插入相应的一项。如下代码所示，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span></span><br><span class="line">main(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">wchar_t</span> *program = Py_DecodeLocale(argv[<span class="number">0</span>], <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (program == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Fatal error: cannot decode argv[0]\n"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Add a built-in module, before Py_Initialize */</span></span><br><span class="line">    <span class="keyword">if</span> (PyImport_AppendInittab(<span class="string">"spam"</span>, PyInit_spam) == <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Error: could not extend in-built modules table\n"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Pass argv[0] to the Python interpreter */</span></span><br><span class="line">    Py_SetProgramName(program);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Initialize the Python interpreter.  Required.</span></span><br><span class="line"><span class="comment">       If this step fails, it will be a fatal error. */</span></span><br><span class="line">    Py_Initialize();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Optionally import the module; alternatively,</span></span><br><span class="line"><span class="comment">       import can be deferred until the embedded script</span></span><br><span class="line"><span class="comment">       imports it. */</span></span><br><span class="line">    PyObject *pmodule = PyImport_ImportModule(<span class="string">"spam"</span>);</span><br><span class="line">    <span class="keyword">if</span> (!pmodule) &#123;</span><br><span class="line">        PyErr_Print();</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Error: could not import module 'spam'\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    PyMem_RawFree(program);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注：所谓嵌入 python，是指将 CPython 运行时嵌入到一个更大的程序中，而不仅仅局限在实现 Python 的 C 扩展并在 Python 解释器中执行。</p>
+<h2 id="编译和链接"><a href="#编译和链接" class="headerlink" title="编译和链接"></a>编译和链接</h2><p>实现 C 扩展代码后，还需要进行编译和链接。后面会专门讨论如何实现编译链接成动态库，这里简单介绍如何将实现的 C 扩展模块作为 python 解释器的一部分，即内置模块。</p>
+<p>将 <code>spammodule.c</code> 文件至于 python 源码的 <code>Modules/</code> 目录下，然后再 <code>Modules/Setup.local</code> 中添加一行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spam spammodule.o</span><br></pre></td></tr></table></figure>
+
+<p>然后在 top-level 目录下运行 <code>make</code> 以重新生成 python 解释器。</p>
+<p>如果我们自己实现的C扩展模块需要额外的链接库，也可以在配置文件 <code>Modules/Setup.local</code> 中列出，例如，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spam spammodule.o -lX11</span><br></pre></td></tr></table></figure>
+
+<p>这种将自定义模块作为解释器一部分的思路并不常见，所以不过多介绍，重点还是后面即将介绍的动态库生成。</p>
+<h2 id="从-C-中调用-Python-函数"><a href="#从-C-中调用-Python-函数" class="headerlink" title="从 C 中调用 Python 函数"></a>从 C 中调用 Python 函数</h2><p>前面介绍了如何从 Python 中调用 C 函数，现在反过来，从 C 中如何调用 python？这在支持回调的函数中尤其有用，Python 侧调用 C 扩展时，需要提供一个 回调。</p>
+<p>还以上面那个 <code>spammodule.c</code> 文件为例，我们现在需要提供一个函数，用于接收 Python 侧提供的回调，并将回调函数对象保存到一个全局变量中，代码如下，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> PyObject *my_callback = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> PyObject *</span><br><span class="line">my_set_callback(PyObject *dummy, PyObject *args)</span><br><span class="line">&#123;</span><br><span class="line">    PyObject *result = <span class="literal">NULL</span>;</span><br><span class="line">    PyObject *temp;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (PyArg_ParseTuple(args, <span class="string">"O:set_callback"</span>, &amp;temp)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!PyCallable_Check(temp)) &#123;</span><br><span class="line">            PyErr_SetString(PyExc_TypeError, <span class="string">"parameter must be callable"</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        Py_XINCREF(temp);         <span class="comment">/* Add a reference to new callback */</span></span><br><span class="line">        Py_XDECREF(my_callback);  <span class="comment">/* Dispose of previous callback */</span></span><br><span class="line">        my_callback = temp;       <span class="comment">/* Remember new callback */</span></span><br><span class="line">        <span class="comment">/* Boilerplate to return "None" */</span></span><br><span class="line">        Py_INCREF(Py_None);</span><br><span class="line">        result = Py_None;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同样的，这个函数，需要注册到 <code>spam</code> 模块中，与上面 <code>spam_system()</code> 类似，例如 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">static PyMethodDef SpamMethods[] &#x3D; &#123;</span><br><span class="line">    ...</span><br><span class="line">    &#123;&quot;set_cb&quot;,  my_set_callback, METH_VARARGS,</span><br><span class="line">     &quot;Set a callback function&quot;&#125;,</span><br><span class="line">    ...</span><br><span class="line">    &#123;NULL, NULL, 0, NULL&#125;        &#x2F;* Sentinel *&#x2F;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>在 Python 侧调用 <code>spam.set_cb()</code> 就可以设置回调函数了，之后可以在 C 代码中任意其他地方调用这个回调， 例如另一个 C 函数 <code>use_cb()</code> 中，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> arg;</span><br><span class="line">PyObject *arglist;</span><br><span class="line">PyObject *result;</span><br><span class="line">...</span><br><span class="line">arg = <span class="number">123</span>;</span><br><span class="line">...</span><br><span class="line"><span class="comment">/* Time to call the callback */</span></span><br><span class="line">arglist = Py_BuildValue(<span class="string">"(i)"</span>, arg);</span><br><span class="line">result = PyObject_CallObject(my_callback, arglist);</span><br><span class="line">Py_DECREF(arglist);</span><br></pre></td></tr></table></figure>
+<p>使用 <code>PyObject_CallObject()</code> 调用回调，有两个参数，第一个是回调对象，第二个是回调函数的参数列表，这个参数列表是一个 tuple 对象，如果回调函数无参数，那么这个参数列表可以是 <code>NULL</code>，或者一个 empty tuple。不能使用 C 类型参数，而应该使用 <code>Py_BuildValue()</code> 转换为 Python相关的类型。</p>
+<p><code>PyObject_CallObject()</code> 对于其参数而言，是“引用计数中立”的，所以在调用 <code>PyObject_CallObject()</code> 之后，需要立即将参数 <code>Py_DECREF()</code>。</p>
+<p><code>PyObject_CallObject()</code> 的返回值也需要 <code>Py_DECREF()</code>，除非将返回值保存至一个全局变量中（这个变量已经增加其引用计数）。当然在降低引用计数之前需要检查返回值是否为 <code>NULL</code>，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PyObject *arglist;</span><br><span class="line">...</span><br><span class="line">arglist &#x3D; Py_BuildValue(&quot;(l)&quot;, eventcode);</span><br><span class="line">result &#x3D; PyObject_CallObject(my_callback, arglist);</span><br><span class="line">Py_DECREF(arglist);</span><br><span class="line">if (result &#x3D;&#x3D; NULL)</span><br><span class="line">    return NULL; &#x2F;* Pass error back *&#x2F;</span><br><span class="line">&#x2F;* Here maybe use the result *&#x2F;</span><br><span class="line">Py_DECREF(result);</span><br></pre></td></tr></table></figure>
+
+<p>也可以使用 <code>PyObject_Call()</code> 来调用有关键字参数的函数，例如，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PyObject *dict;</span><br><span class="line">...</span><br><span class="line">dict &#x3D; Py_BuildValue(&quot;&#123;s:i&#125;&quot;, &quot;name&quot;, val);</span><br><span class="line">result &#x3D; PyObject_Call(my_callback, NULL, dict);</span><br><span class="line">Py_DECREF(dict);</span><br><span class="line">if (result &#x3D;&#x3D; NULL)</span><br><span class="line">    return NULL; &#x2F;* Pass error back *&#x2F;</span><br><span class="line">&#x2F;* Here maybe use the result *&#x2F;</span><br><span class="line">Py_DECREF(result);</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/06/12/python/setup/" rel="prev" title="python setup">
+      <i class="fa fa-chevron-left"></i> python setup
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/06/16/python/ext2/" rel="next" title="python C/C++ Extension（二）">
+      python C/C++ Extension（二） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#使用-C-C-扩展-Python"><span class="nav-number">1.</span> <span class="nav-text">使用 C&#x2F;C++ 扩展 Python</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#错误和异常"><span class="nav-number">1.1.</span> <span class="nav-text">错误和异常</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模块的方法表以及初始化"><span class="nav-number">1.2.</span> <span class="nav-text">模块的方法表以及初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译和链接"><span class="nav-number">1.3.</span> <span class="nav-text">编译和链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从-C-中调用-Python-函数"><span class="nav-number">1.4.</span> <span class="nav-text">从 C 中调用 Python 函数</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
