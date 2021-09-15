@@ -4,7 +4,8 @@ date: 2021-06-08 17:15:50
 tags:
 p: cpp/target
 ---
-
+cmake 的目标 TARGET。
+<!-- more -->
 # target_compile_definitions
 ```
 target_compile_definitions(<target>

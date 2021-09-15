@@ -20,16 +20,17 @@
     var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="研究 python setup.py 脚本中的 setup 方法使用。 一个简单的例子 12345678910from distutils.core import setupsetup(name&#x3D;&#39;Distutils&#39;,      version&#x3D;&#39;1.0&#39;,      description&#x3D;&#39;Python Distribut">
+  <meta name="description" content="python 的 setup 介绍。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="python setup">
 <meta property="og:url" content="https://shajianjian.github.io/2021/06/12/python/setup/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="研究 python setup.py 脚本中的 setup 方法使用。 一个简单的例子 12345678910from distutils.core import setupsetup(name&#x3D;&#39;Distutils&#39;,      version&#x3D;&#39;1.0&#39;,      description&#x3D;&#39;Python Distribut">
+<meta property="og:description" content="python 的 setup 介绍。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-06-12T09:03:32.000Z">
-<meta property="article:modified_time" content="2021-06-15T06:05:31.990Z">
+<meta property="article:modified_time" content="2021-09-15T02:06:40.634Z">
 <meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="cmake, C++">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://shajianjian.github.io/2021/06/12/python/setup/">
@@ -195,7 +196,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-15 14:05:31" itemprop="dateModified" datetime="2021-06-15T14:05:31+08:00">2021-06-15</time>
+                <time title="修改时间：2021-09-15 10:06:40" itemprop="dateModified" datetime="2021-09-15T10:06:40+08:00">2021-09-15</time>
               </span>
 
           
@@ -209,7 +210,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>研究 python setup.py 脚本中的 setup 方法使用。</p>
+        <p>python 的 setup 介绍。</p>
+<a id="more"></a>
+
+<p>研究 python setup.py 脚本中的 setup 方法使用。</p>
 <p>一个简单的例子</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">from distutils.core import setup</span><br><span class="line"></span><br><span class="line">setup(name&#x3D;&#39;Distutils&#39;,</span><br><span class="line">      version&#x3D;&#39;1.0&#39;,</span><br><span class="line">      description&#x3D;&#39;Python Distribution Utilities&#39;,</span><br><span class="line">      author&#x3D;&#39;Greg Ward&#39;,</span><br><span class="line">      author_email&#x3D;&#39;gward@python.net&#39;,</span><br><span class="line">      url&#x3D;&#39;https:&#x2F;&#x2F;www.python.org&#x2F;sigs&#x2F;distutils-sig&#x2F;&#39;,</span><br><span class="line">      packages&#x3D;[&#39;distutils&#39;, &#39;distutils.command&#39;],</span><br><span class="line">     )</span><br></pre></td></tr></table></figure>
 
@@ -299,6 +303,9 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/cmake-C/" rel="tag"># cmake, C++</a>
+          </div>
 
         
 
@@ -385,7 +392,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-count">76</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -398,7 +405,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

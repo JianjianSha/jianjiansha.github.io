@@ -160,6 +160,432 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/02/20/obj_det/two_stage/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/02/20/obj_det/two_stage/" class="post-title-link" itemprop="url">Two-stage Object Detection</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-20 14:50:40" itemprop="dateCreated datePublished" datetime="2021-02-20T14:50:40+08:00">2021-02-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-05 19:00:19" itemprop="dateModified" datetime="2021-03-05T19:00:19+08:00">2021-03-05</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Faster-R-CNN"><a href="#Faster-R-CNN" class="headerlink" title="Faster R-CNN"></a>Faster R-CNN</h1><ol>
+<li>baseline: VGG, resnet</li>
+<li>RPN: 生成 proposals</li>
+<li>ROIPooling: RPN 生成的 proposals 在 conv5_3 上对应的 feature region 被 Pooling 成固定的 <code>7x7</code> 大小，然后在经 FC layer</li>
+<li>detection head: 与 Fast R-CNN 中一样，两个分支，分别预测分类和坐标</li>
+<li>从一个图中取 top 256 个 proposals 作为 mini-batch，送入 detection subnetwork</li>
+<li>多个 scale 和 aspect ratio 组合，以应对不同尺寸和形状的目标检测</li>
+</ol>
+<h1 id="FPN"><a href="#FPN" class="headerlink" title="FPN"></a>FPN</h1><ol start="0">
+<li>在 Faster R-CNN 基础上，将 baseline 由 ResNet/VGG 换成 FPN（multi-scale + top-down feature fused)</li>
+<li>in-network feature pyramids，每个 level 的 feature 独立做检测</li>
+<li>low-level feature 有利于小目标检测，但是单纯的 low-level feature 还不够，因为其特征表达能力不够强，所以使用 top-down 和 径向连接，合并了 high-level feature。这对检测多种 scale 的目标非常有用。</li>
+<li>backbone 选用 resnet，利用 FPN 生成 feature pyramids，而原来 faster rcnn 中为 single feature，故给每个 level 的 feature 配备 RPN 和 rcnn head 分支，这些分支在所有 level feature 上共享参数。resnet 有 conv2，conv3，conv4，conv5，这里在 conv5 之上增加一个 1x1 conv（有 subsampling），专门用于检测大目标，这样共 5 个 level。</li>
+<li>feature level 为 P2，P3，P4，P5，P6，每个 level 上的 anchor 使用一个 scale <code>8</code>，由于stride 分别为 4，8，16，32，64，故 anchor 在 input image 上实际 size 为 32，64，128，256，512，分别作为每个 level 上的 base anchor，每个 anchor 的 aspect ratio 为 <code>[0.5, 1, 2]</code>。</li>
+<li>RPN 生成的 proposals，根据不同的尺寸，使用不同的 level 分支来负责检测，分支 <code>Pk</code> 的下标确定方法为<br> $$k=\lfloor 4 + \log_2(\sqrt {wh} / 224) \rfloor$$</li>
+</ol>
+<h1 id="Deformable-ConvNet"><a href="#Deformable-ConvNet" class="headerlink" title="Deformable ConvNet"></a>Deformable ConvNet</h1><p>可变形卷积网络提出两个模块。</p>
+<h2 id="Deformable-Conv"><a href="#Deformable-Conv" class="headerlink" title="Deformable Conv"></a>Deformable Conv</h2><p>为卷积操作的 feature grid 中每一个 position 增加 2-d offset（横纵坐标偏差）。记输出 feature map 上某一点位置 $p_0$，输入 feature 上的 grid sampling 根据感受野<br>$$\mathcal R={(-1,-1),(-1,0),…,(0,1),(1,1)}$$<br>确定，那么这一点的常规卷积输出为<br>$$y(p_0)=\sum_{p_n \in \mathcal R} w(p_n) \cdot x(p_0+p_n)$$</p>
+<p>输入 feature grid 每一点 $p_n$ 增加一个坐标偏差 $\Delta p_n$，于是可变形卷积为<br>$$y(p_0)=\sum_{p_n \in \mathcal R} w(p_n) \cdot x(p_0+p_n+\Delta p_n)$$</p>
+<p>在这个输入 feature 上使用一个 conv，得到 resolution 相同，但是 channal 为 2N 的输出，表示没一点的 offset，显然 offset 不是整数。</p>
+<p>记 $p=p_0+p_n+\Delta p_n$，使用双线性插值计算 $p$ 点的像素值，<br>$$x(p)=\sum_{q} G(q,p) \cdot x(p)$$<br>其中 $q$ 是输入 feature 上任意一点，$G(q,p)$ 表示关联权重，<br>$$G(q,p)=g(q_x, p_x) \cdot g(q_y, p_y)$$<br>$$g(a,b)=\max(0, 1-|a-b|)$$<br>显然最多只用到 p 周围最近的 4 个点来做双线性插值。也就是说，p和 q 的坐标相差不超过 1，但是注意，$\Delta p_n$ 表示的坐标偏差可能会超过 1。</p>
+<p>得到 offset 后，再在原来的 input feature 上进行变形卷积，得到 output feature map。</p>
+<h2 id="Deformable-ROI-Pooling"><a href="#Deformable-ROI-Pooling" class="headerlink" title="Deformable ROI Pooling"></a>Deformable ROI Pooling</h2><p>Region proposal-based 目标检测均采样 ROI Pooling 将输入特征 池化到一个固定大小的 feature（例如 7x7）。先来看常规 ROI Pooling 操作，记 ROI Pooling 将 <code>wxh</code> 大小的输入特征池化为一个 <code>kxk</code> 的特征，输入特征的左上角记为 <code>p_0</code>，那么 output feature map 上一点 <code>(i,j)</code> 的值为<br>$$y(i,j)=\sum_{p \in bin(i,j)} x(p_0+p)/n_{ij}$$<br>其中 $n_{ij}=|bin(i,j)|$，$bin(i,j)$ 表示输出上一点 <code>(i,j)</code> 对应到输入平面上一个 bin 中的各点（相对于左上角）的位置，这个 bin 由下式确定，<br>$$\lfloor i \cdot w /k \rfloor \le p_x &lt; \lceil (i+1) \cdot w / k \rceil$$<br>$$\lfloor j \cdot h /k \rfloor \le p_y &lt; \lceil (j+1) \cdot h / k \rceil$$</p>
+<p>现在同样地，我们需要为这个 bin 生成坐标偏差，每一个 bin 对应一个 2-d offset，记 $bin(i,j)$ 的 2-d offset 为 $\Delta p_{ij}$，得到变形 ROI Pooling 为<br>$$y(i,j)=\sum_{p \in bin(i,j)} x(p_0+p+\Delta p_{ij}) / n_{ij}$$</p>
+<p>如何得到这个 bin 的坐标偏差呢?</p>
+<p>在 input feature 上使用 ROI Pooling 得到池化后的 feature，然后再经过一个 fc（全连接层）生成归一化后的 offset，记为 $\Delta \hat p_{ij}$，再 element-wise 乘上 ROI 的 w 和 h，得到 bin 的坐标偏差 offset<br>$$\Delta p_{ij}=\gamma \cdot \Delta \hat p_{ij} \ \circ \ (w,h)$$<br>其中 $\gamma$ 是一个预定义标量值，用于调节 offset 的幅度。文中取 $\gamma=0.1$。</p>
+<p><b>offset 的归一化是必须的，这样使得 offset 的学习不受 ROI size 的影响。</b></p>
+<h3 id="Position-Sentive-PS-ROI-Pooling"><a href="#Position-Sentive-PS-ROI-Pooling" class="headerlink" title="Position-Sentive(PS) ROI Pooling"></a>Position-Sentive(PS) ROI Pooling</h3><p>这里的 Position-Sentive 是指与 bin 的位置 <code>(i,j)</code> 有关。分类 subnet 和 box 回归 subnet 情况不同。</p>
+<ol>
+<li>分类分支。input feature 经过 conv 后得到 channel 为 $k^2(C+1)$，其中 k 为 池化后特征平面边长，C 为分类 fg 数量，每个分类每个 bin 有自己独立的 feature，池化时，使用这个独立的 feature，而上面的池化过程，对每个 bin 均采用同一个 feature（即 input feature）。</li>
+<li>box 回归分支。同分类分支类似，input feature 经过 conv 得到 channel 为 $2k^2(C+1)$ 的 feature，同样特征值表示归一化后的 offset，element-wise 乘上 ROI 的 w 和 h，得到实际的 offset 值。</li>
+</ol>
+<h1 id="Deformable-ConvNet-v2"><a href="#Deformable-ConvNet-v2" class="headerlink" title="Deformable ConvNet v2"></a>Deformable ConvNet v2</h1><p>可变形卷积网络 v1 的缺点是对目标边界信息的捕获不够准确，在可变形卷积网络 v2（DCNv2）中，使用更多的 conv layer 学习 offset，且每个样本不仅学习 offset，还学习 feature 的幅值调整。</p>
+<p>为了更好的理解可变形卷积，文中给出了如下视图：</p>
+<ol>
+<li>有效感受野</li>
+<li>有效取样点位置</li>
+<li>有界误差（小误差）的显著性区域</li>
+</ol>
+<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p>Baseline 组成：Faster R-CNN + ResNet + aligned RoIPooling</p>
+<p>应用 <strong>可变形：</strong><br>RPN 加在 stage4 的输出特征之上，conv5 中的 conv 则采用可变性卷积，RoIPooling 采用可变形 RoIPooling。conv5 中的 stride=16，而非原来的 32，这是为了提高 feature map 的 resolution，将 conv5_1 的 stride 改为 1 即可实现。</p>
+<p>conv5 的输出特征之上，采用 Fast R-CNN 检测head，其他包括 RoIPooling 和两个 fc（全连接层），然后是两个并列的分类分支和回归分支。</p>
+<h2 id="提升可变形能力"><a href="#提升可变形能力" class="headerlink" title="提升可变形能力"></a>提升可变形能力</h2><p>可变形卷积应用到 conv3，conv4 和 conv5 中所有的 3x3 conv 上（DCNv1 中仅 conv5 中的 3x3 conv 应用了可变形卷积）</p>
+<p><strong>调整可变形 conv:</strong></p>
+<p>引入一个调制机制，使得可变形卷积不但可以调整 offset，还可以调整 feature 的各 location 处的幅值。极端情况下，这个模块可以通过设置 feature 某处幅值为 0 从而决定不再注意这个 location 处的信号。</p>
+<p>记卷积核卷积采样点（location）为 $K$，其中第 $k$ 个 location 的权值和 offset 分别为 $w_k, \ p_k$，例如 <code>3x3</code> 卷积的采样点数量为 $K=9$，且<br>$$p_k \in {(-1,-1), (-1,0),…,(1,1)}$$</p>
+<p>输入特征 x 和输出特征 y 上一点 p 处的特征值分别记为 $x(p), \ y(p)$，调整后的可变形卷积为<br>$$y(p)=\sum_{k=1}^K w_k \cdot x(p+p_k+\Delta p_k)\cdot \Delta m_k$$<br>其中 $\Delta p_k$ 是可学习的 offset，$\Delta p_k$ 是非归一化的。$\Delta m_k \in [0,1]$ 是幅值修正系数。$x(p+p_k+\Delta p_k)$ 使用双线性插值求得。</p>
+<p>$\Delta p_k, \ \Delta m_k$ 通过输入 feature map 上使用另一 conv layer 获得 <code>3K</code> channel 的输出，前 2K 表示 $\Delta p_k$，后 K channel 的数据继续经 sigmoid，得到 $\Delta m_k$。</p>
+<p><strong>调整可变形RoIPooling:</strong></p>
+<p>RoIPooling 将 RoI 划分为 <strong>K</strong> 个 bins（例如 <code>7x7</code>），每个 bin 中，取若干个采样点（例如 <code>2x2</code>），采样点的平均作为这个 bin 的输出。对 RoIPooling 赋予调整后的可变形能力，同可变形卷积一样，除了 offset 还有幅值，分别记为 $\Delta p_k$ 和 $\Delta m_k$，表示第 <code>k</code> 个 bin，那么这个 bin 的输出改为，<br>$$y(k)=\sum_{j=1}^n x(p_{kj}+\Delta p_k) \cdot \Delta m_k / n$$<br>其中 $n$ 表示 bin 中采样点数量，$p_{kj}$ 表示第 <code>k</code> 个 bin 中第 <code>j</code> 个采样点坐标。与 DCNv1 中类似，针对每个 bin 有 offset 和幅值变化。$x(p_{kj}+\Delta p_K)$ 采样双线性插值计算该处特征值。</p>
+<p><strong>分支结构：</strong></p>
+<p>RoIPooling 从 feature maps 上得到 RoI feature patch，后跟 2x fc（两个全连接层），dimension 均为 1024，然后是一个 3K channel 的 fc，其他前 2K 表示归一化的 offset，乘以 RoI 的宽高得到实际的坐标 offset ${\Delta p_k}<em>{k=1}^K$。剩余的 K 通过 sigmoid layer 得到幅值伸缩系数 ${\Delta m_k}</em>{k=1}^K$。</p>
+<h2 id="R-CNN-特征模拟"><a href="#R-CNN-特征模拟" class="headerlink" title="R-CNN 特征模拟"></a>R-CNN 特征模拟</h2><p>可视化显示，对于常规 ConvNet 和可变形 ConvNet，分类 node 对应的 error-bounded saliency region 超出 RoI 区域，导致 RoI 之外的 Image 内容影响了目标检测结果的准确性。R-CNN 论文中，分类预测集中在根据 RoI 来 crop 得到的 image 上，这使得分类准确性得到提升。我们这里的可变形 ConvNet 基于 Faster R-CNN，而直接结合 Faster R-CNN 和 R-CNN，使得训练和推断均变得缓慢。另一方面，可变形 ConvNet 可调整 bin 输出的幅值，通过令 幅值放缩系数为 0，可屏蔽范围之外多余的 context，但是实验效果并不理想，猜想这可能是因为传统的 Faster R-CNN 训练损失无法有效驱动这种表征（指可变形 RoIPooling）的学习过程。</p>
+<p>于是，引进一个 feature 模拟的损失，与 R-CNN 从 cropped image 中抽取的特征类似，可以驱动可变形 Faster R-CNN 学习如何着重于特征表示。这种特征模拟仅用于正例 RoI 上，对负例 RoI 效果不好。<br>下图是网络结构，<br><img src="/images/obj_det/two_stage_fig2.png" alt=""></p>
+<center>图2. 基于 Faster R-CNN 的可变形卷积和 R-CNN 特征模拟</center>
+
+<p>给定一个 RoI <code>b</code>，在 feature 模拟分支上，<code>b</code> 对应的原输入 image 上的部分 crop 出来，并 resize 到 <code>224x224</code> 大小，经调整后的可变形卷积网络后得到 <code>14x14</code> 的 feature，然后使用调整的 RoIPooling 得到 <code>7x7</code>（这里的 <code>7x7</code> 是一个示例，其他情况下可修改），然后经 2x fc 得到最终的 RCNN 分支 1024-D 的特征，记为 $f_{RCNN}(b)$，这个特征经过 <code>C+1</code>-way 的 softmax 分类（这里笔者觉得应该再使用一个 <code>C+1</code>-D 的 fc 层后使用 softmax）。另外，Faster R-CNN 分支的输出特征也是 1024-D（由 Fast R-CNN head 输出得到），记为 $f_{FRCNN}(b)$，那么 feature 模拟损失定义如下，<br>$$L_{mimic}=\sum_{b \in \Omega}[1-\cos (f_{RCNN}(b), f_{FRCNN}(b))]$$<br>其中，$\Omega$ 表示图中的 RoI 集，$\cos(\cdot, \cdot)$ 表示向量的余弦相似度。</p>
+<h1 id="Mask-R-CNN"><a href="#Mask-R-CNN" class="headerlink" title="Mask R-CNN"></a>Mask R-CNN</h1><p>在 Faster R-CNN 基础上，增加一个预测目标 mask 的分支，实现 instance segmentation。</p>
+<p>mask 分支为每个 ROI 生成 binary mask。Mask R-CNN 与其他系统不同，其他系统将 classification 和 segmentation 耦合起来（生成 K+1 dimension 的 mask）。</p>
+<p><strong>损失</strong><br>$$L=L_{cls}+L_{box}+L_{mask}$$<br>其中，前两项与 Faster R-CNN 中一致。mask 分支的输出为 $Km^2$ 维度，K 表示 foreground 分类数量 ，<code>mxm</code> 表示 resolution，每个 pixel 上应用 sigmoid，于是 $L_{mask}$ 为 binary cross-entropy 损失平均，$L_{mask}$ 中仅对 resolution 每个 position 实际所属分类 <code>k</code> 的那一项，相当于 $L_{mask}$ 实际是 $m^2$ 个 binary cross-entropy loss 的平均。</p>
+<p>每个 ROI 经 mask 分支得到 <code>mxm</code> 的 mask，mask 分支是 FCN（全卷积网络），其中每个 layer 均可保留目标的空间信息，比起使用 fc（全连接层），FCN 使用更少的参数，预测也更准确。</p>
+<h2 id="RoIAlign"><a href="#RoIAlign" class="headerlink" title="RoIAlign"></a>RoIAlign</h2><p>Faster R-CNN 中利用 RoIPool 从 RoI feature（例如在 conv4 上根据 RoI 抠出）抽取得到一个更小的固定的 feature map（例如 <code>7x7</code>），而在 conv4 的输出 feature 上抠出 RoI，这就带来了不对齐问题，因为 conv4 的 feature 上 stride=16，那么 RoI 在 conv4 的 feature 上的坐标为 $[x/16]$，其中 $[\cdot]$ 表示四舍五入，浮点数被离散化处理，同样地，RoI feature 映射到 <code>7x7</code> 上（相当于在 RoI feature 上划分得到 <code>7x7</code> bins）时，也进行了这种离散化处理，这就使得原 input image 上的 RoI 与最终抽取的feature 之间不对齐，这个问题对分类没有影响，但是对 pixel 级别的 mask 预测则有很大的影响。</p>
+<p>解决办法就是去掉离散化处理，使用 $x/16$ 浮点数代替 $[x /16]$ 整数，在 conv4 feature 上得到准确的浮点数 RoI 的坐标，如图 1，<br><img src="/images/obj_det/two_stage_fig1.png" alt=""><center>fig1. RoIAlign 示意图</center></p>
+<p>图1 中示例为 <code>2x2</code> bins，虽然与我们的 <code>7x7</code> bins 不同，但是这不影响，原理都差不多，那么，如何得到每个 bin 中 的 feature patch 呢？（得到每个 bin 的 feature patch，才能做 pooling）</p>
+<p>对每个 bin，取 4 个采样点，每个采样点坐标不一定是整数，所以使用双线性插值计算每个点处的特征值，然后使用 max 或 average 进行 pooling，如图 1。</p>
+<h2 id="网络架构"><a href="#网络架构" class="headerlink" title="网络架构"></a>网络架构</h2><p><strong>backbone:</strong></p>
+<p>backbone 采样两种：1. <code>ResNet-50-C4</code>，其中 <code>C4</code> 表示 ResNet stage 4 的输出 feature；2. <code>ResNet-FPN</code>。ResNet 可以替换为 ResNeXt。</p>
+<p><strong>detection head:</strong></p>
+<p>将 C4 中 RoI 对应的 feature 区域经过 RoIAlign 得到 <code>7x7x1024</code> 的输出，然后经 <code>res5</code>（ResNet 中的 stage 5，共 9 个 layer），输出 feature  tensor 的大小不变，然后分两路，其中一路用于分类预测和 box 坐标回归预测，另一路用于生成 mask。</p>
+<h2 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h2><p>resize image，使得短边固定在 800，训练时，每个 mini-batch 有 2 个 images，每个 image 有 N 个 RoIs，正负例比为 <code>1:3</code>。</p>
+<h1 id="R-FCN"><a href="#R-FCN" class="headerlink" title="R-FCN"></a>R-FCN</h1><p>region-based fully convolutional networks</p>
+<p>目标检测的 backbone 通常都是来自分类网络，而分类问题中 translation invariance 与目标检测中 translation variance 是不一致的，目标检测中，移动 proposal box 将会影响与 gt box 的 IOU。</p>
+<p>R-FCN 中使用共享的全卷积网络，为了使 FCN 具有 translation variance，设计了一组 position-sensitive score maps，每个 score map encode 位置信息，如下图，<br><img src="/images/obj_det/two_stage_fig3.png" alt=""></p>
+<p>RPN 网络用于生成 proposal box（RoI），RoI 被划分为 <code>kxk</code> grid，每个 cell 对于一个 score map（包含 C+1 个 channel，每个 channel 对应一个分类），执行 RoIPooling 时，不同的 cell 区域使用不同的 score maps。</p>
+<p>Backbone 使用 ResNet-101，由于最后一个 conv 为 2048-d，为了降低 dimension，增加一个 <code>1x1</code> 1024-d 的 conv，然后再用 $k^2(C+1)$-d 的 conv 生成 positive-sensitive score maps。</p>
+<h2 id="position-sensitive-roi-pooling"><a href="#position-sensitive-roi-pooling" class="headerlink" title="position-sensitive roi pooling"></a>position-sensitive roi pooling</h2><p>得到 positive-sensitive score maps 后，根据 RPN 生成的每个 RoI，划分出 <code>kxk</code> bin，每个 bin 对应一个 score map，在其上使用 pooling，记 RoI size 为 <code>wxh</code>，每个 bin 的 size 为 $\frac w k \times \frac h k$，对于第 <code>(i,j)</code> 个 bin， RoI pooling 在第 <code>(i,j)</code> 个 score map 上执行 average pooling，得到 <code>kxkx(C+1)</code> 的输出，然后进行 <strong>vote</strong> （averaging），得到 <code>C+1</code> 的 vector（对单个 RoI 而言），然后使用 softmax 计算分类得分。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/02/20/dl/Metrics/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/02/20/dl/Metrics/" class="post-title-link" itemprop="url">Metrics</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-02-20 10:09:36 / 修改时间：12:04:21" itemprop="dateCreated datePublished" datetime="2021-02-20T10:09:36+08:00">2021-02-20</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>总结机器学习/深度学习中常用的一些指标</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/02/20/dl/Metrics/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/02/19/dl/Training-Operations/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/02/19/dl/Training-Operations/" class="post-title-link" itemprop="url">Training Operations</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-02-19 14:16:51 / 修改时间：14:18:41" itemprop="dateCreated datePublished" datetime="2021-02-19T14:16:51+08:00">2021-02-19</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>深度学习中的训练有很多技巧，这里总结一些常用的操作技巧。</p>
+<h1 id="Weight-Decay"><a href="#Weight-Decay" class="headerlink" title="Weight Decay"></a>Weight Decay</h1><p>权重衰减</p>
+<h1 id="Momentum"><a href="#Momentum" class="headerlink" title="Momentum"></a>Momentum</h1>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/02/19/dl/conv/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/02/19/dl/conv/" class="post-title-link" itemprop="url">Convolution</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-19 09:27:01" itemprop="dateCreated datePublished" datetime="2021-02-19T09:27:01+08:00">2021-02-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-06 18:23:39" itemprop="dateModified" datetime="2021-03-06T18:23:39+08:00">2021-03-06</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="膨胀卷积"><a href="#膨胀卷积" class="headerlink" title="膨胀卷积"></a>膨胀卷积</h1><p>膨胀卷积在卷积核中引入 空洞（holes），将卷积核变大，记膨胀率为 $\alpha$，卷积核大小为 $k$，那么膨胀后卷积核大小变为 $\alpha(k-1)+1$，使用膨胀后的卷积核来做卷积计算。</p>
+<p>膨胀卷积在图像（实例）分割中应用较多，为了扩大感知区域，同时减少计算量，膨胀卷积效果较好。</p>
+<p>Dilated Convolution 的设计是为了获取 long-range information，故对大物体比较适用，对小物体则不太适用。Dilated Convolution 一个明显的缺点是 kernel 不连续，产生栅格效应，所以又提出了 Hybrid Dilated Convolution（HDC）混合膨胀卷积。</p>
+<p>HDC 的一般设计原则：</p>
+<ol>
+<li>各膨胀卷积的膨胀率不能有大于 1 的公约数（例如 [2,4,6] 公约数为 2），否则会有栅格效应</li>
+<li>膨胀率设计为锯齿状结构，例如 [1,2,5,1,2,5] 这样的循环结构</li>
+<li>膨胀率满足如下关系<br>$$M_i=\max[M_{i+1}-2r_i, 2r_i-M_{i+1}, r_i]$$<br>其中 $r_i$ 为第 <code>i</code> 层的膨胀率，$M_i$ 为第 <code>i</code> 层的最大 dilated rate，网络总共 <code>L</code> 层，$M_L=r_L$。</li>
+</ol>
+<h1 id="分组卷积"><a href="#分组卷积" class="headerlink" title="分组卷积"></a>分组卷积</h1><p>假设输入 feature shape 为 $(c_0,h,w)$，original filter 为 $(k,k,c_0,c_1)$，输出 feature shape 为 $(c_1,h,w)$。对于分组卷积，假设分 n 组，那么每一组输入 feature shape 为 $(c_0/n, h, w)$，每一组使用独立的卷积核， filter shape 为 $(k,k,c_0/n, c_1/n)$，于是每一组的输出 feature shape 为 $(c_1/n, h, w)$，最后所有组的输出沿着 channel 进行 concatenate，得到最终输出 feature shape $(c_1, h, w)$，这个过程中，卷积核参数数量为<br>$$k \times k \times \frac {c_0} n \times \frac {c_1} n \times n$$<br>参数数量减小。</p>
+<h1 id="Bottleneck"><a href="#Bottleneck" class="headerlink" title="Bottleneck"></a>Bottleneck</h1><p>假设输入 shape 为 $(c_0, h, w)$，输出 shape 为 $(c_1, h, w)$，那么 filter 为 $k \times k \times c_0 \times c_1$，参数数量较大，改用 bottleneck 可以缩减参数数量，即：先使用 $1\times 1 \times c_0 \times c_2$ 的 filter，然后使用 $k \times k \times c_2 \times c_2$ 的 filter，最后使用 $1 \times 1 \times c_2 \times c_1$ 的 filter，其中 $c_2 &lt; c_1, c_0$。</p>
+<h1 id="Depthwise-Conv"><a href="#Depthwise-Conv" class="headerlink" title="Depthwise Conv"></a>Depthwise Conv</h1><p>假设输入 shape 为 $(c_0, h, w)$，每个 channel 独立进行（二维卷积），卷积 filter 为 $k \times k \times c_0$（注意这里 filter shape 中没有 $c_1$），得到 $(c_0, h, w)$ 的中间输出，然后再使用 $1 \times 1 \times c_0 \times c_1$，得到 $(c_1, h, w)$ 的最终输出。</p>
+<h1 id="可变形卷积"><a href="#可变形卷积" class="headerlink" title="可变形卷积"></a>可变形卷积</h1><p>略（参考 <a href="/obj_det/two_stage">deformable conv</a>）</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/02/18/dl/receptive_field/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/02/18/dl/receptive_field/" class="post-title-link" itemprop="url">Receptive Field</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-18 10:51:00" itemprop="dateCreated datePublished" datetime="2021-02-18T10:51:00+08:00">2021-02-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-02-19 10:18:58" itemprop="dateModified" datetime="2021-02-19T10:18:58+08:00">2021-02-19</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Size"><a href="#Size" class="headerlink" title="Size"></a>Size</h1><p>对于一个 fully CNN 的网络，第 <code>k</code> layer 的 receptive field 大小为，<br>$$l_k=l_{k-1} + ((f_k-1)*\prod_{i=1}^{k-1} s_i)$$<br>其中，$l_{k-1}$ 表示第 <code>k-1</code> layer 上的 receptive field 大小，$f_k$ 是第 <code>k</code> layer 的 filter 大小，$s_i$ 是第 <code>i</code> layer 上的 stride 大小。这是自底向上计算，从 $l_1$ 开始，$l_1=f_1$。</p>
+<p>还有一种自顶向下的计算方法。假设总共有 <code>L</code> 个 layer，每个 layer 的输出 feature map 记为 $f_l, \ l=1,…,L$，每个 layer 的 filter 大小为 $k_l$，stride 大小记为 $s_l$，记 $r_l$ 为最后一个 layer 关于 feature map $f_l$ 的 receptive field 大小，也就是说，$r_l$ 表示 $f_l$ 上多少个像素点对 $f_L$ 的一个像素点有贡献（这里仅考虑一维 feature map，如果是多维，那么分别独立考虑即可）。那么易知，$r_L=1$，</p>
+<p>$r_{L-1}=k_L$，这个也很好理解，上一层 feature map 中，$k_L$ 个像素点对应本层（最后一层）一个像素点。考虑一般情况，已知 $r_l$，求 $r_{l-1}$。</p>
+<p>首先假设 $k_l=1$，这样情况就简单些，若 $s_l=1$，那么 $r_{l-1}=r_l$，若 $s_l&gt;1$，那么 $r_{l-1}=s_l \cdot r_l -(s_l-1)$，因为 $r_l$ 中每两个像素点之间对应到 $f_{l-1}$ 上有 $s_l-1$ 个点，所以 $r_{l-1}=(s_l-1)\cdot(r_l-1)+ r_l=s_l \cdot r_l-s_l+1$。</p>
+<p>然后当 $k_l&gt;1$，那么需要在 $f_{l-1}$ 上增加 $k_l-1$ 个像素点，于是<br>$$r_{l-1}=s_l \cdot r_l + (k_l-s_l)$$<br>其中，$r_L=1, \ r_{L-1}=k_L$。求解上式过程如下：<br>$$r_{L-2}=s_{L-1} r_{L-1}+(k_{L-1}-s_{L-1})=s_{L-1}(k_L-1)+k_{L-1}$$<br>$$r_{L-3}=s_{L-2} r_{L-2}+(k_{L-2}-s_{L-2})=s_{L-2}s_{L-1}(k_L-1)+s_{L-2}(k_{L-1}-1)+k_{L-2}$$<br>$$\cdots$$<br>$$r_{l}=s_{l+1}\cdots s_{L-1}(k_L-1)+s_{l+1}\cdots s_{L-2}(k_{L-1}-1)+ \cdots s_{l+1}(k_{l+2}-1)+k_{l+1}=1+\sum_{j=l+1}^{L} \left[(k_{j}-1) \prod_{i=l+1}^{j-1}s_i \right]$$<br>其中令 $$\prod_{l+1}^{l}s_i=1$$</p>
+<p>于是，<br>$$\begin{aligned} r_{l-1}&amp;=1+\sum_{j=l}^{L} \left[(k_{j}-1) \prod_{i=l}^{j-1}s_i \right] \ &amp;=1+(k_l-1)+\sum_{j=l+1}^{L} \left[(k_{j}-1) \prod_{i=l+1}^{j-1}s_i \cdot s_l \right] \&amp;=k_l-s_l+s_l \left(1+\sum_{j=l+1}^{L} \left[(k_{j}-1) \prod_{i=l+1}^{j-1}s_i \right] \right) \&amp;=s_l \cdot r_l +k_l-s_l\end{aligned}$$<br>与前面递推式一致，说明通项式计算正确。</p>
+<p>output feature size 的计算为，<br>$$w_l=\frac {w_{l-1}+2p_l-k_l} {s_l}+1$$<br>其中 $w$ 表示宽，高 $h$ 的计算类似（以 2D image 数据为例）。</p>
+<h1 id="Region"><a href="#Region" class="headerlink" title="Region"></a>Region</h1><p>对输出 feature map 上一点有贡献的 region （Receptive Field）大小计算如上，还有一个参数也很重要：定位这个 region 的位置。例如输出 feature map 上一点 $f_L(i,j)$，产生这个特征的输入图像上的 region 位置如何求得。</p>
+<p>记在特征平面 $f_l$ 上这个 region 的左端和右端的坐标分别为 $u_l, \ v_l$，这里的<b>坐标从 0 开始</b>，即，第一个像素点的坐标为 <code>0</code>，在输出特征平面 $f_L$ 上有 $u_L=v_L=i$，同样地，仅考虑一维情况，对于二维情况，另一维度独立地进行类似计算可得。</p>
+<p>同样使用递推的思想，已知 $u_l, \ v_l$，求 $u_{l-1}, v_{l-1}$。</p>
+<p>首先从一个简单的情况开始，假设 $u_l=0$，这表示 $f_l$ 中的 region 左侧位于第一个像素点，此时 $u_{l-1}=-p_l$，即$f_{l-1}$ 左侧填充 $p_l$ 个像素；如果 $u_l=1$，那么 $u_{l-1}=s_l-p_l$，这也很好理解，从 $f_{l-1}$ 最左侧第一个像素点（填充之后为 $-p_l$）向右移动 $s_l$；如果 $u_l=2$，那么继续向右移动 $s_l$，即 $u_{l-1}=2s_l-p_l$，于是一般地，<br>$$u_{l-1}=u_l \cdot s_l -p_l$$<br>$$v_{l-1}=v_l \cdot s_l - p_l + k_l-1$$<br>完全式的计算过程如下：<br>$$u_{L-1}=u_L \cdot s_L - p_L$$<br>$$u_{L-2}=u_{L-1} \cdot s_{L-1}-p_{L-1}=s_{L-1}s_L u_L-s_{L-1}p_L-p_{L-1}$$<br>$$u_{L-3}=u_{L-2} \cdot s_{L-2}-p_{L-2}=s_{L-2}s_{L-1}s_L u_L-s_{L-2}s_{L-1}p_L-s_{L-2}p_{L-1}-p_{L-2}$$<br>$$\cdots$$<br>$$u_l=s_{l+1}\cdots s_L u_L-s_{l+1}\cdots s_{L-1} p_{L}-\cdots-s_{l+1} p_{l+2}-p_{l+1}=u_L\prod_{i=l+1}^L s_i-\sum_{j=l+1}^L p_j \prod_{i=l+1}^{j-1} s_i$$</p>
+<p>其中，$\prod_{i=l+1}^l s_i=1$, 类似地，<br>$$v_l=v_L \prod_{i=l+1}^L s_i - \sum_{j=l+1}^L(1+p_j-k_j)\prod_{i=l+1}^{j-1} s_i$$</p>
+<h1 id="Relation"><a href="#Relation" class="headerlink" title="Relation"></a>Relation</h1><p>Receptive Field size 与 region 之间的联系，<br>$$r_l=v_l-u_l+1$$</p>
+<h1 id="Stride-amp-Padding"><a href="#Stride-amp-Padding" class="headerlink" title="Stride &amp; Padding"></a>Stride &amp; Padding</h1><p>定义两个变量，有效 stride 和 有效 padding，这两者分别定义如下：</p>
+<p>$$S_l=\prod_{i=l+1}^L s_i$$</p>
+<p>$$P_l=\sum_{j=l+1}^L p_j \prod_{i=l+1}^{j-1}s_i$$</p>
+<p>他们的递推公式为，<br>$$S_{l-1}=s_l \cdot S_l$$<br>$$P_{l-1}=p_l+s_l \cdot P_l$$</p>
+<p>有着这两个定义变量，region 位置公式可表示为，<br>$$u_l=u_L \cdot S_l - P_l$$</p>
+<h1 id="Center"><a href="#Center" class="headerlink" title="Center"></a>Center</h1><p>receptive field 的中心可由 region 位置计算得到，在第 <code>l</code> layer 上为，<br>$$c_l=\frac {u_l+v_l} 2$$</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/02/02/TODO/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -245,10 +671,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-01-23 18:27:51 / 修改时间：18:40:35" itemprop="dateCreated datePublished" datetime="2021-01-23T18:27:51+08:00">2021-01-23</time>
+              <time title="创建时间：2021-01-23 18:27:51" itemprop="dateCreated datePublished" datetime="2021-01-23T18:27:51+08:00">2021-01-23</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-17 11:17:33" itemprop="dateModified" datetime="2021-08-17T11:17:33+08:00">2021-08-17</time>
+              </span>
 
           
 
@@ -280,6 +712,10 @@
 
 <p>设置主题，将以下内容添加到 <code>~/.zshrc</code>，</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ZSH_THEME&#x3D;&quot;powerlevel10k&#x2F;powerlevel10k&quot;</span><br></pre></td></tr></table></figure>
+
+<h1 id="redirect-printing-message-to-file"><a href="#redirect-printing-message-to-file" class="headerlink" title="redirect printing message to file"></a>redirect printing message to file</h1><h2 id="stop-output-to-console-but-file"><a href="#stop-output-to-console-but-file" class="headerlink" title="stop output to console but file"></a>stop output to console but file</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ls -al &gt;&gt; output.txt</span><br><span class="line">ls -al &gt;&gt; output.txt 2&gt;&amp;1 <span class="comment"># redirect the stderr to stdout</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="output-to-console-and-file"><a href="#output-to-console-and-file" class="headerlink" title="output to console and file"></a>output to console and file</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls -al 2&gt;&amp;1 | tee output.txt</span><br></pre></td></tr></table></figure>
       
     </div>
 
@@ -510,326 +946,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/01/12/dl/x_ent_loss/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/01/12/dl/x_ent_loss/" class="post-title-link" itemprop="url">Cross Entropy Loss</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-01-12 10:35:40 / 修改时间：17:33:12" itemprop="dateCreated datePublished" datetime="2021-01-12T10:35:40+08:00">2021-01-12</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>深度学习中有很多损失计算方式，不同的损失适合不同的问题，所以有必要对损失进行归类总结一下。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/01/12/dl/x_ent_loss/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/01/08/dl/tricks_1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/01/08/dl/tricks_1/" class="post-title-link" itemprop="url">Deep Learning Tricks1</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-01-08 14:32:52 / 修改时间：19:11:04" itemprop="dateCreated datePublished" datetime="2021-01-08T14:32:52+08:00">2021-01-08</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>深度学习中有很多训练技巧，这里做一些总结。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/01/08/dl/tricks_1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/01/08/pytorch/tricks_1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/01/08/pytorch/tricks_1/" class="post-title-link" itemprop="url">pytorch 技巧1</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-01-08 09:45:15 / 修改时间：15:22:19" itemprop="dateCreated datePublished" datetime="2021-01-08T09:45:15+08:00">2021-01-08</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>假设最后一层的 input shape 为 (N,H,W)，输出为 loss 为一标量，那么最后一层 input 的梯度 shape 为 (N,H,W)，与 input Tensor 自身 shape 相同，然后继续反向传播，倒数第二层的 input shape 为 (N’,H’,W’)，<br>假设某层输入input 的 shape 为 (N,H,W)，输出 output 的 shape 为 (N’,H’,W’)，这里为了叙述简单，不考虑 batch 的维度，反向传播时，output 变量的梯度的 shape 应该与 output 变量自身相同，output 对 input 的梯度 shape 应该为<br>(N’,H’,W’,N,H,W)，与 </p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2020/06/23/dip/hist_equal/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/23/dip/hist_equal/" class="post-title-link" itemprop="url">Histogram Equalization</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-06-23 18:07:00" itemprop="dateCreated datePublished" datetime="2020-06-23T18:07:00+08:00">2020-06-23</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2020/05/27/cv/methods/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/27/cv/methods/" class="post-title-link" itemprop="url">cv.methods</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-05-27 11:30:03" itemprop="dateCreated datePublished" datetime="2020-05-27T11:30:03+08:00">2020-05-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-18 15:04:04" itemprop="dateModified" datetime="2021-01-18T15:04:04+08:00">2021-01-18</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>来总结一下 CV 中的常见方法或技巧。      </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/27/cv/methods/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -899,7 +1015,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-count">76</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -912,7 +1028,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

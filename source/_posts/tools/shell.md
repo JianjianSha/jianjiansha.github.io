@@ -44,3 +44,15 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$
 ```
 ZSH_THEME="powerlevel10k/powerlevel10k"
 ```
+
+# redirect printing message to file
+## stop output to console but file
+```sh
+ls -al >> output.txt
+ls -al >> output.txt 2>&1 # redirect the stderr to stdout
+```
+
+## output to console and file 
+```sh
+ls -al 2>&1 | tee output.txt
+```

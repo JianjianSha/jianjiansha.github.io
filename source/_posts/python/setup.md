@@ -1,10 +1,12 @@
 ---
 title: python setup
 date: 2021-06-12 17:03:32
-tags:
+tags: cmake, C++
 p: python/setup
 ---
 
+python 的 setup 介绍。
+<!-- more -->
 
 研究 python setup.py 脚本中的 setup 方法使用。
 

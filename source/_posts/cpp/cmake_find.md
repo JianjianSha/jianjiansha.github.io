@@ -4,6 +4,8 @@ date: 2021-06-08 14:08:47
 tags:
 p: cpp/cmake_find
 ---
+cmake 的包查找。
+<!-- more -->
 
 # find_package
 

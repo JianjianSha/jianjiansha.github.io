@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="动态库目录 加入 &#x2F;lib, &#x2F;usr&#x2F;lib 等默认搜索路径 设置 export LD_LIBRARY_PATH&#x3D;$LD_LIBRARY_PATH:&lt;YOUR LIB PATH&gt; 修改配置文件 &#x2F;etc&#x2F;ld.so.conf，然后执行 ldconfig gcc 添加选项 -Wl,-rpath&#x3D;&lt;YOUR LIB PATH&gt;。这个路径会保存到程序中。  -Wl这个参数表示后">
+  <meta name="description" content="动态库目录 加入 &#x2F;lib, &#x2F;usr&#x2F;lib 等默认搜索路径 设置 export LD_LIBRARY_PATH&#x3D;$LD_LIBRARY_PATH:&lt;YOUR LIB PATH&gt; 修改配置文件 &#x2F;etc&#x2F;ld.so.conf，然后执行 ldconfig gcc 添加选项 -Wl,-rpath&#x3D;&lt;YOUR LIB PATH&gt;。这个路径会保存到程序中。以上是动态（运行时）链接">
 <meta property="og:type" content="article">
 <meta property="og:title" content="链接">
 <meta property="og:url" content="https://shajianjian.github.io/2021/06/08/cpp/link/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="动态库目录 加入 &#x2F;lib, &#x2F;usr&#x2F;lib 等默认搜索路径 设置 export LD_LIBRARY_PATH&#x3D;$LD_LIBRARY_PATH:&lt;YOUR LIB PATH&gt; 修改配置文件 &#x2F;etc&#x2F;ld.so.conf，然后执行 ldconfig gcc 添加选项 -Wl,-rpath&#x3D;&lt;YOUR LIB PATH&gt;。这个路径会保存到程序中。  -Wl这个参数表示后">
+<meta property="og:description" content="动态库目录 加入 &#x2F;lib, &#x2F;usr&#x2F;lib 等默认搜索路径 设置 export LD_LIBRARY_PATH&#x3D;$LD_LIBRARY_PATH:&lt;YOUR LIB PATH&gt; 修改配置文件 &#x2F;etc&#x2F;ld.so.conf，然后执行 ldconfig gcc 添加选项 -Wl,-rpath&#x3D;&lt;YOUR LIB PATH&gt;。这个路径会保存到程序中。以上是动态（运行时）链接">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-06-08T03:06:44.000Z">
-<meta property="article:modified_time" content="2021-06-25T03:09:55.767Z">
+<meta property="article:modified_time" content="2021-08-11T06:32:07.229Z">
 <meta property="article:author" content="shajianjian">
 <meta property="article:tag" content="c++">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 11:09:55" itemprop="dateModified" datetime="2021-06-25T11:09:55+08:00">2021-06-25</time>
+                <time title="修改时间：2021-08-11 14:32:07" itemprop="dateModified" datetime="2021-08-11T14:32:07+08:00">2021-08-11</time>
               </span>
 
           
@@ -214,10 +214,21 @@
 <li>加入 <code>/lib</code>, <code>/usr/lib</code> 等默认搜索路径</li>
 <li>设置 <code>export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:&lt;YOUR LIB PATH&gt;</code></li>
 <li>修改配置文件 <code>/etc/ld.so.conf</code>，然后执行 <code>ldconfig</code></li>
-<li><code>gcc</code> 添加选项 <code>-Wl,-rpath=&lt;YOUR LIB PATH&gt;</code>。这个路径会保存到程序中。</li>
+<li><code>gcc</code> 添加选项 <code>-Wl,-rpath=&lt;YOUR LIB PATH&gt;</code>。这个路径会保存到程序中。<br>以上是动态（运行时）链接器（也可称为加载器）寻找动态库的搜索目录。</li>
 </ol>
 <h3 id="Wl"><a href="#Wl" class="headerlink" title="-Wl"></a>-Wl</h3><p>这个参数表示后面的参数传递给链接器 <code>ld</code></p>
-<h3 id="rpath"><a href="#rpath" class="headerlink" title="-rpath"></a>-rpath</h3><p>添加一个目录到运行库搜索路径</p>
+<h3 id="rpath"><a href="#rpath" class="headerlink" title="-rpath"></a>-rpath</h3><p>添加一个目录到运行库搜索路径，可以使用 <code>$ORIGIN</code>，它表示执行文件所在的目录，注意在 Makefile 中需要写为 <code>$$ORIGIN</code>。</p>
+<h3 id="–as-needed"><a href="#–as-needed" class="headerlink" title="–as-needed"></a>–as-needed</h3><p>链接器参数，表示仅链接其 symbol 在 binary 中用到的库。默认是开启这个 flag，若要关闭，使用 <code>--no-as-needed</code>，例如</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.c</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    foo();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/foo.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span> </span>&#123; <span class="built_in">printf</span>(<span class="string">"foo\n"</span>); &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/bar.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">()</span> </span>&#123; <span class="built_in">printf</span>(<span class="string">"bar\n"</span>); &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Makefile</span></span><br><span class="line"><span class="section">main: main.c lib/libfoo.so lib/libbar.so</span></span><br><span class="line">    gcc -o main main.c -Wl,--no-as-needed,-rpath='$$ORIGIN/lib' -L. -lfoo -lbar</span><br><span class="line"></span><br><span class="line"><span class="section">lib/libfoo.so: lib/foo.c</span></span><br><span class="line">    gcc -fPIC -shared -o lib/libfoo.so lib/foo.c</span><br><span class="line"></span><br><span class="line"><span class="section">lib/libbar.so: lib/bar.c</span></span><br><span class="line">    gcc -fPIC -shared -o lib/libbar.so lib/bar.c</span><br></pre></td></tr></table></figure>
+
+<p>查看 <code>main</code> 链接的库，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ldd main</span></span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -301,7 +312,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#动态库目录"><span class="nav-number">1.</span> <span class="nav-text">动态库目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Wl"><span class="nav-number">1.1.</span> <span class="nav-text">-Wl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rpath"><span class="nav-number">1.2.</span> <span class="nav-text">-rpath</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#动态库目录"><span class="nav-number">1.</span> <span class="nav-text">动态库目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Wl"><span class="nav-number">1.1.</span> <span class="nav-text">-Wl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rpath"><span class="nav-number">1.2.</span> <span class="nav-text">-rpath</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#–as-needed"><span class="nav-number">1.3.</span> <span class="nav-text">–as-needed</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -315,7 +326,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-count">76</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -328,7 +339,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

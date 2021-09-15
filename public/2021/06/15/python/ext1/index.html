@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="本文假设已经熟悉了 Python 的基本知识。 对于 Python 的更多介绍，可参考 The Python Tutorial。 The Python Language Reference 提供了更多关于 Python 语言的介绍。The Python Standard Library 则归档了 Python 对象类型，函数以及模块。  如要获取更全面的 Python&#x2F;C API, 请参考 Pyt">
+  <meta name="description" content="python 的 C&#x2F;C++ 扩展使用说明（一）。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="python C&#x2F;C++ Extensions（一）">
 <meta property="og:url" content="https://shajianjian.github.io/2021/06/15/python/ext1/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="本文假设已经熟悉了 Python 的基本知识。 对于 Python 的更多介绍，可参考 The Python Tutorial。 The Python Language Reference 提供了更多关于 Python 语言的介绍。The Python Standard Library 则归档了 Python 对象类型，函数以及模块。  如要获取更全面的 Python&#x2F;C API, 请参考 Pyt">
+<meta property="og:description" content="python 的 C&#x2F;C++ 扩展使用说明（一）。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-06-15T06:06:41.000Z">
-<meta property="article:modified_time" content="2021-06-19T02:30:57.870Z">
+<meta property="article:modified_time" content="2021-09-15T02:05:45.827Z">
 <meta property="article:author" content="shajianjian">
 <meta name="twitter:card" content="summary">
 
@@ -195,7 +195,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-19 10:30:57" itemprop="dateModified" datetime="2021-06-19T10:30:57+08:00">2021-06-19</time>
+                <time title="修改时间：2021-09-15 10:05:45" itemprop="dateModified" datetime="2021-09-15T10:05:45+08:00">2021-09-15</time>
               </span>
 
           
@@ -209,7 +209,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>本文假设已经熟悉了 Python 的基本知识。 对于 Python 的更多介绍，可参考<a href="https://docs.python.org/3/tutorial/index.html#tutorial-index" target="_blank" rel="noopener"> The Python Tutorial</a>。 <a href="https://docs.python.org/3/reference/index.html#reference-index" target="_blank" rel="noopener">The Python Language Reference</a> 提供了更多关于 Python 语言的介绍。<a href="https://docs.python.org/3/library/index.html#library-index" target="_blank" rel="noopener">The Python Standard Library</a> 则归档了 Python 对象类型，函数以及模块。 </p>
+        <p>python 的 C/C++ 扩展使用说明（一）。</p>
+<a id="more"></a>
+<p>本文假设已经熟悉了 Python 的基本知识。 对于 Python 的更多介绍，可参考<a href="https://docs.python.org/3/tutorial/index.html#tutorial-index" target="_blank" rel="noopener"> The Python Tutorial</a>。 <a href="https://docs.python.org/3/reference/index.html#reference-index" target="_blank" rel="noopener">The Python Language Reference</a> 提供了更多关于 Python 语言的介绍。<a href="https://docs.python.org/3/library/index.html#library-index" target="_blank" rel="noopener">The Python Standard Library</a> 则归档了 Python 对象类型，函数以及模块。 </p>
 <p>如要获取更全面的 Python/C API, 请参考 <a href="https://docs.python.org/3/c-api/index.html#c-api-index" target="_blank" rel="noopener">Python/C API Reference Manual</a>。</p>
 <p>有很多第三方工具可用来创建 python 扩展，例如 Cython， cffi， SWIG 以及 Numba，但这里不借助这些第三方工具。</p>
 <h1 id="使用-C-C-扩展-Python"><a href="#使用-C-C-扩展-Python" class="headerlink" title="使用 C/C++ 扩展 Python"></a>使用 C/C++ 扩展 Python</h1><p>Python API 定义了一系列的 函数，宏 以及变量用以访问 Python 运行时系统，方便扩展。Python API 包含在头文件 <code>Python.h</code> 中。</p>
@@ -367,7 +369,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-count">76</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -380,7 +382,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

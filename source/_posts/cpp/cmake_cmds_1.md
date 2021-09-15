@@ -3,6 +3,10 @@ title: cmake 常用命令（一）
 date: 2021-06-04 18:50:48
 tags:
 ---
+
+cmake 的几个常用命令。
+<!-- more -->
+
 ## find_program
 ```
 find_program (
@@ -67,13 +71,14 @@ find_program (
                 FILE_PERMISSIONS <permissions>...]
                [COPYONLY] [ESCAPE_QUOTES] [@ONLY]
                [NEWLINE_STYLE [UNIX|DOS|WIN32|LF|CRLF] ])`
+
 将 `input` 文件内容复制到 `output` 文件中。根据参数规则，替换 `@VAR@` 或 `${VAR}` 变量。
 
 `<input>` 文件中 `#cmakedefine VAR` 会被替换为：
 1. 如果 `VAR` 设置为 `ON`，那么替换为 `#define VAR`
 2. 如果 `VAR` 设置为 `OFF`，那么替换为 `/* #undef VAR */`
 
-同理，`#cmakedefone01 VAR` 则会被替换为 `#define VAR 1` 或 `#define VAR 0`
+同理，`#cmakedefine01 VAR` 则会被替换为 `#define VAR 1` 或 `#define VAR 0`
 
 注：这个命令的 `IMMEDIATE` 选项已经被弃用，因为文件复制已经是立即执行。
 

@@ -4,7 +4,8 @@ date: 2021-06-15 14:06:41
 tags:
 p: python/ext1
 ---
-
+python 的 C/C++ 扩展使用说明（一）。
+<!-- more -->
 本文假设已经熟悉了 Python 的基本知识。 对于 Python 的更多介绍，可参考[ The Python Tutorial](https://docs.python.org/3/tutorial/index.html#tutorial-index)。 [The Python Language Reference](https://docs.python.org/3/reference/index.html#reference-index) 提供了更多关于 Python 语言的介绍。[The Python Standard Library](https://docs.python.org/3/library/index.html#library-index) 则归档了 Python 对象类型，函数以及模块。 
 
 如要获取更全面的 Python/C API, 请参考 [Python/C API Reference Manual](https://docs.python.org/3/c-api/index.html#c-api-index)。

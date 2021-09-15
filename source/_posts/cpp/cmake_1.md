@@ -3,7 +3,8 @@ title: cmake tutorial
 date: 2021-06-02 10:35:18
 tags: cmake
 ---
-
+cmake 的使用示例。
+<!-- more -->
 
 记录 cmake 的各种用法。从一个简单的例子开始入手。
 

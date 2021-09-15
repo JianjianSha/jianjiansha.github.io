@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="每个 Python 对象均是 PyObject* 的变体，PyObject 仅包含 引用计数 以及 类型对象的指针。因为 Python 是动态类型语言，每个对象自身包含了其类型，这个 类型对象决定了可以用 Python 解释器 对这个对象调用哪些函数，例如获取对象的属性，调用对象方法等。要定义一个新对象，需要创建一个新的类型对象。例子， 123456789101112131415161718192">
+  <meta name="description" content="python 的 C&#x2F;C++ 扩展类型简介。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="python C&#x2F;C++ Extension Type">
 <meta property="og:url" content="https://shajianjian.github.io/2021/06/16/python/ext3/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="每个 Python 对象均是 PyObject* 的变体，PyObject 仅包含 引用计数 以及 类型对象的指针。因为 Python 是动态类型语言，每个对象自身包含了其类型，这个 类型对象决定了可以用 Python 解释器 对这个对象调用哪些函数，例如获取对象的属性，调用对象方法等。要定义一个新对象，需要创建一个新的类型对象。例子， 123456789101112131415161718192">
+<meta property="og:description" content="python 的 C&#x2F;C++ 扩展类型简介。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-06-16T10:23:47.000Z">
-<meta property="article:modified_time" content="2021-06-17T09:25:34.573Z">
+<meta property="article:modified_time" content="2021-09-15T02:06:21.724Z">
 <meta property="article:author" content="shajianjian">
 <meta name="twitter:card" content="summary">
 
@@ -195,7 +195,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-17 17:25:34" itemprop="dateModified" datetime="2021-06-17T17:25:34+08:00">2021-06-17</time>
+                <time title="修改时间：2021-09-15 10:06:21" itemprop="dateModified" datetime="2021-09-15T10:06:21+08:00">2021-09-15</time>
               </span>
 
           
@@ -209,7 +209,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>每个 Python 对象均是 <code>PyObject*</code> 的变体，<code>PyObject</code> 仅包含 引用计数 以及 类型对象的指针。因为 Python 是动态类型语言，每个对象自身包含了其类型，这个 类型对象决定了可以用 Python 解释器 对这个对象调用哪些函数，例如获取对象的属性，调用对象方法等。要定义一个新对象，需要创建一个新的类型对象。例子，</p>
+        <p>python 的 C/C++ 扩展类型简介。</p>
+<a id="more"></a>
+<p>每个 Python 对象均是 <code>PyObject*</code> 的变体，<code>PyObject</code> 仅包含 引用计数 以及 类型对象的指针。因为 Python 是动态类型语言，每个对象自身包含了其类型，这个 类型对象决定了可以用 Python 解释器 对这个对象调用哪些函数，例如获取对象的属性，调用对象方法等。要定义一个新对象，需要创建一个新的类型对象。例子，</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PY_SSIZE_T_CLEAN</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;Python.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    PyObject_HEAD</span><br><span class="line">    <span class="comment">/* Type-specific fields go here. */</span></span><br><span class="line">&#125; CustomObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> PyTypeObject CustomType = &#123;</span><br><span class="line">    PyVarObject_HEAD_INIT(<span class="literal">NULL</span>, <span class="number">0</span>)</span><br><span class="line">    .tp_name = <span class="string">"custom.Custom"</span>,</span><br><span class="line">    .tp_doc = <span class="string">"Custom objects"</span>,</span><br><span class="line">    .tp_basicsize = <span class="keyword">sizeof</span>(CustomObject),</span><br><span class="line">    .tp_itemsize = <span class="number">0</span>,</span><br><span class="line">    .tp_flags = Py_TPFLAGS_DEFAULT,</span><br><span class="line">    .tp_new = PyType_GenericNew,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> PyModuleDef custommodule = &#123;</span><br><span class="line">    PyModuleDef_HEAD_INIT,</span><br><span class="line">    .m_name = <span class="string">"custom"</span>,</span><br><span class="line">    .m_doc = <span class="string">"Example module that creates an extension type."</span>,</span><br><span class="line">    .m_size = <span class="number">-1</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">PyMODINIT_FUNC</span><br><span class="line">PyInit_custom(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    PyObject *m;</span><br><span class="line">    <span class="keyword">if</span> (PyType_Ready(&amp;CustomType) &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    m = PyModule_Create(&amp;custommodule);</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    Py_INCREF(&amp;CustomType);</span><br><span class="line">    <span class="keyword">if</span> (PyModule_AddObject(m, <span class="string">"Custom"</span>, (PyObject *) &amp;CustomType) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        Py_DECREF(&amp;CustomType);</span><br><span class="line">        Py_DECREF(m);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上述代码，首先定义了一个结构体，表示自定义对象，<br><code>CustomObject</code> 结构体中，<code>PyObject_HEAD</code> 是强制必须有的，且在结构体第一个位置，这个宏定义了 <code>ob_base</code> 字段，类型为 <code>PyObject</code>，这个字段中包含一个类型对象 <code>ob_type</code> 和一个引用计数 <code>ob_refcnt</code>，可以分别使用 <code>Py_TYPE</code> 和 <code>Py_REFCNT</code> 进行访问。<code>PyObject_HEAD</code> 之后可以列出类型的其他字段，例如</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    PyObject_HEAD</span><br><span class="line">    <span class="keyword">double</span> ob_fval;</span><br><span class="line">&#125; PyFloatObject;</span><br></pre></td></tr></table></figure>
@@ -325,7 +327,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-count">76</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -338,7 +340,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

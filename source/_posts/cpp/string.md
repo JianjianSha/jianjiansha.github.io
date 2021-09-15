@@ -3,7 +3,8 @@ title: C++ 边学边忘——字符（串）
 date: 2021-06-25 12:02:49
 tags:
 ---
-
+C++ 中的字符串编码。
+<!-- more -->
 # 编码
 我们写的源码（source code）被保存在文件中，我们知道文件也是有编码格式的，例如打开微软的 VS 2019，新建一个C++ Console App，会自动生成一个 `ConsoleApplication1.cpp` 文件，这个文件的编码可以通过 VS 2019 的 “文件”菜单下的 “高级保存选项”命令进行设置（如果没有说明被 VS 隐藏了，请百度如何显示这个命令），默认是`GB2312`，可以把它改为 `utf-8` 等。vscode 中也可以更改文件编码，通过 `ctrl+shift+p` 打开命令搜索框，然后输入 `encode` 关键词，就有 `Change File Encoding` 命令出来，然后 vscode 右下角 也出现 `UTF-8`、`CRLF` 等按钮，可以直接点击进行修改。
 
@@ -190,13 +191,13 @@ a->}, b->}, c->?, d->}, e->}
 ```c++
 #include <wchar.h>
 int main(int argc, char** argv) {
-    setlocale(LC_CTYPE, "");
+    setlocale(LC_CTYPE, "");    // 对应宽字符，即，字符串字面量有 L, u, U 前缀，指示使用系统当前 locale。
     wchar_t a = L'好';
     char32_t b = U'好';
     wchar_t c = 0xBD;   // ASCII 扩展字符
     int d = 0x597D;
     wint_t e = 0x597D;
-    printf("a->%lc, b->%lc, c->%c, d->%lc, e->%lc\n", a, b, c);
+    printf("a->%lc, b->%lc, c->%lc, d->%lc, e->%lc\n", a, b, c, d, e);
 }
 ```
 
@@ -214,25 +215,61 @@ a->好, b->好, c->½, d->好, e->好
 #include <wchar.h>
 #include <stdio.h>
 int main(int argc, char** argv) {
-    setlocale(LC_CTYPE, "");    // 设置系统当前 locale
+    setlocale(LC_CTYPE, "");    // 显示宽字符时，使用系统当前 locale。这使得变量 `a,b,g` 可以被正确打印
     const wchar_t* a = L"好";
     const char32_t* b = U"好";
     const char* c = "好";
     const char* d = "\xE5\xA5\xBD";
     unsigned char e[4] = {0xE5, 0xA5, 0xBD};
     const char f[4] = {'\xE5', '\xA5', '\xBD'};
-    printf("a->%ls, b->%ls, c->%s, d->%s, e->%s, f->%s\n", a, b, c, d, e, f);
+    const char32_t* g = U"\x597D";
+    printf("a->%ls, b->%ls, c->%s, d->%s, e->%s, f->%s, g->%ls\n", a, b, c, d, e, f, g);
 }
 ```
 其中，`c` 对应 `%s`，用于打印窄字符，而 `a,b` 均需要用 `%ls` 来打印宽字符（否则无法正确打印），我们不能搞混，否则可能无法正常打印。
 
 结果为 
 ```
-a->好, b->好, c->好, d->好, e->好, f->好
+a->好, b->好, c->好, d->好, e->好, f->好， g->好
 ```
 
 上面，`d,f` 是字符串 `"好"` 的 16 进制表示（UTF-8 编码），`e` 存储了 `好` 和 `\0` 两个字符，其中 `好` 依然是 UTF-8 编码。`d,e,f` 变量的字符串打印使用 `%s`，如上结果所示，可正常打印。此外，`d,f` 可以直接打印，即 `printf(d);printf(f);`。
 
+上面代码中，我又增加了一个变量 `g`，如果要用 `0x` 形式的字符串，那么需要注意，`0x` 后面只能跟两个16进制数，因为 char 类型是 8 bit，如果后面的 16 进制数多于两个，那么需要增加前缀 `L` 或者 `U`（64 bit ，对于 32 bit，则使用 `u` 前缀），且打印的指示器 specifier 使用 `%ls`。
+
 > 1. 可以使用 printf("%x\n", a); 打印一个字符变量的 16 进制值。
 
 > 2. GCC 中不要混用 `printf` 和 `wprintf`，相关知识点可搜索 `fwide` 函数.
+
+
+## C++ 打印
+C++ 中，我们还可以使用 `cout` 打印字符串，
+```c++
+#include <iostream>
+int main(int argc, char** argv) {
+    const char* a = "好";
+    std::cout << a << "-好" << std::endl;
+}
+```
+注意不要使用 `std::cout << '好';` 打印字符 `好`，`'好'` 表示窄字符，使用 UTF-8 编码为 `E5A5BD`，这显然超出 char 有效范围，`std::cout << '好';` 将会打印出 `15050173`，此即 `E5A5BD` 的十进制表示。
+
+使用 `wcout` 打印，
+```c++
+#include <wchar.h>
+int main(int argc, char** argv) {
+    const w_char* a = L"好";
+    std::wcout << a << L"-好" << std::endl;
+}
+```
+以上代码无法正确打印宽字符（仅 ASCII 字符 `-` 被正确打印）。
+GCC 对于窄字符，使用 `UTF-8` 编码，而我的系统终端（Ubuntu terminal）的 `locale` 命令显示使用的是 `LC_CTYPE=en_US.UTF-8`，所以可以直接打印。如果使用使用 `std::wcout` 宽字符形式打印，由于宽字符使用 `UTF-32`（UCS2 还是 UCS4，取决于系统），所以还需要指示 `std::wcout` 进行转换，转换的目标字符集根据 `locale` 设置获得，这样才能与终端所用字符集匹配，代码如下，
+```c++
+#include <wchar.h>
+#include <locale>
+int main(int argc, char** argv) {
+    std::setlocale(LC_CTYPE, "");       // 或者使用下一句进行 C++ 的全局设置，也行
+    // std::locale::global(std::locale(""));
+    const w_char* a = L"好";
+    std::wcout << a << L"-好" << std::endl;
+}
+```
