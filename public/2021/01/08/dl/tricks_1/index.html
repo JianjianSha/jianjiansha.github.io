@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -204,8 +204,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>深度学习中有很多训练技巧，这里做一些总结。</p>
-<a id="more"></a>
+        <p>深度学习中有很多训练技巧，这里做一些总结。<br><span id="more"></span></p>
 <h1 id="BatchNorm"><a href="#BatchNorm" class="headerlink" title="BatchNorm"></a>BatchNorm</h1><h2 id="BatchNorm-的作用："><a href="#BatchNorm-的作用：" class="headerlink" title="BatchNorm 的作用："></a>BatchNorm 的作用：</h2><ol>
 <li>防止过拟合。每个样本均经过批归一化后，防止出现离群点，从而导致过拟合。</li>
 <li>加快收敛。梯度下降过程中，每一层参数不断变化，导致输出结果的分布也在不断变化，后层网络就需要不停的适应这种变化。通常称这种变化为 <code>Internal Covariate Shift</code>，当数据流经深度网络的某层时，这层的计算结果可能会使得数据变的更大，或这更小，使得后面的网络层学习变得困难。使用 BN 后，BN 应用在每层计算函数之后，激活函数之前，使得数据分布集中在中间位置，这样再应用激活函数才有意义，并且 BN 之后的数据集中在激活函数的中间位置，此位置的梯度较大，从而有效防止了梯度弥散，并加快收敛速度。</li>
@@ -301,7 +300,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#BatchNorm"><span class="nav-number">1.</span> <span class="nav-text">BatchNorm</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BatchNorm-的作用："><span class="nav-number">1.1.</span> <span class="nav-text">BatchNorm 的作用：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BatchNorm-的计算公式"><span class="nav-number">1.2.</span> <span class="nav-text">BatchNorm 的计算公式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BatchNorm-适用范围"><span class="nav-number">1.3.</span> <span class="nav-text">BatchNorm 适用范围</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#BatchNorm"><span class="nav-number">1.</span> <span class="nav-text">BatchNorm</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BatchNorm-%E7%9A%84%E4%BD%9C%E7%94%A8%EF%BC%9A"><span class="nav-number">1.1.</span> <span class="nav-text">BatchNorm 的作用：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BatchNorm-%E7%9A%84%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">BatchNorm 的计算公式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BatchNorm-%E9%80%82%E7%94%A8%E8%8C%83%E5%9B%B4"><span class="nav-number">1.3.</span> <span class="nav-text">BatchNorm 适用范围</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -315,7 +314,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -328,7 +327,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

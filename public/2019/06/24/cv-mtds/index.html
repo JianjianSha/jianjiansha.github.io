@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -210,9 +210,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>总结 CV 中的一些概念和操作（并不局限于 CV）。</p>
-<a id="more"></a>
-<h1 id="RF"><a href="#RF" class="headerlink" title="RF"></a>RF</h1><p>第 k layer 上的感受野大小为<br>$$l_k=l_{k-1}+[(f_k-1)\prod_{i=0}^{k-1}s_i]$$<br>其中，$s_i$ 为第 i layer 上卷积的步幅，$f_k$ 为第 k layer 上卷积核大小，$l_0=1, \ s_0=1$。</p>
+        <p>总结 CV 中的一些概念和操作（并不局限于 CV）。<br><span id="more"></span></p>
+<h1 id="RF"><a href="#RF" class="headerlink" title="RF"></a>RF</h1><p>第 k layer 上的感受野大小为</p>
+<script type="math/tex; mode=display">l_k=l_{k-1}+[(f_k-1)\prod_{i=0}^{k-1}s_i]</script><p>其中，$s_i$ 为第 i layer 上卷积的步幅，$f_k$ 为第 k layer 上卷积核大小，$l_0=1, \ s_0=1$。</p>
 <h1 id="NMS"><a href="#NMS" class="headerlink" title="NMS"></a>NMS</h1><p>以 Faster R-CNN 为例，Test 阶段时，ProposalLayer 生成密集均匀分布的 anchors，RPN 得到所有 anchors 的得分（置信度）以及偏差回归值，根据偏差值对 anchors 进行坐标转换得到 proposals，proposals 的得分就是对应 anchors 的得分，然后经过如下处理：</p>
 <ol>
 <li>proposal 的坐标不能超过输入 image 的范围 [0,w-1], [0,h-1]，故需要对超过范围的 proposal 进行 clip 以使得 proposal 坐标位于范围内</li>
@@ -228,14 +228,14 @@
 <li>重复过程 2，直到当前 I 为空 </li>
 <li>K 中保存了 NMS 之后的 proposals 的列表下标值</li>
 </ol>
-<h1 id="Soft-NMS"><a href="#Soft-NMS" class="headerlink" title="Soft-NMS"></a>Soft-NMS</h1><p>NMS会过滤到两个靠的很近的 boxes 中得分较低的那个 box，但是有时候确实是存在两个靠的很近的 gt boxes，强行过滤到得分较低的 box 会导致 recall 较低，所以此时可改用 soft-NMS，源于论文 <a href="https://arxiv.org/pdf/1704.04503.pdf" target="_blank" rel="noopener">Improving Object Detection With One Line of Code</a></p>
+<h1 id="Soft-NMS"><a href="#Soft-NMS" class="headerlink" title="Soft-NMS"></a>Soft-NMS</h1><p>NMS会过滤到两个靠的很近的 boxes 中得分较低的那个 box，但是有时候确实是存在两个靠的很近的 gt boxes，强行过滤到得分较低的 box 会导致 recall 较低，所以此时可改用 soft-NMS，源于论文 <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1704.04503.pdf">Improving Object Detection With One Line of Code</a></p>
 <p>Soft-NMS 与 NMS 的最主要区别是 NMS 将近邻低得分 box 重置其得分为 0，而 Soft-NMS 则是根据一个函数降低其得分，使得近邻 box 的置信度更低，但仍然在检测 rank list 中。算法如下：</p>
 <p><strong>Input</strong></p>
 <ul>
-<li>$\mathcal B={b_1,…,b_N}, \mathcal S = {s_1,…,S_N}, N_t, m$</li>
+<li>$\mathcal B=\{b_1,…,b_N\}, \mathcal S = \{s_1,…,S_N\}, N_t, m$</li>
 <li>分别表示初始检测 boxes，相应的 scores，NMS 阈值（0.7）， $m=1 \rightarrow \text{NMS}; \ m=2\rightarrow \text{Soft-NMS}$</li>
 </ul>
-<p>$\mathcal D \leftarrow {}$</p>
+<p>$\mathcal D \leftarrow \{\}$</p>
 <p><strong>while</strong> $\mathcal B \ne \varnothing$ <strong>do</strong></p>
 <p>&emsp; &emsp; $m \leftarrow \arg \max \mathcal S$</p>
 <p>&emsp; &emsp; $\mathcal M \leftarrow b_m$</p>
@@ -253,10 +253,11 @@
 <p><strong>return</strong> $\mathcal {D,S}$</p>
 <p>现在来看 Soft-NMS 中的得分衰减因子 f 函数，首先无论 NMS 还是 Soft-NMS，我们都可以统一可将 box 的得分修改为 $s_i=s_i f(i)$，其中 f 函数为，</p>
 <ol>
-<li><p>NMS<br>$$f(i) = \begin{cases} 1 &amp; iou(\mathcal M, b_i) &lt; N_t \ 0 &amp; iou(\mathcal M, b_i) \ge N_t\end{cases}$$</p>
-</li>
+<li><p>NMS</p>
+<script type="math/tex; mode=display">f(i) = \begin{cases} 1 & iou(\mathcal M, b_i) < N_t \\ 0 & iou(\mathcal M, b_i) \ge N_t\end{cases}</script></li>
 <li><p>Soft-NMS</p>
-<p>$$f(i) = \begin{cases} 1 &amp; iou(\mathcal M, b_i) &lt; N_t \ 1-iou(\mathcal M, b_i) &amp; iou(\mathcal M, b_i) \ge N_t \end{cases}$$<br>可见，靠的越近 iou 越大，得分衰减的越厉害。但是这个式子中函数值在 iou=N<sub>t</sub> 处附近不连续，可使用高斯惩罚函数，<br>$$f(i)=e^{-\frac {iou(\mathcal M, b_i)^2} \sigma}, \ \forall b_i \notin \mathcal D$$<br>在 iou=0 时取得最大值，参数 $\sigma$ 控制衰减速度，$\sigma$ 越小表示得分随 iou 增大而衰减越快。</p>
+<script type="math/tex; mode=display">f(i) = \begin{cases} 1 & iou(\mathcal M, b_i) < N_t \\ 1-iou(\mathcal M, b_i) & iou(\mathcal M, b_i) \ge N_t \end{cases}</script><p>可见，靠的越近 iou 越大，得分衰减的越厉害。但是这个式子中函数值在 iou=N<sub>t</sub> 处附近不连续，可使用高斯惩罚函数，</p>
+<script type="math/tex; mode=display">f(i)=e^{-\frac {iou(\mathcal M, b_i)^2} \sigma}, \ \forall b_i \notin \mathcal D</script><p>在 iou=0 时取得最大值，参数 $\sigma$ 控制衰减速度，$\sigma$ 越小表示得分随 iou 增大而衰减越快。</p>
 </li>
 </ol>
 <h1 id="Deconvolution"><a href="#Deconvolution" class="headerlink" title="Deconvolution"></a>Deconvolution</h1><p>在很多 CV 任务例如 semantic segmentation 中，需要上采样，简单的上采样可以使用 bilinear interpolation，但有时为了得到更好的上采样结果会使用反卷积。<br>(to be continued…)</p>
@@ -357,7 +358,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -370,7 +371,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

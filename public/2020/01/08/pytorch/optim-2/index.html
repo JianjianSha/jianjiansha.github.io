@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -30,8 +30,8 @@
 <meta property="article:published_time" content="2020-01-08T10:19:54.000Z">
 <meta property="article:modified_time" content="2020-04-24T10:34:13.810Z">
 <meta property="article:author" content="shajianjian">
-<meta property="article:tag" content="PyTorch">
 <meta property="article:tag" content="DL">
+<meta property="article:tag" content="PyTorch">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://shajianjian.github.io/2020/01/08/pytorch/optim-2/">
@@ -211,29 +211,61 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="1-Adam"><a href="#1-Adam" class="headerlink" title="1. Adam"></a>1. Adam</h1><p>Adam 表示 Adaptive Moment Estimation。</p>
-<a id="more"></a>
-<h2 id="1-1-原理"><a href="#1-1-原理" class="headerlink" title="1.1 原理"></a>1.1 原理</h2><p>梯度和梯度平方的衰减如下，<br>$$m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t<br>\\ v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2 \qquad(1)$$<br>其中 $\beta_1 &lt; 1, \ \beta_2 &lt; 1$，$m_t$ 和 $v_t$ 分别是梯度 $g$ 的一阶矩和二阶矩的样本估计（$g$ 看作随机变量）。由于 $m$ 和 $v$ 均初始化为 0，即 $m_0=0, \ v_0 = 0$，所以这两个样本估计均是有偏估计，且偏向 0，尤其在刚开始的时间步（t 较小）和衰减率较小时（$1-\beta$ 较小，$\beta$ 接近 1）。</p>
-<p>令 $E(g)=\mu$，$g_1, g_2, …$ 来自于 $g$ 且独立同分布，那么<br>$$E(m_t)=E\left(\sum_{\tau=1}^t \beta_1^{t-\tau} (1-\beta_1) g_{\tau}\right)=(1-\beta_1)\sum_{\tau=1}^t \beta_1^{t-\tau}E(g_{\tau})=\mu (1-\beta_1)\sum_{\tau=1}^t \beta_1^{t-\tau}=\mu(1-\beta_1^t)$$<br>可见，当 t 较小且 $\beta_1 \rightarrow 1$，$E(m_t) \rightarrow 0$</p>
-<p>为了抵消这些偏向，取以下计算进行校正，<br>$$\hat m_t=\frac {m_t} {1-\beta_1^t}<br>\\ \hat v_t = \frac {v_t} {1-\beta_2^t}$$</p>
-<p>其中 上标 <code>t</code> 表示指数，即 <code>t</code> 个 $\beta$ 相乘。 通过上面的分析，可知，除以 $1-\beta^t$ 后，$E(\hat m_t)=\mu$，为无偏估计。</p>
-<p>然后类似 Adadelta 和 RMSprop 中那样，更新公式为，<br>$$\theta_{t+1}=\theta_t - \frac {\eta} {\sqrt{\hat v_t}+\epsilon} \hat m_t \qquad(2)$$<br>其中 $\eta$ 为初始学习率，是一个初始时给定的超参数。</p>
-<h2 id="1-2-AMSGrad-变体"><a href="#1-2-AMSGrad-变体" class="headerlink" title="1.2 AMSGrad 变体"></a>1.2 AMSGrad 变体</h2><p>修改 $v$ 的计算式如下，<br>$$v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2<br>\\ v_{t,m} = \max\left(v_{t-1,m}, \ \beta_2 v_{t-1} + (1-\beta_2) g_t^2\right)$$<br>其中 $v_{0,m}=0$。</p>
-<p>然后 $v$ 的无偏估计改为，<br>$$\hat v_{t,m}=\frac {v_{t,m}} {1-\beta_2^t}$$<br>参数更新公式调整为，<br>$$\theta_{t+1}=\theta_t - \frac {\eta} {\sqrt{\hat v_{t,m}}+\epsilon} \hat m_t \qquad(3)$$<br>其中 $\hat m_t$ 的计算部分与前面的保持一致。</p>
+        <h1 id="1-Adam"><a href="#1-Adam" class="headerlink" title="1. Adam"></a>1. Adam</h1><p>Adam 表示 Adaptive Moment Estimation。<br><span id="more"></span></p>
+<h2 id="1-1-原理"><a href="#1-1-原理" class="headerlink" title="1.1 原理"></a>1.1 原理</h2><p>梯度和梯度平方的衰减如下，</p>
+<script type="math/tex; mode=display">m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t
+\\\\ v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2 \qquad(1)</script><p>其中 $\beta_1 &lt; 1, \ \beta_2 &lt; 1$，$m_t$ 和 $v_t$ 分别是梯度 $g$ 的一阶矩和二阶矩的样本估计（$g$ 看作随机变量）。由于 $m$ 和 $v$ 均初始化为 0，即 $m_0=0, \ v_0 = 0$，所以这两个样本估计均是有偏估计，且偏向 0，尤其在刚开始的时间步（t 较小）和衰减率较小时（$1-\beta$ 较小，$\beta$ 接近 1）。</p>
+<p>令 $E(g)=\mu$，$g_1, g_2, …$ 来自于 $g$ 且独立同分布，那么</p>
+<script type="math/tex; mode=display">E(m_t)=E\left(\sum_{\tau=1}^t \beta_1^{t-\tau} (1-\beta_1) g_{\tau}\right)=(1-\beta_1)\sum_{\tau=1}^t \beta_1^{t-\tau}E(g_{\tau})=\mu (1-\beta_1)\sum_{\tau=1}^t \beta_1^{t-\tau}=\mu(1-\beta_1^t)</script><p>可见，当 t 较小且 $\beta_1 \rightarrow 1$，$E(m_t) \rightarrow 0$</p>
+<p>为了抵消这些偏向，取以下计算进行校正，</p>
+<script type="math/tex; mode=display">\hat m_t=\frac {m_t} {1-\beta_1^t}
+\\\\ \hat v_t = \frac {v_t} {1-\beta_2^t}</script><p>其中 上标 <code>t</code> 表示指数，即 <code>t</code> 个 $\beta$ 相乘。 通过上面的分析，可知，除以 $1-\beta^t$ 后，$E(\hat m_t)=\mu$，为无偏估计。</p>
+<p>然后类似 Adadelta 和 RMSprop 中那样，更新公式为，</p>
+<script type="math/tex; mode=display">\theta_{t+1}=\theta_t - \frac {\eta} {\sqrt{\hat v_t}+\epsilon} \hat m_t \qquad(2)</script><p>其中 $\eta$ 为初始学习率，是一个初始时给定的超参数。</p>
+<h2 id="1-2-AMSGrad-变体"><a href="#1-2-AMSGrad-变体" class="headerlink" title="1.2 AMSGrad 变体"></a>1.2 AMSGrad 变体</h2><p>修改 $v$ 的计算式如下，</p>
+<script type="math/tex; mode=display">v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2
+\\\\ v_{t,m} = \max\left(v_{t-1,m}, \ \beta_2 v_{t-1} + (1-\beta_2) g_t^2\right)</script><p>其中 $v_{0,m}=0$。</p>
+<p>然后 $v$ 的无偏估计改为，</p>
+<script type="math/tex; mode=display">\hat v_{t,m}=\frac {v_{t,m}} {1-\beta_2^t}</script><p>参数更新公式调整为，</p>
+<script type="math/tex; mode=display">\theta_{t+1}=\theta_t - \frac {\eta} {\sqrt{\hat v_{t,m}}+\epsilon} \hat m_t \qquad(3)</script><p>其中 $\hat m_t$ 的计算部分与前面的保持一致。</p>
 <p>AMSGrad 比 Adam 降低了学习率。</p>
-<h1 id="2-Adamax"><a href="#2-Adamax" class="headerlink" title="2. Adamax"></a>2. Adamax</h1><p>在 Adam 的基础上将 (1) 式泛化，不局限于 $l_2$ 范数，如下<br>$$v_t = \beta_2^p v_{t-1} + (1-\beta_2^p)|g_t|^p$$<br>其中注意 $p$ 为指数。</p>
-<p>将上式中的 $v_{t-1}$ 展开，<br>$$\begin{aligned} v_t  &amp;= (1-\beta_2^p)|g_t|^p + \beta_2^p[(1-\beta_2^p)|g_{t-1}|^p+\beta_2^p v_{t-2}]<br>\\ &amp; = (1-\beta_2^p)\sum_{i=1}^t \beta_2^{p(t-i)} |g_i|^p<br>\end{aligned}$$</p>
-<p>令 $p \rightarrow \infin$，并定义 $u_t = \lim_{p \rightarrow \infin}(v_t)^{1/p}$，结合上式有，<br>$$\begin{aligned} u_t  = \lim_{p \rightarrow \infin}(v_t)^{1/p} &amp;= \lim_{p \rightarrow \infin}\left((1-\beta_2^p)\sum_{i=1}^t \beta_2^{p(t-i)} |g_i|^p\right)^{1/p}<br>\\ &amp;= \lim_{p \rightarrow \infin} (1-\beta_2^p)^{1/p} \left(\sum_{i=1}^t \beta_2^{p(t-i)} |g_i|^p\right)^{1/p}<br>\\ &amp;= \lim_{p \rightarrow \infin} \left(\sum_{i=1}^t \beta_2^{p(t-i)} |g_i|^p\right)^{1/p}<br>\\ &amp;=\max (\beta_2^{t-1}|g_1|,\beta_2^{t-2}|g_2|,…,\beta_2^{0}|g_t|)\end{aligned}$$</p>
-<p>于是可得以下迭代公式，<br>$$u_t = \max(\beta_2 u_{t-1}, \ |g_t|)$$<br>其中初始值 $u_0=0$。</p>
-<p>用 $u_t$ 替换 Adam 中的 $\sqrt{\hat v_t}+\epsilon$，于是 更新公式为，<br>$$\theta_{t+1} = \theta_t - \frac \eta {u_t} \hat m_t \qquad(4)$$<br>其中 $\hat m_t$ 的计算方式与 Adam 中一致。</p>
-<h1 id="3-AdamW"><a href="#3-AdamW" class="headerlink" title="3. AdamW"></a>3. AdamW</h1><p>Adam 中，梯度中事先包含了正则惩罚项，即<br>$$g := g+\lambda \theta$$<br>然后再计算梯度的一阶矩和二阶矩的无偏估计。现在考虑将权重衰减项从梯度 $g$ 中解耦出来，直接附加到参数衰减 $\theta$ 上，调整 (2) 式得到 AdamW 的参数更新公式，<br>$$\theta_{t+1}=\theta_t - \lambda \eta \theta_t - \frac {\eta} {\sqrt{\hat v_t}+\epsilon} \hat m_t$$</p>
-<h1 id="4-Nadam"><a href="#4-Nadam" class="headerlink" title="4. Nadam"></a>4. Nadam</h1><p>回顾一下 momentum 版本的 SGD 更新方式，<br>$$v_{t+1} = \gamma v_t + \eta g_t<br>\\ \theta_{t+1}=\theta_t - v_{t+1}$$<br>然后 NAG 的更新方式，先从当前参数处更新 momentum 的量到达一个新的位置 （(5) 式），然后从新位置处进行梯度下降，作为本次更新后的参数（(6, 7) 式），数学描述如下，<br>$$y_t = \theta_t + \mu v_t  \qquad(5)<br>\\ g_t = \nabla f(y_t)    \qquad(6)<br>\\ \theta_{t+1}=y_t - \gamma g_t \qquad(7)$$</p>
-<p>联合上面三式可知，<br>$$v_{t+1}=\theta_{t+1}-\theta_t=\mu v_t - \gamma g_t$$<br>初始时，$t=0, \ v_0=0 \Rightarrow y_0=\theta_0$。</p>
-<p>根据 <a href="2020/01/02/pytorch/optim_SGD">PyTorch.optim.SGD</a> 中的公式 (8)、(9)、(10)，易知 NAG 等价于以下更新过程，<br>$$\begin{cases}g_t = \nabla f(\theta_t)<br>\\ v_{t+1} = \gamma v_t + \eta g_t<br>\\ v_{t+1}’ = \gamma v_{t+1} + \eta g_t<br>\\ \theta_{t+1} = \theta_t - v_{t+1}’\end{cases} \qquad(8)$$<br>可见，做了两次的 momentum 更新，相比普通的 momentum 的 SGD，增加了一次 look ahead 的 momentum。注意，$v_{t+1}’$ 与 $v_{t+2}$ 是不一样的。</p>
-<p>接着再回顾 Adam 中的参数更新，根据 (2) 式，得<br>$$\theta_{t+1}=\theta_t - \frac {\eta} {\sqrt{\hat v_t}+\epsilon} \frac {m_t} {1-\beta_1^t}\qquad(9)$$<br>其中 $m_t$ 包含了一次 momentum 更新，<br>$$m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t$$<br>增加一次 momentum 更新，<br>$$m_t’=\beta_1 m_t + (1-\beta_1) g_t$$<br>代入 (9) 式，于是参数更新变为，<br>$$\begin{aligned}\theta_{t+1}&amp;=\theta_t - \frac \eta {\sqrt {\hat v_t} + \epsilon}\frac {m_t’} {1-\beta_1^t}\\&amp;=\theta_t - \frac \eta {\sqrt {\hat v_t} + \epsilon}\frac {\beta_1 m_t + (1-\beta_1) g_t} {1-\beta_1^t}<br>\\&amp;=\theta_t - \frac \eta {\sqrt {\hat v_t} + \epsilon}\left(\beta_1 \hat m_t+\frac {1-\beta_1}{1-\beta_1^t} g_t \right)\end{aligned} \qquad(10)$$</p>
-<p>(10) 式就是 Nadam 的参数更新公式。</p>
-<p>也可以按如下过程理解，<br>$$\hat m_t = \frac {m_t} {1-\beta_1^t}=\frac {\beta_1 m_{t-1} + (1-\beta_1) g_t} {1-\beta_1^t}=\frac {\beta_1 \hat m_{t-1}(1-\beta_1^{t-1}) + (1-\beta_1) g_t} {1-\beta_1^t}=\beta_1 \hat m_{t-1}+\frac {1-\beta_1}{1-\beta_1^t} g_t$$<br>其中最后一步用了近似处理。事实上 (10) 式第一步中，将 $m_t$ 替换为 $m_t’$ 时，分母也应该替换为 $1-\beta_1^{t+1}$，因为 $m_t’$ 真正的无偏估计就应该要除以 $1-\beta_1^{t+1}$，但是我们都忽略这个微小的差别。</p>
-<p>根据上式，可得，<br>$$\hat m_t’=\beta_1 \hat m_t + \frac {1-\beta_1}{1-\beta_1^t} g_t$$<br>代入 (2) 得 Nesterov momentum 加成的 Adam 变体的 更新公式，与 (10) 式相同。 </p>
+<h1 id="2-Adamax"><a href="#2-Adamax" class="headerlink" title="2. Adamax"></a>2. Adamax</h1><p>在 Adam 的基础上将 (1) 式泛化，不局限于 $l_2$ 范数，如下</p>
+<script type="math/tex; mode=display">v_t = \beta_2^p v_{t-1} + (1-\beta_2^p)|g_t|^p</script><p>其中注意 $p$ 为指数。</p>
+<p>将上式中的 $v_{t-1}$ 展开，</p>
+<script type="math/tex; mode=display">\begin{aligned} v_t  &= (1-\beta_2^p)|g_t|^p + \beta_2^p[(1-\beta_2^p)|g_{t-1}|^p+\beta_2^p v_{t-2}]
+\\\\ & = (1-\beta_2^p)\sum_{i=1}^t \beta_2^{p(t-i)} |g_i|^p
+\end{aligned}</script><p>令 $p \rightarrow \infin$，并定义 $u_t = \lim_{p \rightarrow \infin}(v_t)^{1/p}$，结合上式有，</p>
+<script type="math/tex; mode=display">\begin{aligned} u_t  = \lim_{p \rightarrow \infin}(v_t)^{1/p} &= \lim_{p \rightarrow \infin}\left((1-\beta_2^p)\sum_{i=1}^t \beta_2^{p(t-i)} |g_i|^p\right)^{1/p}
+\\\\ &= \lim_{p \rightarrow \infin} (1-\beta_2^p)^{1/p} \left(\sum_{i=1}^t \beta_2^{p(t-i)} |g_i|^p\right)^{1/p}
+\\\\ &= \lim_{p \rightarrow \infin} \left(\sum_{i=1}^t \beta_2^{p(t-i)} |g_i|^p\right)^{1/p}
+\\\\ &=\max (\beta_2^{t-1}|g_1|,\beta_2^{t-2}|g_2|,...,\beta_2^{0}|g_t|)\end{aligned}</script><p>于是可得以下迭代公式，</p>
+<script type="math/tex; mode=display">u_t = \max(\beta_2 u_{t-1}, \ |g_t|)</script><p>其中初始值 $u_0=0$。</p>
+<p>用 $u_t$ 替换 Adam 中的 $\sqrt{\hat v_t}+\epsilon$，于是 更新公式为，</p>
+<script type="math/tex; mode=display">\theta_{t+1} = \theta_t - \frac \eta {u_t} \hat m_t \qquad(4)</script><p>其中 $\hat m_t$ 的计算方式与 Adam 中一致。</p>
+<h1 id="3-AdamW"><a href="#3-AdamW" class="headerlink" title="3. AdamW"></a>3. AdamW</h1><p>Adam 中，梯度中事先包含了正则惩罚项，即</p>
+<script type="math/tex; mode=display">g := g+\lambda \theta</script><p>然后再计算梯度的一阶矩和二阶矩的无偏估计。现在考虑将权重衰减项从梯度 $g$ 中解耦出来，直接附加到参数衰减 $\theta$ 上，调整 (2) 式得到 AdamW 的参数更新公式，</p>
+<script type="math/tex; mode=display">\theta_{t+1}=\theta_t - \lambda \eta \theta_t - \frac {\eta} {\sqrt{\hat v_t}+\epsilon} \hat m_t</script><h1 id="4-Nadam"><a href="#4-Nadam" class="headerlink" title="4. Nadam"></a>4. Nadam</h1><p>回顾一下 momentum 版本的 SGD 更新方式，</p>
+<script type="math/tex; mode=display">v_{t+1} = \gamma v_t + \eta g_t
+\\\\ \theta_{t+1}=\theta_t - v_{t+1}</script><p>然后 NAG 的更新方式，先从当前参数处更新 momentum 的量到达一个新的位置 （(5) 式），然后从新位置处进行梯度下降，作为本次更新后的参数（(6, 7) 式），数学描述如下，</p>
+<script type="math/tex; mode=display">y_t = \theta_t + \mu v_t  \qquad(5)
+\\\\ g_t = \nabla f(y_t)    \qquad(6)
+\\\\ \theta_{t+1}=y_t - \gamma g_t \qquad(7)</script><p>联合上面三式可知，</p>
+<script type="math/tex; mode=display">v_{t+1}=\theta_{t+1}-\theta_t=\mu v_t - \gamma g_t</script><p>初始时，$t=0, \ v_0=0 \Rightarrow y_0=\theta_0$。</p>
+<p>根据 <a href="2020/01/02/pytorch/optim_SGD">PyTorch.optim.SGD</a> 中的公式 (8)、(9)、(10)，易知 NAG 等价于以下更新过程，</p>
+<script type="math/tex; mode=display">\begin{cases}g_t = \nabla f(\theta_t)
+\\\\ v_{t+1} = \gamma v_t + \eta g_t
+\\\\ v_{t+1}' = \gamma v_{t+1} + \eta g_t
+\\\\ \theta_{t+1} = \theta_t - v_{t+1}'\end{cases} \qquad(8)</script><p>可见，做了两次的 momentum 更新，相比普通的 momentum 的 SGD，增加了一次 look ahead 的 momentum。注意，$v_{t+1}’$ 与 $v_{t+2}$ 是不一样的。</p>
+<p>接着再回顾 Adam 中的参数更新，根据 (2) 式，得</p>
+<script type="math/tex; mode=display">\theta_{t+1}=\theta_t - \frac {\eta} {\sqrt{\hat v_t}+\epsilon} \frac {m_t} {1-\beta_1^t}\qquad(9)</script><p>其中 $m_t$ 包含了一次 momentum 更新，</p>
+<script type="math/tex; mode=display">m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t</script><p>增加一次 momentum 更新，</p>
+<script type="math/tex; mode=display">m_t'=\beta_1 m_t + (1-\beta_1) g_t</script><p>代入 (9) 式，于是参数更新变为，</p>
+<script type="math/tex; mode=display">\begin{aligned}\theta_{t+1}&=\theta_t - \frac \eta {\sqrt {\hat v_t} + \epsilon}\frac {m_t'} {1-\beta_1^t}\\\\&=\theta_t - \frac \eta {\sqrt {\hat v_t} + \epsilon}\frac {\beta_1 m_t + (1-\beta_1) g_t} {1-\beta_1^t}
+\\\\&=\theta_t - \frac \eta {\sqrt {\hat v_t} + \epsilon}\left(\beta_1 \hat m_t+\frac {1-\beta_1}{1-\beta_1^t} g_t \right)\end{aligned} \qquad(10)</script><p>(10) 式就是 Nadam 的参数更新公式。</p>
+<p>也可以按如下过程理解，</p>
+<script type="math/tex; mode=display">\hat m_t = \frac {m_t} {1-\beta_1^t}=\frac {\beta_1 m_{t-1} + (1-\beta_1) g_t} {1-\beta_1^t}=\frac {\beta_1 \hat m_{t-1}(1-\beta_1^{t-1}) + (1-\beta_1) g_t} {1-\beta_1^t}=\beta_1 \hat m_{t-1}+\frac {1-\beta_1}{1-\beta_1^t} g_t</script><p>其中最后一步用了近似处理。事实上 (10) 式第一步中，将 $m_t$ 替换为 $m_t’$ 时，分母也应该替换为 $1-\beta_1^{t+1}$，因为 $m_t’$ 真正的无偏估计就应该要除以 $1-\beta_1^{t+1}$，但是我们都忽略这个微小的差别。</p>
+<p>根据上式，可得，</p>
+<script type="math/tex; mode=display">\hat m_t'=\beta_1 \hat m_t + \frac {1-\beta_1}{1-\beta_1^t} g_t</script><p>代入 (2) 得 Nesterov momentum 加成的 Adam 变体的 更新公式，与 (10) 式相同。 </p>
 
     </div>
 
@@ -243,8 +275,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
               <a href="/tags/DL/" rel="tag"># DL</a>
+              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
           </div>
 
         
@@ -318,7 +350,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Adam"><span class="nav-number">1.</span> <span class="nav-text">1. Adam</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-原理"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-AMSGrad-变体"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 AMSGrad 变体</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Adamax"><span class="nav-number">2.</span> <span class="nav-text">2. Adamax</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-AdamW"><span class="nav-number">3.</span> <span class="nav-text">3. AdamW</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-Nadam"><span class="nav-number">4.</span> <span class="nav-text">4. Nadam</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Adam"><span class="nav-number">1.</span> <span class="nav-text">1. Adam</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-AMSGrad-%E5%8F%98%E4%BD%93"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 AMSGrad 变体</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Adamax"><span class="nav-number">2.</span> <span class="nav-text">2. Adamax</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-AdamW"><span class="nav-number">3.</span> <span class="nav-text">3. AdamW</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-Nadam"><span class="nav-number">4.</span> <span class="nav-text">4. Nadam</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -332,7 +364,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -345,7 +377,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

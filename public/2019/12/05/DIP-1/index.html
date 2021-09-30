@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="根据教材《数字图像处理》(Gonzalez)  1. 坐标变换1.1 仿射变换特点：  平直性：原图中的直线段在仿射变换后的图像中依然是直线段。 平行性：原图中平行的两个线段在仿射变换后的图中依然是平行的">
+  <meta name="description" content="根据教材《数字图像处理》(Gonzalez) 1. 坐标变换1.1 仿射变换特点：  平直性：原图中的直线段在仿射变换后的图像中依然是直线段。 平行性：原图中平行的两个线段在仿射变换后的图中依然是平行的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="数字图像处理（一）">
 <meta property="og:url" content="https://shajianjian.github.io/2019/12/05/DIP-1/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="根据教材《数字图像处理》(Gonzalez)  1. 坐标变换1.1 仿射变换特点：  平直性：原图中的直线段在仿射变换后的图像中依然是直线段。 平行性：原图中平行的两个线段在仿射变换后的图中依然是平行的">
+<meta property="og:description" content="根据教材《数字图像处理》(Gonzalez) 1. 坐标变换1.1 仿射变换特点：  平直性：原图中的直线段在仿射变换后的图像中依然是直线段。 平行性：原图中平行的两个线段在仿射变换后的图中依然是平行的">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2019-12-05T03:37:39.000Z">
 <meta property="article:modified_time" content="2020-04-24T10:36:56.327Z">
@@ -212,41 +212,51 @@
       
         <blockquote>
 <p>根据教材《数字图像处理》(Gonzalez)</p>
-</blockquote>
 <h1 id="1-坐标变换"><a href="#1-坐标变换" class="headerlink" title="1. 坐标变换"></a>1. 坐标变换</h1><h2 id="1-1-仿射变换"><a href="#1-1-仿射变换" class="headerlink" title="1.1 仿射变换"></a>1.1 仿射变换</h2><p>特点：</p>
 <ol>
 <li>平直性：原图中的直线段在仿射变换后的图像中依然是直线段。</li>
-<li>平行性：原图中平行的两个线段在仿射变换后的图中依然是平行的<a id="more"></a>   
-一般形式：<br>$$(x,y)=\mathbf T[(v,w)]$$<br>其中 $(v,w)$ 是原图中的某点坐标，$(x,y)$ 是变换后图像中对应点的坐标<br>$$\begin{bmatrix}x &amp; y &amp; 1 \end{bmatrix}=\begin{bmatrix}v &amp; w &amp; 1 \end{bmatrix}\mathbf T=\begin{bmatrix}v &amp; w &amp; 1 \end{bmatrix}\begin{bmatrix}t_{11} &amp; t_{12} &amp; 0 \ t_{21} &amp; t_{22} &amp; 0 \ t_{31} &amp; t_{32} &amp; 1\end{bmatrix}$$</li>
+<li>平行性：原图中平行的两个线段在仿射变换后的图中依然是平行的<span id="more"></span>   
+一般形式：<script type="math/tex; mode=display">(x,y)=\mathbf T[(v,w)]</script>其中 $(v,w)$ 是原图中的某点坐标，$(x,y)$ 是变换后图像中对应点的坐标<script type="math/tex; mode=display">\begin{bmatrix}x & y & 1 \end{bmatrix}=\begin{bmatrix}v & w & 1 \end{bmatrix}\mathbf T=\begin{bmatrix}v & w & 1 \end{bmatrix}\begin{bmatrix}t_{11} & t_{12} & 0 \\ t_{21} & t_{22} & 0 \\ t_{31} & t_{32} & 1\end{bmatrix}</script></li>
 </ol>
-<p>$$\begin{cases}x=t_{11} v + t_{21} w + t_{31} \<br>y=t_{12} v + t_{22} w + t_{32} \end{cases} \qquad(1)$$</p>
-<p>反向映射：<br>$$(v,w)=\mathbf T^{-1} [(x,y)]$$</p>
-<h3 id="1-1-1-恒等变换"><a href="#1-1-1-恒等变换" class="headerlink" title="1.1.1 恒等变换"></a>1.1.1 恒等变换</h3><p>$$\mathbf T = \begin{bmatrix} 1 &amp; 0 &amp; 0 \ 0&amp; 1&amp;0 \ 0&amp;0&amp;1\end{bmatrix}$$</p>
-<h3 id="1-1-2-尺度变换"><a href="#1-1-2-尺度变换" class="headerlink" title="1.1.2 尺度变换"></a>1.1.2 尺度变换</h3><p>$$\mathbf T = \begin{bmatrix} c_x &amp; 0 &amp; 0 \ 0&amp; c_y&amp;0 \ 0&amp;0&amp;1\end{bmatrix}$$<br>x 方向变为原来的 $c_x$ 倍，y 方向变为原来的 $c_y$ 倍。</p>
-<h3 id="1-1-3-旋转变换"><a href="#1-1-3-旋转变换" class="headerlink" title="1.1.3 旋转变换"></a>1.1.3 旋转变换</h3><p>$$\mathbf T = \begin{bmatrix} cos \theta &amp; sin \theta &amp; 0 \ -sin \theta&amp; cos \theta&amp;0 \ 0&amp;0&amp;1\end{bmatrix}$$<br>其中 $\theta$ 为（图像绕左上角顶点）顺时针旋转角度。</p>
-<h3 id="1-1-4-平移变换"><a href="#1-1-4-平移变换" class="headerlink" title="1.1.4 平移变换"></a>1.1.4 平移变换</h3><p>$$\mathbf T = \begin{bmatrix} 1 &amp; 0 &amp; 0 \ 0&amp; 1&amp;0 \ t_x&amp;t_y&amp;1\end{bmatrix}$$</p>
-<h3 id="1-1-5-偏移变换"><a href="#1-1-5-偏移变换" class="headerlink" title="1.1.5 偏移变换"></a>1.1.5 偏移变换</h3><p>又称错切（shear）变换，分水平错切和垂直错切两种情况。水平错切：将每一点水平移动，移动长度和该点的纵坐标成比例，<br>$$(v,w) \rightarrow (v+mw,w)$$<br>$m&gt;0$ 时向右移动，$m&lt;0$ 时向左移动。<br>类似地可以得到垂直方向变换为，<br>$$(v,w) \rightarrow (v, vn+w)$$<br>于是错切变换矩阵为<br>$$\mathbf T=\begin{bmatrix} 1 &amp; n &amp; 0 \ m &amp; 1 &amp; 0 \ 0 &amp; 0 &amp; 1\end{bmatrix}$$</p>
-<h2 id="1-2-透视变换"><a href="#1-2-透视变换" class="headerlink" title="1.2 透视变换"></a>1.2 透视变换</h2><p>透视变换是二维 $(x,y)$ 到三维 $(x,y,z)$，然后再到二维 $(x’,y’)$ 的映射，所以也称为投影变换。</p>
-<p>事实上，二维可看作三维上的一个平面 $(x,y,1)$，前面的仿射变换则是将这个平面上的点 $(x,y,1)$ 经过 $3 \times 3$ 变换矩阵后依然位于这个平面内 $(x’,y’,1)$，而透视变换则是先变换到三维空间任意点上，然后从三维空间在变换到 $(x’,y’,1)$，故不难想象变换矩阵具有如下形式，<br>$$[x,y,1]=[v,w,1]T=[v,w,1]\begin{bmatrix} t_{11} &amp; t_{12} &amp; t_{13} \t_{21} &amp; t_{22} &amp; t_{23} \t_{31} &amp; t_{32} &amp; t_{33} \end{bmatrix}$$<br>其中 $t_{13}v+t_{23}w+t_{33}=1$。从变换矩阵也可以看出，仿射变换是一种特殊的透视变换。</p>
-<p>正如下一节将要讲到的，需要知道输入图像和输出图像中分别 4 个约束点，才能确定透视变换的矩阵参数，这是因为 4 个约束点提供 8 个方程，加上自身的约束方程，共 9 个方程从而解出 9 个参数，可参考 opencv 的 python 教程中关于<a href="https://docs.opencv.org/4.1.2/da/d6e/tutorial_py_geometric_transformations.html" target="_blank" rel="noopener">透视变换的例子</a>。</p>
-<h1 id="2-图像配准"><a href="#2-图像配准" class="headerlink" title="2. 图像配准"></a>2. 图像配准</h1><p>有时候知道输入图像和经过某种变换后的输出图像，要求变换函数，这就是图像配准。主要方法是使用约束点（控制点），根据输入图像和输出图像上的一组 n 个约束点来估计变换函数，例如已知是仿射变换，那么只需要一组 3 个约束点（6个方程解6个参数），根据式 $(1)$ 即可求出参数；如果变换函数模型是双线性模型，那么有<br>$$x=c_1v+ c_2w+c_3vw + c_4 \ y=c_5v+c_6w+c_7vw+c_8$$<br>即，需要 4 个约束点得到变换函数参数。</p>
+</blockquote>
+<script type="math/tex; mode=display">\begin{cases}x=t_{11} v + t_{21} w + t_{31} \\
+y=t_{12} v + t_{22} w + t_{32} \end{cases} \qquad(1)</script><p>反向映射：</p>
+<script type="math/tex; mode=display">(v,w)=\mathbf T^{-1} [(x,y)]</script><h3 id="1-1-1-恒等变换"><a href="#1-1-1-恒等变换" class="headerlink" title="1.1.1 恒等变换"></a>1.1.1 恒等变换</h3><script type="math/tex; mode=display">\mathbf T = \begin{bmatrix} 1 & 0 & 0 \\ 0& 1&0 \\ 0&0&1\end{bmatrix}</script><h3 id="1-1-2-尺度变换"><a href="#1-1-2-尺度变换" class="headerlink" title="1.1.2 尺度变换"></a>1.1.2 尺度变换</h3><script type="math/tex; mode=display">\mathbf T = \begin{bmatrix} c_x & 0 & 0 \\ 0& c_y&0 \\ 0&0&1\end{bmatrix}</script><p>x 方向变为原来的 $c_x$ 倍，y 方向变为原来的 $c_y$ 倍。</p>
+<h3 id="1-1-3-旋转变换"><a href="#1-1-3-旋转变换" class="headerlink" title="1.1.3 旋转变换"></a>1.1.3 旋转变换</h3><script type="math/tex; mode=display">\mathbf T = \begin{bmatrix} cos \theta & sin \theta & 0 \\ -sin \theta& cos \theta&0 \\ 0&0&1\end{bmatrix}</script><p>其中 $\theta$ 为（图像绕左上角顶点）顺时针旋转角度。</p>
+<h3 id="1-1-4-平移变换"><a href="#1-1-4-平移变换" class="headerlink" title="1.1.4 平移变换"></a>1.1.4 平移变换</h3><script type="math/tex; mode=display">\mathbf T = \begin{bmatrix} 1 & 0 & 0 \\ 0& 1&0 \\ t_x&t_y&1\end{bmatrix}</script><h3 id="1-1-5-偏移变换"><a href="#1-1-5-偏移变换" class="headerlink" title="1.1.5 偏移变换"></a>1.1.5 偏移变换</h3><p>又称错切（shear）变换，分水平错切和垂直错切两种情况。水平错切：将每一点水平移动，移动长度和该点的纵坐标成比例，</p>
+<script type="math/tex; mode=display">(v,w) \rightarrow (v+mw,w)</script><p>$m&gt;0$ 时向右移动，$m&lt;0$ 时向左移动。<br>类似地可以得到垂直方向变换为，</p>
+<script type="math/tex; mode=display">(v,w) \rightarrow (v, vn+w)</script><p>于是错切变换矩阵为</p>
+<script type="math/tex; mode=display">\mathbf T=\begin{bmatrix} 1 & n & 0 \\ m & 1 & 0 \\ 0 & 0 & 1\end{bmatrix}</script><h2 id="1-2-透视变换"><a href="#1-2-透视变换" class="headerlink" title="1.2 透视变换"></a>1.2 透视变换</h2><p>透视变换是二维 $(x,y)$ 到三维 $(x,y,z)$，然后再到二维 $(x’,y’)$ 的映射，所以也称为投影变换。</p>
+<p>事实上，二维可看作三维上的一个平面 $(x,y,1)$，前面的仿射变换则是将这个平面上的点 $(x,y,1)$ 经过 $3 \times 3$ 变换矩阵后依然位于这个平面内 $(x’,y’,1)$，而透视变换则是先变换到三维空间任意点上，然后从三维空间在变换到 $(x’,y’,1)$，故不难想象变换矩阵具有如下形式，</p>
+<script type="math/tex; mode=display">[x,y,1]=[v,w,1]T=[v,w,1]\begin{bmatrix} t_{11} & t_{12} & t_{13} \\t_{21} & t_{22} & t_{23} \\t_{31} & t_{32} & t_{33} \end{bmatrix}</script><p>其中 $t_{13}v+t_{23}w+t_{33}=1$。从变换矩阵也可以看出，仿射变换是一种特殊的透视变换。</p>
+<p>正如下一节将要讲到的，需要知道输入图像和输出图像中分别 4 个约束点，才能确定透视变换的矩阵参数，这是因为 4 个约束点提供 8 个方程，加上自身的约束方程，共 9 个方程从而解出 9 个参数，可参考 opencv 的 python 教程中关于<a target="_blank" rel="noopener" href="https://docs.opencv.org/4.1.2/da/d6e/tutorial_py_geometric_transformations.html">透视变换的例子</a>。</p>
+<h1 id="2-图像配准"><a href="#2-图像配准" class="headerlink" title="2. 图像配准"></a>2. 图像配准</h1><p>有时候知道输入图像和经过某种变换后的输出图像，要求变换函数，这就是图像配准。主要方法是使用约束点（控制点），根据输入图像和输出图像上的一组 n 个约束点来估计变换函数，例如已知是仿射变换，那么只需要一组 3 个约束点（6个方程解6个参数），根据式 $(1)$ 即可求出参数；如果变换函数模型是双线性模型，那么有</p>
+<script type="math/tex; mode=display">x=c_1v+ c_2w+c_3vw + c_4 \\ y=c_5v+c_6w+c_7vw+c_8</script><p>即，需要 4 个约束点得到变换函数参数。</p>
 <p>还有其他更加复杂的策略，略。</p>
 <h1 id="3-图像内插"><a href="#3-图像内插" class="headerlink" title="3. 图像内插"></a>3. 图像内插</h1><p>假设要求变换后图像中 $(x,y)$ 的像素值，根据反向映射得到原图对应点位置为 $(i+u,j+v)$（整数+小数的形式），$0\le u,v &lt; 1$</p>
 <h2 id="3-1-最近邻内插"><a href="#3-1-最近邻内插" class="headerlink" title="3.1 最近邻内插"></a>3.1 最近邻内插</h2><p>对 $u,v$ 分别采用四舍五入，得到原来图像对应像素位置 $(\lfloor i+u+\frac 1 2\rfloor,\lfloor j+v+\frac 1 2 \rfloor)$</p>
-<h2 id="3-2-双线性内插"><a href="#3-2-双线性内插" class="headerlink" title="3.2 双线性内插"></a>3.2 双线性内插</h2><p>使用 4 个最近邻即 $(i,j), (i+1,j),(i,j+1),(i+1,j+1)$ 根据下式进行确定，<br>$$f(i+u,j+v)=(1-u)(1-v)f(i,j)+(1-u)v f(i,j+1)+u(1-v)f(i+1,j)+uvf(i+1,j+1)$$</p>
-<h2 id="3-2-双三次内插"><a href="#3-2-双三次内插" class="headerlink" title="3.2 双三次内插"></a>3.2 双三次内插</h2><p>使用 16 个最近邻点，一种确定权重因子的方法是使用 BiCubic 函数，<br>$$W(x)=\begin{cases} (a+2)|x|^3 - (a+3)|x|^2+1 &amp; |x| \le 1 \ a|x|^3-5a|x|^2+8a|x|-4a &amp; 1 &lt;|x|&lt;2 \ 0 &amp; \text{otherwise} \end{cases}$$<br>其中， $x$ 是水平（垂直）方向上的距离，a 通常取 $a=-0.5$。</p>
-<p>为了表示方便，坐标使用 $(x,y)$ 而非前面的 $(i,j)$ 表示。图像上目标点 $(x,y)$ 的 $4\times4$ 邻域的点 $(x_i,y_j), \ i,j=0,1,2,3$，按下式进行双三次插值，<br>$$f(x,y)=\sum_{i=0}^3\sum_{j=0}^3 f(x_i,y_j) W(x-x_i) W(y-y_j)$$</p>
-<h1 id="4-灰度变换"><a href="#4-灰度变换" class="headerlink" title="4. 灰度变换"></a>4. 灰度变换</h1><p>这里仅讨论部分灰度变换的方法。</p>
-<h2 id="4-1-直方图均衡"><a href="#4-1-直方图均衡" class="headerlink" title="4.1 直方图均衡"></a>4.1 直方图均衡</h2><p>假设灰度范围为 $[0,L-1]$，变换形式为<br>$$s=T(r)$$<br>表示将灰度 <code>r</code> 变换为 <code>s</code>。<br>这里假定变换函数单调增（若非特别说明，不一定是严格单调增），否则灰度变换后产生认为缺陷。</p>
-<p>我们可以将 <code>r</code> 看作输入图像的表示灰度的随机变量，<code>s</code> 为输出图像的表示灰度的随机变量，令 $p_r(r), \ p_s(s)$ 分别表示 <code>r</code> 和 <code>s</code> 的概率密度函数，那么<br>$$p_s(s)=p_r(r) \frac {dr} {ds} \qquad(2)$$</p>
-<p>其中 $T(r)=s, \ r_1 \le r \le r_2$，非严格单调增时 $r_1&lt;r_2$，严格单调增时 $r_1=r_2$。</p>
-<p>使用如下变换函数来实现直方图均衡，<br>$$s=T(r)=(L-1)\int_0^r p_r(w) dw \qquad(3)$$<br>其中 积分项是归一化的，所以增加 $(L-1)$ 因子将灰度放大到合适的范围内。</p>
-<p>对 (3) 式求导，<br>$$\frac {ds} {dr} = \frac {dT(r)} {dr} = (L-1) \frac d {dr} \left[\int_0^r p_r(w)dw \right] = (L-1)p_r(r) \qquad(4)$$</p>
-<p>将 (4) 式代入 (2) 式，<br>$$p_s(s)=p_r(r) \frac {dr} {ds} = \frac 1 {L-1} \qquad(5)$$</p>
-<p>这说明， 随机变量 <code>s</code> 是均匀分布的。</p>
-<p>数字图像处理中常采用离散化处理，此时变换函数为，<br>$$s=T(r)=(L-1) \sum_{0}^r p_r(r) \qquad(3’)$$<br>其中 $p_r(r)=n_r/N$，$n_r$ 为灰度 <code>r</code> 的像素数量，<code>N</code> 为图像总像素数量。<br>此时<br>$$1=s - (s-1) = (L-1)\sum_0^{r_2}p_r(r) - (L-1)\sum_0^{r_1}p_r(r)=(L-1)\sum_{r_1}^{r_2}p_r(r)$$<br>于是，<br>$$p_s(s) = \sum_{r_1}^{r_2}p_r(r)=\frac 1 {L-1}$$<br>注意，上式中由于 $r$ 取不到 $r_1$，故可能会出现近似等于 $1/(L-1)$。</p>
-<h2 id="4-2-直方图匹配"><a href="#4-2-直方图匹配" class="headerlink" title="4.2 直方图匹配"></a>4.2 直方图匹配</h2><p>指定输出图像的直方图的形状。令 <code>r</code>  和 <code>z</code> 分别表示输入和输出图像的灰度随机变量，<code>s</code> 为一个均匀分布的灰度随机变量，有<br>$$s=T(r)=(L-1)\int_0^r p_r(r) dw \qquad(6)<br>\\ s=G(z)=(L-1)\int_0^z p_z(t) dt \qquad(7)$$</p>
-<p>于是，<br>$$z=G^{-1}(s)$$<br>此时要求变换函数 $G$ 是严格单调增，否则不存在反函数。</p>
+<h2 id="3-2-双线性内插"><a href="#3-2-双线性内插" class="headerlink" title="3.2 双线性内插"></a>3.2 双线性内插</h2><p>使用 4 个最近邻即 $(i,j), (i+1,j),(i,j+1),(i+1,j+1)$ 根据下式进行确定，</p>
+<script type="math/tex; mode=display">f(i+u,j+v)=(1-u)(1-v)f(i,j)+(1-u)v f(i,j+1)+u(1-v)f(i+1,j)+uvf(i+1,j+1)</script><h2 id="3-2-双三次内插"><a href="#3-2-双三次内插" class="headerlink" title="3.2 双三次内插"></a>3.2 双三次内插</h2><p>使用 16 个最近邻点，一种确定权重因子的方法是使用 BiCubic 函数，</p>
+<script type="math/tex; mode=display">W(x)=\begin{cases} (a+2)|x|^3 - (a+3)|x|^2+1 & |x| \le 1 \\ a|x|^3-5a|x|^2+8a|x|-4a & 1 <|x|<2 \\ 0 & \text{otherwise} \end{cases}</script><p>其中， $x$ 是水平（垂直）方向上的距离，a 通常取 $a=-0.5$。</p>
+<p>为了表示方便，坐标使用 $(x,y)$ 而非前面的 $(i,j)$ 表示。图像上目标点 $(x,y)$ 的 $4\times4$ 邻域的点 $(x_i,y_j), \ i,j=0,1,2,3$，按下式进行双三次插值，</p>
+<script type="math/tex; mode=display">f(x,y)=\sum_{i=0}^3\sum_{j=0}^3 f(x_i,y_j) W(x-x_i) W(y-y_j)</script><h1 id="4-灰度变换"><a href="#4-灰度变换" class="headerlink" title="4. 灰度变换"></a>4. 灰度变换</h1><p>这里仅讨论部分灰度变换的方法。</p>
+<h2 id="4-1-直方图均衡"><a href="#4-1-直方图均衡" class="headerlink" title="4.1 直方图均衡"></a>4.1 直方图均衡</h2><p>假设灰度范围为 $[0,L-1]$，变换形式为</p>
+<script type="math/tex; mode=display">s=T(r)</script><p>表示将灰度 <code>r</code> 变换为 <code>s</code>。<br>这里假定变换函数单调增（若非特别说明，不一定是严格单调增），否则灰度变换后产生认为缺陷。</p>
+<p>我们可以将 <code>r</code> 看作输入图像的表示灰度的随机变量，<code>s</code> 为输出图像的表示灰度的随机变量，令 $p_r(r), \ p_s(s)$ 分别表示 <code>r</code> 和 <code>s</code> 的概率密度函数，那么</p>
+<script type="math/tex; mode=display">p_s(s)=p_r(r) \frac {dr} {ds} \qquad(2)</script><p>其中 $T(r)=s, \ r_1 \le r \le r_2$，非严格单调增时 $r_1&lt;r_2$，严格单调增时 $r_1=r_2$。</p>
+<p>使用如下变换函数来实现直方图均衡，</p>
+<script type="math/tex; mode=display">s=T(r)=(L-1)\int_0^r p_r(w) dw \qquad(3)</script><p>其中 积分项是归一化的，所以增加 $(L-1)$ 因子将灰度放大到合适的范围内。</p>
+<p>对 (3) 式求导，</p>
+<script type="math/tex; mode=display">\frac {ds} {dr} = \frac {dT(r)} {dr} = (L-1) \frac d {dr} \left[\int_0^r p_r(w)dw \right] = (L-1)p_r(r) \qquad(4)</script><p>将 (4) 式代入 (2) 式，</p>
+<script type="math/tex; mode=display">p_s(s)=p_r(r) \frac {dr} {ds} = \frac 1 {L-1} \qquad(5)</script><p>这说明， 随机变量 <code>s</code> 是均匀分布的。</p>
+<p>数字图像处理中常采用离散化处理，此时变换函数为，</p>
+<script type="math/tex; mode=display">s=T(r)=(L-1) \sum_{0}^r p_r(r) \qquad(3')</script><p>其中 $p_r(r)=n_r/N$，$n_r$ 为灰度 <code>r</code> 的像素数量，<code>N</code> 为图像总像素数量。<br>此时 </p>
+<script type="math/tex; mode=display">1=s - (s-1) = (L-1)\sum_0^{r_2}p_r(r) - (L-1)\sum_0^{r_1}p_r(r)=(L-1)\sum_{r_1}^{r_2}p_r(r)</script><p>于是，</p>
+<script type="math/tex; mode=display">p_s(s) = \sum_{r_1}^{r_2}p_r(r)=\frac 1 {L-1}</script><p>注意，上式中由于 $r$ 取不到 $r_1$，故可能会出现近似等于 $1/(L-1)$。</p>
+<h2 id="4-2-直方图匹配"><a href="#4-2-直方图匹配" class="headerlink" title="4.2 直方图匹配"></a>4.2 直方图匹配</h2><p>指定输出图像的直方图的形状。令 <code>r</code>  和 <code>z</code> 分别表示输入和输出图像的灰度随机变量，<code>s</code> 为一个均匀分布的灰度随机变量，有</p>
+<script type="math/tex; mode=display">s=T(r)=(L-1)\int_0^r p_r(r) dw \qquad(6)
+\\\\ s=G(z)=(L-1)\int_0^z p_z(t) dt \qquad(7)</script><p>于是，</p>
+<script type="math/tex; mode=display">z=G^{-1}(s)</script><p>此时要求变换函数 $G$ 是严格单调增，否则不存在反函数。</p>
 <p>由于输入图像给定，容易计算出 $p_r(r)$，而指定输出图像的直方图形状，即 $p_z(z)$ 已知，根据 (7) 式可得 $G$（每个 z 到 s 的映射），于是直方图匹配步骤如下：</p>
 <ol>
 <li>计算 $p_r(r)$，然后计算 <code>s</code></li>
@@ -255,14 +265,20 @@
 </ol>
 <p>实际处理过程为：对输入图像做直方图均衡得到 <code>s</code> 灰度的图，然后对此图中每个像素执行反映射 $z=G^{-1}(s)$（s 到 z 的映射），得到最终输出图像。</p>
 <h2 id="4-3-局部直方图处理"><a href="#4-3-局部直方图处理" class="headerlink" title="4.3 局部直方图处理"></a>4.3 局部直方图处理</h2><p>对每个位置的邻域计算直方图，然后进行均衡化或者应用其他匹配变换函数，用于修改这个邻域中心的灰度，然后平移邻域（一个像素位置或者移到另一个非重叠区域）。</p>
-<h2 id="4-4-直方图统计"><a href="#4-4-直方图统计" class="headerlink" title="4.4 直方图统计"></a>4.4 直方图统计</h2><p>令 <code>r</code> 为表示灰度的离散随机变量，归一化的直方图为 $p(r)$，应用概率相关的知识，<code>r</code> 的 n 阶（中心）矩定义为，<br>$$\mu_n(r)=\sum_{i=0}^{L-1} (r_i-m)^n p(r_i)$$<br>其中 <code>m</code> 是期望（或称平均灰度）$m=\sum_0^{L-1} r_i p(r_i)$</p>
-<p>二阶矩（灰度方差）为<br>$$u_2(r)=\sum_{i=0}^{L-1}(r_i-m)^2 p(r_i)$$<br>通常用 $\sigma^2$ 表示，单独列出二阶矩是因为比较重要。</p>
-<p>实际给定一个图像时，可以直接计算样本均值和样本方差，无需计算直方图，<br>$$m=\frac 1 {MN} \sum_{x=0}^{M-1} \sum_{y=0}^{N-1} f(x,y)<br>\\ \sigma^2=\frac 1 {MN} \sum_{x=0}^{M-1} \sum_{y=0}^{N-1} [f(x,y)-m]^2$$<br>以上方差计算有时候使用 $MN-1$ 作为分母，以获得一个无偏估计，实际中，使用 $MN$ 作为分母的偏差可忽略不计。</p>
-<p>考虑点 $(x,y)$ 的邻域 $S_{xy}$，仿照上面全局统计量可写出局部均值和局部方差如下，<br>$$m_{s_{xy}}=\sum_{i=0}^{L-1}r_i p_{s_{xy}} (r_i)<br>\\ \sigma_{s_{xy}}^2 = \sum <em>{i=0}^{L-1} (r_i - m</em>{S_{xy}})^2 p_{s_{xy}}(r_i)$$</p>
-<p>有时候只需要对图像上暗区进行增强，亮区保持不变，所以需要先判断当前邻域属于暗区还是亮区，记全局均值为 $m_G$，如果 $m_{s_{xy}} \le k_0 m_G$，其中 $0&lt; k_0 &lt; 1.0$，那么属于暗区，对其进行局部增强。</p>
+<h2 id="4-4-直方图统计"><a href="#4-4-直方图统计" class="headerlink" title="4.4 直方图统计"></a>4.4 直方图统计</h2><p>令 <code>r</code> 为表示灰度的离散随机变量，归一化的直方图为 $p(r)$，应用概率相关的知识，<code>r</code> 的 n 阶（中心）矩定义为，</p>
+<script type="math/tex; mode=display">\mu_n(r)=\sum_{i=0}^{L-1} (r_i-m)^n p(r_i)</script><p>其中 <code>m</code> 是期望（或称平均灰度）$m=\sum_0^{L-1} r_i p(r_i)$</p>
+<p>二阶矩（灰度方差）为</p>
+<script type="math/tex; mode=display">u_2(r)=\sum_{i=0}^{L-1}(r_i-m)^2 p(r_i)</script><p>通常用 $\sigma^2$ 表示，单独列出二阶矩是因为比较重要。</p>
+<p>实际给定一个图像时，可以直接计算样本均值和样本方差，无需计算直方图，</p>
+<script type="math/tex; mode=display">m=\frac 1 {MN} \sum_{x=0}^{M-1} \sum_{y=0}^{N-1} f(x,y)
+\\\\ \sigma^2=\frac 1 {MN} \sum_{x=0}^{M-1} \sum_{y=0}^{N-1} [f(x,y)-m]^2</script><p>以上方差计算有时候使用 $MN-1$ 作为分母，以获得一个无偏估计，实际中，使用 $MN$ 作为分母的偏差可忽略不计。</p>
+<p>考虑点 $(x,y)$ 的邻域 $S_{xy}$，仿照上面全局统计量可写出局部均值和局部方差如下，</p>
+<script type="math/tex; mode=display">m_{s_{xy}}=\sum_{i=0}^{L-1}r_i p_{s_{xy}} (r_i)
+\\\\ \sigma_{s_{xy}}^2 = \sum _{i=0}^{L-1} (r_i - m_{S_{xy}})^2 p_{s_{xy}}(r_i)</script><p>有时候只需要对图像上暗区进行增强，亮区保持不变，所以需要先判断当前邻域属于暗区还是亮区，记全局均值为 $m_G$，如果 $m_{s_{xy}} \le k_0 m_G$，其中 $0&lt; k_0 &lt; 1.0$，那么属于暗区，对其进行局部增强。</p>
 <p>如果想增强低对比度的局部区域，那么判断方法为 $\sigma_{s_{xy}} \le k_2 \sigma_G$。当然一般还会设置一个阈值下限，例如对比度为 0 的恒定区域，其实是没必要增强的，所以 $k_1 \sigma_G \le \sigma_{s_{xy}} \le k_2 \sigma_G$。对于满足增强条件的点而言，增强操作可以是将像素值乘以一个常数 <code>E</code> ，这样这个点相对于图像上其他不需要增强的点，像素得以增大（或减小）。</p>
-<p>总结增强方法如下，<br>$$g(x,y)=\begin{cases} E \cdot f(x,y) &amp; m_{s_{xy}} \le k_0 m_G, \ k_1 \sigma_G \le \sigma_{s_{xy}} \le k_2 \sigma_G<br>\\ f(x,y) &amp; \text{otherwise} \end{cases}$$</p>
-
+<p>总结增强方法如下，</p>
+<script type="math/tex; mode=display">g(x,y)=\begin{cases} E \cdot f(x,y) & m_{s_{xy}} \le k_0 m_G, \ k_1 \sigma_G \le \sigma_{s_{xy}} \le k_2 \sigma_G 
+\\\\ f(x,y) & \text{otherwise} \end{cases}</script>
     </div>
 
     
@@ -345,7 +361,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-坐标变换"><span class="nav-number">1.</span> <span class="nav-text">1. 坐标变换</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-仿射变换"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 仿射变换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-恒等变换"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1.1 恒等变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-2-尺度变换"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.1.2 尺度变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-3-旋转变换"><span class="nav-number">1.1.3.</span> <span class="nav-text">1.1.3 旋转变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-4-平移变换"><span class="nav-number">1.1.4.</span> <span class="nav-text">1.1.4 平移变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-5-偏移变换"><span class="nav-number">1.1.5.</span> <span class="nav-text">1.1.5 偏移变换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-透视变换"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 透视变换</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-图像配准"><span class="nav-number">2.</span> <span class="nav-text">2. 图像配准</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-图像内插"><span class="nav-number">3.</span> <span class="nav-text">3. 图像内插</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-最近邻内插"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 最近邻内插</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-双线性内插"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 双线性内插</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-双三次内插"><span class="nav-number">3.3.</span> <span class="nav-text">3.2 双三次内插</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-灰度变换"><span class="nav-number">4.</span> <span class="nav-text">4. 灰度变换</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-直方图均衡"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 直方图均衡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-直方图匹配"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 直方图匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-局部直方图处理"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 局部直方图处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-4-直方图统计"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 直方图统计</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E5%9D%90%E6%A0%87%E5%8F%98%E6%8D%A2"><span class="nav-number">1.</span> <span class="nav-text">1. 坐标变换</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-%E4%BB%BF%E5%B0%84%E5%8F%98%E6%8D%A2"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 仿射变换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-%E6%81%92%E7%AD%89%E5%8F%98%E6%8D%A2"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1.1 恒等变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-2-%E5%B0%BA%E5%BA%A6%E5%8F%98%E6%8D%A2"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.1.2 尺度变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-3-%E6%97%8B%E8%BD%AC%E5%8F%98%E6%8D%A2"><span class="nav-number">1.1.3.</span> <span class="nav-text">1.1.3 旋转变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-4-%E5%B9%B3%E7%A7%BB%E5%8F%98%E6%8D%A2"><span class="nav-number">1.1.4.</span> <span class="nav-text">1.1.4 平移变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-5-%E5%81%8F%E7%A7%BB%E5%8F%98%E6%8D%A2"><span class="nav-number">1.1.5.</span> <span class="nav-text">1.1.5 偏移变换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-%E9%80%8F%E8%A7%86%E5%8F%98%E6%8D%A2"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 透视变换</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E5%9B%BE%E5%83%8F%E9%85%8D%E5%87%86"><span class="nav-number">2.</span> <span class="nav-text">2. 图像配准</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E5%9B%BE%E5%83%8F%E5%86%85%E6%8F%92"><span class="nav-number">3.</span> <span class="nav-text">3. 图像内插</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-%E6%9C%80%E8%BF%91%E9%82%BB%E5%86%85%E6%8F%92"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 最近邻内插</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-%E5%8F%8C%E7%BA%BF%E6%80%A7%E5%86%85%E6%8F%92"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 双线性内插</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-%E5%8F%8C%E4%B8%89%E6%AC%A1%E5%86%85%E6%8F%92"><span class="nav-number">3.3.</span> <span class="nav-text">3.2 双三次内插</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-%E7%81%B0%E5%BA%A6%E5%8F%98%E6%8D%A2"><span class="nav-number">4.</span> <span class="nav-text">4. 灰度变换</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-%E7%9B%B4%E6%96%B9%E5%9B%BE%E5%9D%87%E8%A1%A1"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 直方图均衡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-%E7%9B%B4%E6%96%B9%E5%9B%BE%E5%8C%B9%E9%85%8D"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 直方图匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-%E5%B1%80%E9%83%A8%E7%9B%B4%E6%96%B9%E5%9B%BE%E5%A4%84%E7%90%86"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 局部直方图处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-4-%E7%9B%B4%E6%96%B9%E5%9B%BE%E7%BB%9F%E8%AE%A1"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 直方图统计</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -359,7 +375,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -372,7 +388,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

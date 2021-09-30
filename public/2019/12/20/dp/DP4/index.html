@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -212,8 +212,7 @@
 
       
         <h2 id="1-库存问题"><a href="#1-库存问题" class="headerlink" title="1. 库存问题"></a>1. 库存问题</h2><p>一产品可通过生产或者购买获得，获得产品需要一定的成本，然后产品随着时间也会逐步被消耗掉。产品的库存也伴随着存储成本，而当需求未得到满足（供应不足，某个阶段库存为负表示消耗需求未得到满足）时也有一个惩罚损失。</p>
-<a id="more"></a>
-
+<span id="more"></span>
 <p>使用 N-阶 序列决策过程来表述以上库存问题，在阶段 <code>k</code> 作出决策获得 <code>x</code> 单位的产品，损耗为 $C(k,x)$，状态为 $(k,s)$，表示在阶段 <code>k</code> 的库存数量为 <code>s</code>。$D(k)$ 表示在阶段 <code>k</code> 对产品的消耗需求，于是下一阶段状态为 $(k+1,s+x-D(k))$，这一状态转移过程的损耗包括获得产品的成本 $C(k,x)$，以及库存存储成本 $I(k,s,x), \ s&gt;0$，如果库存数量为负表示此阶段的消耗需求未得到满足，此时 $|s|$ 表示缺货的数量，所以惩罚损耗为 $I(k,s,x), \ s &lt; 0$，</p>
 
     </div>
@@ -299,7 +298,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-库存问题"><span class="nav-number">1.</span> <span class="nav-text">1. 库存问题</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%BA%93%E5%AD%98%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">1. 库存问题</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -313,7 +312,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -326,7 +325,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

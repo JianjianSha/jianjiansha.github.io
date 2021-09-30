@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -212,12 +212,8 @@
         <h1 id="const-与-constexpr"><a href="#const-与-constexpr" class="headerlink" title="const 与 constexpr"></a>const 与 constexpr</h1><p><code>const</code> 常量，一定定义后无法更改其值。</p>
 <p><code>constexpr</code> 常量表达式，除了定义后无法更改其值，还必须是编译期可知的常量，或者说被 <code>constexpr</code> 修饰的变量需要有一个常量表达式的初始化器。</p>
 <p>可被 <code>constexpr</code> 修饰的类型为 字面量类型，包括 数值型，引用，和指针类型（我们自定义的class类型则不属于字面量类型）。由于有编译期可知这一限制条件，<code>constexpr</code> 指针可以初始化为 <code>nullptr</code> 或者 <code>0</code>，以及具有固定地址的变量，对这些变量取址可对 <code>constexpr</code> 指针初始化。定义在函数外部的变量以及函数内部 <code>static</code> 修饰的变量具有固定地址。</p>
-<p><code>constexpr</code> 指针：<code>constexprt</code> 关键字修饰指针自身，而非指针所指向对象，例：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 函数外部</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> i = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">int</span> j = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">int</span> *q = &amp;j;          <span class="comment">// OK, q 是常量指针，其存储的地址不可改变，但是可以修改其指向对象的值</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">int</span> *p = &amp;i;          <span class="comment">// error，p 所执对象类型为 int，不能用 const int 来初始化</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">const</span> <span class="keyword">int</span> *cp = &amp;i;   <span class="comment">// OK</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="类型别名"><a href="#类型别名" class="headerlink" title="类型别名"></a>类型别名</h1><p>直接看代码示例，</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">char</span> *pstring;          <span class="comment">// pstring 为 char *</span></span><br><span class="line"><span class="keyword">const</span> pstring cstr = <span class="number">0</span>;         <span class="comment">// cstr 是常量指针，指向 char 类型对象</span></span><br><span class="line"><span class="keyword">const</span> pstring *ps;              <span class="comment">// ps 是一个普通指针，指向 char * const 类型，即指向一个常量指针，这个常量指针指向 char 类型对象</span></span><br></pre></td></tr></table></figure>
-<p>注意：不可直接用 <code>char *</code> 替换！！！ </p>
+<p><code>constexpr</code> 指针：<code>constexprt</code> 关键字修饰指针自身，而非指针所指向对象，例：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 函数外部</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> i = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">int</span> j = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">int</span> *q = &amp;j;          <span class="comment">// OK, q 是常量指针，其存储的地址不可改变，但是可以修改其指向对象的值</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">int</span> *p = &amp;i;          <span class="comment">// error，p 所执对象类型为 int，不能用 const int 来初始化</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">const</span> <span class="keyword">int</span> *cp = &amp;i;   <span class="comment">// OK</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="类型别名"><a href="#类型别名" class="headerlink" title="类型别名"></a>类型别名</h1><p>直接看代码示例，<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">char</span> *pstring;          <span class="comment">// pstring 为 char *</span></span><br><span class="line"><span class="keyword">const</span> pstring cstr = <span class="number">0</span>;         <span class="comment">// cstr 是常量指针，指向 char 类型对象</span></span><br><span class="line"><span class="keyword">const</span> pstring *ps;              <span class="comment">// ps 是一个普通指针，指向 char * const 类型，即指向一个常量指针，这个常量指针指向 char 类型对象</span></span><br></pre></td></tr></table></figure><br>注意：不可直接用 <code>char *</code> 替换！！！ </p>
 <p><code>const</code> 修饰的是 <code>pstring</code>，由于 <code>pstring</code> 是指针，所以 <code>const pstring</code> 是常量指针，实际效果是 <code>char * const</code>。那你要问，既然 <code>const pstring cstr</code> 不是指向一个 const 对象，那么指向一个 const 对象 正确写法是什么？当然是 <code>typedef const char *cpstring</code>。</p>
 <h1 id="auto"><a href="#auto" class="headerlink" title="auto"></a>auto</h1><p>由编译器根据初始化器来确定变量类型。简单场景这里不再讨论，需要注意一条声明仅包含一个基本类型，多个变量的初始化器类型不同将会报错。</p>
 <h2 id="复合类型，const-和-auto"><a href="#复合类型，const-和-auto" class="headerlink" title="复合类型，const 和 auto"></a>复合类型，const 和 auto</h2><ol>
@@ -231,7 +227,6 @@
 </li>
 <li><p>引用 <code>&amp;</code> 和指针 <code>*</code> 不是基础类型的一部分，而 <code>const</code> 是基础类型一部分，即 <code>int</code> 和 <code>const int</code> 基础类型不同，故不能声明</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> j = <span class="number">234</span>;</span><br><span class="line"><span class="keyword">auto</span> &amp;r = i, *p = &amp;j    <span class="comment">// error. r 是 int &amp; 类型，p 是 const int * 类型，基础类型不一致，不能出现在同一声明中</span></span><br></pre></td></tr></table></figure>
-
 </li>
 </ol>
 <h1 id="decltype"><a href="#decltype" class="headerlink" title="decltype"></a>decltype</h1><p>编译器从表达式推断出类型，而不用实际计算表达式。</p>
@@ -243,8 +238,7 @@
 </li>
 </ol>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i = <span class="number">123</span>, *p = &amp;i, &amp;r = i;</span><br><span class="line"><span class="keyword">decltype</span>(r+<span class="number">1</span>) b;                <span class="comment">// OK b 是 int 类型，由于 r+1 不是左值，所以 b 类型不是引用类型</span></span><br><span class="line"><span class="keyword">decltype</span>(*p) c;                 <span class="comment">// error, c 是 int &amp; 类型，因为 *p 可用于左值（可被赋值）, c 未被初始化，所以报错</span></span><br></pre></td></tr></table></figure>
-
-<ol start="3">
+<ol>
 <li>如果变量被括号包围，例如 <code>(x)</code>，那么就是一个表达式了，此时 <code>decltype((x))</code> 结果为一引用类型</li>
 </ol>
 
@@ -327,7 +321,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#const-与-constexpr"><span class="nav-number">1.</span> <span class="nav-text">const 与 constexpr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#类型别名"><span class="nav-number">2.</span> <span class="nav-text">类型别名</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#auto"><span class="nav-number">3.</span> <span class="nav-text">auto</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#复合类型，const-和-auto"><span class="nav-number">3.1.</span> <span class="nav-text">复合类型，const 和 auto</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#decltype"><span class="nav-number">4.</span> <span class="nav-text">decltype</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#const-%E4%B8%8E-constexpr"><span class="nav-number">1.</span> <span class="nav-text">const 与 constexpr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B%E5%88%AB%E5%90%8D"><span class="nav-number">2.</span> <span class="nav-text">类型别名</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#auto"><span class="nav-number">3.</span> <span class="nav-text">auto</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%8D%E5%90%88%E7%B1%BB%E5%9E%8B%EF%BC%8Cconst-%E5%92%8C-auto"><span class="nav-number">3.1.</span> <span class="nav-text">复合类型，const 和 auto</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#decltype"><span class="nav-number">4.</span> <span class="nav-text">decltype</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -341,7 +335,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -354,7 +348,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

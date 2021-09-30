@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -217,9 +217,10 @@
 <ol>
 <li>各膨胀卷积的膨胀率不能有大于 1 的公约数（例如 [2,4,6] 公约数为 2），否则会有栅格效应</li>
 <li>膨胀率设计为锯齿状结构，例如 [1,2,5,1,2,5] 这样的循环结构</li>
-<li>膨胀率满足如下关系<br>$$M_i=\max[M_{i+1}-2r_i, 2r_i-M_{i+1}, r_i]$$<br>其中 $r_i$ 为第 <code>i</code> 层的膨胀率，$M_i$ 为第 <code>i</code> 层的最大 dilated rate，网络总共 <code>L</code> 层，$M_L=r_L$。</li>
+<li>膨胀率满足如下关系<script type="math/tex; mode=display">M_i=\max[M_{i+1}-2r_i, 2r_i-M_{i+1}, r_i]</script>其中 $r_i$ 为第 <code>i</code> 层的膨胀率，$M_i$ 为第 <code>i</code> 层的最大 dilated rate，网络总共 <code>L</code> 层，$M_L=r_L$。</li>
 </ol>
-<h1 id="分组卷积"><a href="#分组卷积" class="headerlink" title="分组卷积"></a>分组卷积</h1><p>假设输入 feature shape 为 $(c_0,h,w)$，original filter 为 $(k,k,c_0,c_1)$，输出 feature shape 为 $(c_1,h,w)$。对于分组卷积，假设分 n 组，那么每一组输入 feature shape 为 $(c_0/n, h, w)$，每一组使用独立的卷积核， filter shape 为 $(k,k,c_0/n, c_1/n)$，于是每一组的输出 feature shape 为 $(c_1/n, h, w)$，最后所有组的输出沿着 channel 进行 concatenate，得到最终输出 feature shape $(c_1, h, w)$，这个过程中，卷积核参数数量为<br>$$k \times k \times \frac {c_0} n \times \frac {c_1} n \times n$$<br>参数数量减小。</p>
+<h1 id="分组卷积"><a href="#分组卷积" class="headerlink" title="分组卷积"></a>分组卷积</h1><p>假设输入 feature shape 为 $(c_0,h,w)$，original filter 为 $(k,k,c_0,c_1)$，输出 feature shape 为 $(c_1,h,w)$。对于分组卷积，假设分 n 组，那么每一组输入 feature shape 为 $(c_0/n, h, w)$，每一组使用独立的卷积核， filter shape 为 $(k,k,c_0/n, c_1/n)$，于是每一组的输出 feature shape 为 $(c_1/n, h, w)$，最后所有组的输出沿着 channel 进行 concatenate，得到最终输出 feature shape $(c_1, h, w)$，这个过程中，卷积核参数数量为</p>
+<script type="math/tex; mode=display">k \times k \times \frac {c_0} n \times \frac {c_1} n \times n</script><p>参数数量减小。</p>
 <h1 id="Bottleneck"><a href="#Bottleneck" class="headerlink" title="Bottleneck"></a>Bottleneck</h1><p>假设输入 shape 为 $(c_0, h, w)$，输出 shape 为 $(c_1, h, w)$，那么 filter 为 $k \times k \times c_0 \times c_1$，参数数量较大，改用 bottleneck 可以缩减参数数量，即：先使用 $1\times 1 \times c_0 \times c_2$ 的 filter，然后使用 $k \times k \times c_2 \times c_2$ 的 filter，最后使用 $1 \times 1 \times c_2 \times c_1$ 的 filter，其中 $c_2 &lt; c_1, c_0$。</p>
 <h1 id="Depthwise-Conv"><a href="#Depthwise-Conv" class="headerlink" title="Depthwise Conv"></a>Depthwise Conv</h1><p>假设输入 shape 为 $(c_0, h, w)$，每个 channel 独立进行（二维卷积），卷积 filter 为 $k \times k \times c_0$（注意这里 filter shape 中没有 $c_1$），得到 $(c_0, h, w)$ 的中间输出，然后再使用 $1 \times 1 \times c_0 \times c_1$，得到 $(c_1, h, w)$ 的最终输出。</p>
 <h1 id="可变形卷积"><a href="#可变形卷积" class="headerlink" title="可变形卷积"></a>可变形卷积</h1><p>略（参考 <a href="/obj_det/two_stage">deformable conv</a>）</p>
@@ -306,7 +307,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#膨胀卷积"><span class="nav-number">1.</span> <span class="nav-text">膨胀卷积</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分组卷积"><span class="nav-number">2.</span> <span class="nav-text">分组卷积</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Bottleneck"><span class="nav-number">3.</span> <span class="nav-text">Bottleneck</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Depthwise-Conv"><span class="nav-number">4.</span> <span class="nav-text">Depthwise Conv</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#可变形卷积"><span class="nav-number">5.</span> <span class="nav-text">可变形卷积</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%86%A8%E8%83%80%E5%8D%B7%E7%A7%AF"><span class="nav-number">1.</span> <span class="nav-text">膨胀卷积</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%8D%B7%E7%A7%AF"><span class="nav-number">2.</span> <span class="nav-text">分组卷积</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Bottleneck"><span class="nav-number">3.</span> <span class="nav-text">Bottleneck</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Depthwise-Conv"><span class="nav-number">4.</span> <span class="nav-text">Depthwise Conv</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%AF%E5%8F%98%E5%BD%A2%E5%8D%B7%E7%A7%AF"><span class="nav-number">5.</span> <span class="nav-text">可变形卷积</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -320,7 +321,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -333,7 +334,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

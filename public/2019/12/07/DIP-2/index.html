@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -213,8 +213,7 @@
         <blockquote>
 <p>参考教材《数字图像处理》(Gonzalez)</p>
 </blockquote>
-<h1 id="1-空间滤波"><a href="#1-空间滤波" class="headerlink" title="1. 空间滤波"></a>1. 空间滤波</h1><p>使用空间滤波器（也称空间掩模，核，窗口）直接作用于图像，得到当前位置的像素值，通过平移得到其他位置的像素值。熟悉深度学习中的卷积操作的话，不难理解这个概念。</p>
-<a id="more"></a>
+<h1 id="1-空间滤波"><a href="#1-空间滤波" class="headerlink" title="1. 空间滤波"></a>1. 空间滤波</h1><p>使用空间滤波器（也称空间掩模，核，窗口）直接作用于图像，得到当前位置的像素值，通过平移得到其他位置的像素值。熟悉深度学习中的卷积操作的话，不难理解这个概念。<br><span id="more"></span></p>
 <h2 id="1-1-平滑空间滤波"><a href="#1-1-平滑空间滤波" class="headerlink" title="1.1 平滑空间滤波"></a>1.1 平滑空间滤波</h2><p>用于模糊和降噪（通常是模糊后再阈值过滤）。例如以下线性滤波器，</p>
 <ol>
 <li>均值滤波</li>
@@ -226,33 +225,40 @@
 <p>中值就是统计里面的排序后位于中间的值。中值滤波提供降噪的同时，对图像的模糊程度要低</p>
 </li>
 </ol>
-<h2 id="1-2-锐化空间滤波"><a href="#1-2-锐化空间滤波" class="headerlink" title="1.2 锐化空间滤波"></a>1.2 锐化空间滤波</h2><p>前面平滑处理使用求和平均，求和可看作积分，锐化操作则相反，通过空间微分实现，目的是突出灰度过渡部分。<br>对于一维函数 $f(x)$，一阶微分为<br>$$\frac {\partial f} {\partial x} = f(x+1) - f(x)$$<br>二维函数 $f(x,y)$ 类似，分别沿两个轴微分。二阶微分为，<br>$$\frac {\partial^2 f} {\partial x^2} = f’(x) - f’(x-1) = f(x+1) + f(x-1) - 2f(x)$$</p>
-<p>以下为一些图像锐化增强的方法。</p>
-<h3 id="1-2-1-拉普拉斯算子"><a href="#1-2-1-拉普拉斯算子" class="headerlink" title="1.2.1 拉普拉斯算子"></a>1.2.1 拉普拉斯算子</h3><p>$$\nabla^2 f = \frac {\partial^2 f} {\partial x^2} + \frac {\partial^2 f} {\partial y^2} $$</p>
-<p>又<br>$$\frac {\partial^2 f} {\partial x^2} = f(x+1,y)+f(x-1,y) - 2f(x,y)<br>\\ \frac {\partial^2 f} {\partial y^2} = f(x,y+1)+f(x,y-1) - 2f(x,y)$$<br>故<br>$$\nabla^2 f = f(x+1,y)+f(x-1,y)+f(x,y+1)+f(x,y-1)-4f(x,y)$$</p>
-<p>还可以增加对角线方向的微分项，$f(x \pm 1,y \pm 1)$，以及 4 个 $-f(x,y)$，</p>
+<h2 id="1-2-锐化空间滤波"><a href="#1-2-锐化空间滤波" class="headerlink" title="1.2 锐化空间滤波"></a>1.2 锐化空间滤波</h2><p>前面平滑处理使用求和平均，求和可看作积分，锐化操作则相反，通过空间微分实现，目的是突出灰度过渡部分。<br>对于一维函数 $f(x)$，一阶微分为</p>
+<script type="math/tex; mode=display">\frac {\partial f} {\partial x} = f(x+1) - f(x)</script><p>二维函数 $f(x,y)$ 类似，分别沿两个轴微分。二阶微分为，</p>
+<script type="math/tex; mode=display">\frac {\partial^2 f} {\partial x^2} = f'(x) - f'(x-1) = f(x+1) + f(x-1) - 2f(x)</script><p>以下为一些图像锐化增强的方法。</p>
+<h3 id="1-2-1-拉普拉斯算子"><a href="#1-2-1-拉普拉斯算子" class="headerlink" title="1.2.1 拉普拉斯算子"></a>1.2.1 拉普拉斯算子</h3><script type="math/tex; mode=display">\nabla^2 f = \frac {\partial^2 f} {\partial x^2} + \frac {\partial^2 f} {\partial y^2}</script><p>又</p>
+<script type="math/tex; mode=display">\frac {\partial^2 f} {\partial x^2} = f(x+1,y)+f(x-1,y) - 2f(x,y)
+\\\\ \frac {\partial^2 f} {\partial y^2} = f(x,y+1)+f(x,y-1) - 2f(x,y)</script><p>故</p>
+<script type="math/tex; mode=display">\nabla^2 f = f(x+1,y)+f(x-1,y)+f(x,y+1)+f(x,y-1)-4f(x,y)</script><p>还可以增加对角线方向的微分项，$f(x \pm 1,y \pm 1)$，以及 4 个 $-f(x,y)$，</p>
 <p>当然，以上我们还可以将微分乘以 -1，这表示微分的方向反过来，但是其增强效果是跟上面等效的。</p>
-<p>通常拉普拉斯算子增强得到将边线和突变点叠加到暗色背景中的图像，所以在叠加原图像，可以恢复背景并保持拉普拉斯锐化结果，如下：<br>$$g(x,y)=f(x,y)+c\left[ \nabla^2 f(x,y) \right]$$</p>
-<p>使用拉普拉斯算子后的图像可能存在负的像素值，此时可将负值转换为 0，超过 255 的值转换为 255（假设为 8 bit 灰度），但是这种处理方法显然过于草率，一种更好的方法是，记拉普拉斯图像为 <code>f</code>，然后<br>$$f_m = f-\min(f)<br>\\ f_s=(L-1)[f_m/\max(f_m)]$$<br>如此就能保证像素值位于 $[0,L-1]$ 之间。如果叠加原图像，则可能不需要做如此标定。</p>
+<p>通常拉普拉斯算子增强得到将边线和突变点叠加到暗色背景中的图像，所以在叠加原图像，可以恢复背景并保持拉普拉斯锐化结果，如下：</p>
+<script type="math/tex; mode=display">g(x,y)=f(x,y)+c\left[ \nabla^2 f(x,y) \right]</script><p>使用拉普拉斯算子后的图像可能存在负的像素值，此时可将负值转换为 0，超过 255 的值转换为 255（假设为 8 bit 灰度），但是这种处理方法显然过于草率，一种更好的方法是，记拉普拉斯图像为 <code>f</code>，然后</p>
+<script type="math/tex; mode=display">f_m = f-\min(f)
+\\\\ f_s=(L-1)[f_m/\max(f_m)]</script><p>如此就能保证像素值位于 $[0,L-1]$ 之间。如果叠加原图像，则可能不需要做如此标定。</p>
 <h3 id="1-2-2-非锐化掩蔽和高提升滤波"><a href="#1-2-2-非锐化掩蔽和高提升滤波" class="headerlink" title="1.2.2 非锐化掩蔽和高提升滤波"></a>1.2.2 非锐化掩蔽和高提升滤波</h3><p>操作步骤：</p>
 <ol>
 <li>模糊原图像</li>
 <li>原图像减模糊图像（差为模板）</li>
 <li>将模板加到原图像上</li>
 </ol>
-<p>$$g_{mask}(x,y) = f(x,y) - \overline f(x,y)<br>\\ g(x,y)=f(x,y) + k \cdot g_{mask}(x,y)$$</p>
-<h3 id="1-2-3-梯度"><a href="#1-2-3-梯度" class="headerlink" title="1.2.3 梯度"></a>1.2.3 梯度</h3><p>二维图像 $f(x,y)$ 的梯度为<br>$$\nabla f =\begin{bmatrix} g_x \\ g_y \end{bmatrix}= \begin{bmatrix} \frac {\partial f} {\partial x} \\ \frac {\partial f} {\partial x} \end{bmatrix}$$<br>这是一个二维列向量，幅值为<br>$$M(x,y) = \sqrt {g_x^2 + g_y^2}$$</p>
-<p>此为梯度图像，与原图像大小相同。有时候使用绝对值来近似，<br>$$M(x,y)=|g_x|+|g_y|$$</p>
-<p>将此滤波写成 $3 \times 3$ 的滤波模板，记一个 $3 \times 3$ 邻域像素值为，<br>$$\mathbf z=\begin{bmatrix} z_1 &amp; z_2 &amp; z_3 \ z_4 &amp; z_5 &amp; z_6 \z_7 &amp; z_8 &amp; z_9 \end{bmatrix}$$<br>中心为 $z_5$，一阶微分为<br>$$g_x=z_8-z_5, \quad g_y = z_6-z_5$$</p>
-<p>早期的数字图像处理中， Roberts 提出使用交叉差分，<br>$$g_x=z_9- z_5, \quad g_y = z_8-z_6$$</p>
-<p>以上 <code>x,y</code> 方向哪个水平哪个垂直，在计算梯度幅值时其实是无所谓的，因为滤波模板在旋转 90° 整数倍时是各向同性的。</p>
+<script type="math/tex; mode=display">g_{mask}(x,y) = f(x,y) - \overline f(x,y)
+\\\\ g(x,y)=f(x,y) + k \cdot g_{mask}(x,y)</script><h3 id="1-2-3-梯度"><a href="#1-2-3-梯度" class="headerlink" title="1.2.3 梯度"></a>1.2.3 梯度</h3><p>二维图像 $f(x,y)$ 的梯度为</p>
+<script type="math/tex; mode=display">\nabla f =\begin{bmatrix} g_x \\\\ g_y \end{bmatrix}= \begin{bmatrix} \frac {\partial f} {\partial x} \\\\ \frac {\partial f} {\partial x} \end{bmatrix}</script><p>这是一个二维列向量，幅值为</p>
+<script type="math/tex; mode=display">M(x,y) = \sqrt {g_x^2 + g_y^2}</script><p>此为梯度图像，与原图像大小相同。有时候使用绝对值来近似，</p>
+<script type="math/tex; mode=display">M(x,y)=|g_x|+|g_y|</script><p>将此滤波写成 $3 \times 3$ 的滤波模板，记一个 $3 \times 3$ 邻域像素值为，</p>
+<script type="math/tex; mode=display">\mathbf z=\begin{bmatrix} z_1 & z_2 & z_3 \\ z_4 & z_5 & z_6 \\z_7 & z_8 & z_9 \end{bmatrix}</script><p>中心为 $z_5$，一阶微分为</p>
+<script type="math/tex; mode=display">g_x=z_8-z_5, \quad g_y = z_6-z_5</script><p>早期的数字图像处理中， Roberts 提出使用交叉差分，</p>
+<script type="math/tex; mode=display">g_x=z_9- z_5, \quad g_y = z_8-z_6</script><p>以上 <code>x,y</code> 方向哪个水平哪个垂直，在计算梯度幅值时其实是无所谓的，因为滤波模板在旋转 90° 整数倍时是各向同性的。</p>
 <p><strong>sobel 算子</strong></p>
-<p>$\mathbf w_x=\begin{bmatrix} -1 &amp; -2 &amp; -1 \ 0 &amp; 0 &amp; 0 \ 1 &amp; 2 &amp; 1 \end{bmatrix}$,  $\mathbf w_y=\begin{bmatrix} -1 &amp; 0 &amp; 1 \ -2 &amp; 0 &amp; 2 \ -1 &amp; 0 &amp; 1 \end{bmatrix}$</p>
+<p>$\mathbf w_x=\begin{bmatrix} -1 &amp; -2 &amp; -1 \\ 0 &amp; 0 &amp; 0 \\ 1 &amp; 2 &amp; 1 \end{bmatrix}$,  $\mathbf w_y=\begin{bmatrix} -1 &amp; 0 &amp; 1 \\ -2 &amp; 0 &amp; 2 \\ -1 &amp; 0 &amp; 1 \end{bmatrix}$</p>
 <p>于是，</p>
-<p><del>$$g_x = \mathbf w_x \ast \mathbf z, \qquad g_x = \mathbf w_x \ast \mathbf z$$</del><br>$$g_x = \mathbf w_x \odot \mathbf z, \qquad g_x = \mathbf w_x \odot \mathbf z$$</p>
-<p>sobel 算子常用于边缘检测。</p>
+<p><del><script type="math/tex">g_x = \mathbf w_x \ast \mathbf z, \qquad g_x = \mathbf w_x \ast \mathbf z</script></del></p>
+<script type="math/tex; mode=display">g_x = \mathbf w_x \odot \mathbf z, \qquad g_x = \mathbf w_x \odot \mathbf z</script><p>sobel 算子常用于边缘检测。</p>
 <h2 id="1-3-混合空间增强"><a href="#1-3-混合空间增强" class="headerlink" title="1.3 混合空间增强"></a>1.3 混合空间增强</h2><p>使用前述多种增加方法</p>
-<h2 id="1-4-基于模糊技术的灰度变换"><a href="#1-4-基于模糊技术的灰度变换" class="headerlink" title="1.4 基于模糊技术的灰度变换"></a>1.4 基于模糊技术的灰度变换</h2><p>模糊集合是一个由 <code>z</code> 值和相应隶属度函数组成的序对，<br>$$A = {z, \mu_A(z)|z \in Z, \ \mu_A(z) \in (0,1]}$$<br>其中 $Z$ 为元素 <code>z</code> 的取值空间，隶属度函数的值域为 $[0,1]$。</p>
+<h2 id="1-4-基于模糊技术的灰度变换"><a href="#1-4-基于模糊技术的灰度变换" class="headerlink" title="1.4 基于模糊技术的灰度变换"></a>1.4 基于模糊技术的灰度变换</h2><p>模糊集合是一个由 <code>z</code> 值和相应隶属度函数组成的序对，</p>
+<script type="math/tex; mode=display">A = \{z, \mu_A(z)|z \in Z, \ \mu_A(z) \in (0,1]\}</script><p>其中 $Z$ 为元素 <code>z</code> 的取值空间，隶属度函数的值域为 $[0,1]$。</p>
 <p><strong>空集：</strong> $\mu_A(z) = 0$</p>
 <p><strong>相等：</strong> $\mu_A(z) = \mu_B(z), \ \forall z$</p>
 <p><strong>补集：</strong> $\mu_{\overline A}(z) = 1- \mu_A(z)$</p>
@@ -342,7 +348,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-空间滤波"><span class="nav-number">1.</span> <span class="nav-text">1. 空间滤波</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-平滑空间滤波"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 平滑空间滤波</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-锐化空间滤波"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 锐化空间滤波</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-拉普拉斯算子"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.2.1 拉普拉斯算子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-非锐化掩蔽和高提升滤波"><span class="nav-number">1.2.2.</span> <span class="nav-text">1.2.2 非锐化掩蔽和高提升滤波</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-3-梯度"><span class="nav-number">1.2.3.</span> <span class="nav-text">1.2.3 梯度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-混合空间增强"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 混合空间增强</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-基于模糊技术的灰度变换"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 基于模糊技术的灰度变换</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E7%A9%BA%E9%97%B4%E6%BB%A4%E6%B3%A2"><span class="nav-number">1.</span> <span class="nav-text">1. 空间滤波</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-%E5%B9%B3%E6%BB%91%E7%A9%BA%E9%97%B4%E6%BB%A4%E6%B3%A2"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 平滑空间滤波</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-%E9%94%90%E5%8C%96%E7%A9%BA%E9%97%B4%E6%BB%A4%E6%B3%A2"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 锐化空间滤波</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E7%AE%97%E5%AD%90"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.2.1 拉普拉斯算子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-%E9%9D%9E%E9%94%90%E5%8C%96%E6%8E%A9%E8%94%BD%E5%92%8C%E9%AB%98%E6%8F%90%E5%8D%87%E6%BB%A4%E6%B3%A2"><span class="nav-number">1.2.2.</span> <span class="nav-text">1.2.2 非锐化掩蔽和高提升滤波</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-3-%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.2.3.</span> <span class="nav-text">1.2.3 梯度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-%E6%B7%B7%E5%90%88%E7%A9%BA%E9%97%B4%E5%A2%9E%E5%BC%BA"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 混合空间增强</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-%E5%9F%BA%E4%BA%8E%E6%A8%A1%E7%B3%8A%E6%8A%80%E6%9C%AF%E7%9A%84%E7%81%B0%E5%BA%A6%E5%8F%98%E6%8D%A2"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 基于模糊技术的灰度变换</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -356,7 +362,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -369,7 +375,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

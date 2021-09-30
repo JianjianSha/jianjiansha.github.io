@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -219,20 +219,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>本篇主要分析 PyTorch 中自动求导是如何进行的。要使得能够自动求导，需要设置 Tensor 的 <code>requires_grad=True</code>，例如</p>
-<a id="more"></a>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x=torch.ones(<span class="number">1</span>, requires_grad=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
-<p>根据前面 torch.empty 的底层 C++ 实现的分析，易知 torch.ones 的 C++ 底层实现由位于 torch/csrc/autograd/generated/python_torch_functions.cpp 中的 THPVariable_ones 函数实现，此函数定义的部分代码为</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> <span class="built_in">size</span> = r.intlist(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">auto</span> dtype = r.scalartype(<span class="number">2</span>);</span><br><span class="line"><span class="keyword">auto</span> device = r.device(<span class="number">4</span>);</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">auto</span> options = TensorOptions()</span><br><span class="line">    .dtype(dtype)</span><br><span class="line">    .device(device)</span><br><span class="line">    .layout(r.layout(<span class="number">3</span>).layout)</span><br><span class="line">    .requires_grad(r.toBool(<span class="number">5</span>));</span><br><span class="line"><span class="keyword">return</span> wrap(dispatch_ones(<span class="built_in">size</span>, options));</span><br></pre></td></tr></table></figure>
-<p><code>wrap</code> 则是将 C++ 的 Tensor 包装为 python 的 Tensor 类型 <code>torch.Tensor</code>。dispatch_ones 函数其内部调用 torch::ones 函数，此函数定义的关键部分为</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">at::Tensor tensor = at::ones(<span class="built_in">size</span>, at::TensorOptions(options).is_variable(<span class="literal">false</span>));</span><br><span class="line"><span class="keyword">auto</span> result = autograd::make_variable(tensor, options.requires_grad());</span><br></pre></td></tr></table></figure>
-<p>上面代码第一句是构造全 1 的 Tensor，第二句代码则是将 Tensor 转为 Variable。Variable 继承 Tensor，Tensor 内部有 c10::intrusive_ptr&lt;TensorImpl, UndefinedTensorImpl&gt; 类型字段 <code>impl_</code>，Variable::Impl 类型继承 TensorImpl，并且 Variable 的字段 <code>impl_</code> 实际上相当于指向 Variable::Impl 的指针类型，而 Variable::Impl 内部包含了字段 <code>requires_grad_</code> 记录了 Variable 是否支持自动求导。</p>
+        <p>本篇主要分析 PyTorch 中自动求导是如何进行的。要使得能够自动求导，需要设置 Tensor 的 <code>requires_grad=True</code>，例如<br><span id="more"></span><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x=torch.ones(<span class="number">1</span>, requires_grad=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure><br>根据前面 torch.empty 的底层 C++ 实现的分析，易知 torch.ones 的 C++ 底层实现由位于 torch/csrc/autograd/generated/python_torch_functions.cpp 中的 THPVariable_ones 函数实现，此函数定义的部分代码为<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> size = r.<span class="built_in">intlist</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">auto</span> dtype = r.<span class="built_in">scalartype</span>(<span class="number">2</span>);</span><br><span class="line"><span class="keyword">auto</span> device = r.<span class="built_in">device</span>(<span class="number">4</span>);</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">auto</span> options = <span class="built_in">TensorOptions</span>()</span><br><span class="line">    .<span class="built_in">dtype</span>(dtype)</span><br><span class="line">    .<span class="built_in">device</span>(device)</span><br><span class="line">    .<span class="built_in">layout</span>(r.<span class="built_in">layout</span>(<span class="number">3</span>).layout)</span><br><span class="line">    .<span class="built_in">requires_grad</span>(r.<span class="built_in">toBool</span>(<span class="number">5</span>));</span><br><span class="line"><span class="keyword">return</span> <span class="built_in">wrap</span>(<span class="built_in">dispatch_ones</span>(size, options));</span><br></pre></td></tr></table></figure><br><code>wrap</code> 则是将 C++ 的 Tensor 包装为 python 的 Tensor 类型 <code>torch.Tensor</code>。dispatch_ones 函数其内部调用 torch::ones 函数，此函数定义的关键部分为<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">at::Tensor tensor = at::<span class="built_in">ones</span>(size, at::<span class="built_in">TensorOptions</span>(options).<span class="built_in">is_variable</span>(<span class="literal">false</span>));</span><br><span class="line"><span class="keyword">auto</span> result = autograd::<span class="built_in">make_variable</span>(tensor, options.<span class="built_in">requires_grad</span>());</span><br></pre></td></tr></table></figure><br>上面代码第一句是构造全 1 的 Tensor，第二句代码则是将 Tensor 转为 Variable。Variable 继承 Tensor，Tensor 内部有 c10::intrusive_ptr<TensorImpl, UndefinedTensorImpl> 类型字段 <code>impl_</code>，Variable::Impl 类型继承 TensorImpl，并且 Variable 的字段 <code>impl_</code> 实际上相当于指向 Variable::Impl 的指针类型，而 Variable::Impl 内部包含了字段 <code>requires_grad_</code> 记录了 Variable 是否支持自动求导。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y=torch.ones(<span class="number">1</span>) <span class="comment"># y.requires_grad False</span></span><br><span class="line">z=x+y           <span class="comment"># z.requires_grad True</span></span><br></pre></td></tr></table></figure>
-
-<p>torch.Tensor 的基类 torch._C._TensorBase 的方法位于 torch/csrc/autograd/generated/python_variable_methods.cpp 中的 variable_methods，其中我们发现重载运算符 <code>__add__</code> 的实现函数为 THPVariable_add，调用栈为</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">THPVariable_add -&gt; dispatch_add -&gt; Tensor::add -&gt; TypeDefault::add -&gt; native::add -&gt; native::add_out</span><br></pre></td></tr></table></figure>
-
-
+<p>torch.Tensor 的基类 torch._C._TensorBase 的方法位于 torch/csrc/autograd/generated/python_variable_methods.cpp 中的 variable_methods，其中我们发现重载运算符 <code>__add__</code> 的实现函数为 THPVariable_add，调用栈为<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">THPVariable_add -&gt; dispatch_add -&gt; Tensor::add -&gt; TypeDefault::add -&gt; native::add -&gt; native::add_out</span><br></pre></td></tr></table></figure></p>
 
     </div>
 
@@ -329,7 +318,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -342,7 +331,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言为了更好的使用线性分类，有时候需要将线性不可分的数据映射到一个更高维空间，使其线性可分。虽然高维空间的 Halfspace 假设更加具有表达能力（假设空间更加丰富），但是同时也会引入样本复杂度以及计算复杂度的上升。通过引入 margin （训练集中某样本与超平面具有最小距离），可以解决样本复杂度这个问题，而计算复杂度则可以通过另一种方法解决，即本篇所介绍的 “核方法”。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习中的核方法">
+<meta property="og:url" content="https://shajianjian.github.io/2021/09/26/ml/kernel/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="前言为了更好的使用线性分类，有时候需要将线性不可分的数据映射到一个更高维空间，使其线性可分。虽然高维空间的 Halfspace 假设更加具有表达能力（假设空间更加丰富），但是同时也会引入样本复杂度以及计算复杂度的上升。通过引入 margin （训练集中某样本与超平面具有最小距离），可以解决样本复杂度这个问题，而计算复杂度则可以通过另一种方法解决，即本篇所介绍的 “核方法”。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-09-26T10:07:50.000Z">
+<meta property="article:modified_time" content="2021-09-27T08:30:10.250Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="machine learning">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/09/26/ml/kernel/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>机器学习中的核方法 | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/09/26/ml/kernel/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习中的核方法
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-26 18:07:50" itemprop="dateCreated datePublished" datetime="2021-09-26T18:07:50+08:00">2021-09-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-09-27 16:30:10" itemprop="dateModified" datetime="2021-09-27T16:30:10+08:00">2021-09-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>为了更好的使用线性分类，有时候需要将线性不可分的数据映射到一个更高维空间，使其线性可分。虽然高维空间的 Halfspace 假设更加具有表达能力（假设空间更加丰富），但是同时也会引入样本复杂度以及计算复杂度的上升。通过引入 margin （训练集中某样本与超平面具有最小距离），可以解决样本复杂度这个问题，而计算复杂度则可以通过另一种方法解决，即本篇所介绍的 “核方法”。<br><span id="more"></span></p>
+<h1 id="特征空间"><a href="#特征空间" class="headerlink" title="特征空间"></a>特征空间</h1><p>以一个简单的例子开始，考虑域中样本点 $\{-10,-9,-8,\cdots, 0, 1, \cdots 9, 10\}$，其中满足 $|x|&gt;2$ 的样本分类为 $+1$，其余样本分类为 $-1$，显然这是一个非线性可分的问题，但是我们可以通过以下映射 $\psi: \mathbb R \rightarrow \mathbb R^2$</p>
+<script type="math/tex; mode=display">\psi(x)=(x, x^2)</script><p>使得数据在 $\mathbb R^2$ 空间中线性可分，令 $\mathbf w=(0, 1), \ b=5$，那么 $h(x)=\text{sign}(\mathbf w^{\top} \psi(x) - b)$ 线性可分。</p>
+<p><strong>这一过程总结如下：</strong></p>
+<ol>
+<li><p>给定域集合 $\mathcal X$ 和一特定的学习任务，根据先验知识，选择一个映射函数 $\psi: \mathcal X \rightarrow \mathcal F$。</p>
+</li>
+<li><p>给定样本集 $S=\{(\mathbf x_1, y_1), \cdots, (\mathbf x_m, y_m)\}$，计算得到映射后的集合 $\hat S=\{(\psi(\mathbf x_1), y_1), \cdots ,(\psi(\mathbf x_m), y_m)\}$</p>
+</li>
+<li><p>在 $\hat S$ 上训练一个线性分类器</p>
+</li>
+<li><p>预测一个新的样本 $\mathbf x$ 为 $h(\psi(\mathbf x))$</p>
+</li>
+</ol>
+<p><strong>多项式映射是一个常用的较好的 $\psi$</strong></p>
+<p>考虑一维情况，为 $p=\sum_{i=0}^k w_i x^i$，那么 $\psi(x)=(x^0, x^1, \cdots, x^k)$。考虑一般情况下的多变量 $\mathbf x$，多项式 $p(\mathbf x): \mathbb R^n \rightarrow \mathbb R$ 可写为</p>
+<script type="math/tex; mode=display">p(\mathbf x)=\sum_{J \in [n]^r: \ r\le k} w_J \prod_{i=1}^r x_{J_i}</script><p>未知向量 $\mathbf x$ 是 $n$ 维，$J$ 是具有 $r$ 个元素的列表，每个元素表示 $\mathbf x$ 的下标。当固定一个 $r$ 时，然后每次从 $\mathbf x=[x_1, \cdots, x_n]$ 中可重复（或称 可放回）地选择 $r$ 个变量，这 $r$ 个变量相乘为 $\prod_{i=1}^r x_{J_i}$，最后每个乘积项加权求和。具体过程如下：</p>
+<ol>
+<li><p>阶数为 0， $r=0$，表示不选择任何变量，此时乘积项 为 1，共 $1$ 个乘积项。</p>
+</li>
+<li><p>阶数为 1，$r=1$，从 $[x_1, x_2, \cdots, x_n]$ 中选择一个变量即 $x_{J_1}$，共 $n$ 个乘积项。</p>
+</li>
+<li><p>阶数为 2，$r=2$，从 $[x_1, x_2, \cdots, x_n]$ 中可放回地选择两个变量即 $x_{J_1}, \ x_{J_2}$，乘积项 $x_{J_1} x_{J_2}$ 共有 $n^2$ 个。</p>
+</li>
+<li><p>阶数为 k，$r=k$，从 $[x_1, x_2, \cdots, x_n]$ 中可放回地选择 k 个变量即 $x_{J_1}, \cdots, x_{J_k}$，乘积项 $\prod_{i=1}^k x_{J_i}$ 共 $n^k$ 个。</p>
+</li>
+</ol>
+<p>各阶数的乘积项数量形成一个等比数量，根据求和公式，所有乘积项数量为</p>
+<script type="math/tex; mode=display">S_{k+1}=\frac {a_1(1-n^{k+1})}{1-n}=\frac {n^{k+1}-1} {n-1}</script><p>特别的，当公比 $n=1$ 时，求和为 $S_{k+1}=a_1 \times (k+1)=k+1$。</p>
+<p>于是，多变量的多项式映射 $\psi(\mathbf x): \mathbb R^n \rightarrow \mathbb R^d$，当考虑多项式为 k 阶时，特征空间的维数 $d=S_{k+1}$。$\psi(\mathbf x)$ 中每一项就是上们的乘积项 $\prod_{i=1}^r x_{J_i}$。</p>
+<p>从上面分析来看，特征空间的维度 $d=S_{k+1}$ 很大，导致计算复杂度增加，所以不使用常规的线性分类学习方法（如 SVM），下文介绍的 核方法 就是为了解决计算复杂度增加这个问题。</p>
+<h1 id="核方法"><a href="#核方法" class="headerlink" title="核方法"></a>核方法</h1><p>给定映射函数 $\psi$ 将域空间 $\mathcal X$ 映射到某个 Hilbert 空间，定义核函数为映射后向量的内积</p>
+<script type="math/tex; mode=display">K(\mathbf x, \mathbf x')=\psi^{\top}(\mathbf x) \psi(\mathbf x')</script><p>可以认为核函数 $K$ 用于指定两个映射向量之间的相似度（未归一化）。</p>
+<p>我们将线性分类问题转化为如下的更一般的优化问题</p>
+<script type="math/tex; mode=display">\min_{\mathbf w} f(\mathbf w^{\top} \psi(\mathbf x_1), \cdots, \mathbf w^{\top} \psi(\mathbf x_m)) + R(\|\mathbf w\|) \quad(1)</script><p>其中 $f:\mathbb R^m \rightarrow \mathbb R$ 是任意函数，$R: \mathbb R_+ \rightarrow \mathbb R$ 是单调递增函数，作为正则惩罚项。</p>
+<p>例如 Soft-SVM 中（非齐次型可转换为齐次型），$R(a)=\lambda a^2$，$f(a_1, \cdots, a_m)=\frac 1 m \sum_{i} \max \{0, 1- y_ia_i\}, \ a_i=\mathbf w^{\top}\mathbf x_i$。</p>
+<p>Hard-SVM 中，$R(a)=a^2$，且如果 $\forall i \in [m]$ 均有 $y_i(a_i+b)\ge 1$，那么 $f(a_1, \cdots, a_m)=0$，否则 $f(a_1, \cdots, a_m)=\infty$，这是因为 Hard-SVM 保证是线性可分的，所以只要有一个样本分类错误，那么总的分类错误损失就是 $\infty$。</p>
+<p><strong>存在一个向量 $\boldsymbol \alpha \in \mathbb R^m$，使得 $\mathbf w=\boldsymbol \alpha^{\top} \boldsymbol \psi$ 是 (1) 式的最优解。</strong></p>
+<p>其中 $\boldsymbol \psi = [\psi(\mathbf x_1), \cdots, \psi(\mathbf x_m)]$。事实上，在上一篇文章 <a href="/2021/09/22/ml/svm">SVM</a> 中，我们已经讨论到，$\mathbf w$ 是训练集中若干支持向量的线性组合，自然也是训练集中所有向量的线性组合。</p>
+<p>证：</p>
+<p>令 $\mathbf w^{\ast}$ 是 （1）式的最优解。由于 $\mathbf w^{\ast}$ 位于 Hilbert 空间，必然可以分解为两个向量，其中一个来自 $[\psi(\mathbf x_1), \cdots, \psi(\mathbf x_m)]$ 所张（span）空间的一个向量 $\mathbf w$，另一个向量 $\mathbf u$ 位于与这个所张空间垂直的空间，故可写为</p>
+<script type="math/tex; mode=display">\mathbf w^{\ast}=\mathbf w + \mathbf u=\sum_{i=1}^m \alpha_i \psi(\mathbf x_i)+\mathbf u</script><p>其中 $\mathbf u^{\top} \psi(\mathbf x_i)=0, \ \forall i \in [m]$。</p>
+<p>于是有 $|\mathbf w^{\ast}|^2=|\mathbf w|^2+|\mathbf u|^2+2\mathbf w^{\top} \mathbf u$，由于 $\mathbf w$ 所在空间与 $\mathbf u$ 所在空间垂直，故 $\mathbf w^{\top}\mathbf u=0$，故 $|\mathbf w^{\ast}|^2=|\mathbf w|^2+|\mathbf u|^2 \ge |\mathbf w|^2$，由于 $R$ 是单调增函数，所以 $R(|\mathbf w^{\ast}|) \ge R(|\mathbf w|)$。</p>
+<p>另外注意到</p>
+<script type="math/tex; mode=display">\mathbf w^{\top} \psi(\mathbf x_i)=(\mathbf w^{\ast}-\mathbf u)^{\top} \psi(\mathbf x_i)=\mathbf w^{\ast}\psi(\mathbf x_i)</script><p>所以</p>
+<script type="math/tex; mode=display">f(\mathbf w^{\top} \psi(\mathbf x_1), \cdots, \mathbf w^{\top} \psi(\mathbf x_m))=f(\mathbf w^{\ast \top} \psi(\mathbf x_1), \cdots, \mathbf w^{\ast \top} \psi(\mathbf x_m))</script><p>记 (1) 式中的优化目标为 $L(\cdot)$，所以 $L(\mathbf w^{\ast}) \ge L(\mathbf w)$ ，由于 $\mathbf w^{\ast}$ 是最优解，那么 $\mathbf w$ 也是最优解。证毕。</p>
+<p>于是 （1）式的最优解具有形式 $\mathbf w =\sum_{i=1}^m \alpha_i \psi(\mathbf x_i)$。由于</p>
+<script type="math/tex; mode=display">\mathbf w^{\top}\psi(\mathbf x_i)=\left(\sum_{j=1}^m \alpha_j \psi(\mathbf x_j)\right)^{\top} \psi(\mathbf x_i)=\sum_{j=1}^m \alpha_j \psi^{\top}(\mathbf x_j)\psi(\mathbf x_i) \quad (2)</script><script type="math/tex; mode=display">\|\mathbf w\|^2=\Vert \sum_{i=1}^m \alpha_i \psi(\mathbf x_i) \Vert^2=\sum_{i=1}^m \sum_{j=1}^m\alpha_i \alpha_j \psi^{\top}(\mathbf x_i)\psi(\mathbf x_j) \quad(3)</script><p>所以 （1）式可改写为</p>
+<script type="math/tex; mode=display">\min_{\boldsymbol \alpha \in \mathbb R^m} f\left(\sum_{j=1}^m \alpha_j K(\mathbf x_j, \mathbf x_1), \cdots, \sum_{j=1}^m \alpha_j K(\mathbf x_j, \mathbf x_m)\right) + R \left(\sqrt{\sum_{i=1}^m \sum_{j=1}^m\alpha_i \alpha_j K(\mathbf x_i,\mathbf x_j)}\right) \quad(4)</script><p>将变量从 $\mathbf w \in \mathbb R^d$ 转换为 $\boldsymbol \alpha \in \mathbb R^m$，当 $m &lt;&lt; d$ 时，可以降低计算复杂度。</p>
+<p>记 $G_{m \times m}$，其中 $G_{ij}=K(\mathbf x_i,\mathbf x_j)$，表示样本之间的内积矩阵，通常称为 Gram 矩阵。那么，(2,3) 式变为</p>
+<script type="math/tex; mode=display">\mathbf w^{\top}\psi(\mathbf x_i)=\sum_{j=1}^m \alpha_j K(\mathbf x_i, \mathbf x_j)=G_{i,:} \cdot \boldsymbol \alpha=(G \boldsymbol \alpha)_i</script><script type="math/tex; mode=display">\|\mathbf w\|^2=\sum_{i=1}^m \sum_{j=1}^m\alpha_i \alpha_j K(\mathbf x_i, \mathbf x_j)=\boldsymbol \alpha^{\top} G \boldsymbol \alpha</script><p>以 Soft-SVM 为例，根据 $\min_{\mathbf w} (\lambda |\mathbf w|^2+\frac 1 m \sum_{i=1}^m \max\{0, 1-y_i(\mathbf w^{\top} \mathbf x_i)\})$， 写成（4）式的形式为</p>
+<script type="math/tex; mode=display">\min_{\boldsymbol \alpha \in \mathbb R^m} \ \frac 1 m \sum_{i=1}^m \max\{0, 1-y_i(G \boldsymbol \alpha)_i\} + \lambda \boldsymbol \alpha^{\top} G \boldsymbol \alpha</script><p>学习到了 $\boldsymbol \alpha$ 之后，那么对新样本的预测为</p>
+<script type="math/tex; mode=display">\mathbf w^{\top}\psi(\mathbf x)=\sum_{j=1}^m \alpha_j K(\mathbf x, \mathbf x_j)</script><p>注意，$K(\mathbf x, \mathbf x_j)$ 不是 G 矩阵元素。</p>
+<h1 id="带核-Soft-SVM-的实现"><a href="#带核-Soft-SVM-的实现" class="headerlink" title="带核 Soft-SVM 的实现"></a>带核 Soft-SVM 的实现</h1><p>上一篇 <a href="/2021/09/22/ml/svm">SVM</a> 中介绍了 Soft-SVM 的 SGD 学习过程。现在考虑带核 Soft-SVM 的学习。首先给出优化目标</p>
+<script type="math/tex; mode=display">\min_{\mathbf w} \left(\frac {\lambda} 2 \|\mathbf w\|^2+\frac 1 m \sum_{i=1}^m \max \{0, 1-y_i \mathbf w^{\top} \psi(\mathbf x_i)\}\right) \quad(5)</script><p>仿照  <a href="/2021/09/22/ml/svm">SVM</a> 中 Soft-SVM 的 SGD 实现中的分析，彼时令 </p>
+<script type="math/tex; mode=display">\boldsymbol {\theta}^{(t+1)}=\boldsymbol {\theta}^{(t)}-\mathbf v_t=\boldsymbol {\theta}^{(t)}+y_i \mathbf x_i</script><p>那么带核后，变为</p>
+<script type="math/tex; mode=display">\boldsymbol \theta^{(t+1)}=\boldsymbol \theta^{(t)} +y_i\psi(\mathbf x_i)</script><p>且有</p>
+<script type="math/tex; mode=display">\mathbf w^{(t)}=\frac 1 {\lambda t} \boldsymbol \theta^{(t)}</script><p>由于 $\mathbf w, \boldsymbol \theta \in \mathbb R^d$，维数 $d$ 较大，所以我们不直接更新 $\boldsymbol \theta$。由于最优解可写成 $\mathbf w = \sum_{i=1}^m \alpha_i \psi(\mathbf x_i)$ 的形式，所以我们考虑直接求解 $\boldsymbol \alpha$，或者说，是以 $\psi(\mathbf x_1), \cdots, \psi(\mathbf x_m)$ 作为基向量时的坐标，对应地，$\mathbf w$ 是对应标准基向量的坐标，维度 $dim(\boldsymbol \alpha)=m &gt; dim(\mathbf w)=d$。我们还需要给出 $\boldsymbol \theta$ 在以$\psi(\mathbf x_1), \cdots, \psi(\mathbf x_m)$ 作为基向量时的坐标，记为 $\boldsymbol \beta$，有</p>
+<script type="math/tex; mode=display">\boldsymbol \theta^{(t)}=\sum_{j=1}^m \beta_j^{(t)} \psi(\mathbf x_j)</script><p>显然有以下关系</p>
+<script type="math/tex; mode=display">\boldsymbol \alpha = \frac 1 {\lambda t} \boldsymbol \beta</script><p>于是，<a href="/2021/09/22/ml/svm">SVM</a> 中 Soft-SVM 的 SGD 实现中，迭代更新（基于标准基向量的） $\boldsymbol \theta$，等价的，这里带核情况的实现中，则是迭代更新（基于 $\psi(\mathbf x_1), \cdots, \psi(\mathbf x_m)$ 的）$\boldsymbol \beta$。</p>
+<p>根据前面 $\boldsymbol {\theta}$ 的更新公式，</p>
+<script type="math/tex; mode=display">\boldsymbol \theta^{(t+1)}=\boldsymbol \theta^{(t)} +y_i\psi(\mathbf x_i)=\sum_{j=1}^m \beta_j^{(t)} \psi(\mathbf x_j)+y_i \psi(\mathbf x_i)=\sum_{j=1}^m \beta_j^{(t+1)} \psi(\mathbf x_j)</script><p>可知 $\boldsymbol \beta$ 的更新为（在随机选择一个样本下标 $i$ 后）</p>
+<script type="math/tex; mode=display">\boldsymbol \beta_{j}^{(t+1)}= \begin{cases} \boldsymbol \beta_{j}^{(t)} & j \neq i \\\\ \boldsymbol \beta_{i}^{(t)}+y_i & j=i \end{cases}</script><p>最后，随机选择了样本下标 $i$ 后，判断条件变为</p>
+<script type="math/tex; mode=display">y_i \mathbf w^{\top} \psi(\mathbf x_i)=y_i \left(\sum_{j=1}^m \alpha_j^{(t)} \psi(\mathbf x_j)\right)^{\top} \psi(\mathbf x_i)=y_i\sum_{j=1}^m \alpha_j^{(t)} K(\mathbf x_j, \mathbf x_i)</script><p>最后，整个过程与 <a href="/2021/09/22/ml/svm">SVM</a> 中 Soft-SVM 的 SGD 实现基本类似，现总结如下：</p>
+<center>带核 Soft-SVM 的 SGD 实现</center>
+
+<p><strong>目标：</strong> 求解（5）式</p>
+<p><strong>参数：</strong> 总迭代次数 $T$</p>
+<p><strong>初始化：</strong> $\boldsymbol \beta^{(1)}=\mathbf 0$</p>
+<p><strong>for</strong> $\ t=1,\cdots, T$</p>
+<p>&emsp; $\boldsymbol \alpha^{(t)}=\frac 1 {\lambda t} \boldsymbol \beta^{(t)}$</p>
+<p>&emsp; 随机选择一个下标 $i \in [m]$</p>
+<p>&emsp; 对 $\forall j \in [m]$ 且 $j\neq i$， $\beta_j^{(t+1)}=\beta_j^{(t)}$</p>
+<p>&emsp; 如果 $\ y_i\sum_{j=1}^m \alpha_j^{(t)} K(\mathbf x_j, \mathbf x_i) &lt; 1$</p>
+<p>&emsp; &emsp; $\beta_i^{(t+1)}=\beta_i^{(t)}+y_i$</p>
+<p>&emsp; 否则</p>
+<p>&emsp; &emsp; $\beta_i^{(t+1)}=\beta_i^{(t)}$</p>
+<p><strong>输出</strong> $\overline {\boldsymbol \alpha}=\frac 1 T \sum_{t=1}^T \boldsymbol \alpha^{(t)}$</p>
+<p>最后从 $\boldsymbol \alpha$ 变回 $\mathbf w$，</p>
+<script type="math/tex; mode=display">\overline {\mathbf w}=\sum_{i=1}^m \overline {\boldsymbol \alpha}\psi(\mathbf x_i)</script><p>将 $\overline {\boldsymbol \alpha}$ 的表达式代入上式，验证如下</p>
+<script type="math/tex; mode=display">\overline {\mathbf w}=\sum_{i=1}^m \left(\frac 1 T \sum_{t=1}^T \boldsymbol \alpha^{(t)}\right)\psi(\mathbf x_i)=\frac 1 T \sum_{t=1}^T\left(\sum_{i=1}^m \boldsymbol \alpha^{(t)}\psi(\mathbf x_i)\right)=\frac 1 T \sum_{t=1}^T \mathbf w^{(t)}</script><p>可见于普通的 Soft-SVM 完全一致。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/22/ml/svm/" rel="prev" title="支持向量机">
+      <i class="fa fa-chevron-left"></i> 支持向量机
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/09/28/ml/multiclass/" rel="next" title="多分类">
+      多分类 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E7%A9%BA%E9%97%B4"><span class="nav-number">2.</span> <span class="nav-text">特征空间</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B8%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">核方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%A6%E6%A0%B8-Soft-SVM-%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">带核 Soft-SVM 的实现</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">83</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

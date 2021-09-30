@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -218,17 +218,12 @@
 </ol>
 <h3 id="Wl"><a href="#Wl" class="headerlink" title="-Wl"></a>-Wl</h3><p>这个参数表示后面的参数传递给链接器 <code>ld</code></p>
 <h3 id="rpath"><a href="#rpath" class="headerlink" title="-rpath"></a>-rpath</h3><p>添加一个目录到运行库搜索路径，可以使用 <code>$ORIGIN</code>，它表示执行文件所在的目录，注意在 Makefile 中需要写为 <code>$$ORIGIN</code>。</p>
-<h3 id="–as-needed"><a href="#–as-needed" class="headerlink" title="–as-needed"></a>–as-needed</h3><p>链接器参数，表示仅链接其 symbol 在 binary 中用到的库。默认是开启这个 flag，若要关闭，使用 <code>--no-as-needed</code>，例如</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.c</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    foo();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/foo.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span> </span>&#123; <span class="built_in">printf</span>(<span class="string">"foo\n"</span>); &#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/bar.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">()</span> </span>&#123; <span class="built_in">printf</span>(<span class="string">"bar\n"</span>); &#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Makefile</span></span><br><span class="line"><span class="section">main: main.c lib/libfoo.so lib/libbar.so</span></span><br><span class="line">    gcc -o main main.c -Wl,--no-as-needed,-rpath='$$ORIGIN/lib' -L. -lfoo -lbar</span><br><span class="line"></span><br><span class="line"><span class="section">lib/libfoo.so: lib/foo.c</span></span><br><span class="line">    gcc -fPIC -shared -o lib/libfoo.so lib/foo.c</span><br><span class="line"></span><br><span class="line"><span class="section">lib/libbar.so: lib/bar.c</span></span><br><span class="line">    gcc -fPIC -shared -o lib/libbar.so lib/bar.c</span><br></pre></td></tr></table></figure>
-
-<p>查看 <code>main</code> 链接的库，</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ldd main</span></span><br></pre></td></tr></table></figure>
+<h3 id="—as-needed"><a href="#—as-needed" class="headerlink" title="—as-needed"></a>—as-needed</h3><p>链接器参数，表示仅链接其 symbol 在 binary 中用到的库。默认是开启这个 flag，若要关闭，使用 <code>--no-as-needed</code>，例如</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.c</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">foo</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/foo.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span> </span>&#123; <span class="built_in">printf</span>(<span class="string">&quot;foo\n&quot;</span>); &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/bar.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">()</span> </span>&#123; <span class="built_in">printf</span>(<span class="string">&quot;bar\n&quot;</span>); &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Makefile</span></span><br><span class="line"><span class="section">main: main.c lib/libfoo.so lib/libbar.so</span></span><br><span class="line">    gcc -o main main.c -Wl,--no-as-needed,-rpath=&#x27;$$ORIGIN/lib&#x27; -L. -lfoo -lbar</span><br><span class="line"></span><br><span class="line"><span class="section">lib/libfoo.so: lib/foo.c</span></span><br><span class="line">    gcc -fPIC -shared -o lib/libfoo.so lib/foo.c</span><br><span class="line"></span><br><span class="line"><span class="section">lib/libbar.so: lib/bar.c</span></span><br><span class="line">    gcc -fPIC -shared -o lib/libbar.so lib/bar.c</span><br></pre></td></tr></table></figure>
+<p>查看 <code>main</code> 链接的库，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ldd main</span></span><br></pre></td></tr></table></figure></p>
 
     </div>
 
@@ -312,7 +307,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#动态库目录"><span class="nav-number">1.</span> <span class="nav-text">动态库目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Wl"><span class="nav-number">1.1.</span> <span class="nav-text">-Wl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rpath"><span class="nav-number">1.2.</span> <span class="nav-text">-rpath</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#–as-needed"><span class="nav-number">1.3.</span> <span class="nav-text">–as-needed</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E5%BA%93%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">动态库目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Wl"><span class="nav-number">1.1.</span> <span class="nav-text">-Wl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rpath"><span class="nav-number">1.2.</span> <span class="nav-text">-rpath</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%80%94as-needed"><span class="nav-number">1.3.</span> <span class="nav-text">—as-needed</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -326,7 +321,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -339,7 +334,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

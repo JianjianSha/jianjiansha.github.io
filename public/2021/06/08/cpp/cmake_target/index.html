@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -209,10 +209,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>cmake 的目标 TARGET。</p>
-<a id="more"></a>
-<h1 id="target-compile-definitions"><a href="#target-compile-definitions" class="headerlink" title="target_compile_definitions"></a>target_compile_definitions</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">target_compile_definitions(&lt;target&gt;</span><br><span class="line">  &lt;INTERFACE|PUBLIC|PRIVATE&gt; [items1...]</span><br><span class="line">  [&lt;INTERFACE|PUBLIC|PRIVATE&gt; [items2...] ...])</span><br></pre></td></tr></table></figure>
-
+        <p>cmake 的目标 TARGET。<br><span id="more"></span></p>
+<h1 id="target-compile-definitions"><a href="#target-compile-definitions" class="headerlink" title="target_compile_definitions"></a>target_compile_definitions</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">target_compile_definitions(&lt;target&gt;</span><br><span class="line">  &lt;INTERFACE|PUBLIC|PRIVATE&gt; [items1...]</span><br><span class="line">  [&lt;INTERFACE|PUBLIC|PRIVATE&gt; [items2...] ...])</span><br></pre></td></tr></table></figure>
 <p>指定编译给定目标 <code>&lt;target&gt;</code> 时的编译定义。目标 <code>&lt;target&gt;</code> 由 <code>add_executable()</code> 或者 <code>add_library()</code> 创建。</p>
 <ul>
 <li><p>PRIVATE, PUBLIC</p>
@@ -222,12 +220,10 @@
 <p>  指定给 <code>&lt;target&gt;</code> 的 <code>INTERFACE_COMPILE_DEFINITIONS</code> 属性赋值（append）</p>
 </li>
 </ul>
-<p>编译定义中的前导 <code>-D</code> 会被移除，空定义项被忽略。以下各行等价，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">target_compile_definitions(foo PUBLIC FOO)</span><br><span class="line">target_compile_definitions(foo PUBLIC -DFOO)  # -D removed</span><br><span class="line">target_compile_definitions(foo PUBLIC &quot;&quot; FOO) # &quot;&quot; ignored</span><br><span class="line">target_compile_definitions(foo PUBLIC -D FOO) # -D becomes &quot;&quot;, then ignored</span><br></pre></td></tr></table></figure>
-
-<h1 id="set-target-properties"><a href="#set-target-properties" class="headerlink" title="set_target_properties"></a>set_target_properties</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set_target_properties(target1 target2 ...</span><br><span class="line">                      PROPERTIES prop1 value1</span><br><span class="line">                      prop2 value2 ...)</span><br></pre></td></tr></table></figure>
+<p>编译定义中的前导 <code>-D</code> 会被移除，空定义项被忽略。以下各行等价，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">target_compile_definitions(foo PUBLIC FOO)</span><br><span class="line">target_compile_definitions(foo PUBLIC -DFOO)  # -D removed</span><br><span class="line">target_compile_definitions(foo PUBLIC &quot;&quot; FOO) # &quot;&quot; ignored</span><br><span class="line">target_compile_definitions(foo PUBLIC -D FOO) # -D becomes &quot;&quot;, then ignored</span><br></pre></td></tr></table></figure></p>
+<h1 id="set-target-properties"><a href="#set-target-properties" class="headerlink" title="set_target_properties"></a>set_target_properties</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set_target_properties(target1 target2 ...</span><br><span class="line">                      PROPERTIES prop1 value1</span><br><span class="line">                      prop2 value2 ...)</span><br></pre></td></tr></table></figure>
 <p>设置目标的属性。</p>
-<h1 id="target-include-directories"><a href="#target-include-directories" class="headerlink" title="target_include_directories"></a>target_include_directories</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">target_include_directories(&lt;target&gt; [SYSTEM] [AFTER|BEFORE]</span><br><span class="line">  &lt;INTERFACE|PUBLIC|PRIVATE&gt; [items1...]</span><br><span class="line">  [&lt;INTERFACE|PUBLIC|PRIVATE&gt; [items2...] ...])</span><br></pre></td></tr></table></figure>
+<h1 id="target-include-directories"><a href="#target-include-directories" class="headerlink" title="target_include_directories"></a>target_include_directories</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">target_include_directories(&lt;target&gt; [SYSTEM] [AFTER|BEFORE]</span><br><span class="line">  &lt;INTERFACE|PUBLIC|PRIVATE&gt; [items1...]</span><br><span class="line">  [&lt;INTERFACE|PUBLIC|PRIVATE&gt; [items2...] ...])</span><br></pre></td></tr></table></figure>
 <p>为目标添加头文件路径。</p>
 <ul>
 <li><p>PRIVATE, PUBLIC</p>
@@ -238,9 +234,9 @@
 </li>
 </ul>
 <p>指定的包含目录可以是绝对或相对路径，对同一个目标调用多次这个命令，则会按顺序附加包含目录。</p>
-<p><code>target_include_directories</code> 命令参数可能会使用 “生成器表达式”，语法为 <code>$&lt;...&gt;</code>。关于生成器表达式可参考<a href="https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html#manual:cmake-generator-expressions(7)" target="_blank" rel="noopener">这里</a>。 例如，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">target_include_directories(mylib PUBLIC</span><br><span class="line">  $&lt;BUILD_INTERFACE:$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;&#x2F;include&#x2F;mylib&gt;</span><br><span class="line">  $&lt;INSTALL_INTERFACE:include&#x2F;mylib&gt;  # &lt;prefix&gt;&#x2F;include&#x2F;mylib</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-<p>给目标添加包含目录。如果使用 <code>export()</code> 导出这个目标的包含目录属性，那么使用 <code>${CMAKE_CURRENT_SOURCE_DIR}/include/mylib&gt;</code>，如果使用 <code>install(EXPORT)</code> 导出目标的包含目录属性，那么使用 <code>include/mylib&gt;</code>。</p>
+<p><code>target_include_directories</code> 命令参数可能会使用 “生成器表达式”，语法为 <code>$&lt;...&gt;</code>。关于生成器表达式可参考<a target="_blank" rel="noopener" href="https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html#manual:cmake-generator-expressions(7">这里</a>)。 例如，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">target_include_directories(mylib PUBLIC</span><br><span class="line">  $&lt;BUILD_INTERFACE:$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;/include/mylib&gt;</span><br><span class="line">  $&lt;INSTALL_INTERFACE:include/mylib&gt;  # &lt;prefix&gt;/include/mylib</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>给目标添加包含目录。如果使用 <code>export()</code> 导出这个目标的包含目录属性，那么使用 <code>$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;/include/mylib&gt;</code>，如果使用 <code>install(EXPORT)</code> 导出目标的包含目录属性，那么使用 <code>include/mylib&gt;</code>。</p>
 
     </div>
 
@@ -335,7 +331,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -348,7 +344,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -212,8 +212,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>论文 <a href="https://arxiv.org/abs/1708.01241" target="_blank" rel="noopener">DSOD: Learning Deeply Supervised Object Detectors from Scratch</a></p>
-<a id="more"></a>
+        <p>论文 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1708.01241">DSOD: Learning Deeply Supervised Object Detectors from Scratch</a><br><span id="more"></span></p>
 <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>近几年来提出了很多新型 CNN 网络结构，如 Inception、ResNet 以及 DenseNet 等，带动了包括目标检测在内的诸多 CV 任务的发展。通常来讲，目标检测都是在 backbone 后增加检测子网络，backbone 在分类 benchmark 如 ImageNet 进行预训练，然后使用目标检测数据集对整个网络进行 fine-tune，也就是所谓的迁移学习。但是这种设计范式具有三个不足之处：</p>
 <ol>
 <li>有限的结构设计空间。基于 ImageNet 预训练的 backbone 通常是较为庞大的网络，参数量巨大，所以用在目标检测时，不容易调整网络结构。</li>
@@ -223,80 +222,84 @@
 <p>于是我们考虑两个问题：目标检测网络是否可以 train from scratch？如果可以，是否存在一些网络结构设计原则使得保持高检测准确率的同时让网络轻量？我们提出深度监督目标检测器 DSOD 以满足以上两个问题。</p>
 <h1 id="DSOD"><a href="#DSOD" class="headerlink" title="DSOD"></a>DSOD</h1><h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>DSOD 与 SSD 类似，是一个多尺度的无 proposal（one-stage）的目标检测网络。DSOD 结构分为两部分：用于抽取特征的 backbone 子网络，以及在多尺度响应图（response maps）上预测子网络（这里也称前端子网络）。backbone 是深度监督的 DenseNet 的变体（深度监督指的是对网络隐藏层和输出层直接使用目标检测数据集监督训练，而不是先使用 ImageNet 预训练，再使用目标检测数据集 fine-tune），这个 DenseNet 组成包括一个 stem block，四个 dense block，两个 transition layer 以及两个不带池化层的 transition layer。前端子网络使用一个dense结构融合了多尺度预测响应，如图 1 展示了 DSOD 前端子网络，以及 SSD 中使用的朴素多尺度预测 maps 结构。<br><img src="/images/DSOD_fig1.png" alt=""><center>Fig 1: 预测子网络。左边是 SSD 中所用的朴素结构；右边是 dense 结构</center></p>
 <p>整个 DSOD 网络结构如表 1 所示。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">Layers</th>
-<th align="center">Output Size (Input 3x100x100)</th>
-<th align="center">DSOD</th>
+<th style="text-align:center">Layers</th>
+<th style="text-align:center">Output Size (Input 3x100x100)</th>
+<th style="text-align:center">DSOD</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">Stem Convolution</td>
-<td align="center">64x150x150</td>
-<td align="center">3x3 conv, stride 2</td>
+<tbody>
+<tr>
+<td style="text-align:center">Stem Convolution</td>
+<td style="text-align:center">64x150x150</td>
+<td style="text-align:center">3x3 conv, stride 2</td>
 </tr>
 <tr>
-<td align="center">Stem Convolution</td>
-<td align="center">64x150x150</td>
-<td align="center">3x3 conv, stride 1</td>
+<td style="text-align:center">Stem Convolution</td>
+<td style="text-align:center">64x150x150</td>
+<td style="text-align:center">3x3 conv, stride 1</td>
 </tr>
 <tr>
-<td align="center">Stem Convolution</td>
-<td align="center">128x150x150</td>
-<td align="center">3x3 conv, stride 1</td>
+<td style="text-align:center">Stem Convolution</td>
+<td style="text-align:center">128x150x150</td>
+<td style="text-align:center">3x3 conv, stride 1</td>
 </tr>
 <tr>
-<td align="center">Stem Convolution</td>
-<td align="center">128x75x75</td>
-<td align="center">2x2 max pool, stride 2</td>
+<td style="text-align:center">Stem Convolution</td>
+<td style="text-align:center">128x75x75</td>
+<td style="text-align:center">2x2 max pool, stride 2</td>
 </tr>
 <tr>
-<td align="center">Dense Block (1)</td>
-<td align="center">416x75x75</td>
-<td align="center">$\begin{bmatrix} 1 \times 1 &amp; conv \\ 3 \times 3 &amp; conv\end{bmatrix} \times 6$</td>
+<td style="text-align:center">Dense Block (1)</td>
+<td style="text-align:center">416x75x75</td>
+<td style="text-align:center">$\begin{bmatrix} 1 \times 1 &amp; conv \\\\ 3 \times 3 &amp; conv\end{bmatrix} \times 6$</td>
 </tr>
 <tr>
-<td align="center">Transition Layer (1)</td>
-<td align="center">416x75x75 <br> 416x38x38</td>
-<td align="center">1x1 conv <br> 2x2 max pool, stride 2</td>
+<td style="text-align:center">Transition Layer (1)</td>
+<td style="text-align:center">416x75x75 <br> 416x38x38</td>
+<td style="text-align:center">1x1 conv <br> 2x2 max pool, stride 2</td>
 </tr>
 <tr>
-<td align="center">Dense Block (2)</td>
-<td align="center">800x38x38</td>
-<td align="center">$\begin{bmatrix} 1 \times 1 &amp; conv \\ 3 \times 3 &amp; conv\end{bmatrix} \times 8$</td>
+<td style="text-align:center">Dense Block (2)</td>
+<td style="text-align:center">800x38x38</td>
+<td style="text-align:center">$\begin{bmatrix} 1 \times 1 &amp; conv \\\\ 3 \times 3 &amp; conv\end{bmatrix} \times 8$</td>
 </tr>
 <tr>
-<td align="center">Transition Layer (2)</td>
-<td align="center">800x38x38 <br> 800x19x19</td>
-<td align="center">1x1 conv <br> 2x2 max pool, stride 2</td>
+<td style="text-align:center">Transition Layer (2)</td>
+<td style="text-align:center">800x38x38 <br> 800x19x19</td>
+<td style="text-align:center">1x1 conv <br> 2x2 max pool, stride 2</td>
 </tr>
 <tr>
-<td align="center">Dense Block (3)</td>
-<td align="center">1184x19x19</td>
-<td align="center">$\begin{bmatrix} 1 \times 1 &amp; conv \\ 3 \times 3 &amp; conv\end{bmatrix} \times 8$</td>
+<td style="text-align:center">Dense Block (3)</td>
+<td style="text-align:center">1184x19x19</td>
+<td style="text-align:center">$\begin{bmatrix} 1 \times 1 &amp; conv \\\\ 3 \times 3 &amp; conv\end{bmatrix} \times 8$</td>
 </tr>
 <tr>
-<td align="center">Transition w/o Pooling Layer (1)</td>
-<td align="center">1184x19x19</td>
-<td align="center">1x1 conv</td>
+<td style="text-align:center">Transition w/o Pooling Layer (1)</td>
+<td style="text-align:center">1184x19x19</td>
+<td style="text-align:center">1x1 conv</td>
 </tr>
 <tr>
-<td align="center">Dense Block (4)</td>
-<td align="center">1568x19x19</td>
-<td align="center">$\begin{bmatrix} 1 \times 1 &amp; conv \\ 3 \times 3 &amp; conv\end{bmatrix} \times 8$</td>
+<td style="text-align:center">Dense Block (4)</td>
+<td style="text-align:center">1568x19x19</td>
+<td style="text-align:center">$\begin{bmatrix} 1 \times 1 &amp; conv \\\\ 3 \times 3 &amp; conv\end{bmatrix} \times 8$</td>
 </tr>
 <tr>
-<td align="center">Transition w/o Pooling Layer (2)</td>
-<td align="center">1568x19x19</td>
-<td align="center">1x1 conv</td>
+<td style="text-align:center">Transition w/o Pooling Layer (2)</td>
+<td style="text-align:center">1568x19x19</td>
+<td style="text-align:center">1x1 conv</td>
 </tr>
 <tr>
-<td align="center">DSOD Prediction Layers</td>
-<td align="center">-</td>
-<td align="center">Plain/Dense</td>
+<td style="text-align:center">DSOD Prediction Layers</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">Plain/Dense</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <center>Table 1: DSOD 结构 </center>
 
 <p>DSOD 设计原则如下：</p>
@@ -397,7 +400,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DSOD"><span class="nav-number">2.</span> <span class="nav-text">DSOD</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#结构"><span class="nav-number">2.1.</span> <span class="nav-text">结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#无-Proposal"><span class="nav-number">2.1.1.</span> <span class="nav-text">无 Proposal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#深度监督"><span class="nav-number">2.1.2.</span> <span class="nav-text">深度监督</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stem-Block"><span class="nav-number">2.1.3.</span> <span class="nav-text">Stem Block</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#密集预测结构"><span class="nav-number">2.1.4.</span> <span class="nav-text">密集预测结构</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiments"><span class="nav-number">3.</span> <span class="nav-text">Experiments</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">4.</span> <span class="nav-text">Conclusion</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DSOD"><span class="nav-number">2.</span> <span class="nav-text">DSOD</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A0-Proposal"><span class="nav-number">2.1.1.</span> <span class="nav-text">无 Proposal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%B1%E5%BA%A6%E7%9B%91%E7%9D%A3"><span class="nav-number">2.1.2.</span> <span class="nav-text">深度监督</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stem-Block"><span class="nav-number">2.1.3.</span> <span class="nav-text">Stem Block</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%86%E9%9B%86%E9%A2%84%E6%B5%8B%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.4.</span> <span class="nav-text">密集预测结构</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiments"><span class="nav-number">3.</span> <span class="nav-text">Experiments</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">4.</span> <span class="nav-text">Conclusion</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -411,7 +414,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -424,7 +427,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

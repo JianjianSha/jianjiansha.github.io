@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -209,10 +209,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>cmake 的几个常用命令。</p>
-<a id="more"></a>
-
-<h2 id="find-program"><a href="#find-program" class="headerlink" title="find_program"></a>find_program</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">find_program (</span><br><span class="line">          &lt;VAR&gt;</span><br><span class="line">          name | NAMES name1 [name2 ...] [NAMES_PER_DIR]</span><br><span class="line">          [HINTS path1 [path2 ... ENV var]]</span><br><span class="line">          [PATHS path1 [path2 ... ENV var]]</span><br><span class="line">          [PATH_SUFFIXES suffix1 [suffix2 ...]]</span><br><span class="line">          [DOC &quot;cache documentation string&quot;]</span><br><span class="line">          [REQUIRED]</span><br><span class="line">          [NO_DEFAULT_PATH]</span><br><span class="line">          [NO_PACKAGE_ROOT_PATH]</span><br><span class="line">          [NO_CMAKE_PATH]</span><br><span class="line">          [NO_CMAKE_ENVIRONMENT_PATH]</span><br><span class="line">          [NO_SYSTEM_ENVIRONMENT_PATH]</span><br><span class="line">          [NO_CMAKE_SYSTEM_PATH]</span><br><span class="line">          [CMAKE_FIND_ROOT_PATH_BOTH |</span><br><span class="line">           ONLY_CMAKE_FIND_ROOT_PATH |</span><br><span class="line">           NO_CMAKE_FIND_ROOT_PATH]</span><br><span class="line">         )</span><br></pre></td></tr></table></figure>
+        <p>cmake 的几个常用命令。<br><span id="more"></span></p>
+<h2 id="find-program"><a href="#find-program" class="headerlink" title="find_program"></a>find_program</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">find_program (</span><br><span class="line">          &lt;VAR&gt;</span><br><span class="line">          name | NAMES name1 [name2 ...] [NAMES_PER_DIR]</span><br><span class="line">          [HINTS path1 [path2 ... ENV var]]</span><br><span class="line">          [PATHS path1 [path2 ... ENV var]]</span><br><span class="line">          [PATH_SUFFIXES suffix1 [suffix2 ...]]</span><br><span class="line">          [DOC &quot;cache documentation string&quot;]</span><br><span class="line">          [REQUIRED]</span><br><span class="line">          [NO_DEFAULT_PATH]</span><br><span class="line">          [NO_PACKAGE_ROOT_PATH]</span><br><span class="line">          [NO_CMAKE_PATH]</span><br><span class="line">          [NO_CMAKE_ENVIRONMENT_PATH]</span><br><span class="line">          [NO_SYSTEM_ENVIRONMENT_PATH]</span><br><span class="line">          [NO_CMAKE_SYSTEM_PATH]</span><br><span class="line">          [CMAKE_FIND_ROOT_PATH_BOTH |</span><br><span class="line">           ONLY_CMAKE_FIND_ROOT_PATH |</span><br><span class="line">           NO_CMAKE_FIND_ROOT_PATH]</span><br><span class="line">         )</span><br></pre></td></tr></table></figure>
 <p>简单形式为 <code>find_program (&lt;VAR&gt; name1 [path1 path2 ...])</code>。</p>
 <p>查找程序。一个缓存条目 <code>VAR</code> 存储命令结果，如果没有找到，结果为 <code>&lt;VAR&gt;-NOTFOUND</code>。</p>
 <ul>
@@ -232,16 +230,14 @@
 <h2 id="file"><a href="#file" class="headerlink" title="file"></a>file</h2><p><code>file(WRITE filename &quot;message to write&quot; ...)</code><br>将信息写如文件 <code>filename</code> 中。</p>
 <p><code>file(APPEND filename &quot;message to write&quot; ...)</code><br>将信息追加到文件末尾</p>
 <p><code>file(READ filename variable [LIMIT numBytes] [OFFSET offset] [HEX])</code><br>读取文件内容并存储到 <code>variable</code> 中。<code>HEX</code> 表示二进制数据转为为十进制。</p>
-<p><code>file({GLOB|GLOB_RECURESE} &lt;variable&gt; ... [&lt;globbing-expressions&gt;...])</code><br>根据表达式 <code>&lt;globbing-expressions&gt;</code> 匹配文件，并将文件列表保存到 <code>&lt;variable&gt;</code> 中。</p>
-<p><code>GLOB_RECURSE</code> 将会遍历匹配的目录的子目录，从而匹配文件，例：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;dir&#x2F;*.py  - match all python files in &#x2F;dir and subdirectories</span><br></pre></td></tr></table></figure>
-
+<p><code>file(&#123;GLOB|GLOB_RECURESE&#125; &lt;variable&gt; ... [&lt;globbing-expressions&gt;...])</code><br>根据表达式 <code>&lt;globbing-expressions&gt;</code> 匹配文件，并将文件列表保存到 <code>&lt;variable&gt;</code> 中。</p>
+<p><code>GLOB_RECURSE</code> 将会遍历匹配的目录的子目录，从而匹配文件，例：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/dir/*.py  - match all python files in /dir and subdirectories</span><br></pre></td></tr></table></figure></p>
 <h2 id="configure-file"><a href="#configure-file" class="headerlink" title="configure_file"></a>configure_file</h2><p><code>configure_file(&lt;input&gt; &lt;output&gt;
                [NO_SOURCE_PERMISSIONS | USE_SOURCE_PERMISSIONS |
                 FILE_PERMISSIONS &lt;permissions&gt;...]
                [COPYONLY] [ESCAPE_QUOTES] [@ONLY]
                [NEWLINE_STYLE [UNIX|DOS|WIN32|LF|CRLF] ])</code></p>
-<p>将 <code>input</code> 文件内容复制到 <code>output</code> 文件中。根据参数规则，替换 <code>@VAR@</code> 或 <code>${VAR}</code> 变量。</p>
+<p>将 <code>input</code> 文件内容复制到 <code>output</code> 文件中。根据参数规则，替换 <code>@VAR@</code> 或 <code>$&#123;VAR&#125;</code> 变量。</p>
 <p><code>&lt;input&gt;</code> 文件中 <code>#cmakedefine VAR</code> 会被替换为：</p>
 <ol>
 <li>如果 <code>VAR</code> 设置为 <code>ON</code>，那么替换为 <code>#define VAR</code></li>
@@ -249,7 +245,7 @@
 </ol>
 <p>同理，<code>#cmakedefine01 VAR</code> 则会被替换为 <code>#define VAR 1</code> 或 <code>#define VAR 0</code></p>
 <p>注：这个命令的 <code>IMMEDIATE</code> 选项已经被弃用，因为文件复制已经是立即执行。</p>
-<h2 id="内置模块"><a href="#内置模块" class="headerlink" title="内置模块"></a>内置模块</h2><p>cmake 提供了一些内置模块，可以直接 include 然后使用，参见 <a href="https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html" target="_blank" rel="noopener">这里</a></p>
+<h2 id="内置模块"><a href="#内置模块" class="headerlink" title="内置模块"></a>内置模块</h2><p>cmake 提供了一些内置模块，可以直接 include 然后使用，参见 <a target="_blank" rel="noopener" href="https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html">这里</a></p>
 
     </div>
 
@@ -330,7 +326,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#find-program"><span class="nav-number">1.</span> <span class="nav-text">find_program</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#file"><span class="nav-number">2.</span> <span class="nav-text">file</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#configure-file"><span class="nav-number">3.</span> <span class="nav-text">configure_file</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内置模块"><span class="nav-number">4.</span> <span class="nav-text">内置模块</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#find-program"><span class="nav-number">1.</span> <span class="nav-text">find_program</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#file"><span class="nav-number">2.</span> <span class="nav-text">file</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#configure-file"><span class="nav-number">3.</span> <span class="nav-text">configure_file</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E6%A8%A1%E5%9D%97"><span class="nav-number">4.</span> <span class="nav-text">内置模块</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -344,7 +340,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -357,7 +353,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

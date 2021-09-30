@@ -92,3 +92,7 @@ deploy:
 
 social:
   github: https://github.com/JianjianSha
+
+mathjax:
+  enable: true
+  per_page: true

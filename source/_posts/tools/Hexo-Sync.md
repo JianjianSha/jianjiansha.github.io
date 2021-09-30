@@ -59,6 +59,8 @@ $ git push origin hexo
 
 然后就可以去 https://shajian.github.io 浏览本地新增/修改文章内容了。
 
+通常，个人都是一直保持在 `hexo` 这个 git 分支下操作，包括 `hexo g -d` 部署到远程网站，以及上面三个命令将源码提交到远程 `hexo` 分支下。
+
 在 computer B 上删除 path/to/myblog 目录，然后重新 clone 仓库，并切换到 hexo 分支，
 ```
 $ git clone https://github/shajian/shajian.github.io.git

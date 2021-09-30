@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="示例程序 1234567&#x2F;&#x2F; hello.c#include &lt;stdio.h&gt;int main(int argc, char **argv)&amp;#123; printf(“hello world\n”); return 0;&amp;#125; 生成可执行文件1$ gcc -o hello hello.c 生成可执行文件这一过程其实是分成了很多中间步骤，下面给出关键的几个步骤。 预处理使用 -">
+  <meta name="description" content="示例程序1234567&#x2F;&#x2F; hello.c#include &lt;stdio.h&gt;int main(int argc, char **argv)&amp;#123; printf(“hello world\n”); return 0;&amp;#125; 生成可执行文件1$ gcc -o hello hello.c 生成可执行文件这一过程其实是分成了很多中间步骤，下面给出关键的几个步骤。 预处理使用 -E">
 <meta property="og:type" content="article">
 <meta property="og:title" content="GCC common usages">
 <meta property="og:url" content="https://shajianjian.github.io/2021/08/06/cpp/gcc_common_usages/index.html">
 <meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="示例程序 1234567&#x2F;&#x2F; hello.c#include &lt;stdio.h&gt;int main(int argc, char **argv)&amp;#123; printf(“hello world\n”); return 0;&amp;#125; 生成可执行文件1$ gcc -o hello hello.c 生成可执行文件这一过程其实是分成了很多中间步骤，下面给出关键的几个步骤。 预处理使用 -">
+<meta property="og:description" content="示例程序1234567&#x2F;&#x2F; hello.c#include &lt;stdio.h&gt;int main(int argc, char **argv)&amp;#123; printf(“hello world\n”); return 0;&amp;#125; 生成可执行文件1$ gcc -o hello hello.c 生成可执行文件这一过程其实是分成了很多中间步骤，下面给出关键的几个步骤。 预处理使用 -E">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shajianjian.github.io/images/cpp/C_linking_process.png">
 <meta property="article:published_time" content="2021-08-06T01:20:22.000Z">
@@ -206,18 +206,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>示例程序</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// hello.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> <span class="built_in">printf</span>(“hello world\n”);</span><br><span class="line"> <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <p>示例程序<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// hello.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> <span class="built_in">printf</span>(“hello world\n”);</span><br><span class="line"> <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <h1 id="生成可执行文件"><a href="#生成可执行文件" class="headerlink" title="生成可执行文件"></a>生成可执行文件</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -o hello hello.c</span></span><br></pre></td></tr></table></figure>
 <p>生成可执行文件这一过程其实是分成了很多中间步骤，下面给出关键的几个步骤。</p>
-<h1 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h1><p>使用 <code>-E</code> 使得预处理之后就立即停止，不进行后面的编译</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -E -o hello.pp.c hello.c</span><br></pre></td></tr></table></figure>
-
+<h1 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h1><p>使用 <code>-E</code> 使得预处理之后就立即停止，不进行后面的编译<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -E -o hello.pp.c hello.c</span><br></pre></td></tr></table></figure></p>
 <h1 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -S hello.c</span></span><br></pre></td></tr></table></figure>
 <p>此命令在编译后立即停止，不进行汇编（汇编后生成二进制文件，即目标文件）。结果生成文件 <code>hello.s</code>。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c hello.c</span></span><br></pre></td></tr></table></figure>
 <p>编译并汇编但不进行链接，生成目标 <code>hello.o</code>。</p>
-<p>gcc 命令选项可以查看 <a href="https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html" target="_blank" rel="noopener">官方文档</a>。</p>
+<p>gcc 命令选项可以查看 <a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html">官方文档</a>。</p>
 <p>编译后的目标文件有多个 section，和一个符号表：</p>
 <ol>
 <li><code>Text</code>：可执行代码 （T）</li>
@@ -227,28 +224,14 @@
 <li><code>Debug</code>：调试信息（例如，行号）</li>
 </ol>
 <p>这些条目可以通过 <code>nm</code> 或者 <code>readelf</code> 查看。</p>
-<h1 id="链接命令"><a href="#链接命令" class="headerlink" title="链接命令"></a>链接命令</h1><p>链接使用如下命令，</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -o hello hello.o</span></span><br></pre></td></tr></table></figure>
-<p>gcc 其实是调用 <code>ld</code> 讲目标文件 <code>crt1.o</code> 和我们的 <code>hello.o</code> 链接到一起，其中 <code>crt1.o</code> 为启动目标，<code>crtn.o</code> 为结束目标，<code>crt1.o</code> 包含了 <code>_start</code> 入口点，其中会调用 <code>main</code> 函数，执行我们所实现的函数主体。这可以通过 <code>nm</code> 查看，</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nm /usr/lib/x86_64-linux-gnu/crt1.o</span></span><br></pre></td></tr></table></figure>
-<p>其中会有 <code>U main</code> 这一行，表示 <code>main</code> 这个符号未定义，这是由我们自己实现 <code>main</code> 函数。</p>
-<p>其实还有 <code>crti.o</code> 目标文件也会链接进入，这个目标文件中实现了 <code>_init</code> 和 <code>_finit</code> 函数，分别在 <code>main</code> 函数之前和 之后执行。<br><img src="/images/cpp/C_linking_process.png" alt=""><center>C 程序链接过程 参考<a href="https://akaedu.github.io/book/ch19s02.html" target="_blank" rel="noopener">文章</a></center></p>
-<h1 id="静态库"><a href="#静态库" class="headerlink" title="静态库"></a>静态库</h1><p>使用 <code>ar</code> 命令生成静态库，静态库是有着全局符号表的目标文件的集合。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ar crv libhello.a hello.o</span></span><br></pre></td></tr></table></figure>
-<p>关于 <code>ar</code> 命令的更多介绍可参考<a href="https://linux.die.net/man/1/ar" target="_blank" rel="noopener">这篇文章</a></p>
+<h1 id="链接命令"><a href="#链接命令" class="headerlink" title="链接命令"></a>链接命令</h1><p>链接使用如下命令，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -o hello hello.o</span></span><br></pre></td></tr></table></figure><br>gcc 其实是调用 <code>ld</code> 讲目标文件 <code>crt1.o</code> 和我们的 <code>hello.o</code> 链接到一起，其中 <code>crt1.o</code> 为启动目标，<code>crtn.o</code> 为结束目标，<code>crt1.o</code> 包含了 <code>_start</code> 入口点，其中会调用 <code>main</code> 函数，执行我们所实现的函数主体。这可以通过 <code>nm</code> 查看，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nm /usr/lib/x86_64-linux-gnu/crt1.o</span></span><br></pre></td></tr></table></figure><br>其中会有 <code>U main</code> 这一行，表示 <code>main</code> 这个符号未定义，这是由我们自己实现 <code>main</code> 函数。</p>
+<p>其实还有 <code>crti.o</code> 目标文件也会链接进入，这个目标文件中实现了 <code>_init</code> 和 <code>_finit</code> 函数，分别在 <code>main</code> 函数之前和 之后执行。<br><img src="/images/cpp/C_linking_process.png" alt=""><center>C 程序链接过程 参考[文章](https://akaedu.github.io/book/ch19s02.html)</center></p>
+<h1 id="静态库"><a href="#静态库" class="headerlink" title="静态库"></a>静态库</h1><p>使用 <code>ar</code> 命令生成静态库，静态库是有着全局符号表的目标文件的集合。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ar crv libhello.a hello.o</span></span><br></pre></td></tr></table></figure><br>关于 <code>ar</code> 命令的更多介绍可参考<a target="_blank" rel="noopener" href="https://linux.die.net/man/1/ar">这篇文章</a></p>
 <p>当链接到一个静态库时，目标代码拷贝进最终的可执行体，所有的符号地址重新计算。</p>
-<p>静态库抽取出目标文件，</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ar -x libhello.a</span></span><br></pre></td></tr></table></figure>
-
+<p>静态库抽取出目标文件，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ar -x libhello.a</span></span><br></pre></td></tr></table></figure></p>
 <h1 id="动态库"><a href="#动态库" class="headerlink" title="动态库"></a>动态库</h1><p>动态库比静态库更接近于可执行体（executable），动态库相当于 executable 少了 <code>main</code> 函数，而静态库相当于多个目标文件的打包。</p>
-<p>生成动态库命令，</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -fPIC -c hello.c</span></span><br></pre></td></tr></table></figure>
-<p>这里不能链接，否则编译器会报错：<code>main</code> 函数未定义。</p>
-<p>然后链接生成动态库，</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ld -shared hello.o -o libhello.so</span></span><br></pre></td></tr></table></figure>
-<p>我们也可以直接一步生成动态库，</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -shared -fPIC -o hello.c</span><br></pre></td></tr></table></figure>
-
+<p>生成动态库命令，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -fPIC -c hello.c</span></span><br></pre></td></tr></table></figure><br>这里不能链接，否则编译器会报错：<code>main</code> 函数未定义。</p>
+<p>然后链接生成动态库，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ld -shared hello.o -o libhello.so</span></span><br></pre></td></tr></table></figure><br>我们也可以直接一步生成动态库，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -shared -fPIC -o hello.c</span><br></pre></td></tr></table></figure></p>
 <h1 id="链接过程"><a href="#链接过程" class="headerlink" title="链接过程"></a>链接过程</h1><p>链接器分为静态链接器和动态（运行时）链接器。</p>
 <ol>
 <li>静态链接器 static linker 负责生成 shared library 和 executable，linux 上为 <code>ld</code>，google 还提供了一个替代 <code>gold</code>。</li>
@@ -353,7 +336,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#生成可执行文件"><span class="nav-number">1.</span> <span class="nav-text">生成可执行文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#预处理"><span class="nav-number">2.</span> <span class="nav-text">预处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译"><span class="nav-number">3.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#链接命令"><span class="nav-number">4.</span> <span class="nav-text">链接命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#静态库"><span class="nav-number">5.</span> <span class="nav-text">静态库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#动态库"><span class="nav-number">6.</span> <span class="nav-text">动态库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#链接过程"><span class="nav-number">7.</span> <span class="nav-text">链接过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#搜索路径"><span class="nav-number">7.1.</span> <span class="nav-text">搜索路径</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">生成可执行文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A2%84%E5%A4%84%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">预处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E8%AF%91"><span class="nav-number">3.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E5%91%BD%E4%BB%A4"><span class="nav-number">4.</span> <span class="nav-text">链接命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9D%99%E6%80%81%E5%BA%93"><span class="nav-number">5.</span> <span class="nav-text">静态库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E5%BA%93"><span class="nav-number">6.</span> <span class="nav-text">动态库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B"><span class="nav-number">7.</span> <span class="nav-text">链接过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%90%9C%E7%B4%A2%E8%B7%AF%E5%BE%84"><span class="nav-number">7.1.</span> <span class="nav-text">搜索路径</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -367,7 +350,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -380,7 +363,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

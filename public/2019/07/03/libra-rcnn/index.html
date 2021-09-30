@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -217,8 +217,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>论文 <a href="https://arxiv.org/abs/1904.02701" target="_blank" rel="noopener">Libra R-CNN: Towards Balanced Learning for Object Detection</a></p>
-<a id="more"></a>
+        <p>论文 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1904.02701">Libra R-CNN: Towards Balanced Learning for Object Detection</a><br><span id="more"></span></p>
 <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>当前大多数目标检测器无论是 one-stage 还是 two-stage，其训练范式都是 image 上区域选择（以下使用原英文单词 Region 表示），从 region 抽取特征，以及联合目标分类和定位的多任务目标函数优化。基于此训练范式，有如下三点关于训练是否成功：</p>
 <ol>
 <li>所选 region 是否具有代表性</li>
@@ -241,50 +240,53 @@
 <p>其中所有组件的详细介绍如下。</p>
 <h2 id="IoU-balanced-Sampling"><a href="#IoU-balanced-Sampling" class="headerlink" title="IoU-balanced Sampling"></a>IoU-balanced Sampling</h2><p>首先一个基本问题是：训练样本 region 和其对应的 gt box 之间的重合与此样本的难易程度是否有关联？图 3 显示了三种 region 采样的 IoU 分布，<br><img src="/images/libra-rcnn_fig3.png" alt=""></p>
 <p>我们仅考虑难负例，因为难负例是上文我们分析的关键三点之一。从图 3 中可见超过 60% 的难负例有大于 0.05 的 IoU（因为图 3 中橙色部分 IoU 低于 0.05 的占比大约为 37%），而随机采样时仅仅有大约 30% 的训练样本其 IoU 大于 0.05，这意味着如果随机采样会得到很多 IoU 位于 [0,0.05) 区间的样本，而分布在这个区间的难负例样本较少，所以随机采样会得到很多简单样本。</p>
-<p>受以上结论启发，我们提出 IoU-balanced 采样：既然难负例分布在各个 IoU 区间，那么我们就对各个 IoU 区间分别采样。假设从 M 个候选中选出 N 个负样本，随机采样下每个样本被选择的概率为<br>$$p=\frac N M$$</p>
-<p>为了提高选择难负例的概率，根据 IoU 将采样区间等分成 K 个桶，从每个桶中选择 N/K 个负样本，于是在 IoU-balanced sampling 下，第 k 个桶中每个样本被选择的概率为<br>$$p_k=\frac N K \cdot \frac 1 {M_k}, \ k \in [0,K)$$<br>其中，$M_k$ 是第 k 个桶中的样例候选数量。实验中 K=3。</p>
+<p>受以上结论启发，我们提出 IoU-balanced 采样：既然难负例分布在各个 IoU 区间，那么我们就对各个 IoU 区间分别采样。假设从 M 个候选中选出 N 个负样本，随机采样下每个样本被选择的概率为</p>
+<script type="math/tex; mode=display">p=\frac N M</script><p>为了提高选择难负例的概率，根据 IoU 将采样区间等分成 K 个桶，从每个桶中选择 N/K 个负样本，于是在 IoU-balanced sampling 下，第 k 个桶中每个样本被选择的概率为</p>
+<script type="math/tex; mode=display">p_k=\frac N K \cdot \frac 1 {M_k}, \ k \in [0,K)</script><p>其中，$M_k$ 是第 k 个桶中的样例候选数量。实验中 K=3。</p>
 <p>IoU-balanced sampling 结果如图 3，可以看到使用这种采样方式得到的训练样本分布与难负例的分布非常接近。采样候选数量不足，这种采样方法难以扩展到正例采样，为了得到均衡采样过程，使用一种替换方案：对每个 gt box 我们进行数量相等的采样。</p>
 <h3 id="SOURCE-CODE"><a href="#SOURCE-CODE" class="headerlink" title="SOURCE CODE"></a>SOURCE CODE</h3><p>经过阅读源码，本人总结 IoU balanced sampling 负例采样过程为：</p>
 <ol>
-<li><p>获取所有 proposals 的最大 IoU，记为 <code>max_overlaps</code></p>
-</li>
-<li><p>获取所有 proposals 的最大 IoU 的最大值，<code>max_iou=max_overlaps.max()</code></p>
-</li>
-<li><p>设置阈值下限 <code>floor_thr</code>，对 <code>(floor_thr, max_iou)</code> 范围内的 proposals 进行 IoU balanced sampling</p>
-</li>
-<li><p>设置桶（bin）数量 K，假设所需要的负例数量为 N，对每个桶采样数量为 N/K，每个桶的 IoU 范围跨度为 <code>(max_iou-floor_thr)/K</code></p>
-</li>
-<li><p>对于第 k 个桶，计算对应的 IoU 范围，记为 <code>[sk,ek)</code></p>
-</li>
-<li><p>获取第 k 个桶内的 proposals 的 index</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmp_set = np.where(np.logical_and(max_overlaps&gt;=sk, max_overlaps&lt;ek))[<span class="number">0</span>]</span><br></pre></td></tr></table></figure></li>
-<li><p>获取第 k 个桶内的负例的 index</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmp_inds = list(tmp_set &amp; full_set) <span class="comment"># full_set 为 floor_thr&lt;iou&lt;0.5  proposals 的 index</span></span><br></pre></td></tr></table></figure></li>
-<li><p>从第 7 步中得到的第 k 个桶中所有负例的 index，在随机抽取 N/K 个负例</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">random_choice(tmp_inds, N/K)</span><br></pre></td></tr></table></figure>
-<p>IoU balanced sampling 正例采样过程：</p>
-</li>
-<li><p>获取正例 proposals 所对应的 gt 的 index，记为 <code>gt_inds</code></p>
-</li>
+<li>获取所有 proposals 的最大 IoU，记为 <code>max_overlaps</code></li>
+<li>获取所有 proposals 的最大 IoU 的最大值，<code>max_iou=max_overlaps.max()</code></li>
+<li>设置阈值下限 <code>floor_thr</code>，对 <code>(floor_thr, max_iou)</code> 范围内的 proposals 进行 IoU balanced sampling</li>
+<li>设置桶（bin）数量 K，假设所需要的负例数量为 N，对每个桶采样数量为 N/K，每个桶的 IoU 范围跨度为 <code>(max_iou-floor_thr)/K</code></li>
+<li>对于第 k 个桶，计算对应的 IoU 范围，记为 <code>[sk,ek)</code></li>
+<li>获取第 k 个桶内的 proposals 的 index<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmp_set = np.where(np.logical_and(max_overlaps&gt;=sk, max_overlaps&lt;ek))[<span class="number">0</span>]</span><br></pre></td></tr></table></figure></li>
+<li>获取第 k 个桶内的负例的 index<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmp_inds = <span class="built_in">list</span>(tmp_set &amp; full_set) <span class="comment"># full_set 为 floor_thr&lt;iou&lt;0.5  proposals 的 index</span></span><br></pre></td></tr></table></figure></li>
+<li>从第 7 步中得到的第 k 个桶中所有负例的 index，在随机抽取 N/K 个负例<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">random_choice(tmp_inds, N/K)</span><br></pre></td></tr></table></figure>
+IoU balanced sampling 正例采样过程：</li>
+<li>获取正例 proposals 所对应的 gt 的 index，记为 <code>gt_inds</code></li>
 <li><p>将第 1 步的结果去重，<code>unique_gt_inds=gt_inds.unique()</code>，得到所有 gt 的 index</p>
 <p>为什么说是所有 gt 呢？因为所有 gt 均作为正例被添加到正例 proposals 中</p>
 </li>
-<li><p>所有 gt 的数量为 <code>num_gts=len(unique_gt_indx)</code>，假设总共要采样 N 个正例，以每个 gt 为中心，均需要采样 <code>num_per_gt=N/num_gts</code> 个正例</p>
-</li>
-<li><p>对于第 i 个 gt，获取与其匹配的所有正例，并从中随机选择 <code>num_per_gt</code> 个正例</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">inds = torch.nonzero(assign_result.gt_inds == i.item())</span><br><span class="line">inds = random_choice(inds, num_per_gt)</span><br></pre></td></tr></table></figure>
-<p>以上采样过程均经过简化，如需彻底理解细节问题则直接阅读源码</p>
-</li>
+<li>所有 gt 的数量为 <code>num_gts=len(unique_gt_indx)</code>，假设总共要采样 N 个正例，以每个 gt 为中心，均需要采样 <code>num_per_gt=N/num_gts</code> 个正例</li>
+<li>对于第 i 个 gt，获取与其匹配的所有正例，并从中随机选择 <code>num_per_gt</code> 个正例<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">inds = torch.nonzero(assign_result.gt_inds == i.item())</span><br><span class="line">inds = random_choice(inds, num_per_gt)</span><br></pre></td></tr></table></figure>
+以上采样过程均经过简化，如需彻底理解细节问题则直接阅读源码</li>
 </ol>
 <h2 id="Balanced-Feature-Pyramid"><a href="#Balanced-Feature-Pyramid" class="headerlink" title="Balanced Feature Pyramid"></a>Balanced Feature Pyramid</h2><p>使用 <strong>相同深度</strong> 合并到一起的均衡语义特征来加强 multi-level features，如图 4，特征经过四个步骤：尺度缩放、整合、精修和加强。<br><img src="/images/libra-rcnn_fig4.png" alt=""></p>
-<h3 id="获取均衡语义特征"><a href="#获取均衡语义特征" class="headerlink" title="获取均衡语义特征"></a>获取均衡语义特征</h3><p>记 l 层级的特征为 $C_l$，层级数量为 L。最低层和最高层分别记为 $l_{min}, l_{max}$。如图 4，将所有层级的特征 ${C_2,C_3,C_4,C_5}$ resize 到一个中间大小即 $C_4$ 的大小，resize 操作使用插值或者最大值池化实现，所有特征经过尺度缩放后，均衡语义特征可由下式获得，<br>$$C=\frac 1 L \sum_{l_{min}}^{l_{max}} C_l$$</p>
-<p>这个均衡语义特征可经过相反的 rescale 操作来加强各自原始特征（图 4 中的 Identity）。</p>
+<h3 id="获取均衡语义特征"><a href="#获取均衡语义特征" class="headerlink" title="获取均衡语义特征"></a>获取均衡语义特征</h3><p>记 l 层级的特征为 $C_l$，层级数量为 L。最低层和最高层分别记为 $l_{min}, l_{max}$。如图 4，将所有层级的特征 $\{C_2,C_3,C_4,C_5\}$ resize 到一个中间大小即 $C_4$ 的大小，resize 操作使用插值或者最大值池化实现，所有特征经过尺度缩放后，均衡语义特征可由下式获得，</p>
+<script type="math/tex; mode=display">C=\frac 1 L \sum_{l_{min}}^{l_{max}} C_l</script><p>这个均衡语义特征可经过相反的 rescale 操作来加强各自原始特征（图 4 中的 Identity）。</p>
 <h3 id="精修均衡语义特征"><a href="#精修均衡语义特征" class="headerlink" title="精修均衡语义特征"></a>精修均衡语义特征</h3><p>进一步精修均衡语义特征使其更具判别力。使用嵌入的高斯 non-local 注意力机制[2]精修均衡语义特征。</p>
-<p>Balanced feature pyramid ${P_2,P_3,P_4,P_5}$ 可用于目标检测，检测网络结构与 FPN 的一致。</p>
-<h2 id="Balanced-L1-Loss"><a href="#Balanced-L1-Loss" class="headerlink" title="Balanced L1 Loss"></a>Balanced L1 Loss</h2><p>遵循 Fast R-CNN 中的分类和目标定位的损失，定义如下，<br>$$L_{p,u,t^u,v}=L_{cls}(p,u) + \lambda [u\ge 1] L_{loc}(t^u,v)$$<br>上式为单个样本的损失，其中，预测和 target 分别记为 p 和 u。t<sup>u</sup> 表示回归预测，v 表示回归 target。$\lambda$ 为平衡系数。我们称损失大于等于 1.0 的样本为外点 outliers，损失小于 1.0 的样本为内点 inliers。</p>
+<p>Balanced feature pyramid $\{P_2,P_3,P_4,P_5\}$ 可用于目标检测，检测网络结构与 FPN 的一致。</p>
+<h2 id="Balanced-L1-Loss"><a href="#Balanced-L1-Loss" class="headerlink" title="Balanced L1 Loss"></a>Balanced L1 Loss</h2><p>遵循 Fast R-CNN 中的分类和目标定位的损失，定义如下，</p>
+<script type="math/tex; mode=display">L_{p,u,t^u,v}=L_{cls}(p,u) + \lambda [u\ge 1] L_{loc}(t^u,v)</script><p>上式为单个样本的损失，其中，预测和 target 分别记为 p 和 u。t<sup>u</sup> 表示回归预测，v 表示回归 target。$\lambda$ 为平衡系数。我们称损失大于等于 1.0 的样本为外点 outliers，损失小于 1.0 的样本为内点 inliers。</p>
 <p>由于回归 target 值是无界的，如果直接增大 $\lambda$ 会使得模型对 outliers 更为敏感，outliers 可以视作困难样本（困难样本可以认为是误差较大的样本），由于较大的损失使得梯度也较大，这对训练过程是不利的。Inliers 可以看作简单样本，与 outliers 相比，其梯度贡献较小，具体而言，inliers 平均每个样本仅贡献了 30% 的梯度，基于这些考虑，我们提出均衡 L1 损失，从传统的 smooth L1 损失演变而来，记为 $L_b$。设置一个拐点分离 inliers 和 outliers，并使用最大值 1.0 来剃平 outliers 的较大梯度，如图 5(a) 所示,<br><img src="/images/libra-rcnn_fig5.png" alt=""><center>横坐标 regression error 为 |x|，参见下文中的说明</center></p>
-<p>均衡 L1 损失的核心思想是提升关键的回归梯度，也就是来自 inliers 的梯度，使得所有样本的所有任务的梯度达到平衡。使用均衡 L1 损失的定位损失为，<br>$$L_{loc}=\sum_{i \in {x,y,w,h}} L_b (t_i^u-v_i)$$<br>相关的梯度满足，<br>$$\frac {\partial L_{loc}} {\partial w} \propto \frac {\partial L_b} {\partial t_i^u} \propto \frac {L_b} x$$<br>上式中，w 表示网络权重参数（我是这么认为的），x 表示 $t_i^u - v_i$，因为 smooth L1 损失就是这么表示的，回顾一下 smooth L1 损失，其定义如下，<br>$$L_{loc}(t^u, v) = \sum_{x,y,w,h} smooth_{L_1} (t_i^u-v_i)$$<br>其中，<br>$$smooth_{L_1}(x)=\begin{cases} 0.5 x^2 &amp; |x|&lt;1<br>\\ |x|-0.5 &amp; otherwise \end{cases}$$<br>于是 smooth L1 损失对应的梯度为，<br>$$\frac {\partial L_1} {\partial |x|} = \begin{cases} |x| &amp; |x|&lt;1<br>\\ 1 &amp; |x| \ge 1 \end{cases}$$<br>我们将 |x| 看作是回归误差（regression error），显然误差总是非负的。现在，我们要想提升 inliers 的梯度，也就是 |x|&lt;1  的梯度（因为 |x|&lt;1 表示样本损失较小），首先对于 smooth L1 损失在 |x|&lt;1 范围内的梯度为 $\nabla_{|x|} L = |x|$ 也就是一条经过 (0,0) 和 (1,1) 的线段，要提高这个范围内的梯度，很自然的想法是位于直线 y=x 上方的曲线，当然曲线必须要经过原点(0,0)，表示预测与 target 相等即误差为零时损失也为零，为了与 $|x| \ge 1$ 的梯度保持连续，梯度曲线仍然经过 (1,1) 点，同时还要保持单调递增，这说明曲线是 <strong>上凹</strong> 的，满足这些特性的一组曲线其函数为，<br>$$\frac {\partial L_b} {\partial x} = \begin{cases} \alpha \ln (b|x|+1) &amp; |x|&lt;1<br>\\ \gamma &amp; otherwise \end{cases}$$<br>其中 $\alpha$ 越小，对 inliers 的梯度提升越大，$\gamma$ 控制 outliers 的梯度，或者说整个梯度的上限，$\gamma$ 参数用于平衡回归损失和分类损失，平衡后的梯度曲线如图 5(a)所示。参数 b 则用于确保损失在 |x|=1 处连续，对梯度积分得到损失函数为，<br>$$L_b(x)=\begin{cases} \frac \alpha b (b|x|+1) \ln (b|x|+1) - \alpha |x| &amp; |x| &lt; 1<br>\\ \gamma |x| + C &amp; otherwise \end{cases}$$<br>根据损失在 |x|=1 处连续，得到<br>$$\frac \alpha b (b+1) \ln (b+1) - \alpha=(\alpha + \frac \alpha b) \ln(b+1) -\alpha = \gamma + C$$<br>由于 C 可以是任意常数，所以可令 $C=\frac \alpha b \ln(b+1) -\alpha$，于是有<br>$$\alpha \ln (b+1)=\gamma$$<br>解得，<br>$$b=e^{\gamma / \alpha} -1<br>\\ C=\gamma/b-\alpha$$</p>
-<p>损失函数曲线如图 5(b) 所示。</p>
+<p>均衡 L1 损失的核心思想是提升关键的回归梯度，也就是来自 inliers 的梯度，使得所有样本的所有任务的梯度达到平衡。使用均衡 L1 损失的定位损失为，</p>
+<script type="math/tex; mode=display">L_{loc}=\sum_{i \in \{x,y,w,h\}} L_b (t_i^u-v_i)</script><p>相关的梯度满足，</p>
+<script type="math/tex; mode=display">\frac {\partial L_{loc}} {\partial w} \propto \frac {\partial L_b} {\partial t_i^u} \propto \frac {L_b} x</script><p>上式中，w 表示网络权重参数（我是这么认为的），x 表示 $t_i^u - v_i$，因为 smooth L1 损失就是这么表示的，回顾一下 smooth L1 损失，其定义如下，</p>
+<script type="math/tex; mode=display">L_{loc}(t^u, v) = \sum_{x,y,w,h} smooth_{L_1} (t_i^u-v_i)</script><p>其中，</p>
+<script type="math/tex; mode=display">smooth_{L_1}(x)=\begin{cases} 0.5 x^2 & |x|<1
+\\\\ |x|-0.5 & otherwise \end{cases}</script><p>于是 smooth L1 损失对应的梯度为，</p>
+<script type="math/tex; mode=display">\frac {\partial L_1} {\partial |x|} = \begin{cases} |x| & |x|<1
+\\\\ 1 & |x| \ge 1 \end{cases}</script><p>我们将 |x| 看作是回归误差（regression error），显然误差总是非负的。现在，我们要想提升 inliers 的梯度，也就是 |x|&lt;1  的梯度（因为 |x|&lt;1 表示样本损失较小），首先对于 smooth L1 损失在 |x|&lt;1 范围内的梯度为 $\nabla_{|x|} L = |x|$ 也就是一条经过 (0,0) 和 (1,1) 的线段，要提高这个范围内的梯度，很自然的想法是位于直线 y=x 上方的曲线，当然曲线必须要经过原点(0,0)，表示预测与 target 相等即误差为零时损失也为零，为了与 $|x| \ge 1$ 的梯度保持连续，梯度曲线仍然经过 (1,1) 点，同时还要保持单调递增，这说明曲线是 <strong>上凹</strong> 的，满足这些特性的一组曲线其函数为，</p>
+<script type="math/tex; mode=display">\frac {\partial L_b} {\partial x} = \begin{cases} \alpha \ln (b|x|+1) & |x|<1
+\\\\ \gamma & otherwise \end{cases}</script><p>其中 $\alpha$ 越小，对 inliers 的梯度提升越大，$\gamma$ 控制 outliers 的梯度，或者说整个梯度的上限，$\gamma$ 参数用于平衡回归损失和分类损失，平衡后的梯度曲线如图 5(a)所示。参数 b 则用于确保损失在 |x|=1 处连续，对梯度积分得到损失函数为，</p>
+<script type="math/tex; mode=display">L_b(x)=\begin{cases} \frac \alpha b (b|x|+1) \ln (b|x|+1) - \alpha |x| & |x| < 1
+\\\\ \gamma |x| + C & otherwise \end{cases}</script><p>根据损失在 |x|=1 处连续，得到</p>
+<script type="math/tex; mode=display">\frac \alpha b (b+1) \ln (b+1) - \alpha=(\alpha + \frac \alpha b) \ln(b+1) -\alpha = \gamma + C</script><p>由于 C 可以是任意常数，所以可令 $C=\frac \alpha b \ln(b+1) -\alpha$，于是有</p>
+<script type="math/tex; mode=display">\alpha \ln (b+1)=\gamma</script><p>解得，</p>
+<script type="math/tex; mode=display">b=e^{\gamma / \alpha} -1
+\\\\ C=\gamma/b-\alpha</script><p>损失函数曲线如图 5(b) 所示。</p>
 <h1 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h1><p>实验部分略</p>
 <h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>提出了 Libra R-CNN，包含三点：</p>
 <ol>
@@ -379,7 +381,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#样本不平衡"><span class="nav-number">1.1.</span> <span class="nav-text">样本不平衡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特征不平衡"><span class="nav-number">1.2.</span> <span class="nav-text">特征不平衡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优化目标不平衡"><span class="nav-number">1.3.</span> <span class="nav-text">优化目标不平衡</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Methodology"><span class="nav-number">2.</span> <span class="nav-text">Methodology</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#IoU-balanced-Sampling"><span class="nav-number">2.1.</span> <span class="nav-text">IoU-balanced Sampling</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SOURCE-CODE"><span class="nav-number">2.1.1.</span> <span class="nav-text">SOURCE CODE</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Balanced-Feature-Pyramid"><span class="nav-number">2.2.</span> <span class="nav-text">Balanced Feature Pyramid</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#获取均衡语义特征"><span class="nav-number">2.2.1.</span> <span class="nav-text">获取均衡语义特征</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#精修均衡语义特征"><span class="nav-number">2.2.2.</span> <span class="nav-text">精修均衡语义特征</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Balanced-L1-Loss"><span class="nav-number">2.3.</span> <span class="nav-text">Balanced L1 Loss</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiments"><span class="nav-number">3.</span> <span class="nav-text">Experiments</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">4.</span> <span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B7%E6%9C%AC%E4%B8%8D%E5%B9%B3%E8%A1%A1"><span class="nav-number">1.1.</span> <span class="nav-text">样本不平衡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E4%B8%8D%E5%B9%B3%E8%A1%A1"><span class="nav-number">1.2.</span> <span class="nav-text">特征不平衡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E7%9B%AE%E6%A0%87%E4%B8%8D%E5%B9%B3%E8%A1%A1"><span class="nav-number">1.3.</span> <span class="nav-text">优化目标不平衡</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Methodology"><span class="nav-number">2.</span> <span class="nav-text">Methodology</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#IoU-balanced-Sampling"><span class="nav-number">2.1.</span> <span class="nav-text">IoU-balanced Sampling</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SOURCE-CODE"><span class="nav-number">2.1.1.</span> <span class="nav-text">SOURCE CODE</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Balanced-Feature-Pyramid"><span class="nav-number">2.2.</span> <span class="nav-text">Balanced Feature Pyramid</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E5%9D%87%E8%A1%A1%E8%AF%AD%E4%B9%89%E7%89%B9%E5%BE%81"><span class="nav-number">2.2.1.</span> <span class="nav-text">获取均衡语义特征</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B2%BE%E4%BF%AE%E5%9D%87%E8%A1%A1%E8%AF%AD%E4%B9%89%E7%89%B9%E5%BE%81"><span class="nav-number">2.2.2.</span> <span class="nav-text">精修均衡语义特征</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Balanced-L1-Loss"><span class="nav-number">2.3.</span> <span class="nav-text">Balanced L1 Loss</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiments"><span class="nav-number">3.</span> <span class="nav-text">Experiments</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">4.</span> <span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -393,7 +395,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -406,7 +408,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -213,9 +213,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>论文 <a href="https://arxiv.org/abs/1804.06215" target="_blank" rel="noopener">DetNet: A Backbone network for Object Detection</a></p>
-<a id="more"></a>
-<p>本文创作动机是当前大多数的目标检测器都是在 ImageNet 上预训练后 finetune 到目标检测集，目标检测器的 backbone 原本是为了图像分类任务而设计的，这样的 backbone 显然不是最佳的，较大的下采样率带来较大的感受野 RF，这对图像分类是有益的，对目标检测尤其是小目标而言则是不利的，所以像 FPN 和 RetinaNet 就使用了额外的网络结构（extra stage）来处理目标的多尺度问题，但是这总归不是一个优雅的解决办法，所以本文提出了 DetNet，这是一个专为目标检测而设计的新型 backbone。</p>
+        <p>论文 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1804.06215">DetNet: A Backbone network for Object Detection</a><br><span id="more"></span><br>本文创作动机是当前大多数的目标检测器都是在 ImageNet 上预训练后 finetune 到目标检测集，目标检测器的 backbone 原本是为了图像分类任务而设计的，这样的 backbone 显然不是最佳的，较大的下采样率带来较大的感受野 RF，这对图像分类是有益的，对目标检测尤其是小目标而言则是不利的，所以像 FPN 和 RetinaNet 就使用了额外的网络结构（extra stage）来处理目标的多尺度问题，但是这总归不是一个优雅的解决办法，所以本文提出了 DetNet，这是一个专为目标检测而设计的新型 backbone。</p>
 <p>DetNet 保持了 FPN 中的额外网络结构（extra stage），毕竟是目标的多尺度问题的一个较为不错的解决方案。与 FPN 等基于 ImageNet 预训练的目标检测器不同的是，DetNet 的深层依然有较高的空间分辨率，不过考虑到高分辨率与计算资源的矛盾，我们采用了一种低复杂度的 dilated bottleneck 结构。</p>
 <h1 id="DetNet"><a href="#DetNet" class="headerlink" title="DetNet"></a>DetNet</h1><p>如图 1(A) 是 FPN 的部分网络结构，图像分类任务和目标分类任务本身就存在很大的不同，并且基于此结构的模型训练还存在以下问题：<br><img src="/images/DetNet_fig1.png" alt=""><center>A. 具有传统的 backbone 的 FPN 结构；B. 图像分类中传统的 backbone；C. DetNet 的 backbone，比 FPN 的分辨率高</center></p>
 <ol>
@@ -229,40 +227,44 @@
 <li>即使 stage 的数量很多，如 6~7 个 stage，对于 deep layer，在保持较大感受野（有利于分类）的同时有较大的分辨率（有利于目标定位）。</li>
 </ol>
 <h2 id="DetNet-设计"><a href="#DetNet-设计" class="headerlink" title="DetNet 设计"></a>DetNet 设计</h2><p>使用 ResNet-50 作为 baseline。在 ResNet-50 的基础之上构建 DetNet-59（类似地也可以在 ResNet-101 基础上构建 DetNet，在本文中这不是重点）。DetNet 的 stage 1,2,3,4 与 ResNet-50 的 stage 1,2,3,4 完全相同。这里给出 ResNet-50 前四个 stage 的结构描述，</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">ResNet</th>
-<th align="center">output size</th>
-<th align="center">50-layer</th>
+<th style="text-align:center">ResNet</th>
+<th style="text-align:center">output size</th>
+<th style="text-align:center">50-layer</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">conv1</td>
-<td align="center">112x112</td>
-<td align="center">7x7,64, stride 2</td>
+<tbody>
+<tr>
+<td style="text-align:center">conv1</td>
+<td style="text-align:center">112x112</td>
+<td style="text-align:center">7x7,64, stride 2</td>
 </tr>
 <tr>
-<td align="center">maxpool</td>
-<td align="center">56x56</td>
-<td align="center">3x3, stride 2</td>
+<td style="text-align:center">maxpool</td>
+<td style="text-align:center">56x56</td>
+<td style="text-align:center">3x3, stride 2</td>
 </tr>
 <tr>
-<td align="center">conv2_x</td>
-<td align="center">56x56</td>
-<td align="center">$\begin{bmatrix} 1 \times 1 &amp; 64 \\ 3 \times 3 &amp; 64 \\ 1 \times 1 &amp; 256\end{bmatrix} \times 3$</td>
+<td style="text-align:center">conv2_x</td>
+<td style="text-align:center">56x56</td>
+<td style="text-align:center">$\begin{bmatrix} 1 \times 1 &amp; 64 \\\\ 3 \times 3 &amp; 64 \\\\ 1 \times 1 &amp; 256\end{bmatrix} \times 3$</td>
 </tr>
 <tr>
-<td align="center">conv3_x</td>
-<td align="center">28x28</td>
-<td align="center">$\begin{bmatrix} 1 \times 1 &amp; 128 \\ 3 \times 3 &amp; 128 \\ 1 \times 1 &amp; 512\end{bmatrix} \times 4$</td>
+<td style="text-align:center">conv3_x</td>
+<td style="text-align:center">28x28</td>
+<td style="text-align:center">$\begin{bmatrix} 1 \times 1 &amp; 128 \\\\ 3 \times 3 &amp; 128 \\\\ 1 \times 1 &amp; 512\end{bmatrix} \times 4$</td>
 </tr>
 <tr>
-<td align="center">conv4_x</td>
-<td align="center">14x14</td>
-<td align="center">$\begin{bmatrix} 1 \times 1 &amp; 256 \\ 3 \times 3 &amp; 256 \\ 1 \times 1 &amp; 1024\end{bmatrix} \times 6$</td>
+<td style="text-align:center">conv4_x</td>
+<td style="text-align:center">14x14</td>
+<td style="text-align:center">$\begin{bmatrix} 1 \times 1 &amp; 256 \\\\ 3 \times 3 &amp; 256 \\\\ 1 \times 1 &amp; 1024\end{bmatrix} \times 6$</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>从第五个 stage 开始介绍 DetNet，如图 2 D 所示，DetNet-59 的设计细节如下：<br><img src="/images/DetNet_fig2.png" alt=""><center>fig 2. DetNet 的结构细节</center></p>
 <ol>
 <li>从上图中可见，我们在 backbone 中引入了 extra stage，即 P6，与 FPN 中一样，也是用于目标检测，只不过，从 stage 4 开始，我们就固定了步幅 16，即每个 stage 的输出空间大小。</li>
@@ -354,7 +356,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DetNet"><span class="nav-number">1.</span> <span class="nav-text">DetNet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#DetNet-设计"><span class="nav-number">1.1.</span> <span class="nav-text">DetNet 设计</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实验"><span class="nav-number">2.</span> <span class="nav-text">实验</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DetNet"><span class="nav-number">1.</span> <span class="nav-text">DetNet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#DetNet-%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.1.</span> <span class="nav-text">DetNet 设计</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">2.</span> <span class="nav-text">实验</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -368,7 +370,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -381,7 +383,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

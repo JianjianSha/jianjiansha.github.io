@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -209,48 +209,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>介绍使用 jupyter-book 写博客（通常是一个在线电子书）的方法。</p>
-<a id="more"></a>
-
-<p>Jupyter Book <a href="https://jupyterbook.org/start/overview.html" target="_blank" rel="noopener">官方文档</a></p>
-<p>另一个文档在<a href="https://predictablynoisy.com/jupyter-book/guide/01_overview" target="_blank" rel="noopener">这里</a>。</p>
+        <p>介绍使用 jupyter-book 写博客（通常是一个在线电子书）的方法。<br><span id="more"></span></p>
+<p>Jupyter Book <a target="_blank" rel="noopener" href="https://jupyterbook.org/start/overview.html">官方文档</a></p>
+<p>另一个文档在<a target="_blank" rel="noopener" href="https://predictablynoisy.com/jupyter-book/guide/01_overview">这里</a>。</p>
 <p>使用 Jupyter Book 可以创建基于 markdown 的文档，并使用 <code>jupyter-book</code> 将这些文档转为托管到 web（例如 github）的电子书。</p>
-<p>安装步骤：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">conda create -n jupyter python=3.9 <span class="comment"># 新建一个专用 env</span></span><br><span class="line">conda activate jupyter</span><br><span class="line">pip install jupyter-book</span><br></pre></td></tr></table></figure>
-
-<h1 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h1><p>创建一个 Jupyter Book，</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jupyter-book create mybookname/</span><br></pre></td></tr></table></figure>
-
+<p>安装步骤：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">conda create -n jupyter python=3.9 <span class="comment"># 新建一个专用 env</span></span><br><span class="line">conda activate jupyter</span><br><span class="line">pip install jupyter-book</span><br></pre></td></tr></table></figure></p>
+<h1 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h1><p>创建一个 Jupyter Book，<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jupyter-book create mybookname/</span><br></pre></td></tr></table></figure></p>
 <h1 id="文件目录结构"><a href="#文件目录结构" class="headerlink" title="文件目录结构"></a>文件目录结构</h1><h2 id="内容文件"><a href="#内容文件" class="headerlink" title="内容文件"></a>内容文件</h2><p>有两种文件格式 <code>.md</code> 和 <code>.ipynb</code>，前者是标记文档，主要包含文本内容，后者则包含了计算内容（代码）和叙述内容（文本）。这两者不多说，大家或多或少都了解。</p>
 <h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p><code>_config.yml</code></p>
 <h2 id="内容表"><a href="#内容表" class="headerlink" title="内容表"></a>内容表</h2><p> Table of Content：<code>_toc.yml</code></p>
-<h1 id="生成"><a href="#生成" class="headerlink" title="生成"></a>生成</h1><p>如果当前目录在 <code>mybookname</code> 父级目录，那么执行</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jupyter-book build mybookname/</span><br></pre></td></tr></table></figure>
-<p>生成的文件全部位于 <code>mybookname/_build</code> 文件夹下。</p>
-<p>如果当前目录在 <code>mybookname</code>，那么执行</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jupyter-book build .</span><br></pre></td></tr></table></figure>
-<p>因为有 cache，未修改的 source 文件不再重新生成，如果需要全部重新生成，执行</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jupyter-book build --all .</span><br></pre></td></tr></table></figure>
-
-<p>如果报错：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ImportError: DLL load failed while importing win32api: The specified module could not be found</span><br></pre></td></tr></table></figure>
-<p>解决方法：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python C:\path\to\miniconda3\Scripts\pywin32_postinstall.py -install</span><br></pre></td></tr></table></figure>
-
+<h1 id="生成"><a href="#生成" class="headerlink" title="生成"></a>生成</h1><p>如果当前目录在 <code>mybookname</code> 父级目录，那么执行<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jupyter-book build mybookname/</span><br></pre></td></tr></table></figure><br>生成的文件全部位于 <code>mybookname/_build</code> 文件夹下。</p>
+<p>如果当前目录在 <code>mybookname</code>，那么执行<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jupyter-book build .</span><br></pre></td></tr></table></figure><br>因为有 cache，未修改的 source 文件不再重新生成，如果需要全部重新生成，执行<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jupyter-book build --all .</span><br></pre></td></tr></table></figure></p>
+<p>如果报错：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ImportError: DLL load failed while importing win32api: The specified module could not be found</span><br></pre></td></tr></table></figure><br>解决方法：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python C:\path\to\miniconda3\Scripts\pywin32_postinstall.py -install</span><br></pre></td></tr></table></figure></p>
 <p>所有的内容文件和配置文件均为 source 文件，生成的文件位于 <code>_build</code> 目录，称为 build 文件。 在 git 项目中，main 主分支中 ignore <code>_build</code> 目录，并将 <code>_build</code> 中文件 push 到 另一个分支（例如 <code>gh-pages</code>）中，用于在 web 中展示。</p>
 <h1 id="预览"><a href="#预览" class="headerlink" title="预览"></a>预览</h1><p>可以在本地文件<code>_build/html/index.html</code> 上双击打开，也可以在浏览器中输入文件路径 （例如 <code>file://Users/my_path_to_book/_build/html/index.html</code>）</p>
-<h1 id="发布上线"><a href="#发布上线" class="headerlink" title="发布上线"></a>发布上线</h1><h2 id="创建在线仓库"><a href="#创建在线仓库" class="headerlink" title="创建在线仓库"></a>创建在线仓库</h2><p>在 github 上创建新仓库，仓库名可取为 <code>mybook</code>，可为仓库添加一句描述，仓库初始化时不要 <code>README</code> 文件，即完全空仓库，然后 clone 仓库到本地，</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/&lt;my-account&gt;/mybook</span><br></pre></td></tr></table></figure>
-
-<p>将 book 中的所有文件和文件夹拷贝到这个本地仓库，</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp -r mybookname/* mybook/</span><br></pre></td></tr></table></figure>
-
-<p>添加 <code>.gitignore</code> 文件，文件内容为，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mybook&#x2F;_build&#x2F;*</span><br><span class="line">.ipynb_checkpoints</span><br><span class="line">.DS_Store</span><br><span class="line">__pycache__&#x2F;</span><br></pre></td></tr></table></figure>
-
-<p>然后同步到本地仓库和远程仓库，</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> mybook</span><br><span class="line">git add ./*</span><br><span class="line">git commit -m <span class="string">"adding my first book"</span></span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
-
+<h1 id="发布上线"><a href="#发布上线" class="headerlink" title="发布上线"></a>发布上线</h1><h2 id="创建在线仓库"><a href="#创建在线仓库" class="headerlink" title="创建在线仓库"></a>创建在线仓库</h2><p>在 github 上创建新仓库，仓库名可取为 <code>mybook</code>，可为仓库添加一句描述，仓库初始化时不要 <code>README</code> 文件，即完全空仓库，然后 clone 仓库到本地，<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/&lt;my-account&gt;/mybook</span><br></pre></td></tr></table></figure></p>
+<p>将 book 中的所有文件和文件夹拷贝到这个本地仓库，<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp -r mybookname/* mybook/</span><br></pre></td></tr></table></figure></p>
+<p>添加 <code>.gitignore</code> 文件，文件内容为，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mybook/_build/*</span><br><span class="line">.ipynb_checkpoints</span><br><span class="line">.DS_Store</span><br><span class="line">__pycache__/</span><br></pre></td></tr></table></figure></p>
+<p>然后同步到本地仓库和远程仓库，<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> mybook</span><br><span class="line">git add ./*</span><br><span class="line">git commit -m <span class="string">&quot;adding my first book&quot;</span></span><br><span class="line">git push</span><br></pre></td></tr></table></figure></p>
 <h2 id="使用-Github-Page-将-book-发布上线"><a href="#使用-Github-Page-将-book-发布上线" class="headerlink" title="使用 Github Page 将 book 发布上线"></a>使用 Github Page 将 book 发布上线</h2><p>我们已经将源文件推送到 github 库，此时还需要将生成的文件发布上线，使得生成一个 web 页面。最简单的办法是使用 <code>ghp-import</code> 包，</p>
 <p><code>ghp-import</code> 工作机制是将生成的内容 （<code>_build/html</code> 目录）拷贝到仓库分支 <code>gh-pages</code>，并推送到 github，<code>ghp-import</code> 自动创建<code>gh-pages</code> 分支并填充生成的文件。</p>
 <p>操作步骤：</p>
@@ -288,7 +264,10 @@
     <a href="/2021/08/10/cpp/cmake/func_macro/" rel="prev" title="function vs. macro">
       <i class="fa fa-chevron-left"></i> function vs. macro
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/09/15/ml/halfspace/" rel="next" title="Perceptron for Halfspaces">
+      Perceptron for Halfspaces <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -347,7 +326,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#创建"><span class="nav-number">1.</span> <span class="nav-text">创建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件目录结构"><span class="nav-number">2.</span> <span class="nav-text">文件目录结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#内容文件"><span class="nav-number">2.1.</span> <span class="nav-text">内容文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置文件"><span class="nav-number">2.2.</span> <span class="nav-text">配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内容表"><span class="nav-number">2.3.</span> <span class="nav-text">内容表</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#生成"><span class="nav-number">3.</span> <span class="nav-text">生成</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#预览"><span class="nav-number">4.</span> <span class="nav-text">预览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#发布上线"><span class="nav-number">5.</span> <span class="nav-text">发布上线</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建在线仓库"><span class="nav-number">5.1.</span> <span class="nav-text">创建在线仓库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-Github-Page-将-book-发布上线"><span class="nav-number">5.2.</span> <span class="nav-text">使用 Github Page 将 book 发布上线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改-book"><span class="nav-number">5.3.</span> <span class="nav-text">修改 book</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">创建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">文件目录结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AE%B9%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">内容文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">2.2.</span> <span class="nav-text">配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AE%B9%E8%A1%A8"><span class="nav-number">2.3.</span> <span class="nav-text">内容表</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%9F%E6%88%90"><span class="nav-number">3.</span> <span class="nav-text">生成</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A2%84%E8%A7%88"><span class="nav-number">4.</span> <span class="nav-text">预览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%91%E5%B8%83%E4%B8%8A%E7%BA%BF"><span class="nav-number">5.</span> <span class="nav-text">发布上线</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%9C%A8%E7%BA%BF%E4%BB%93%E5%BA%93"><span class="nav-number">5.1.</span> <span class="nav-text">创建在线仓库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Github-Page-%E5%B0%86-book-%E5%8F%91%E5%B8%83%E4%B8%8A%E7%BA%BF"><span class="nav-number">5.2.</span> <span class="nav-text">使用 Github Page 将 book 发布上线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9-book"><span class="nav-number">5.3.</span> <span class="nav-text">修改 book</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -361,7 +340,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -374,7 +353,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

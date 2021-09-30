@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -213,19 +213,19 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>论文 <a href="https://arxiv.org/abs/1904.11490" target="_blank" rel="noopener">RepPoints: Point Set Representation for Object Detection</a></p>
-<a id="more"></a>
-<p>大多数目标检测器使用 bbox 表示目标的位置，但是本文认为 bbox 对目标的位置描述较为粗糙，所以提出了一种新型的更加精确的目标表示方法 RepPoints（representative points），RepPoints 使用一组采样点进行目标定位和识别。通过训练给定目标的 gt 位置和分类，RepPoints 可以学习自动排布这些点使得这些点能勾画出目标边缘并在语义上确定目标所在区域。这是一种 anchor-free 的目标检测器，避开了 anchor 导致的搜索空间大和 anchor 难于设计等缺点。</p>
+        <p>论文 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1904.11490">RepPoints: Point Set Representation for Object Detection</a><br><span id="more"></span><br>大多数目标检测器使用 bbox 表示目标的位置，但是本文认为 bbox 对目标的位置描述较为粗糙，所以提出了一种新型的更加精确的目标表示方法 RepPoints（representative points），RepPoints 使用一组采样点进行目标定位和识别。通过训练给定目标的 gt 位置和分类，RepPoints 可以学习自动排布这些点使得这些点能勾画出目标边缘并在语义上确定目标所在区域。这是一种 anchor-free 的目标检测器，避开了 anchor 导致的搜索空间大和 anchor 难于设计等缺点。</p>
 <p>如图 1，<br><img src="/images/RepPoints_fig1.png" alt=""></p>
 <p>RepPoints 使用一个点集，这个点集中各点位于目标边缘，并且语义上表明了目标所在的局部区域。<del>RepPoints 与其他非矩阵表示的目标检测器区别在于其他目标检测器采用 bottom-up 的方式确定一些独立的点（比如角点或极点），然后依靠手工设计的聚合方法聚合这些点以获得预测 box，而 RepPoints 则是 top-down 的方式从输入 image/目标特征中学习并且能够端到端的训练。</del></p>
 <h1 id="RepPoints"><a href="#RepPoints" class="headerlink" title="RepPoints"></a>RepPoints</h1><h2 id="BBox-表示"><a href="#BBox-表示" class="headerlink" title="BBox 表示"></a>BBox 表示</h2><p>目标 bbox 可表示为 $\mathcal B=(x,y,w,h)$。我们回归一下 multi-stage 目标检测器，每经过一个 stage，目标定位都会得到调整，过程如下，</p>
 <p>bbox anchors -(bbox reg)-&gt;  bbox proposals (S1)<br>             -(bbox reg)-&gt;  bbox proposals (S2)<br>             …<br>             -(bbox reg)-&gt;  bbox object targets</p>
 <p>开始时使用多个具有不同 scale 和 aspect ratio 的 anchors。anchor 中心处的特征（向量）用于预测目标分类的得分（二值分类，前景/背景），以及预测坐标偏差。调整后的 bbox 称为 proposal (S1)。在第二 stage，从 S1 中继续抽取特征，通常是 RoIpooling/RoIAlign，对于 two-stage 目标检测器，S1 中抽取的特征将用于最终的 box 的分类预测和坐标偏差预测。对于 multi-stage 目标检测器，S1 中抽取的特征用于预测生成 S2，逐次进行此过程，直到最后一个 stage 用于预测最终的 bbox target。</p>
-<p>坐标回归预测为一个 4-d 向量 $(\Delta x_p, \Delta y_p, \Delta w_p, \Delta h_p)$，再结合 bbox proposal 的坐标 $\mathcal B_p=(x_p,y_p,w_p,h_p)$ 可解码出调整后的预测 bbox，<br>$$\mathcal B_r=(x_p+w_p \Delta x_p, \ y_p+h_p\Delta y_p, \ w_p e^{\Delta w_p}, \ h_p e^{\Delta h_p})$$</p>
-<p>记目标的 gt 位置为 $\mathcal B_t=(x_t,y_t,w_t,h_t)$，gt 坐标偏差（gt target）为，<br>$$\hat {\mathcal F}(\mathcal B_p, \mathcal B_t)=(\frac {x_t-x_p} {w_p},\ \frac {y_t-y_p} {h_p},\ \log \frac {w_t} {w_p}, \ \log \frac {h_t} {h_p})$$</p>
-<p>回归损失使用 smooth L1 损失。</p>
-<h2 id="RepPoints-1"><a href="#RepPoints-1" class="headerlink" title="RepPoints"></a>RepPoints</h2><p>前文提到，4-d bbox 是一种比较粗糙的目标位置表示，不能反映目标的性质、姿势以及语义上的区域。RepPoints 能够解决这些问题，使用一组自适应采样点，<br>$$\mathcal R = {(x_k,y_k)}_{k=1}^n$$<br>其中 n 为采样点数量，本文设置为 9。</p>
-<p>RepPoints 的坐标调整可表示为，<br>$$\mathcal R_r = {(x_k+\Delta x_k,\ y_k+\Delta y_k)}<em>{k=1}^n \qquad (5)$$<br>其中 ${(\Delta x_k,\ \Delta y_k)}</em>{k=1}^n$ 表示新采样点与旧采样点之间的偏差，refine 旧采样点之后得到新采样点。</p>
+<p>坐标回归预测为一个 4-d 向量 $(\Delta x_p, \Delta y_p, \Delta w_p, \Delta h_p)$，再结合 bbox proposal 的坐标 $\mathcal B_p=(x_p,y_p,w_p,h_p)$ 可解码出调整后的预测 bbox，</p>
+<script type="math/tex; mode=display">\mathcal B_r=(x_p+w_p \Delta x_p, \ y_p+h_p\Delta y_p, \ w_p e^{\Delta w_p}, \ h_p e^{\Delta h_p})</script><p>记目标的 gt 位置为 $\mathcal B_t=(x_t,y_t,w_t,h_t)$，gt 坐标偏差（gt target）为，</p>
+<script type="math/tex; mode=display">\hat {\mathcal F}(\mathcal B_p, \mathcal B_t)=(\frac {x_t-x_p} {w_p},\ \frac {y_t-y_p} {h_p},\ \log \frac {w_t} {w_p}, \ \log \frac {h_t} {h_p})</script><p>回归损失使用 smooth L1 损失。</p>
+<h2 id="RepPoints-1"><a href="#RepPoints-1" class="headerlink" title="RepPoints"></a>RepPoints</h2><p>前文提到，4-d bbox 是一种比较粗糙的目标位置表示，不能反映目标的性质、姿势以及语义上的区域。RepPoints 能够解决这些问题，使用一组自适应采样点，</p>
+<script type="math/tex; mode=display">\mathcal R = \{(x_k,y_k)\}_{k=1}^n</script><p>其中 n 为采样点数量，本文设置为 9。</p>
+<p>RepPoints 的坐标调整可表示为，</p>
+<script type="math/tex; mode=display">\mathcal R_r = \{(x_k+\Delta x_k,\ y_k+\Delta y_k)\}_{k=1}^n \qquad (5)</script><p>其中 $\{(\Delta x_k,\ \Delta y_k)\}_{k=1}^n$ 表示新采样点与旧采样点之间的偏差，refine 旧采样点之后得到新采样点。</p>
 <p><strong>RepPoints 变换到 gt box:</strong> $\mathcal {T: R}_P \rightarrow \mathcal B_P$，其中 $\mathcal R_P$ 表示目标 P 的 RepPoints，$\mathcal T(\mathcal R_p)$ 表示伪 box，变换函数考虑以下三种，</p>
 <ol>
 <li><p>Min-max function<br>$\mathcal {T=T_1}$：根据所有 RepPoints 确定横轴和纵轴上的最小最大值，以得到 $\mathcal B_p$</p>
@@ -328,7 +328,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RepPoints"><span class="nav-number">1.</span> <span class="nav-text">RepPoints</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BBox-表示"><span class="nav-number">1.1.</span> <span class="nav-text">BBox 表示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RepPoints-1"><span class="nav-number">1.2.</span> <span class="nav-text">RepPoints</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RPDet"><span class="nav-number">2.</span> <span class="nav-text">RPDet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#与可变形-RoI-pooling-的关系"><span class="nav-number">2.1.</span> <span class="nav-text">与可变形 RoI pooling 的关系</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实验"><span class="nav-number">3.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">4.</span> <span class="nav-text">结论</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RepPoints"><span class="nav-number">1.</span> <span class="nav-text">RepPoints</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BBox-%E8%A1%A8%E7%A4%BA"><span class="nav-number">1.1.</span> <span class="nav-text">BBox 表示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RepPoints-1"><span class="nav-number">1.2.</span> <span class="nav-text">RepPoints</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RPDet"><span class="nav-number">2.</span> <span class="nav-text">RPDet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8E%E5%8F%AF%E5%8F%98%E5%BD%A2-RoI-pooling-%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">2.1.</span> <span class="nav-text">与可变形 RoI pooling 的关系</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">3.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA"><span class="nav-number">4.</span> <span class="nav-text">结论</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -342,7 +342,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -355,7 +355,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

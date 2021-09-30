@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -211,63 +211,29 @@
 
       
         <p>本文仅针对 ubuntu 系统进行讨论。</p>
-<p>搭建深度学习环境 tensorflow，pytorch 等，如需要 GPU 加速，一般选择安装 </p>
-<a id="more"></a>
-<p>NVIDIA cuda 工具包，以前通常需要预先安装：</p>
+<p>搭建深度学习环境 tensorflow，pytorch 等，如需要 GPU 加速，一般选择安装<br><span id="more"></span><br>NVIDIA cuda 工具包，以前通常需要预先安装：</p>
 <ol>
 <li>NVIDIA driver</li>
 <li>cuda</li>
 <li>cudnn</li>
 </ol>
 <h1 id="NVIDIA-driver"><a href="#NVIDIA-driver" class="headerlink" title="NVIDIA driver"></a>NVIDIA driver</h1><p>曾经安装 NVIDIA 驱动采取的比较复杂的方法，先是 close nouveau，让系统进入命令行，然后安装事先下载好的驱动安装文件 <code>NVIDIA-Linux-x86_64-xxx.xxx.run</code>，这里使用比较简单的安装方法，打开 ubuntu 的 Software &amp; Updates，点击 Additional Drivers，选择 <code>Using NVIDIA driver metapackage from nvidia-driver-xxx</code> 然后点击 <code>Apply Changes</code> 进行驱动安装。</p>
-<h1 id="cuda-amp-cudnn"><a href="#cuda-amp-cudnn" class="headerlink" title="cuda &amp; cudnn"></a>cuda &amp; cudnn</h1><p>直接使用 conda 安装 pytorch，安装过程比较简单，执行以下命令即可，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install pytorch torchvision cudatoolkit&#x3D;10.0 -c pytorch</span><br></pre></td></tr></table></figure>
-
-<p>如果下载较慢，可使用清华源，执行命令，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">conda config</span><br><span class="line">conda config --set show_channel_urls yes</span><br><span class="line"></span><br><span class="line">cd ~</span><br><span class="line">vi .condarc</span><br></pre></td></tr></table></figure>
-<p>打开 <code>.condarc</code> 文件并添加</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">channels:</span><br><span class="line">  - defaults</span><br><span class="line">show_channel_urls: true</span><br><span class="line">default_channels:</span><br><span class="line">  - https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;pkgs&#x2F;main</span><br><span class="line">  - https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;pkgs&#x2F;r</span><br><span class="line">custom_channels:</span><br><span class="line">  conda-forge: https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;cloud</span><br><span class="line">  msys2: https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;cloud</span><br><span class="line">  bioconda: https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;cloud</span><br><span class="line">  menpo: https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;cloud</span><br><span class="line">  pytorch: https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;cloud</span><br></pre></td></tr></table></figure>
-
-<p>然后执行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install pytorch torchvision cudatoolkit&#x3D;10.0 -c pytorch</span><br></pre></td></tr></table></figure>
-
-<h1 id="安装-tensorflow"><a href="#安装-tensorflow" class="headerlink" title="安装 tensorflow"></a>安装 tensorflow</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install tensorflow-gpu</span><br></pre></td></tr></table></figure>
+<h1 id="cuda-amp-cudnn"><a href="#cuda-amp-cudnn" class="headerlink" title="cuda &amp; cudnn"></a>cuda &amp; cudnn</h1><p>直接使用 conda 安装 pytorch，安装过程比较简单，执行以下命令即可，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install pytorch torchvision cudatoolkit=10.0 -c pytorch</span><br></pre></td></tr></table></figure></p>
+<p>如果下载较慢，可使用清华源，执行命令，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">conda config</span><br><span class="line">conda config --set show_channel_urls yes</span><br><span class="line"></span><br><span class="line">cd ~</span><br><span class="line">vi .condarc</span><br></pre></td></tr></table></figure><br>打开 <code>.condarc</code> 文件并添加<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">channels:</span><br><span class="line">  - defaults</span><br><span class="line">show_channel_urls: true</span><br><span class="line">default_channels:</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r</span><br><span class="line">custom_channels:</span><br><span class="line">  conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud</span><br><span class="line">  msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud</span><br><span class="line">  bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud</span><br><span class="line">  menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud</span><br><span class="line">  pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud</span><br></pre></td></tr></table></figure></p>
+<p>然后执行<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install pytorch torchvision cudatoolkit=10.0 -c pytorch</span><br></pre></td></tr></table></figure></p>
+<h1 id="安装-tensorflow"><a href="#安装-tensorflow" class="headerlink" title="安装 tensorflow"></a>安装 tensorflow</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install tensorflow-gpu</span><br></pre></td></tr></table></figure>
 <p>这条命令会自动安装合适的 cuda 和 cudnn</p>
-<h1 id="PyTorch"><a href="#PyTorch" class="headerlink" title="PyTorch"></a>PyTorch</h1><p>下载源码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;pytorch&#x2F;pytorch.git</span><br></pre></td></tr></table></figure>
-<p>更新源码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git reset --hard</span><br><span class="line">git pull origin master</span><br><span class="line">git submodule sync</span><br><span class="line">git submodule update --init --recursive</span><br></pre></td></tr></table></figure>
-
-<p>安装</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python setup.py install</span><br></pre></td></tr></table></figure>
-<p>如果不想安装，仅仅编译生成，那么执行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python setup.py build</span><br></pre></td></tr></table></figure>
-<p>由于我这里安装了 Clang 和 llvm，设置了 <code>CPLUS_INCLUDE_PATH</code>，导致生成的过程中 include 到 llvm 的头文件，所以可以临时屏蔽 llvm 的头文件路径，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export CPLUS_INCLUDE_PATH&#x3D;&#39;&#39; &amp;&amp; python setup.py build</span><br></pre></td></tr></table></figure>
-
-<p>现在增加了 develop 模式，conda 环境下执行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd [pytorch github project root path]</span><br><span class="line">python setup.py develop</span><br></pre></td></tr></table></figure>
-<p>这样只会生成一个位于 site-packages 中的 torch 的 egg-link，可以随时修改 pytorch 源码，而不用重装 pytorch。</p>
-<p>容器运行 pytorch-gpu</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker pull pytorch&#x2F;pytorch:1.7.1-cuda11.0-cudnn8-level</span><br><span class="line">docker run -p 9527:22 --gpus all -rm -itd --ipc&#x3D;host -v &#x2F;home&#x2F;xx&#x2F;xx:&#x2F;home&#x2F;xx&#x2F;xx --name pytorch pytorch&#x2F;pytorch:1.7.1-cuda11.0-cudnn8-level</span><br></pre></td></tr></table></figure>
-
-<h1 id="安装-mmdetection"><a href="#安装-mmdetection" class="headerlink" title="安装 mmdetection"></a>安装 mmdetection</h1><p>以 conda 虚拟环境名称 <code>base</code> 为例，其中已经安装了 PyTorch，cudatoolkit 等包，还有一些包如<code>matplotlib, pillow, opencv</code> 等图像处理相关的包也需要安装，可以使用</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda list</span><br></pre></td></tr></table></figure>
-<p>查看。现在要安装 mmdetection，</p>
+<h1 id="PyTorch"><a href="#PyTorch" class="headerlink" title="PyTorch"></a>PyTorch</h1><p>下载源码<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/pytorch/pytorch.git</span><br></pre></td></tr></table></figure><br>更新源码<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git reset --hard</span><br><span class="line">git pull origin master</span><br><span class="line">git submodule sync</span><br><span class="line">git submodule update --init --recursive</span><br></pre></td></tr></table></figure></p>
+<p>安装<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python setup.py install</span><br></pre></td></tr></table></figure><br>如果不想安装，仅仅编译生成，那么执行<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python setup.py build</span><br></pre></td></tr></table></figure><br>由于我这里安装了 Clang 和 llvm，设置了 <code>CPLUS_INCLUDE_PATH</code>，导致生成的过程中 include 到 llvm 的头文件，所以可以临时屏蔽 llvm 的头文件路径，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export CPLUS_INCLUDE_PATH=&#x27;&#x27; &amp;&amp; python setup.py build</span><br></pre></td></tr></table></figure></p>
+<p>现在增加了 develop 模式，conda 环境下执行<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd [pytorch github project root path]</span><br><span class="line">python setup.py develop</span><br></pre></td></tr></table></figure><br>这样只会生成一个位于 site-packages 中的 torch 的 egg-link，可以随时修改 pytorch 源码，而不用重装 pytorch。</p>
+<p>容器运行 pytorch-gpu<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker pull pytorch/pytorch:1.7.1-cuda11.0-cudnn8-level</span><br><span class="line">docker run -p 9527:22 --gpus all -rm -itd --ipc=host -v /home/xx/xx:/home/xx/xx --name pytorch pytorch/pytorch:1.7.1-cuda11.0-cudnn8-level</span><br></pre></td></tr></table></figure></p>
+<h1 id="安装-mmdetection"><a href="#安装-mmdetection" class="headerlink" title="安装 mmdetection"></a>安装 mmdetection</h1><p>以 conda 虚拟环境名称 <code>base</code> 为例，其中已经安装了 PyTorch，cudatoolkit 等包，还有一些包如<code>matplotlib, pillow, opencv</code> 等图像处理相关的包也需要安装，可以使用<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda list</span><br></pre></td></tr></table></figure><br>查看。现在要安装 mmdetection，</p>
 <ol>
-<li>安装 mmcv，这是 open-mmlab 一众库的基础，<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;open-mmlab&#x2F;mmcv.git</span><br></pre></td></tr></table></figure>
-
+<li>安装 mmcv，这是 open-mmlab 一众库的基础，<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/open-mmlab/mmcv.git</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
-<p>进入根目录</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd mmcv</span><br></pre></td></tr></table></figure>
-<p>以开发模式安装，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MMCV_WITH_OPS&#x3D;1 pip install -e .</span><br></pre></td></tr></table></figure>
-<p>其中，MMCV_WITH_OPS 默认为 0，表示 cpu 模式下运行 mmcv（轻量级模式），为 1 时 启用 cuda 加速。<code>pip install -e .</code> 表示可编辑模型安装当前目录的库，等同于 <code>python setup.py develop</code>。</p>
-<p>下载 mmdetection 源码，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;open-mmlab&#x2F;mmdetection.git</span><br></pre></td></tr></table></figure>
-<p>同样地，以开发模式安装，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd mmdetection</span><br><span class="line">pip install -r requirements&#x2F;build.txt</span><br><span class="line">python setup.py develop</span><br></pre></td></tr></table></figure>
+<p>进入根目录<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd mmcv</span><br></pre></td></tr></table></figure><br>以开发模式安装，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MMCV_WITH_OPS=1 pip install -e .</span><br></pre></td></tr></table></figure><br>其中，MMCV_WITH_OPS 默认为 0，表示 cpu 模式下运行 mmcv（轻量级模式），为 1 时 启用 cuda 加速。<code>pip install -e .</code> 表示可编辑模型安装当前目录的库，等同于 <code>python setup.py develop</code>。</p>
+<p>下载 mmdetection 源码，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/open-mmlab/mmdetection.git</span><br></pre></td></tr></table></figure><br>同样地，以开发模式安装，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd mmdetection</span><br><span class="line">pip install -r requirements/build.txt</span><br><span class="line">python setup.py develop</span><br></pre></td></tr></table></figure></p>
 
     </div>
 
@@ -351,7 +317,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#NVIDIA-driver"><span class="nav-number">1.</span> <span class="nav-text">NVIDIA driver</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#cuda-amp-cudnn"><span class="nav-number">2.</span> <span class="nav-text">cuda &amp; cudnn</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-tensorflow"><span class="nav-number">3.</span> <span class="nav-text">安装 tensorflow</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PyTorch"><span class="nav-number">4.</span> <span class="nav-text">PyTorch</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-mmdetection"><span class="nav-number">5.</span> <span class="nav-text">安装 mmdetection</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#NVIDIA-driver"><span class="nav-number">1.</span> <span class="nav-text">NVIDIA driver</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#cuda-amp-cudnn"><span class="nav-number">2.</span> <span class="nav-text">cuda &amp; cudnn</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-tensorflow"><span class="nav-number">3.</span> <span class="nav-text">安装 tensorflow</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PyTorch"><span class="nav-number">4.</span> <span class="nav-text">PyTorch</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-mmdetection"><span class="nav-number">5.</span> <span class="nav-text">安装 mmdetection</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -365,7 +331,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -378,7 +344,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

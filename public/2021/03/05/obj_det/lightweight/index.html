@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -230,14 +230,15 @@
 <p>SNet 作为专为 real-time 目标检测而设计的轻量级的 backbone。SNet 以 ShuffleNetV2 为基础进行改造，将所有的 <code>3x3</code> depthwise conv 改为 <code>5x5</code> depthwise conv，以获取更大的感受野，同时保持差不多的计算速度。还有其他的一些改动这里不一一指出。</p>
 <p>depthwise conv: 每个通道独立进行二维卷积，需要 $c_{in}$ 个 $k \times k$ 卷积，得到的 feature 的 shape 与输入 feature shape 相同，然后再执行 $1 \times 1 \times c_{in}\times c_{out}$ 的跨通道卷积，输出 feature 的channel 为 $c_{out}$。 </p>
 <h2 id="Detection-Part"><a href="#Detection-Part" class="headerlink" title="Detection Part"></a>Detection Part</h2><p>压缩 RPN 和 Detection Head。Light-Head R-CNN 的 detection head 虽然是轻量级，但是配合小的 backbone 时，依然太过 heavy，导致 backbone 与 dection head 之间产生 imbalance。</p>
-<p>压缩 RPN：将原来的 256-d <code>3x3</code> conv 替换为 <code>5x5</code> 的 depthwise 和 256-d <code>1x1</code> conv。anchor 的配置为 scale：<code>{32, 64, 128, 256, 512}</code>，aspect ratio：<code>{1:2, 3:4, 1:1, 4:3, 2:1}</code>。</p>
+<p>压缩 RPN：将原来的 256-d <code>3x3</code> conv 替换为 <code>5x5</code> 的 depthwise 和 256-d <code>1x1</code> conv。anchor 的配置为 scale：<code>&#123;32, 64, 128, 256, 512&#125;</code>，aspect ratio：<code>&#123;1:2, 3:4, 1:1, 4:3, 2:1&#125;</code>。</p>
 <p>detection head： Light-head R-CNN 中的 thin feature map $\alpha \times p \times p$，其中 $p=7, \ \alpha=10$，由于 thundernet 中 backbone 和 input image size 均较小，所以继续降低 $\alpha=5$。采用 PSRoI，由于 PSRoI 输出的 feature 仅 245-d，那么 R-CNN subnet 中的 fc 全连接层为 1024-d。</p>
 <h2 id="CEM"><a href="#CEM" class="headerlink" title="CEM"></a>CEM</h2><p>context enhancement module。</p>
 <p>Light-Head R-CNN 使用 global convolutional network（GCN） 生成 thin feature map，GCN 具有 large kernel，使得 Receptive Field 增大，从而可以 encode 更多的上下文信息，但是 GCN 会给 SNet 带来很多计算量，thundernet 不使用 GCN，而是使用 CEM 解决这个问题。</p>
 <p>借鉴 FPN 的思想（FPN 本身结构比较复杂），聚合multi-scale 的 局部信息和全局信息，得到具有较强判别性的 feature。CEM merge 来自以下 layer 的 feature：$C_4, \ C_5, \ C_{glb}$，其中 $C_{glb}$ 表示 global feature，通过对 $C_5$ 执行 global average pooling 得到。对以上三个 scale 的 feature 使用 <code>1x1-245</code> conv，输出 channel 均为 245，且 $C_5$ 的输出特征还需要 <code>2x</code> upsample，使得与 $C_4$ 的输出 feature 具有相同的 size，而 $C_{glb}$ 的输出本质是是一个标量，所以经 broadcast 具有与 $C_4$ 输出 feature 具有相同的 size，然后这三组相同 spatial size 的 feature 再合并。</p>
 <h2 id="SAM"><a href="#SAM" class="headerlink" title="SAM"></a>SAM</h2><p>spatial attention module。</p>
 <p>在 RoI warping 的输入 feature （上面说讨论的 thin feature maps）上，我们希望 负例 region 内的 feature 值足够小，正例 region 内的 feature 足够大，但是 thundernet 比正常的检测网络小，所以会难以学习到正确的 feature 分布，本文使用 SAM 解决这个问题。</p>
-<p>SAM 利用 RPN 得到的信息来微调 RoI warping 的输入 feature 分布。RPN 被训练用来区分正负例，那么 RPN 的输出 feature 可以利用起来，于是，SAM 的两个输入：1. RPN 的输出 feature；2. CEM 输出的 thin feature maps。SAM 的输出 feature 为，<br>$$\mathcal F^{SAM}=\mathcal F^{CEM} \cdot sigmoid[\theta(\mathcal F^{RPN})]$$<br>其中 $\theta$ 用于维度转换，使得 $\mathcal F^{RPN}$ 和 $\mathcal F^{CEM}$ 具有相同的维度，文中使用 <code>1x1</code> conv 来执行这个维度转换。</p>
+<p>SAM 利用 RPN 得到的信息来微调 RoI warping 的输入 feature 分布。RPN 被训练用来区分正负例，那么 RPN 的输出 feature 可以利用起来，于是，SAM 的两个输入：1. RPN 的输出 feature；2. CEM 输出的 thin feature maps。SAM 的输出 feature 为，</p>
+<script type="math/tex; mode=display">\mathcal F^{SAM}=\mathcal F^{CEM} \cdot sigmoid[\theta(\mathcal F^{RPN})]</script><p>其中 $\theta$ 用于维度转换，使得 $\mathcal F^{RPN}$ 和 $\mathcal F^{CEM}$ 具有相同的维度，文中使用 <code>1x1</code> conv 来执行这个维度转换。</p>
 <p>SAM 的输出将作为原先 RoI warping 的输入。</p>
 <p>thunernet 整个网络结构如图 1，</p>
 <p><img src="/images/obj_det/lightweight_fig1.png" alt=""><center>图 1</center></p>
@@ -251,7 +252,7 @@
 <p><strong>R-CNN subnet</strong></p>
 <p>PSRoI pooling 之后，使用一个 2048-d 的全连接层，然后分两支，一支用于分类预测，一支用于box 回归预测，其中分类分支使用一个 C-d 的全连接，回归分支使用 4-d 的全连接层。</p>
 <p><strong>RPN</strong></p>
-<p>RPN 作用于 $C_4$ 之上，根据 anchor box 预测出一组 proposals，anchor 的 scale 为 <code>{32,64,128,256,512}</code>，aspect ratio 为 <code>{1:2,1:1,2:1}</code>。</p>
+<p>RPN 作用于 $C_4$ 之上，根据 anchor box 预测出一组 proposals，anchor 的 scale 为 <code>&#123;32,64,128,256,512&#125;</code>，aspect ratio 为 <code>&#123;1:2,1:1,2:1&#125;</code>。</p>
 <p>整个网络的结构图如下，<br><img src="/images/obj_det/lightweight_fig2.png" alt=""><center>图 2 </center></p>
 
     </div>
@@ -347,7 +348,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -360,7 +361,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

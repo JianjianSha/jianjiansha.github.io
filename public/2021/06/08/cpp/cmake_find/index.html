@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 5.4.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -209,37 +209,25 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>cmake 的包查找。</p>
-<a id="more"></a>
-
+        <p>cmake 的包查找。<br><span id="more"></span></p>
 <h1 id="find-package"><a href="#find-package" class="headerlink" title="find_package"></a>find_package</h1><ol>
 <li>CMake 内置模型引入依赖包</li>
 </ol>
-<p>为了方便我们在项目中引入外部依赖包，cmake官方为我们预定义了许多寻找依赖包的Module，他们存储在<code>path_to_your_cmake/share/cmake-&lt;version&gt;/Modules</code>目录下。每个以<code>Find&lt;LibaryName&gt;.cmake</code>命名的文件都可以帮我们找到一个包。我们也可以在官方文档中查看到哪些库官方已经为我们定义好了，我们可以直接使用find_package函数进行引用官方文档：<a href="https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html" target="_blank" rel="noopener">Find Modules</a>。</p>
-<p>例如 <code>CURL</code>，可直接使用</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find_package(CURL)</span><br></pre></td></tr></table></figure>
-
+<p>为了方便我们在项目中引入外部依赖包，cmake官方为我们预定义了许多寻找依赖包的Module，他们存储在<code>path_to_your_cmake/share/cmake-&lt;version&gt;/Modules</code>目录下。每个以<code>Find&lt;LibaryName&gt;.cmake</code>命名的文件都可以帮我们找到一个包。我们也可以在官方文档中查看到哪些库官方已经为我们定义好了，我们可以直接使用find_package函数进行引用官方文档：<a target="_blank" rel="noopener" href="https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html">Find Modules</a>。</p>
+<p>例如 <code>CURL</code>，可直接使用<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find_package(CURL)</span><br></pre></td></tr></table></figure></p>
 <p>每一个模块都会定义以下几个变量 -</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;LibaryName&gt;_FOUND</span><br><span class="line"></span><br><span class="line">&lt;LibaryName&gt;_INCLUDE_DIR or &lt;LibaryName&gt;_INCLUDES &lt;LibaryName&gt;_LIBRARY or &lt;LibaryName&gt;_LIBRARIES</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;LibaryName&gt;_FOUND</span><br><span class="line"></span><br><span class="line">&lt;LibaryName&gt;_INCLUDE_DIR or &lt;LibaryName&gt;_INCLUDES &lt;LibaryName&gt;_LIBRARY or &lt;LibaryName&gt;_LIBRARIES</span><br></pre></td></tr></table></figure>
+<ol>
 <li>引入支持 cmake 编译安装的库</li>
 </ol>
 <p>例如项目引用库 <code>glog</code>，cmake 的 Module 目录下没有 <code>FindGlog.cmake</code>，于是需要自行安装 glog 库，安装过程如下，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># clone该项目</span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;google&#x2F;glog.git </span><br><span class="line"># 切换到需要的版本 </span><br><span class="line">cd glog</span><br><span class="line">git checkout v0.40  </span><br><span class="line"></span><br><span class="line"># 根据官网的指南进行安装</span><br><span class="line">cmake -H. -Bbuild -G &quot;Unix Makefiles&quot;</span><br><span class="line">cmake --build build</span><br><span class="line">cmake --build build --target install</span><br></pre></td></tr></table></figure>
-
-<p>此时我们便可以通过与引入curl库一样的方式引入glog库了</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">find_package(GLOG)</span><br><span class="line">add_executable(glogtest glogtest.cc)</span><br><span class="line">if(GLOG_FOUND)</span><br><span class="line">    # 由于glog在连接时将头文件直接链接到了库里面，所以这里不用显示调用target_include_directories</span><br><span class="line">    target_link_libraries(glogtest glog::glog)</span><br><span class="line">else(GLOG_FOUND)</span><br><span class="line">    message(FATAL_ERROR ”GLOG library not found”)</span><br><span class="line">endif(GLOG_FOUND)</span><br></pre></td></tr></table></figure>
-
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># clone该项目</span><br><span class="line">git clone https://github.com/google/glog.git </span><br><span class="line"># 切换到需要的版本 </span><br><span class="line">cd glog</span><br><span class="line">git checkout v0.40  </span><br><span class="line"></span><br><span class="line"># 根据官网的指南进行安装</span><br><span class="line">cmake -H. -Bbuild -G &quot;Unix Makefiles&quot;</span><br><span class="line">cmake --build build</span><br><span class="line">cmake --build build --target install</span><br></pre></td></tr></table></figure>
+<p>此时我们便可以通过与引入curl库一样的方式引入glog库了<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">find_package(GLOG)</span><br><span class="line">add_executable(glogtest glogtest.cc)</span><br><span class="line">if(GLOG_FOUND)</span><br><span class="line">    # 由于glog在连接时将头文件直接链接到了库里面，所以这里不用显示调用target_include_directories</span><br><span class="line">    target_link_libraries(glogtest glog::glog)</span><br><span class="line">else(GLOG_FOUND)</span><br><span class="line">    message(FATAL_ERROR ”GLOG library not found”)</span><br><span class="line">endif(GLOG_FOUND)</span><br></pre></td></tr></table></figure></p>
 <p>find_package 内部是如何查找依赖库的呢？有两种模式，</p>
 <h2 id="Module-模式"><a href="#Module-模式" class="headerlink" title="Module 模式"></a>Module 模式</h2><p>如 curl 库的引用方式。cmake 首先找到 <code>Find&lt;LibraryName&gt;.cmake</code> 文件，这个 <code>.cmake</code> 文件可以从 <code>share/cmake-&lt;version&gt;/Modules</code> 目录下寻找，还可以从 <code>CMAKE_MODULE_PATH</code> 这个变量指定的搜索目录下搜索。</p>
 <p>如果 Module 模式没有找到这个 <code>.cmake</code> 文件，那么尝试 Config 模式，这就是另外一个模式。</p>
 <h2 id="Config-模式"><a href="#Config-模式" class="headerlink" title="Config 模式"></a>Config 模式</h2><p>通过 <code>&lt;LibraryName&gt;Config.cmake</code> 或 <code>&lt;lower-case-package-name&gt;-config.cmake</code> 这个配置文件来引入依赖库。创建包配置文件可以参考我的另一篇文章 <a href="/2021/06/03/cpp/cmake_im_ex">cmake 导入导出</a>。</p>
-<h1 id="find-library"><a href="#find-library" class="headerlink" title="find_library"></a>find_library</h1><p>简单形式为 </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find_library (&lt;VAR&gt; name1 [path1 path2 ...])</span><br></pre></td></tr></table></figure>
-<p>一般形式为</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">find_library (</span><br><span class="line">          &lt;VAR&gt;</span><br><span class="line">          name | NAMES name1 [name2 ...] [NAMES_PER_DIR]</span><br><span class="line">          [HINTS path1 [path2 ... ENV var]]</span><br><span class="line">          [PATHS path1 [path2 ... ENV var]]</span><br><span class="line">          [PATH_SUFFIXES suffix1 [suffix2 ...]]</span><br><span class="line">          [DOC &quot;cache documentation string&quot;]</span><br><span class="line">          [NO_DEFAULT_PATH]</span><br><span class="line">          [NO_CMAKE_ENVIRONMENT_PATH]</span><br><span class="line">          [NO_CMAKE_PATH]</span><br><span class="line">          [NO_SYSTEM_ENVIRONMENT_PATH]</span><br><span class="line">          [NO_CMAKE_SYSTEM_PATH]</span><br><span class="line">          [CMAKE_FIND_ROOT_PATH_BOTH |</span><br><span class="line">           ONLY_CMAKE_FIND_ROOT_PATH |</span><br><span class="line">           NO_CMAKE_FIND_ROOT_PATH]</span><br><span class="line">         )</span><br></pre></td></tr></table></figure>
-<p>命令用于查找库，结果保存在一个名为 <code>&lt;VAR&gt;</code> 的缓存条目里面。如果没有找到，那么结果为 <code>&lt;VAR&gt;-NOTFOUND</code>。搜索库的名为 <code>name1</code> 等。搜索路径可以通过 <code>PATHS</code> 选项指定。<code>PATH-SUFFIXES</code> 指定在查找搜索路径之外还查找搜索路径的子目录。如果 <code>NO_DEFAULT_PATH</code> 指定，那么不使用默认搜索路径，否则，搜索过程如下：</p>
+<h1 id="find-library"><a href="#find-library" class="headerlink" title="find_library"></a>find_library</h1><p>简单形式为<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find_library (&lt;VAR&gt; name1 [path1 path2 ...])</span><br></pre></td></tr></table></figure><br>一般形式为<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">find_library (</span><br><span class="line">          &lt;VAR&gt;</span><br><span class="line">          name | NAMES name1 [name2 ...] [NAMES_PER_DIR]</span><br><span class="line">          [HINTS path1 [path2 ... ENV var]]</span><br><span class="line">          [PATHS path1 [path2 ... ENV var]]</span><br><span class="line">          [PATH_SUFFIXES suffix1 [suffix2 ...]]</span><br><span class="line">          [DOC &quot;cache documentation string&quot;]</span><br><span class="line">          [NO_DEFAULT_PATH]</span><br><span class="line">          [NO_CMAKE_ENVIRONMENT_PATH]</span><br><span class="line">          [NO_CMAKE_PATH]</span><br><span class="line">          [NO_SYSTEM_ENVIRONMENT_PATH]</span><br><span class="line">          [NO_CMAKE_SYSTEM_PATH]</span><br><span class="line">          [CMAKE_FIND_ROOT_PATH_BOTH |</span><br><span class="line">           ONLY_CMAKE_FIND_ROOT_PATH |</span><br><span class="line">           NO_CMAKE_FIND_ROOT_PATH]</span><br><span class="line">         )</span><br></pre></td></tr></table></figure><br>命令用于查找库，结果保存在一个名为 <code>&lt;VAR&gt;</code> 的缓存条目里面。如果没有找到，那么结果为 <code>&lt;VAR&gt;-NOTFOUND</code>。搜索库的名为 <code>name1</code> 等。搜索路径可以通过 <code>PATHS</code> 选项指定。<code>PATH-SUFFIXES</code> 指定在查找搜索路径之外还查找搜索路径的子目录。如果 <code>NO_DEFAULT_PATH</code> 指定，那么不使用默认搜索路径，否则，搜索过程如下：</p>
 <ol>
 <li><p>搜索某些特定 cmake 的缓存变量中的路径，例如在命令行中指定 <code>-DVAR=value</code>。如果设置了 <code>NO_CMAKE_PATH</code>，那么不考虑这条搜索规则。下面考虑这些特定 cmake 缓存变量</p>
 <ul>
@@ -350,7 +338,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#find-package"><span class="nav-number">1.</span> <span class="nav-text">find_package</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Module-模式"><span class="nav-number">1.1.</span> <span class="nav-text">Module 模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Config-模式"><span class="nav-number">1.2.</span> <span class="nav-text">Config 模式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#find-library"><span class="nav-number">2.</span> <span class="nav-text">find_library</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#find-package"><span class="nav-number">1.</span> <span class="nav-text">find_package</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Module-%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">Module 模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Config-%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">Config 模式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#find-library"><span class="nav-number">2.</span> <span class="nav-text">find_library</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -364,7 +352,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -377,7 +365,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
