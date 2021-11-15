@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="机器学习中，我们常用某种方式去表征数据，例如选取合适的模型。单一模型的表征能力很弱，故可以采用混合模型，例如混合高斯分布。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高斯混合模型">
+<meta property="og:url" content="https://shajianjian.github.io/2021/11/13/ml/GMM/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="机器学习中，我们常用某种方式去表征数据，例如选取合适的模型。单一模型的表征能力很弱，故可以采用混合模型，例如混合高斯分布。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-11-13T05:53:13.000Z">
+<meta property="article:modified_time" content="2021-11-15T08:16:40.832Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="machine learning">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/11/13/ml/GMM/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>高斯混合模型 | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/11/13/ml/GMM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          高斯混合模型
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-13 13:53:13" itemprop="dateCreated datePublished" datetime="2021-11-13T13:53:13+08:00">2021-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-15 16:16:40" itemprop="dateModified" datetime="2021-11-15T16:16:40+08:00">2021-11-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>机器学习中，我们常用某种方式去表征数据，例如选取合适的模型。单一模型的表征能力很弱，故可以采用混合模型，例如混合高斯分布。<br><span id="more"></span></p>
+<p>混合模型是由多个单个模型凸组合而成，例如 $K$ 个简单分布凸组合成分布</p>
+<script type="math/tex; mode=display">p(\mathbf x) = \sum_{k=1}^K \pi_k p_k(\mathbf x)$$ (GMM1)
+
+$$0 \le \pi_k \le 1, \quad \sum_{k=1}^K \pi_k = 1</script><p>本文主要讨论高斯混合模型 (GMM)，即，每个简单分布都是高斯分布。</p>
+<h1 id="GMM"><a href="#GMM" class="headerlink" title="GMM"></a>GMM</h1><p>K 个高斯分布的线性组合如下，</p>
+<script type="math/tex; mode=display">p(\mathbf x|\theta)=\sum_{k=1}^K \pi_k \mathcal N(\mathbf x|\mu_k, \Sigma_k)$$ (GMM2)
+
+$$0 \le \pi_k \le 1, \quad \sum_{k=1}^K \pi_k = 1</script><p>定义参数 $\theta := \{\mu_k, \Sigma_k, \pi_k: k = 1,\ldots, K\}$</p>
+<h2 id="参数学习"><a href="#参数学习" class="headerlink" title="参数学习"></a>参数学习</h2><p>根据最大似然学习参数</p>
+<p>记数据集为 $\mathcal X = \{\mathbf x_1, \cdots, \mathbf x_N\}$ 。似然函数为</p>
+<script type="math/tex; mode=display">p(\mathcal X|\theta)=\prod_{n=1}^N p(\mathbf x_n |\theta)$$ (GMM3)
+
+$$p(\mathbf x_n|\theta)=\sum_{k=1}^K \pi_k \mathcal N(\mathbf x_n |\mu_k,\Sigma_k)$$ (GMM4)
+
+对数似然为
+
+$$\log p(\mathcal X|\theta)=\underbrace {\sum_{n=1}^N \log \sum_{k=1}^K \pi_k \mathcal N(\mathbf x_n |\mu_k,\Sigma_k)}_{=:\mathcal L}$$ (GMM5)
+
+考虑单个高斯分布（即，非高斯混合），那么单个样本的似然函数为
+
+$$\log \mathcal N(\mathbf x|\mu,\Sigma)=-\frac D 2 \log(2\pi)-\frac 1 2 \log \det(\Sigma) - \frac 1 2 (\mathbf x-\mu)^{\top}\Sigma^{-1}(\mathbf x-\mu)</script><p>此时我们可以求得关于参数 $\mu$ 和 $\Sigma$ 的最大似然估计的解析解。但是 {eq}<code>GMM5</code> 中，<code>log</code> 无法放入 $\sum_{k=1}^K$ 中，所以无法求得解析解。</p>
+<p>我们依然使用求偏导并令偏导为 0 的方法进行求解，</p>
+<script type="math/tex; mode=display">\frac {\partial \mathcal L} {\partial \mu_k} =\mathbf 0 \Leftrightarrow \sum_{n=1}^N \frac {\partial \log p(\mathbf x_n |\theta)} {\partial \mu_k} = \mathbf 0</script><script type="math/tex; mode=display">\frac {\partial \mathcal L} {\partial \Sigma_k} =\mathbf 0 \Leftrightarrow \sum_{n=1}^N \frac {\partial \log p(\mathbf x_n |\theta)} {\partial \Sigma_k} = \mathbf 0</script><script type="math/tex; mode=display">\frac {\partial \mathcal L} {\partial \pi_k} =\mathbf 0 \Leftrightarrow \sum_{n=1}^N \frac {\partial \log p(\mathbf x_n |\theta)} {\partial \pi_k} = \mathbf 0</script><p>此外，log 函数的求导规则为</p>
+<script type="math/tex; mode=display">\frac {\log p(\mathbf x_n|\theta)} {\partial \theta}=\frac 1 {p(\mathbf x_n |\theta)}\cdot \frac {\partial p(\mathbf x_n |\theta)} {\partial \theta}</script><h2 id="Responsibility"><a href="#Responsibility" class="headerlink" title="Responsibility"></a>Responsibility</h2><p>定义GMM 中第 $k$ 个高斯分量对第 $n$ 个数组点的 responsibility 为</p>
+<script type="math/tex; mode=display">r_{nk}=\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k, \Sigma_k)} {\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_k)}$$ (GMM6)
+
+或者说是第 $n$ 个数据点属于第 $k$ 个高斯分量的概率（数据点由这个高斯分量产生的概率，这个概率不是真实的概率，而是基于最大似然估计）。
+
+$\mathbf r_n :=[r_{n1},\ldots,r_{nK}]^{\top}$ 为一个归一化的概率向量。
+
+将 $K$ 个高斯分量对 $N$ 个数据点的 responsibilities 写成矩阵形式 $R \in \mathbb R^{N \times K}$，那么矩阵中第 $n$ 行表示数据 $\mathbf x_n$ 来自各个高斯分量的概率，这是一个归一化向量，第 $k$ 列表示高斯分量 $\mathcal N(\mu_k,\Sigma_k)$ 对所有数据的 responsibilities（注意这不是归一化的向量）。
+
+基于 responsibilities，我们可以对模型参数 $\theta$ 进行更新，而 responsibilities 又依赖于模型参数，所以对 $\theta$ 更新时，需要固定 responsibilities，然后更新 $\theta$，然后再计算新的 responsibilities，然后再更新 $\theta$，如此迭代更新下去，直到达到一个预设的最大迭代次数，或者参数的变化量（例如 F2 范数的变化量）小于一个预设的阈值。
+
+## 更新 Mean
+
+均值（期望）参数 $\mu_k$ 的更新为
+
+$$\mu_k^{new}=\frac {\sum_{n=1}^N r_{nk}\mathbf x_n} {\sum_{n=1}^N r_{nk}}$$ (GMM7)
+
+证：
+
+计算单个数据的概率对参数 $\mu_k$ 的梯度，
+$$\begin{aligned} \frac {\partial p(\mathbf x_n |\theta)}{\partial \mu_k}&=\sum_{j=1}^K \pi_j \frac {\partial \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)} {\partial \mu_k}=\pi_k \frac {\partial \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\partial \mu_k}
+\\&=\pi_k (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)
+\end{aligned}</script><p>于是，数据集的对数似然对 $\mu_k$ 的梯度为</p>
+<script type="math/tex; mode=display">\begin{aligned} \frac {\partial \mathcal L} {\partial \mu_k}&=\sum_{n=1}^N \frac {\partial \log p(\mathbf x_n|\theta)}{\partial \mu_k}=\sum_{n=1}^N \frac 1 {p(\mathbf x_n|\theta)} \frac {p(\mathbf x_n|\theta)}{\partial \mu_k}
+\\&=\sum_{n=1}^N (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \underbrace {\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\sum_{j=1}^N \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)}}_{=r_{nk}}
+\\&=\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1}
+\end{aligned}</script><p>令上式这个梯度为零，得</p>
+<script type="math/tex; mode=display">\sum_{n=1}^N r_{nk} (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1}=\mathbf 0</script><p>上式两端右乘 $\Sigma_k$，得</p>
+<script type="math/tex; mode=display">\sum_{n=1}^N r_{nk} \mathbf x_n = \sum_{n=1}^N r_{nk} \mu_k \Leftrightarrow \mu_k^{new}=\frac {\sum_{n=1}^N r_{nk}\mathbf x_n} {\sum_{n=1}^N r_{nk}}=\frac 1 {N_k} \sum_{n=1} r_{nk}\mathbf x_n</script><p>其中 $N_k :=\sum_{n=1}^N r_{nk}$ 就是上面我们所说的 responsibilites 矩阵的 第 $k$ 列的和，表示第 $k$ 个高斯分量对所有数据的 responsibilities 之和。</p>
+<p>{eq}<code>GMM7</code> 可以看作是所有数据在分布 </p>
+<script type="math/tex; mode=display">\mathbf r_k := [r_{1k},\cdots, r_{Nk}]/N_k$$ (GMM8)
+
+下的期望，
+
+$$\mu_k \leftarrow \mathbb E_{\mathbf r_k} [\mathcal X]</script><p>（类比，数据 $1,2,\ldots, 6$ 在 $[1/6,1/6,\cdots,1/6]$ 分布下的期望）</p>
+<h2 id="更新协方差"><a href="#更新协方差" class="headerlink" title="更新协方差"></a>更新协方差</h2><p>协方差矩阵 $\Sigma_k$ 的更新为</p>
+<script type="math/tex; mode=display">\Sigma_k^{new} = \frac 1 {N_k} \sum_{n=1}^N r_{nk} (\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}$$ (GMM9)
+
+从形式上看，{eq}`GMM9` 式可以看作是所有数据在分布 {eq}`GMM8` 分布下的二阶中心矩。下面来证明 {eq}`GMM9` 式。
+
+证：
+
+计算数据集的对数似然对 $\Sigma_k$ 的梯度，
+
+$$\frac {\partial \mathcal L}{\partial \Sigma_k}= \sum_{n=1}^N \frac {\partial \log p(\mathbf x_n|\theta)} {\partial \Sigma_k}=\sum_{n=1}^N \frac 1 {p(\mathbf x_n|\theta)} \frac {\partial p(\mathbf x_n|\theta)}{\partial \Sigma_k}$$ (GMM10)
+
+$p(\mathbf x_n|\theta)$ 由 {eq}`GMM4` 式给出，故只要计算
+
+$$\begin{aligned} \frac {\partial p(\mathbf x_n|\theta)} {\partial \Sigma_k}&=\frac {\partial}{\partial \Sigma_k}\left(\pi_k (2\pi)^{-D/2} \det(\Sigma_k)^{-1/2} \exp (-\frac 1 2 (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} (\mathbf x_n-\mu_k))\right)
+\\&=\pi_k (2\pi)^{-D/2} [{\color{red}\frac {\partial}{\partial \Sigma_k}\det(\Sigma_k)^{-1/2}}\exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k))
+\\& \quad +\det(\Sigma_k)^{-1/2} \frac {\partial}{\partial \Sigma_k} \exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k))
+]
+\end{aligned}$$ (GMM11)
+
+红色部分表示一个整体，即求导不包括后面的 $\exp$ 部分。根据矩阵的求导规则可知，
+
+$$\frac {\partial}{\partial \Sigma_k} \det(\Sigma_k)^{-1/2}=-\frac 1 2 \det(\Sigma_k)^{-1/2} \Sigma_k^{-1}</script><script type="math/tex; mode=display">\frac {\partial} {\partial \Sigma_k}(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k) = -\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}</script><p>将上面两式 代入 {eq}<code>GMM11</code>式 得</p>
+<script type="math/tex; mode=display">\begin{aligned} \frac {\partial p(\mathbf x_n|\theta)}{\partial \Sigma_k}&=\pi_k (2\pi)^{-D/2} [-\frac 1 2 \det(\Sigma_k)^{-1/2} \Sigma_k^{-1} \exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k)) 
+\\ & \quad +\frac 1 2 \det(\Sigma_k)^{-1/2} \Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1} \exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k))]
+\\& = \pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)[-\frac 1 2 \Sigma_k^{-1}+\frac 1 2\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}]
+\\&=\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)\cdot [-\frac 1 2 (\Sigma_k^{-1}-\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1})]
+\end{aligned}</script><p>将上式和 {eq}<code>GMM4</code> 式代入 {eq}<code>GMM10</code> 式，得</p>
+<script type="math/tex; mode=display">\begin{aligned}\frac {\partial \mathcal L} {\partial \Sigma_k}&= \sum_{n=1}^N \underbrace {\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)}}_{=r_{nk}} \cdot  [-\frac 1 2 (\Sigma_k^{-1}-\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1})]
+\\&=-\frac 1 2 \sum_{n=1}^N r_{nk} (\Sigma_k^{-1}-\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1})
+\\&=-\frac 1 2 \Sigma_k^{-1} \underbrace{\sum_{n=1}^N r_{nk}}_{=N_k} + \frac 1 2 \Sigma_k^{-1}\left(\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\right)\Sigma_k^{-1}
+\end{aligned}</script><p>令上式这个梯度为零，得</p>
+<script type="math/tex; mode=display">N_k\Sigma_k^{-1}=\Sigma_k^{-1}\left(\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\right)\Sigma_k^{-1}</script><p>上式两边右乘 $\Sigma_k^{-1}$，得</p>
+<script type="math/tex; mode=display">N_k \mathbf I = \left(\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\right)\Sigma_k^{-1}</script><p>然后左乘 $\Sigma_k$ 得到 {eq}<code>GMM9</code> 。</p>
+<h2 id="更新混合权重"><a href="#更新混合权重" class="headerlink" title="更新混合权重"></a>更新混合权重</h2><p>混合模型的权重参数 $\pi_k$ 的更新为</p>
+<script type="math/tex; mode=display">\pi_k^{new} = \frac {N_k} N$$ (GMM11)
+
+证：
+
+由于 $\sum_{k=1}^N \pi_k=1$ 这个约束条件，我们采用拉格朗日乘子法，
+
+$$\begin{aligned}L &=\mathcal L + \lambda \left(\sum_{k=1}^K \pi_k-1\right)
+\\&= \sum_{n=1}^N \log \sum_{k=1}^K \pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k) + \lambda \left(\sum_{k=1}^K \pi_k-1\right)
+\end{aligned}</script><p>求梯度，由于 $\pi_k$ 不存在于 $\mathcal N$ 中，故梯度非常容易计算，</p>
+<script type="math/tex; mode=display">\begin{aligned}\frac {\partial L}{\partial \pi_k}&=\sum_{n=1}^N \frac {\mathcal N(\mathbf x_n|\mu_k,\Sigma_k)}{\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j, \Sigma_j)} + \lambda
+\\&= \frac 1 {\pi_k} \underbrace{ \sum_{n=1}^N \frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)}{\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j, \Sigma_j)}}_{=N_k} + \lambda = \frac {N_k} {\pi_k}+\lambda
+\end{aligned}</script><script type="math/tex; mode=display">\frac {\partial L}{\partial \lambda}=\sum_{k=1}^K \pi_k -1</script><p>令上面两个梯度均为零，得</p>
+<script type="math/tex; mode=display">\pi_k = - \frac {N_k}{\lambda}</script><script type="math/tex; mode=display">\sum_{k=1}^K \pi_k -1 = \sum_{k=1}^K \left(-\frac {N_k} {\lambda}\right)-1=0 \Leftrightarrow \lambda = -\sum_{k=1}^K N_k=-N</script><p>于是</p>
+<script type="math/tex; mode=display">\pi_k^{new} = \frac {N_k} N</script><p>其中 $N$ 为数据集大小。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/12/ml/lstm/" rel="prev" title="lstm">
+      <i class="fa fa-chevron-left"></i> lstm
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GMM"><span class="nav-number">1.</span> <span class="nav-text">GMM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E5%AD%A6%E4%B9%A0"><span class="nav-number">1.1.</span> <span class="nav-text">参数学习</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Responsibility"><span class="nav-number">1.2.</span> <span class="nav-text">Responsibility</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E5%8D%8F%E6%96%B9%E5%B7%AE"><span class="nav-number">1.3.</span> <span class="nav-text">更新协方差</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E6%B7%B7%E5%90%88%E6%9D%83%E9%87%8D"><span class="nav-number">1.4.</span> <span class="nav-text">更新混合权重</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">93</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

@@ -28,7 +28,7 @@
 <meta property="og:description" content="多分类问题，对于线性可分的训练集，可以使用 Perception 算法学习，此时损失相当于使用了 $0-1$ 损失，而对于非线性可分的情况，$0-1$ 损失显然由于其不可导，不再适用，需要寻找一种“凸替代”（convex surrogate）损失函数。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-09-29T09:58:26.000Z">
-<meta property="article:modified_time" content="2021-09-30T08:20:12.381Z">
+<meta property="article:modified_time" content="2021-10-09T02:04:35.063Z">
 <meta property="article:author" content="shajianjian">
 <meta property="article:tag" content="machine learning">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-30 16:20:12" itemprop="dateModified" datetime="2021-09-30T16:20:12+08:00">2021-09-30</time>
+                <time title="修改时间：2021-10-09 10:04:35" itemprop="dateModified" datetime="2021-10-09T10:04:35+08:00">2021-10-09</time>
               </span>
 
           
@@ -223,23 +223,23 @@
 <script type="math/tex; mode=display">\langle \mathbf w, \Psi(\mathbf x, y)\rangle \le \langle \mathbf w, \Psi(\mathbf x, h_{\mathbf w}(\mathbf x))\rangle</script><p>其中 $y$ 为样本真实分类，在当前参数 $\mathbf w$ 下，如果得分最高的那个分类恰好是样本真实分类（或者说，当前参数对这个样本分类预测正确），那么等式成立。</p>
 <p>记原损失函数为 $\Delta(h_{\mathbf w}(\mathbf x), y)$，其中 $y$ 表示样本真实分类，$h_{\mathbf w}(\mathbf x)$ 表示样本预测分类。原损失函数常见的可以是 $0-1$ 损失，我们需要构造原损失函数的凸替代，根据上式不等式关系以及上面凸替代的第二个要求，不难想到写出如下关系</p>
 <script type="math/tex; mode=display">\Delta(h_{\mathbf w}(\mathbf x), y) \le \Delta(h_{\mathbf w}(\mathbf x), y)+\langle \mathbf w, \Psi(\mathbf x, h_{\mathbf w}(\mathbf x))-\Psi(\mathbf x, y)\rangle</script><p>由于 $h_{\mathbf w}(\mathbf x) \in \mathcal Y$，可以将上面这个不等式的右端 upper bound 为</p>
-<script type="math/tex; mode=display">\max_{y' \in \mathcal Y} \ (\Delta(y', y)+\langle \mathbf w, \Psi(\mathbf x, y')-\Psi(\mathbf x, y)\rangle) \stackrel{def}=  l(\mathbf w, (\mathbf x, y)) \tag{*} \label{\star}</script><p>于是 $l(\mathbf w, (\mathbf x, y)) \ge \Delta(h_{\mathbf w}(\mathbf x), y)+\langle \mathbf w, \Psi(\mathbf x, h_{\mathbf w}(\mathbf x))-\Psi(\mathbf x, y)\rangle\ge \Delta(h_{\mathbf w}(\mathbf x), y)$，第一个非严格不等关系中，当</p>
+<script type="math/tex; mode=display">\max_{y' \in \mathcal Y} \ (\Delta(y', y)+\langle \mathbf w, \Psi(\mathbf x, y')-\Psi(\mathbf x, y)\rangle) \stackrel{def}=  l(\mathbf w, (\mathbf x, y)) \tag{100} \label{100}</script><p>于是 $l(\mathbf w, (\mathbf x, y)) \ge \Delta(h_{\mathbf w}(\mathbf x), y)+\langle \mathbf w, \Psi(\mathbf x, h_{\mathbf w}(\mathbf x))-\Psi(\mathbf x, y)\rangle\ge \Delta(h_{\mathbf w}(\mathbf x), y)$，第一个非严格不等关系中，当</p>
 <script type="math/tex; mode=display">h_{\mathbf w}(\mathbf x)=\mathop{\arg} \max_{y' \in \mathcal Y} \ (\Delta(y', y)+\langle \mathbf w, \Psi(\mathbf x, y')-\Psi(\mathbf x, y)\rangle) \tag{2}</script><p>时，等号成立。第二个非严格不等关系中，当 </p>
 <script type="math/tex; mode=display">h_{\mathbf w}(\mathbf x)=y \tag{3}</script><p>时, 等号成立，将 (3) 式代入 (2) 式 有</p>
 <script type="math/tex; mode=display">\Delta(y, y)+\langle \mathbf w, \Psi(\mathbf x, y)-\Psi(\mathbf x, y)\rangle \ge \Delta(y', y)+\langle \mathbf w, \Psi(\mathbf x, y')-\Psi(\mathbf x, y)\rangle, \ \forall y' \in \mathcal Y \setminus \{y\}</script><p>由于 $\Delta(y,y)=0$，化简上式得</p>
 <script type="math/tex; mode=display">\langle \mathbf w,\Psi(\mathbf x, y)\rangle \ge \langle \mathbf w, \Psi(\mathbf x, y')\rangle+\Delta(y', y) \tag{4}</script><p>即，满足 (4) 式关系时，下面不等式关系中等号成立。</p>
 <script type="math/tex; mode=display">l(\mathbf w, (\mathbf x, y)) \ge \Delta(h_{\mathbf w}(\mathbf x), y) \tag{5}</script><p>注：(5) 式恒成立，只是在满足 (4) 条件时，(5) 式中等号成立。</p>
 <p>$l(\mathbf w, (\mathbf x, y))$ 是若干个有关 $\mathbf w$ 的线性函数的最大值函数，根据本文附录的 <strong>定理 1</strong>， <strong>$l(\mathbf w, (\mathbf x, y))$ 是 $\mathbf w$ 的凸函数。并且 $l(\mathbf w, (\mathbf x, y))$ 是 $\rho-$Lipschitz 函数。</strong>（证明见下方附录）</p>
-<p>$\eqref{\star}$ 式定义的 $l(\mathbf w, (\mathbf x, y))$ 就是泛 hinge 损失。对于二分类情况，令原损失 $\Delta$ 为 $0-1$ 损失，当 $\mathcal Y = \{\pm 1\}$ 时，设置 $\Psi(\mathbf x, y)=y\mathbf x/2$，那么泛 hinge 损失将退化为普通 hinge 损失，</p>
+<p>$\eqref{100}$ 式定义的 $l(\mathbf w, (\mathbf x, y))$ 就是泛 hinge 损失。对于二分类情况，令原损失 $\Delta$ 为 $0-1$ 损失，当 $\mathcal Y = \{\pm 1\}$ 时，设置 $\Psi(\mathbf x, y)=y\mathbf x/2$，那么泛 hinge 损失将退化为普通 hinge 损失，</p>
 <script type="math/tex; mode=display">l(\mathbf w, (\mathbf x, y))=\max_{y'\in \{y, -y\}} \Delta(y', y)+\langle \mathbf w, (y'-y)\mathbf x/2 \rangle</script><p>当 $y’=y$ 时， $\Delta(y’, y)=0$，$\langle \mathbf w, (y’-y)\mathbf x/2 \rangle=0$</p>
 <p>当 $y’=-y$ 时，$\Delta(y’, y)=1$，$\langle \mathbf w, (y’-y)\mathbf x/2 \rangle=-y \langle \mathbf w, \mathbf x\rangle$</p>
 <p>于是 $l(\mathbf w, (\mathbf x, y))=\max \{0, 1-y \langle \mathbf w, \mathbf x\rangle\}$，这与前文 <a href="/2021/09/22/ml/multiclass">多分类的基本介绍</a> 中所讨论的完全一致。</p>
 <p>再以 $\mathcal Y=\{1, 2\}$ 的二分类为特例，介绍这个 泛 hinge 损失。前文 <a href="/2021/09/22/ml/multiclass">多分类的基本介绍</a> 中已经给出了 $\Psi(\mathbf x, y)$ 和 $\mathbf w$ 的具体形式，这里直接引用过来，</p>
 <script type="math/tex; mode=display">\mathbf w'=\begin{bmatrix} \mathbf w \\\\ -\mathbf w \end{bmatrix}
 
-\\\\\Psi(\mathbf x, y=1)=[x_1,\cdots, x_n, 0,\cdots 0]^{\top}=\begin{bmatrix} \mathbf x \\\\ \mathbf 0 \end{bmatrix}
-\\\\\Psi(\mathbf x, y=2)=[0,\cdots 0, x_1,\cdots, x_n]^{\top}=\begin{bmatrix} \mathbf 0 \\\\ \mathbf x \end{bmatrix}
-\\\\h(\mathbf x)=arg \max_{y \in \mathcal Y} \mathbf w'^{\top} \Psi(\mathbf x, y)</script><p>根据 $\eqref{\star}$ 式，有</p>
+\\ \Psi(\mathbf x, y=1)=[x_1,\cdots, x_n, 0,\cdots 0]^{\top}=\begin{bmatrix} \mathbf x \\\\ \mathbf 0 \end{bmatrix}
+\\ \Psi(\mathbf x, y=2)=[0,\cdots 0, x_1,\cdots, x_n]^{\top}=\begin{bmatrix} \mathbf 0 \\\\ \mathbf x \end{bmatrix}
+\\h(\mathbf x)=arg \max_{y \in \mathcal Y} \mathbf w'^{\top} \Psi(\mathbf x, y)</script><p>根据 $\eqref{100}$ 式，有</p>
 <script type="math/tex; mode=display">l(\mathbf w, (\mathbf x, y))=\max_{y' \in \{1,2\}} \Delta(y', y)+\mathbf w'^{\top}(\Psi(\mathbf x, y')-\Psi(\mathbf x, y))</script><ol>
 <li>当 $y’=y$</li>
 </ol>
@@ -251,7 +251,33 @@
 <p>如果是 $y’=2, y=1$，那么 $\mathbf w^{\top}(\Psi(\mathbf x, y’)-\Psi(\mathbf x, y))=-2\mathbf w^{\top}\mathbf x$</p>
 <p>综合以上，有 $l(\mathbf w, (\mathbf x, y))=\max \{0, 1-(-1)^{y-1}2 \mathbf w^{\top}\mathbf x\}$ 。 不难看出，这个损失函数的形式与上面的是一致的。</p>
 <h1 id="学习算法"><a href="#学习算法" class="headerlink" title="学习算法"></a>学习算法</h1><p>解决多分类问题，其核心是将原来二分类中的 $\mathbf w, \ \mathbf x \in \mathbb R^n$ 映射到更高维的空间中 $\mathbf w, \ \Psi(\mathbf x, y) \in \mathbb R^{nk}$ 中去。现在我们使用 SGD 学习算法，并给损失函数增加一个正则项，</p>
-<script type="math/tex; mode=display">L=l(\mathbf w, (\mathbf x, y))+ \frac {\lambda} 2 \Vert \mathbf w \Vert^2</script><h1 id="Appendix"><a href="#Appendix" class="headerlink" title="Appendix"></a>Appendix</h1><p><strong>1. 定理1</strong></p>
+<script type="math/tex; mode=display">L=\mathbb E_{(\mathbf x, y)\sim \mathcal D}[l(\mathbf w, (\mathbf x, y))]+ \frac {\lambda} 2 \Vert \mathbf w \Vert^2</script><p>$t$ 时刻更新的梯度向量 $\mathbf v_t \in \partial l(\mathbf w^{(t)})$，其中 $\partial l(\mathbf w^{(t)})$ 表示真实分布 $\mathcal D$ 下，泛 hinge 损失函数在 $\mathbf w^{(t)}$ 的次梯度集。从训练集中随机抽取一个样本 $(\mathbf x, y)$，计算 $\partial l(\mathbf w^{(t)},(\mathbf x, y))$，选择学习率 $\eta$，那么更新公式为</p>
+<script type="math/tex; mode=display">\begin{aligned}
+\mathbf w^{(t+1)}&=\mathbf w^{(t)}-\eta(\lambda \mathbf w^{(t)}+\mathbf v_t)
+\\ &= \frac {t-2} t \mathbf w{(t-1)}-\eta \mathbf v_{t-1}-\eta \mathbf v_t
+\\ &= \cdots
+\\&=\frac 0 t \mathbf w^{(1)}-\eta\sum_{i=1}^t \mathbf v_i
+\\&=-\eta\sum_{i=1}^t \mathbf v_i
+\end{aligned}</script><p>其中初始化 $\mathbf w^{(t)}=\mathbf 0$ 。 具体推导过程与 <a href="/2021/09/22/ml/svm">SVM</a> 中完全一样。</p>
+<p>由于 $\mathbf v_i$ 是泛 hinge 损失在 $\mathbf w{(i)}$ 处的次梯度，根据 $\eqref{100}$ 式，易知次梯度为 </p>
+<script type="math/tex; mode=display">\mathbf v_i=\Psi(\mathbf x, \hat y)-\Psi(\mathbf x, y)</script><p>其中 $\hat y= \arg_{y’}  l(\mathbf w, (\mathbf x, y))$，显然当 $\hat y=y$ 时，次梯度 $\mathbf v_i=\mathbf 0$。</p>
+<p>总结算法步骤如下</p>
+<hr>
+<center> 多分类问题的 SGD 算法</center>
+
+<p><strong>参数：</strong></p>
+<p>&emsp; 学习率 $\eta$，迭代次数 $T$。</p>
+<p>&emsp; 原损失函数 $\Delta: \mathcal Y \times \mathcal Y \rightarrow \mathbb R_+$</p>
+<p>&emsp; 映射到特征空间的函数 $\Psi: \mathcal X \times \mathcal Y \rightarrow \mathbb R^d$</p>
+<p><strong>初始化：</strong> $\ \mathbf w^{(1)}=\mathbf 0 \in \mathbb R^d$</p>
+<p><strong>for</strong> $t=1,2,\cdots, T$</p>
+<p>&emsp; 随机取样 $(\mathbf x, y) \in \mathcal D$</p>
+<p>&emsp; $\hat y=\arg \max_{y’ \in \mathcal Y} (\Delta(y’, y)+\langle \mathbf w^{(t)}, \Psi(\mathbf x, y’)-\Psi(\mathbf x, y)\rangle)$</p>
+<p>&emsp; $\mathbf v_t=\Psi(\mathbf x, \hat y)-\Psi(\mathbf x, y)$</p>
+<p>&emsp; $\mathbf w^{(t+1)}=\mathbf w^{(t)}-\eta \mathbf v_t$</p>
+<p><strong>输出：</strong> $\ \overline {\mathbf w}=\frac 1 T \sum_{t=1}^T \mathbf w^{(t)}$</p>
+<hr>
+<h1 id="Appendix"><a href="#Appendix" class="headerlink" title="Appendix"></a>Appendix</h1><p><strong>1. 定理1</strong></p>
 <p>对 $i=1,\cdots, r$，令 $f_i: \mathbb R^d \rightarrow \mathbb R$ 为凸函数，那么 $g(x)=\max_{i \in [r]} f_i(x)$ 也是凸函数。</p>
 <p>证：</p>
 <script type="math/tex; mode=display">\begin{aligned} g(\alpha u +(1-\alpha)v) &= \max_i f_i(\alpha u + (1-\alpha)v)
@@ -294,7 +320,10 @@
     <a href="/2021/09/28/ml/multiclass/" rel="prev" title="多分类">
       <i class="fa fa-chevron-left"></i> 多分类
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/10/08/ml/multiclass_algo_demo/" rel="next" title="结构化预测——一个多分类例子">
+      结构化预测——一个多分类例子 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -367,7 +396,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">83</span>
+          <span class="site-state-item-count">93</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -380,7 +409,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

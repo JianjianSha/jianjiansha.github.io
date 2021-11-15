@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文讨论二分排序的问题。所谓“二分排序”，指的是 $\mathbf y \in \{\pm 1\}^r$ ，表示样例 $\mathbf x_i$ 要么是相关的，要么是不相关的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二分排序">
+<meta property="og:url" content="https://shajianjian.github.io/2021/10/12/ml/bi_rank/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="本文讨论二分排序的问题。所谓“二分排序”，指的是 $\mathbf y \in \{\pm 1\}^r$ ，表示样例 $\mathbf x_i$ 要么是相关的，要么是不相关的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-10-12T03:42:08.000Z">
+<meta property="article:modified_time" content="2021-10-12T09:39:12.070Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="machine learning">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/10/12/ml/bi_rank/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>二分排序 | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/10/12/ml/bi_rank/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          二分排序
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-10-12 11:42:08 / 修改时间：17:39:12" itemprop="dateCreated datePublished" datetime="2021-10-12T11:42:08+08:00">2021-10-12</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文讨论二分排序的问题。所谓“二分排序”，指的是 $\mathbf y \in \{\pm 1\}^r$ ，表示样例 $\mathbf x_i$ 要么是相关的，要么是不相关的。</p>
+<span id="more"></span>
+<p>乍一看，二分排序跟二分类很像，但是用二分类的常用方法来解决二分排序问题，往往效果不好，这是因为排序问题中，相关的实例（或直接称作 正例）的占比很小，例如在缺陷检测中，绝大多少样本（例如 99.9%）都是良好的，那么二分类的学习方法得到的判决器对所有样本都判为负例，那么错误率已经非常小（0.1%），这显然对我们的缺陷检测这一目标毫无意义。二分类学习方法不奏效的根本原因是使用了 0-1 损失（或者它的凸替代），这一损失不足以解决排序问题。我们介绍另外的对二分排序问题适用的损失函数。</p>
+<h1 id="损失"><a href="#损失" class="headerlink" title="损失"></a>损失</h1><p>实例序列 $\overline {\mathbf x}=(\mathbf x_1,\cdots, \mathbf x_r)$，预测值 $\mathbf y’=\mathbf w^{\top} \mathbf x \in \mathbb R^r$，这里为简单起见，直接使用 $\mathbf x$ 而非 $\Psi(\mathbf x, \mathbf y)$ 作为特征， target 值为 $\mathbf y \in \{\pm 1\}^r$，所以还需要一个参数 $\theta$，以便将预测向量转化为二值向量，</p>
+<script type="math/tex; mode=display">b(\mathbf y')=(\text{sign}(y_1'-\theta),\cdots, \text{sign}(y_r'-\theta))</script><p>通常设置 $\theta=0$，但也有时候在某些具体问题中需要满足某些约束，从而调整 $\theta$ 值。</p>
+<p>列出 <code>真阳，假阳，假阴，真阴</code> 四个概念如下：</p>
+<p>True positives： $\ a=|\{i:y_i=+1 \land \text{sign}(y_i’-\theta)=+1\}|$</p>
+<p>False positives： $\ b=|\{i:y_i=-1 \land \text{sign}(y_i’-\theta)=+1\}|$</p>
+<p>False negatives： $\ c=|\{i:y_i=+1 \land \text{sign}(y_i’-\theta)=-1\}|$</p>
+<p>True negatives： $\ d=|\{i:y_i=-1 \land \text{sign}(y_i’-\theta)=-1\}|$</p>
+<p>recall（真阳在阳例中的占比）： $\ \frac a {a+c}$</p>
+<p>precision（真阳在预测阳例中的占比）： $\ \frac a {a+b}$</p>
+<p>specificity（特异度：真阴在阴例中的占比）： $\ \frac d {d+b}$</p>
+<p>如果 $\theta \uparrow$，那么 $recall \downarrow$，但是 $precision \uparrow$</p>
+<p>以下损失结合了 recall 以及 precision，也称 “多变量性能测度” （$0-1$ 损失在这里为 $\frac {b+d}{a+b+c+d}$）。</p>
+<ol>
+<li><p>利用 recall 和 specificity 的均值作为测度</p>
+<script type="math/tex; mode=display">\Delta(\mathbf y', \mathbf y)=1-\frac 1 2 (\frac a {a+c}+\frac d {d+b})</script><p> 当 $b=c=0$ 时，即没有假阳和假阴，全部预测正确，此时 $\Delta=0$</p>
+</li>
+<li><p>F1-score</p>
+<p> $F_1$ -score 计算如下</p>
+<script type="math/tex; mode=display">F_1=\frac 1 {\frac 1 {\text{precision}}+\frac 1 {\text{recall}}}=\frac {2a}{2a+b+c}</script><p> 相关损失</p>
+<script type="math/tex; mode=display">\Delta(\mathbf y', \mathbf y)=1-F_1</script></li>
+<li><p>$F_{\beta}$-score</p>
+<script type="math/tex; mode=display">F_{\beta}=\frac {1+\beta^2} {\frac 1 {\text{precision}}+\beta^2\frac 1 {\text{recall}}}=\frac {(1+\beta^2)a} {(1+\beta^2)a+b+\beta^2 c}</script><p> 相关损失</p>
+<script type="math/tex; mode=display">\Delta(\mathbf y', \mathbf y)=1-F_{\beta}</script></li>
+</ol>
+<p>以下介绍两个概念：</p>
+<ol>
+<li><p>Recall at $k$ ：$a+b \le k$</p>
+</li>
+<li><p>precision at $k$：$a+b \ge k$</p>
+</li>
+</ol>
+<h1 id="线性预测器"><a href="#线性预测器" class="headerlink" title="线性预测器"></a>线性预测器</h1><p>记参数为 $\mathbf w$，线性预测器为</p>
+<script type="math/tex; mode=display">\mathbf y'=h_{\mathbf w}(\overline {\mathbf x})=(\mathbf w^{\top}\mathbf x_1, \cdots, \mathbf w^{\top}\mathbf x_r)</script><p>转到二值向量，</p>
+<script type="math/tex; mode=display">\begin{aligned}b(\mathbf y')&=(\text{sign}(y_1'-\theta),\cdots, \text{sign}(y_r'-\theta))
+\\&=\arg \max_{\mathbf v \in V} \ \sum_{i=1}^r v_i y_i'
+\end{aligned}</script><p>其中 $V=\{\pm 1\}^r$ 。</p>
+<h2 id="凸替代"><a href="#凸替代" class="headerlink" title="凸替代"></a>凸替代</h2><p>记损失函数为 $\Delta$，可以是上述三个损失之一。那么有</p>
+<script type="math/tex; mode=display">\begin{aligned}\Delta(h_{\mathbf w}(\overline {\mathbf x}), \mathbf y)&=\Delta(b(h_{\mathbf w}(\overline {\mathbf x})), \mathbf y)
+\\ & \le \Delta(b(h_{\mathbf w}(\overline {\mathbf x})), \mathbf y)+\sum_{i=1}^r (b(h_{\mathbf w}(\overline {\mathbf x}))_i-y_i)\mathbf w^{\top}\mathbf x_i
+\\ & \le \max_{\mathbf v \in V} \left[\Delta(\mathbf v, \mathbf y)+\sum_{i=1}^r(v_i-y_i) \mathbf w^{\top}\mathbf x \right]
+\end{aligned} \tag{1} \label{1}</script><p>由于 $|V|=2^r$，当 $r$ 较大时，$|V|$ 较大，这就导致 $\eqref{1}$ 式右侧最大值计算较为耗时，需要寻求一种高效的计算方法。</p>
+<p>对 $\forall a,b \in [r]$，令</p>
+<script type="math/tex; mode=display">\mathcal Y_{a,b}=\{\mathbf v: |\{i: v_i=1 \land y_i=1\}|=a \land |\{i:v_i=1 \land y_i=-1\}|=b\}</script><p>$\mathcal Y_{a,b}$ 表示在给定 target $\mathbf y$ 的情况下，满足真阳数量为 $a$，且假阳数量为 $b$ 的所有预测序列集合。</p>
+<p>固定 $a,b$ 值，在 $\mathcal Y_{a,b}$ 集合中求目标局部最大值，然后比较各个局部最大值，进而求得全局最大值。</p>
+<p>在 $\mathcal Y_{a,b}$ 集合中求局部最大值的时候，观察  $\eqref{1}$ 式优化目标，发现 $y_i \mathbf w^{\top}\mathbf x$ 是固定不变的，由于固定了 $a,b$，所以 $c,d$ 也确定下来，所以对任意 $\mathbf v \in \mathcal Y_{a,b}$，$\Delta(\mathbf v, \mathbf y)$ 也固定不变（这对上述三个损失均成立），所以只要求以下最大值即可，</p>
+<script type="math/tex; mode=display">\max_{\mathbf v \in \mathcal Y_{a,b}} \ \sum_{i=1}^r v_i \mathbf w^{\top} \mathbf x_i \tag{2} \label{2}</script><p>要求 $\eqref{2}$ 这个最大值，由于 $v_i \in \{\pm 1\}$，所以理论上只需要令 $v_i=\text{sign}(\mathbf w^{\top}\mathbf x_i)$。</p>
+<p>然而由于 $\mathcal Y_{a,b}$ 的存在，使得真阳数量必须为 $a$，假阳数量必须为 $b$，也就是说，预测 $v_i=1$ 的数量固定为 $a+b$，因为 $v_i=1$，所以 $v_i \mathbf w^{\top} \mathbf x_i=\mathbf w^{\top} \mathbf x_i$，故需要 $\mathbf w^{\top} \mathbf x_i$ 尽可能大，才符合 $\eqref{2}$ 式的求最大值这一目标，即，尽可能地将较大的 $\mathbf w^{\top} \mathbf x_i$ 赋予 $v_i=1$ 。于是，根据真阳数量 $a$ 和假阳数量 $b$，分别在正例中将 top-a 的 $\mathbf w^{\top} \mathbf x_i$ 以及负例中 top-b 的 $\mathbf w^{\top} \mathbf x_i$ 所对应的样本预判为正 $v_i=1$，具体操作如下：</p>
+<p>对样例进行排序，使得 </p>
+<script type="math/tex; mode=display">\mathbf w^{\top} \mathbf x_1 \ge \cdots \ge \mathbf w^{\top} \mathbf x_r</script><p>其下标 $1,2,\cdots, r$ 是排序后的下标。此时根据 target $\mathbf y$ 值，将样例分为正例和负例两部分，每个部分内部是保持 $\mathbf w^{\top} \mathbf x_i$ 的降序排列，记这两部分的下标集合为</p>
+<script type="math/tex; mode=display">S_+=\{i_1,\cdots, i_P\}
+\\S_-=\{j_1,\cdots, j_N\}</script><p>其中 $P=|\{i:y_i=1\}|, \ N=|\{i:y_i=-1\}|$，且有</p>
+<script type="math/tex; mode=display">\mathbf w^{\top} \mathbf x_{i_1} \ge \cdots \ge \mathbf w^{\top} \mathbf x_{i_P}
+\\\mathbf w^{\top} \mathbf x_{j_1} \ge \cdots \ge \mathbf w^{\top} \mathbf x_{j_N}</script><p>那么，只要令 $i_1,\cdots, i_a$ 以及 $j_1,\cdots, j_b$ 对应的样本预测为正，</p>
+<script type="math/tex; mode=display">v_{i_1}=\cdots = v_{i_a}=v_{j_1}=\cdots = v_{j_b}=1</script><p>另外，剩余的样例中，由于其 $\mathbf w^{\top} \mathbf x_i$ 较小，所以 $v_i \mathbf w^{\top} \mathbf x_i=-\mathbf w^{\top} \mathbf x_i$ 也是尽可能地大，符合 $\eqref{2}$ 求最大值这一目标。</p>
+<p>求 $\eqref{2}$ 式的解 $\mathbf v^{\star}$ 后，根据 $\eqref{1}$ 式计算相应地目标局部最大值</p>
+<script type="math/tex; mode=display">L_{a,b}=\left[\Delta(\mathbf v^{\star}, \mathbf y)+\sum_{i=1}^r(v_i^{\star}-y_i) \mathbf w^{\top}\mathbf x \right]</script><p>对每一组 $(a,b)$ 值，均计算其局部最大值 $L_{a,b}$ 以及对应的解 $\mathbf v^{\star}$，最后进行比较，可以求得全局最大值以及相应的解。</p>
+<p>当然，由于 $y_i\mathbf w^{\top} \mathbf x_i$ 与 $\mathbf v$ （以及 $a,b$）无关，所以也可以更简单的求 </p>
+<script type="math/tex; mode=display">L_{a,b}=\left[\Delta(\mathbf v^{\star}, \mathbf y)+\sum_{i=1}^r v_i^{\star} \mathbf w^{\top}\mathbf x \right]</script><p>然后比较求全局最大值和相应的解。</p>
+<p>以上这种算法高效的本质是，将 $V$ 按 $(a,b)$ 值划分成若干组，每组求组内最大值，而每组内部由于 $\Delta(\mathbf v, \mathbf y)$ 以及 $y_i\mathbf w^{\top}\mathbf x$ 均相等，所以在组内演变成求 $\eqref{2}$ 式，而 $\eqref{2}$ 式可以快速求最优值和最优解。</p>
+<p>注：上述计算过程中，$\theta$ 采用默认值 0 。</p>
+<p>计算 $\eqref{1}$ 式步骤总结如下：</p>
+<hr>
+<p><strong>输入：</strong> $(\mathbf x_1, \cdots, \mathbf x_r)$，$(y_1,\cdots, y_r)$，$\mathbf w, \ V, \Delta$</p>
+<p><strong>初始化：</strong></p>
+<p>&emsp; $P=|\{i:y_i=1\}|, \ N=|\{i:y_i=-1\}|$</p>
+<p>&emsp; $\boldsymbol \mu=(<script type="math/tex">\mathbf w^{\top} \mathbf x_1 , \cdots , \mathbf w^{\top} \mathbf x_r</script>)$，$\alpha^{\star}=-\infty$</p>
+<p>&emsp; 排序使得 $\mu_1 \ge \cdots \ge \mu_r$</p>
+<p>&emsp; 排序后正、负例下标集合分别为： $S_+=\{i_1,\cdots, i_P\}, \ S_-=\{j_1,\cdots, j_N\}$</p>
+<p><strong>for</strong> $\ a=0,1,\cdots, P$</p>
+<p>&emsp; $c=P-a$</p>
+<p>&emsp; <strong>for</strong> $\ b=0,1,\cdots,N$</p>
+<p>&emsp; &emsp; $d=N-b$</p>
+<p>&emsp;&emsp; 计算 $\Delta$</p>
+<p>&emsp;&emsp; 设置 $\mathbf v$ 使得 $v_{i_1}=\cdots = v_{i_a}=v_{j_1}=\cdots = v_{j_b}=1$，其余的 $v_i$ 全部设置为 $v_i=-1$</p>
+<p>&emsp;&emsp; $\alpha=\Delta+\sum_{i=1}^r v_i \mu_i$</p>
+<p>&emsp;&emsp; <strong>if</strong> $\alpha &gt; \alpha^{\star}$</p>
+<p>&emsp;&emsp;&emsp; $\alpha = \alpha^{\star}, \ \mathbf v^{\star}=\mathbf v$</p>
+<p><strong>输出：</strong> $\ \mathbf v^{\star}$</p>
+<hr>
+<p>然后可以使用 <a href="2021/09/29/ml/multiclass_algo">多分类算法</a> 一文中所述算法学习模型参数。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/10/09/ml/rank/" rel="prev" title="排序问题">
+      <i class="fa fa-chevron-left"></i> 排序问题
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/10/15/algo/lp_simplex/" rel="next" title="线性规划的单纯形方法">
+      线性规划的单纯形方法 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1"><span class="nav-number">1.</span> <span class="nav-text">损失</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E9%A2%84%E6%B5%8B%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">线性预测器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%B8%E6%9B%BF%E4%BB%A3"><span class="nav-number">2.1.</span> <span class="nav-text">凸替代</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">93</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

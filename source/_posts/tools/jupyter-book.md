@@ -79,6 +79,15 @@ git clone https://github.com/<my-account>/mybook
 cp -r mybookname/* mybook/
 ```
 
+**也可以使用以下方法创建一个在线书籍，例如想创建一个线性规划相关的书籍**，
+
+1. 按上一步创建 github 在线仓库，仓库名为 `linear_programming`
+2. 克隆空仓库到本地，然后 `cd` 到本地目录 `linear_programming`
+3. 执行 `jupyter-book create lp`，这样就在当前目标创建了书籍，书籍相关的源码文件全部位于 `lp` 这个子目录下。
+
+创建成果参见 [线性规划在线书籍](https://github.com/JianjianSha/linear_programming) 。
+
+
 添加 `.gitignore` 文件，文件内容为，
 ```
 mybook/_build/*
@@ -108,13 +117,13 @@ git push
     ```
 
 2. 更新 Github pages 站点设置
-    - 使用 `gh-pages`分支托管网站
+    - 使用 `gh-pages`分支托管网站。（这一步可以忽略，可以直接执行第三步，这样会自动设置。）
 
 3. 在 `main` 分支下（即 `master` 分支，不包含 `_build/html` 文件夹），调用
     ```sh
     ghp-import -n -p -f _build/html
     ```
-    `-n` 选项是告诉 Github 不用使用 `Jekyll` 来生成 book，因为我们的 HTML 已经生成
+    `-n` 选项是告诉 Github 不用使用 `Jekyll` 来生成 book，因为我们的 HTML 已经生成。这个命令在 _build 所在目录下执行。
 
 几分钟之后，book 可以通过 `https://<user>.github.io/mybook/` 访问。
 

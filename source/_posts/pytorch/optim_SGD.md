@@ -86,7 +86,7 @@ NAG 一次迭代过程分为两步：
 初始时令 $y_0=\theta_0$，即这两个变量起点相同。
 
 NAG 中我们对 $y$ 做梯度下降，得到的值为 $\theta$ 的新值，而非 $y$ 新值，$y$ 的新值是在 $\theta$ 的基础之上再增加 $\mu_{t+1} \cdot (\theta_{t+1}-\theta_t)$ 这么多的更新量。如图 3，
-![](/images/pytorch/NAS_0.png) <center>图 3. NAG 过程示意图</center>
+![](/images/pytorch/NAG_0.png) <center>图 3. NAG 过程示意图</center>
 如果 $\mu \equiv 0$，NAG 就是普通的梯度下降 SD。
 
 
@@ -128,8 +128,9 @@ $$v_t=\mu_{t-1} \cdot v_{t-1} - \epsilon_{t-1} \cdot \nabla f(\Theta_{t-1})$$
 $v_t$ 依然是 $\theta$ “中间”变量的更新量。
 
 根据 $\Theta$ 定义，
-$$\Theta_{t+1}-\mu_{t+1} \cdot v_{t+1}= \theta_{t+1}
-\\\\ \Theta_t-\mu_t \cdot v_t= \theta_t$$
+$$\Theta_{t+1}-\mu_{t+1} \cdot v_{t+1}= \theta_{t+1}$$
+
+$$\Theta_t-\mu_t \cdot v_t= \theta_t$$
 以及 (6) 式，有
 $$\Theta_{t+1}-\mu_{t+1} \cdot v_{t+1}=\Theta_t-\mu_t \cdot v_t+\mu_t \cdot v_t - \epsilon_t \cdot \nabla f(\Theta_t)$$
 化简得，

@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="线性规划问题在应用中很常见，有必要搞清楚如何解决这类问题。常用的方法有单纯形方法（The Simplex Method）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线性规划的单纯形方法">
+<meta property="og:url" content="https://shajianjian.github.io/2021/10/15/algo/lp_simplex/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="线性规划问题在应用中很常见，有必要搞清楚如何解决这类问题。常用的方法有单纯形方法（The Simplex Method）">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-10-15T01:18:05.000Z">
+<meta property="article:modified_time" content="2021-10-18T08:01:30.655Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="linear programming">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/10/15/algo/lp_simplex/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>线性规划的单纯形方法 | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/10/15/algo/lp_simplex/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          线性规划的单纯形方法
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-15 09:18:05" itemprop="dateCreated datePublished" datetime="2021-10-15T09:18:05+08:00">2021-10-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-10-18 16:01:30" itemprop="dateModified" datetime="2021-10-18T16:01:30+08:00">2021-10-18</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>线性规划问题在应用中很常见，有必要搞清楚如何解决这类问题。常用的方法有单纯形方法（The Simplex Method）<br><span id="more"></span></p>
+<h1 id="基本形式"><a href="#基本形式" class="headerlink" title="基本形式"></a>基本形式</h1><p>优化问题可以写成如下形式：</p>
+<script type="math/tex; mode=display">\min \ \mathbf {cx}=z\\
+s.t. \ A \mathbf {x=b} \\
+\quad \mathbf x \ge \mathbf 0</script><h2 id="形式转换"><a href="#形式转换" class="headerlink" title="形式转换"></a>形式转换</h2><p>对于不同于上述形式的线性规划问题，我们可以转换成上述形式。</p>
+<ol>
+<li><p>不等式约束条件</p>
+<p> 对于约束条件，如果存在不等式，可以通过增加变量的方式转为不等式。例如 $a_1x_1+a_2x_2\le b$，那么增加一个变量 $e_1 \ge 0$，不等式变为 $a_1x_1+a_2x_2+e_1=b$，如果是 $a_1x_1+a_2x_2\ge b$，那么增加变量 $e_1$ 后，不等式变为 $a_1x_1+a_2x_2-e_1=b$。<strong>对每一个不等式，增加一个独立的变量 $e_i \ge 0$，而不能是相同的变量。</strong> 通常，对于 “$\le$”  的不等关系，添加的辅助变量称为松弛变量 （slack variable），而 “$\ge$” 不等关系对应的则为过载变量（excess variable）。</p>
+</li>
+<li><p>符号非受限变量</p>
+<p> 如果在实际线性规划问题中，某个变量是为负，即“符号非受限变量”，例如 $x_j$，那么可以使用 $x_j’-x_j’’$ 代替 $x_j$，其中 $x_j’, x_j’’ \ge 0$。</p>
+</li>
+<li><p>最小 or 最大目标函数</p>
+<p> 如果是最大化目标函数 $\max \ z$，那么可以先求 $\min \ (-z)$，然后对最优目标值取反即可。</p>
+</li>
+</ol>
+<h1 id="单纯形方法"><a href="#单纯形方法" class="headerlink" title="单纯形方法"></a>单纯形方法</h1><h2 id="先导概念"><a href="#先导概念" class="headerlink" title="先导概念"></a>先导概念</h2><p>对于 $A \mathbf {x=b}, \ \mathbf x \ge \mathbf 0$，其中 $A \in \mathbb R^{m,n}$，$\mathbf b \in \mathbb R^m$。</p>
+<p>假设 $\ rank(A,\mathbf b)=rank(A)=m$ ：</p>
+<p>这个假设是合理的，如果 $rank(A)<m$，这说明方程组 $A \mathbf {x=b}$ 有 $m-rank(A)$ 个方程是冗余的，如果 $rank(A,\mathbf b)>rank(A)$，那么  $A \mathbf {x=b}$ 无解。另一方面，$m \ge rank(A,\mathbf b)\ge rank(A)$ 在任何条件下恒成立，如果 $rank(A)=m$，那么自然有 $rank(A,\mathbf b)=rank(A)=m$ 。</p>
+<p>将矩阵 $A$ 的列重新排列为 $A=[B, N]$，使得 $B \in \mathbb R^{m,m}$ 是可逆矩阵，$\mathbf x=\begin{bmatrix}\mathbf x_B \\ \mathbf x_N\end{bmatrix}$ 是 $A \mathbf {x=b}$ 的解，其中 $\mathbf x_B=B^{-1}\mathbf b$，且 $\mathbf x_N=\mathbf 0$ 。注意满足 $[B, N]\begin{bmatrix}\mathbf x_B \\ \mathbf x_N\end{bmatrix}=\mathbf b$ 的 $\mathbf x_B$ 不一定只能是 $B^{-1}$，同样 $\mathbf x_N$ 不一定只能是 $\mathbf 0$。$\mathbf x_B=B^{-1}\mathbf b, \ \mathbf x_N=\mathbf 0$ 只是其中一个解（称为基本解）。</p>
+<p>如果满足 $\mathbf x_B=B^{-1}\mathbf b \ge \mathbf 0$，称 $\mathbf x$ 是一个 <strong>基本可行解</strong>，回顾一下 $A=[B, N]$，其中 $B$ 是 m 阶可逆矩阵，这相当于已知 $n$ 列里面 <strong>最多</strong> 有 $m$ 个线性无关的列， 显然要选取这 $m$ 个线性无关的列，有 $\begin{pmatrix}n \\ m \end{pmatrix}$ 取法，所以自然有 $\begin{pmatrix}n \\ m \end{pmatrix}$ 个 $B$，称 $B$ 为基本矩阵，$N$ 为非基本矩阵，$\mathbf x_B$ 中各元素为 <strong>基本变量</strong> ，$\mathbf x_N$ 中各元素为 <strong>非基本变量</strong> 。</p>
+<h2 id="方法实现"><a href="#方法实现" class="headerlink" title="方法实现"></a>方法实现</h2><p>使用表格形式实现单纯形方法，初始表格形式为</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>$z$</th>
+<th>-$\mathbf c$</th>
+<th>0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$\mathbf 0$</td>
+<td>A</td>
+<td>$\mathbf b$</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这是根据 $z-\mathbf {cx}=0$ 以及 $A\mathbf {x=b}$，然后省略了 $\mathbf x$，按列可以分为三个部分，第一部分表示优化目标 $z$，第二部分表示 $\mathbf x$ 的系数，每列对应一个 $x_i$，第三部分表示等式右侧。然后采用迭代方法，具体实现步骤如下：</p>
+<ol>
+<li><p>寻找第一行 (Row 0) 中系数最大且为正的那个列 ($-c_i$)，即这列编号为 $i$，此时 $x_i$ 就作为“当前将要进入的基本变量”</p>
+</li>
+<li><p>找到“当前将要进入的基本变量” $x_i$ 后，执行“比例测试”：将第三部分的列中的值（也就是 $\mathbf b$）除以每一行中第 $i$ 列的系数（$x_i$ 的系数），例如第 $j$ 行的 $b_j$ 变成 $b_j/A_{ji}$，但是如果 $A_{ji} \le 0$，那么第 $j$ 行将不执行“比例测试”，注意 Row 0 行也不执行“比例测试”。对所有执行了“比例测试”的行的比例，选择 <strong>比例最小且为正</strong> 的行，记行号为 $j$，如果有多个行，其比例为正且均为最小，那么随意选择其中一行即可。</p>
+</li>
+<li><p>通过前两步，找到了“当前将要进入的基本变量” $x_i$，以及 $x_i$ 将要进入的行号 $j$。然后通过矩阵的基本行变换，使得第 $i$ 变成单位矩阵的第 $i$ 列，即，第 $i$ 列的 第 $j$ 行为 1，其余行为 0，注意这里 Row 0 行也参与行基本变换。通过这个变换，$x_i$ 已经进入了基本变量，由于此时 $x_i$ 的系数为 $1$，其值就是第三部分的列在第 $j$ 行的值，即 $x_i=b_j/A_{ji}$，$A_{ji}$ 是本次矩阵基本行变换之前的系数。 之前的位于第 $j$ 行的基本变量则被移除出去 。这里，“进入”指变量进入基本变量集合，“移除”指将变量从基本变量集合中移除出去。</p>
+</li>
+<li><p>重复以上过程，直到 Row 0 行没有正数，即第二部分 ($-\mathbf c$ ）没有正分量，结束迭代。此时，所有基本变量的值均已确定，非基本变量的值为 0，也就是说，最优解 $\mathbf x=\begin{bmatrix}\mathbf x_B \\ \mathbf x_N\end{bmatrix}$ 已经确定，代入原始的目标函数 $z=\mathbf {cx}$ 即可求得最优值。</p>
+</li>
+</ol>
+<h3 id="例子说明"><a href="#例子说明" class="headerlink" title="例子说明"></a>例子说明</h3><p>有以下线性规划问题：</p>
+<script type="math/tex; mode=display">\begin{aligned} \min z &= -3x_1+8x_2
+\\ s.t. \ 4x_1+2x_2 &\le 12 \\
+2x_1+3x_2 & \le 6
+\\ x_1, x_2 \ge 0\end{aligned}</script><p>第一步是将上述 LP 转换为标准形式，对两个不等式增加两个辅助变量，于是</p>
+<script type="math/tex; mode=display">\begin{aligned} \min z &= -3x_1+8x_2
+\\ s.t. \ 4x_1+2x_2 + s_1 &= 12 \\
+2x_1+3x_2 +s_2& = 6
+\\ x_1, x_2, s_1, s_2 \ge 0\end{aligned}</script><p>根据 $z-\mathbf {cx}=0$ 以及 $A\mathbf {x=b}$，为相应表格如下，</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Row</th>
+<th>$z$</th>
+<th>$x_1$</th>
+<th>$x_2$</th>
+<th>$s_1$</th>
+<th>$s_2$</th>
+<th>RHS</th>
+<th>BV</th>
+<th>ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>-8</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>z=0</td>
+<td>-</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>4</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>12</td>
+<td>$s_1=12$</td>
+<td>12/4=3</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>3</td>
+<td>0</td>
+<td>1</td>
+<td>6</td>
+<td>$s_2=6$</td>
+<td>6/2=3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>由于 $s_1, \ s_2$ 是添加的辅助变量，所以其系数为 1， 在 $A$ 中的对应的列与单位矩阵对应的列相同，所以以 $s_1, \ s_2$ 为初始“基本变量”，RHS 列表示 “right hand side”，即 $\mathbf b$ 这列，BV 表示 basic variable 基本变量，ratio 表示各行“比例测试”后的比值。根据基本变量 $\mathbf x_B=B^{-1}\mathbf b$，这里 $B=I$ 为单位矩阵，所以 $\mathbf x_B=\mathbf b$，于是 $s_1=12, \ s_2=6$。</p>
+<p>然后执行上述步骤 1，Row 0 行最正系数为 3，所以选中 $x_1$ 这列，接着执行“比例测试”，这列的 Row 1 和 Row 2 的系数均为正，所以全部参与“比例测试”（Row 0 永不参加“比例测试”），令 $b_j’=b_j/A_{ji}$，得到 ratio 列的值，选择其中最小的值，即 最小正比值，这里 $b_1’=b_2’$，故可以任选一行，不妨选择 Row 1 这行，接着执行“矩阵行基本变换”，使得 $A_{:,1}$ 这列为单位矩阵的列，其中 $A_{1,1}=1$，其余 $A_{j,1}=0, \ j \neq 1$。</p>
+<p>矩阵行基本变换包含 $-\mathbf c$ 列和  RHS 列。</p>
+<p>矩阵行基本变换之后，从 $x_1$ 到 RHS 各列的值已经确定，如下表中所示，</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Row</th>
+<th>$z$</th>
+<th>$x_1$</th>
+<th>$x_2$</th>
+<th>$s_1$</th>
+<th>$s_2$</th>
+<th>RHS</th>
+<th>BV</th>
+<th>ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>-19/2</td>
+<td>-3/4</td>
+<td>0</td>
+<td>-9</td>
+<td>z=-9</td>
+<td>-</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>1/2</td>
+<td>1/4</td>
+<td>0</td>
+<td>3</td>
+<td>$x_1=12$</td>
+<td>-</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>-1/4</td>
+<td>1/2</td>
+<td>0</td>
+<td>$x_2=0$</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>变换过程为：先将 Row 0 行 到 Row 2 行 分别乘以 $1/3, \ 1/4,\ 1/2$，然后 Row 0 行和 Row 2 行均各自减去 Row 1 行，为了使 Row 0 行 $z$ 的系数为 1，Row 0 再乘以 $3$。<br>此时 基本变量 BV 列的值很好确定，对每行，选择值为 1 的那些列，于是</p>
+<p>Row 0 -&gt; z</p>
+<p>Row 1 -&gt; $x_1$</p>
+<p>Row 2 -&gt; $x_2$</p>
+<p>即， $\mathbf x_B=[z, x_1, x_2]^{\top}$，子矩阵 $B=I$ 为单位矩阵，所以 $\mathbf x_B=B^{-1} \mathbf b$，得到 $z=-9, \ x_1=3, \ x_2=0$。</p>
+<p>此时由于 Row 0 行中对应 $A$ 矩阵的变量的系数均为 负，故迭代结束，最优解为<br>$x_1=3, \  x_2=0$，最优值为 $z=-9$ 。（若 Row 0 行变量系数不全为 0，那么接着上表的结果，继续执行迭代）</p>
+<h1 id="其他例外情况"><a href="#其他例外情况" class="headerlink" title="其他例外情况"></a>其他例外情况</h1><p>上面的例子中，添加的辅助变量 $s_1, \ s_2$ 在 $A$ 中的系数均为 $1$，使得这两列构成单位矩阵，即 $[A_{:,3}, \  A_{:,4}]=I_{2\times 2}$，但是如果约束条件中包含等式，或者是 “大于等于” 关系，等式使得 $A$ 中对应行全为 0，大于等于使得 $A$ 中对应行有 $-1$。对于“大于等于”这个情况，不能简单将这行乘以 $-1$ 使得变成“小于等于”关系，因为这会使得 RHS 列的值为 负，根据基本变量 $\mathbf x_B=B^{-1}\mathbf b$，这一行对应的基本变量值也是负，与 $\mathbf x \ge 0$ 矛盾。下面介绍两种解决方法。</p>
+<h2 id="Two-Phase-Method"><a href="#Two-Phase-Method" class="headerlink" title="Two-Phase Method"></a>Two-Phase Method</h2><p>考虑以下优化问题</p>
+<script type="math/tex; mode=display">\begin{aligned} \min \ 2x_1-x_2+x_3 &
+\\ s.t. \ 2x_1+x_2-2x_3 & \le 8
+\\ 4x_1-x_2+2x_3 & = 2
+\\ 2x_1+3x_2-x_3 &\ge 4
+\\ x_1, x_2,x_3 &\ge 0
+\end{aligned}</script><p>为第一个和第三个不等关系分别添加变量 $s_1$ 和 $e_3$，于是单纯形表为</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>z</th>
+<th>$x_1$</th>
+<th>$x_2$</th>
+<th>$x_3$</th>
+<th>$s_1$</th>
+<th>$e_3$</th>
+<th>RHS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>-2</td>
+<td>1</td>
+<td>-1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>2</td>
+<td>1</td>
+<td>-2</td>
+<td>1</td>
+<td>0</td>
+<td>8</td>
+</tr>
+<tr>
+<td>0</td>
+<td>4</td>
+<td>-1</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>0</td>
+<td>2</td>
+<td>3</td>
+<td>-1</td>
+<td>0</td>
+<td>-1</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这里 $A \in \mathbb R^{3,5}$，显然没有 $3\times 3$ 的单位矩阵，也就没有初始的“基本变量”。为约束条件 2 和 3 分别添加两个变量 $a_1$ 和 $a_3$，注意到目标函数中没有 $a_1$ 和 $a_3$，目标函数改为 $\min z=a_1+a_3$，表格为</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>z</th>
+<th>$x_1$</th>
+<th>$x_2$</th>
+<th>$x_3$</th>
+<th>$e_3$</th>
+<th>$s_1$</th>
+<th>$a_1$</th>
+<th>$a_3$</th>
+<th>RHS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>-1</td>
+<td>-1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>2</td>
+<td>1</td>
+<td>-2</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>8</td>
+</tr>
+<tr>
+<td>0</td>
+<td>4</td>
+<td>-1</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>0</td>
+<td>2</td>
+<td>3</td>
+<td>-1</td>
+<td>-1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>将 Row 2 和 Row 3 加到 Row 0 上，使得 Row 0 上 $a_1$ 和 $a_3$ 的系数为 0，这样 Row 0 中出现正系数，这就是 Phrase 1 阶段的数据表，使用 单纯形方法，最后数据表变为</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>z</th>
+<th>$x_1$</th>
+<th>$x_2$</th>
+<th>$x_3$</th>
+<th>$e_3$</th>
+<th>$s_1$</th>
+<th>$a_1$</th>
+<th>$a_3$</th>
+<th>RHS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>-1</td>
+<td>-1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>-2.14</td>
+<td>0.43</td>
+<td>1</td>
+<td>-0.29</td>
+<td>-0.43</td>
+<td>5.71</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0.36</td>
+<td>-0.07</td>
+<td>0</td>
+<td>0.21</td>
+<td>0.07</td>
+<td>0.71</td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>-0.57</td>
+<td>-0.29</td>
+<td>0</td>
+<td>-0.14</td>
+<td>0.29</td>
+<td>0.86</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>显然 $x_1$ 和 $x_2$ 以及 $s_1$ 构成了这个阶段的最终基本变量集合。</p>
+<p>然后是 phrase 2，将目标函数恢复成原来的目标函数，并删除 $a_1$ 和 $a_3$ 这两个列，此时表格为</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>z</th>
+<th>$x_1$</th>
+<th>$x_2$</th>
+<th>$x_3$</th>
+<th>$e_3$</th>
+<th>$s_1$</th>
+<th>RHS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>-2</td>
+<td>1</td>
+<td>-1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>-2.14</td>
+<td>0.43</td>
+<td>1</td>
+<td>5.71</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0.36</td>
+<td>-0.07</td>
+<td>0</td>
+<td>0.71</td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>-0.57</td>
+<td>-0.29</td>
+<td>0</td>
+<td>0.86</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>将 Row 2 乘以 2 加到 Row 0 上，Row 3 乘以 -1 加到 Row 0 上，使得 <strong>Row 0 上基本变量的系数为 0</strong>，</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>z</th>
+<th>$x_1$</th>
+<th>$x_2$</th>
+<th>$x_3$</th>
+<th>$e_3$</th>
+<th>$s_1$</th>
+<th>RHS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.29</td>
+<td>0.14</td>
+<td>0</td>
+<td>0.57</td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>-2.14</td>
+<td>0.43</td>
+<td>1</td>
+<td>5.71</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0.36</td>
+<td>-0.07</td>
+<td>0</td>
+<td>0.71</td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>-0.57</td>
+<td>-0.29</td>
+<td>0</td>
+<td>0.86</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>然后使用单纯形方法求解，最后得到的基本变量的解就是原优化问题的最优解。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linear-programming/" rel="tag"># linear programming</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/10/12/ml/bi_rank/" rel="prev" title="二分排序">
+      <i class="fa fa-chevron-left"></i> 二分排序
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/10/29/ml/mm/" rel="next" title="马尔可夫模型">
+      马尔可夫模型 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%BD%A2%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">基本形式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%A2%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.1.</span> <span class="nav-text">形式转换</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%95%E7%BA%AF%E5%BD%A2%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">单纯形方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%88%E5%AF%BC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.1.</span> <span class="nav-text">先导概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.2.</span> <span class="nav-text">方法实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90%E8%AF%B4%E6%98%8E"><span class="nav-number">2.2.1.</span> <span class="nav-text">例子说明</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E4%BE%8B%E5%A4%96%E6%83%85%E5%86%B5"><span class="nav-number">3.</span> <span class="nav-text">其他例外情况</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Two-Phase-Method"><span class="nav-number">3.1.</span> <span class="nav-text">Two-Phase Method</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">93</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

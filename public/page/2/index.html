@@ -160,7 +160,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/07/05/cpp/type_declare/">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/09/29/ml/multiclass_algo/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -174,7 +174,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/07/05/cpp/type_declare/" class="post-title-link" itemprop="url">C++ 边学边忘——类型声明</a>
+            <a href="/2021/09/29/ml/multiclass_algo/" class="post-title-link" itemprop="url">多分类的学习算法</a>
         </h2>
 
         <div class="post-meta">
@@ -184,14 +184,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-07-05 17:30:28" itemprop="dateCreated datePublished" datetime="2021-07-05T17:30:28+08:00">2021-07-05</time>
+              <time title="创建时间：2021-09-29 17:58:26" itemprop="dateCreated datePublished" datetime="2021-09-29T17:58:26+08:00">2021-09-29</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-06 09:03:00" itemprop="dateModified" datetime="2021-07-06T09:03:00+08:00">2021-07-06</time>
+                <time title="修改时间：2021-10-09 10:04:35" itemprop="dateModified" datetime="2021-10-09T10:04:35+08:00">2021-10-09</time>
               </span>
 
           
@@ -205,677 +205,688 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="const-与-constexpr"><a href="#const-与-constexpr" class="headerlink" title="const 与 constexpr"></a>const 与 constexpr</h1><p><code>const</code> 常量，一定定义后无法更改其值。</p>
-<p><code>constexpr</code> 常量表达式，除了定义后无法更改其值，还必须是编译期可知的常量，或者说被 <code>constexpr</code> 修饰的变量需要有一个常量表达式的初始化器。</p>
-<p>可被 <code>constexpr</code> 修饰的类型为 字面量类型，包括 数值型，引用，和指针类型（我们自定义的class类型则不属于字面量类型）。由于有编译期可知这一限制条件，<code>constexpr</code> 指针可以初始化为 <code>nullptr</code> 或者 <code>0</code>，以及具有固定地址的变量，对这些变量取址可对 <code>constexpr</code> 指针初始化。定义在函数外部的变量以及函数内部 <code>static</code> 修饰的变量具有固定地址。</p>
-<p><code>constexpr</code> 指针：<code>constexprt</code> 关键字修饰指针自身，而非指针所指向对象，例：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 函数外部</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> i = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">int</span> j = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">int</span> *q = &amp;j;          <span class="comment">// OK, q 是常量指针，其存储的地址不可改变，但是可以修改其指向对象的值</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">int</span> *p = &amp;i;          <span class="comment">// error，p 所执对象类型为 int，不能用 const int 来初始化</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">const</span> <span class="keyword">int</span> *cp = &amp;i;   <span class="comment">// OK</span></span><br></pre></td></tr></table></figure></p>
-<h1 id="类型别名"><a href="#类型别名" class="headerlink" title="类型别名"></a>类型别名</h1><p>直接看代码示例，<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">char</span> *pstring;          <span class="comment">// pstring 为 char *</span></span><br><span class="line"><span class="keyword">const</span> pstring cstr = <span class="number">0</span>;         <span class="comment">// cstr 是常量指针，指向 char 类型对象</span></span><br><span class="line"><span class="keyword">const</span> pstring *ps;              <span class="comment">// ps 是一个普通指针，指向 char * const 类型，即指向一个常量指针，这个常量指针指向 char 类型对象</span></span><br></pre></td></tr></table></figure><br>注意：不可直接用 <code>char *</code> 替换！！！ </p>
-<p><code>const</code> 修饰的是 <code>pstring</code>，由于 <code>pstring</code> 是指针，所以 <code>const pstring</code> 是常量指针，实际效果是 <code>char * const</code>。那你要问，既然 <code>const pstring cstr</code> 不是指向一个 const 对象，那么指向一个 const 对象 正确写法是什么？当然是 <code>typedef const char *cpstring</code>。</p>
-<h1 id="auto"><a href="#auto" class="headerlink" title="auto"></a>auto</h1><p>由编译器根据初始化器来确定变量类型。简单场景这里不再讨论，需要注意一条声明仅包含一个基本类型，多个变量的初始化器类型不同将会报错。</p>
-<h2 id="复合类型，const-和-auto"><a href="#复合类型，const-和-auto" class="headerlink" title="复合类型，const 和 auto"></a>复合类型，const 和 auto</h2><ol>
-<li><p>使用引用类型作为初始化器时，实际使用的是被引用的对象，所以 <code>auto</code> 应该为被引用的对象类型</p>
-</li>
-<li><p><code>auto</code> 忽略 top-level 的 <code>const</code>，保留 low=level 的 <code>const</code>，如需保留 top-level <code>const</code>，显示声明 <code>const auto</code>，例</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> i = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> *<span class="keyword">const</span> p = &amp;i;</span><br><span class="line"><span class="keyword">auto</span> x = pi;                <span class="comment">// x 是普通指针，指向 const int</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">auto</span> cx = pi;         <span class="comment">// cx 是常量指针，并指向 const int</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>指定 <code>auto</code> 的引用类型，此时 top-level <code>const</code> 不能忽略，这很好理解，因为 “引用” 指明不拷贝创建新对象，而绑定已有对象，如果忽略 top-level <code>const</code>，那么将导致通过引用来修改 <code>const</code> 对象。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> i = <span class="number">123</span>;  <span class="comment">// top-level const</span></span><br><span class="line"><span class="keyword">auto</span> &amp;r = i;    <span class="comment">// r 是 i 的引用，由于不能修改 i，所以 r 应该是 const int &amp; 类型，而不能是 int &amp; 类型。</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>引用 <code>&amp;</code> 和指针 <code>*</code> 不是基础类型的一部分，而 <code>const</code> 是基础类型一部分，即 <code>int</code> 和 <code>const int</code> 基础类型不同，故不能声明</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> j = <span class="number">234</span>;</span><br><span class="line"><span class="keyword">auto</span> &amp;r = i, *p = &amp;j    <span class="comment">// error. r 是 int &amp; 类型，p 是 const int * 类型，基础类型不一致，不能出现在同一声明中</span></span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h1 id="decltype"><a href="#decltype" class="headerlink" title="decltype"></a>decltype</h1><p>编译器从表达式推断出类型，而不用实际计算表达式。</p>
+          <p>多分类问题，对于线性可分的训练集，可以使用 Perception 算法学习，此时损失相当于使用了 $0-1$ 损失，而对于非线性可分的情况，$0-1$ 损失显然由于其不可导，不再适用，需要寻找一种“凸替代”（convex surrogate）损失函数。<br>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/29/ml/multiclass_algo/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/09/28/ml/multiclass/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/28/ml/multiclass/" class="post-title-link" itemprop="url">多分类</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-28 13:52:35" itemprop="dateCreated datePublished" datetime="2021-09-28T13:52:35+08:00">2021-09-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-09-30 18:08:11" itemprop="dateModified" datetime="2021-09-30T18:08:11+08:00">2021-09-30</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>前面讲过二分类模型，例如 SVM，本文讨论更一般的情况，即多分类问题。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/28/ml/multiclass/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/09/26/ml/kernel/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/26/ml/kernel/" class="post-title-link" itemprop="url">机器学习中的核方法</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-26 18:07:50" itemprop="dateCreated datePublished" datetime="2021-09-26T18:07:50+08:00">2021-09-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-09-30 17:28:55" itemprop="dateModified" datetime="2021-09-30T17:28:55+08:00">2021-09-30</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>为了更好的使用线性分类，有时候需要将线性不可分的数据映射到一个更高维空间，使其线性可分。虽然高维空间的 Halfspace 假设更加具有表达能力（假设空间更加丰富），但是同时也会引入样本复杂度以及计算复杂度的上升。通过引入 margin （训练集中某样本与超平面具有最小距离），可以解决样本复杂度这个问题，而计算复杂度则可以通过另一种方法解决，即本篇所介绍的 “核方法”。<br>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/26/ml/kernel/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/09/22/ml/svm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/22/ml/svm/" class="post-title-link" itemprop="url">支持向量机</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-22 16:04:37" itemprop="dateCreated datePublished" datetime="2021-09-22T16:04:37+08:00">2021-09-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-09-30 18:21:29" itemprop="dateModified" datetime="2021-09-30T18:21:29+08:00">2021-09-30</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>支持向量机搜索具有最大“边距”的分类器，最大“边距”使得分类器更加健壮。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/22/ml/svm/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/09/19/ml/k_fold/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/19/ml/k_fold/" class="post-title-link" itemprop="url">k fold 交叉验证</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-19 16:50:18" itemprop="dateCreated datePublished" datetime="2021-09-19T16:50:18+08:00">2021-09-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-09-30 17:29:43" itemprop="dateModified" datetime="2021-09-30T17:29:43+08:00">2021-09-30</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>交叉验证通常用于训练集很小的情况，这时候如果再从中取一部分数据作为验证集，导致训练集进一步减小，更加难以反映真实数据分布，从而使得经验误差与真实误差的差距更大。这时，K 折交叉验证则是一个不错的方法。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/19/ml/k_fold/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/09/17/ml/linear/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/17/ml/linear/" class="post-title-link" itemprop="url">线性回归预测</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-17 14:01:41" itemprop="dateCreated datePublished" datetime="2021-09-17T14:01:41+08:00">2021-09-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-09-24 18:27:00" itemprop="dateModified" datetime="2021-09-24T18:27:00+08:00">2021-09-24</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>讨论线性回归问题<br>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/17/ml/linear/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/09/15/ml/halfspace/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/15/ml/halfspace/" class="post-title-link" itemprop="url">Perceptron for Halfspaces</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-15 10:40:35" itemprop="dateCreated datePublished" datetime="2021-09-15T10:40:35+08:00">2021-09-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-09-30 17:29:28" itemprop="dateModified" datetime="2021-09-30T17:29:28+08:00">2021-09-30</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>关于线性可分二分类问题的讨论<br>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/15/ml/halfspace/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/08/24/tools/jupyter-book/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/08/24/tools/jupyter-book/" class="post-title-link" itemprop="url">jupyter-book</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-24 10:40:39" itemprop="dateCreated datePublished" datetime="2021-08-24T10:40:39+08:00">2021-08-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-10-22 16:03:19" itemprop="dateModified" datetime="2021-10-22T16:03:19+08:00">2021-10-22</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>介绍使用 jupyter-book 写博客（通常是一个在线电子书）的方法。<br>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/08/24/tools/jupyter-book/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/08/10/cpp/cmake/func_macro/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/08/10/cpp/cmake/func_macro/" class="post-title-link" itemprop="url">function vs. macro</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-10 14:09:28" itemprop="dateCreated datePublished" datetime="2021-08-10T14:09:28+08:00">2021-08-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-11 14:31:55" itemprop="dateModified" datetime="2021-08-11T14:31:55+08:00">2021-08-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="macro"><a href="#macro" class="headerlink" title="macro"></a>macro</h1><p>宏定义语法，<br><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">macro</span>(&lt;name&gt; [&lt;arg1&gt; ...])</span><br><span class="line">  &lt;commands&gt;</span><br><span class="line"><span class="keyword">endmacro</span>()</span><br></pre></td></tr></table></figure><br>宏名称 <code>&lt;name&gt;</code> 后跟参数 <code>&lt;arg1&gt;,...</code>。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/08/06/cpp/gcc_common_usages/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/08/06/cpp/gcc_common_usages/" class="post-title-link" itemprop="url">GCC common usages</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-08-06 09:20:22 / 修改时间：16:18:27" itemprop="dateCreated datePublished" datetime="2021-08-06T09:20:22+08:00">2021-08-06</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>示例程序<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// hello.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> <span class="built_in">printf</span>(“hello world\n”);</span><br><span class="line"> <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="生成可执行文件"><a href="#生成可执行文件" class="headerlink" title="生成可执行文件"></a>生成可执行文件</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -o hello hello.c</span></span><br></pre></td></tr></table></figure>
+<p>生成可执行文件这一过程其实是分成了很多中间步骤，下面给出关键的几个步骤。</p>
+<h1 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h1><p>使用 <code>-E</code> 使得预处理之后就立即停止，不进行后面的编译<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -E -o hello.pp.c hello.c</span><br></pre></td></tr></table></figure></p>
+<h1 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -S hello.c</span></span><br></pre></td></tr></table></figure>
+<p>此命令在编译后立即停止，不进行汇编（汇编后生成二进制文件，即目标文件）。结果生成文件 <code>hello.s</code>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -c hello.c</span></span><br></pre></td></tr></table></figure>
+<p>编译并汇编但不进行链接，生成目标 <code>hello.o</code>。</p>
+<p>gcc 命令选项可以查看 <a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html">官方文档</a>。</p>
+<p>编译后的目标文件有多个 section，和一个符号表：</p>
 <ol>
-<li><p>decltype 应用到 变量 上，结果为 变量 的类型，包括 top-level <code>const</code> 和 引用符号</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> ci = <span class="number">123</span>, &amp;cj = ci;</span><br><span class="line"><span class="keyword">decltype</span>(ci) x = <span class="number">0</span>;             <span class="comment">// x 是 const int</span></span><br><span class="line"><span class="keyword">decltype</span>(cj) y = x;             <span class="comment">// y 是 const int &amp;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>decltype 应用到 表达式 上，结果为 表达式 的类型。如果表达式生成可位于赋值左侧的对象，那么 <code>decltype(expr)</code> 结果为一引用类型</p>
-</li>
+<li><code>Text</code>：可执行代码 （T）</li>
+<li><code>Data</code>: 预分配变量存储 （D）</li>
+<li><code>Constants</code>：只读数据    （R）</li>
+<li><code>Undefined</code>: 已经用到但是未定义的符号 （U）</li>
+<li><code>Debug</code>：调试信息（例如，行号）</li>
 </ol>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i = <span class="number">123</span>, *p = &amp;i, &amp;r = i;</span><br><span class="line"><span class="keyword">decltype</span>(r+<span class="number">1</span>) b;                <span class="comment">// OK b 是 int 类型，由于 r+1 不是左值，所以 b 类型不是引用类型</span></span><br><span class="line"><span class="keyword">decltype</span>(*p) c;                 <span class="comment">// error, c 是 int &amp; 类型，因为 *p 可用于左值（可被赋值）, c 未被初始化，所以报错</span></span><br></pre></td></tr></table></figure>
+<p>这些条目可以通过 <code>nm</code> 或者 <code>readelf</code> 查看。</p>
+<h1 id="链接命令"><a href="#链接命令" class="headerlink" title="链接命令"></a>链接命令</h1><p>链接使用如下命令，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -o hello hello.o</span></span><br></pre></td></tr></table></figure><br>gcc 其实是调用 <code>ld</code> 讲目标文件 <code>crt1.o</code> 和我们的 <code>hello.o</code> 链接到一起，其中 <code>crt1.o</code> 为启动目标，<code>crtn.o</code> 为结束目标，<code>crt1.o</code> 包含了 <code>_start</code> 入口点，其中会调用 <code>main</code> 函数，执行我们所实现的函数主体。这可以通过 <code>nm</code> 查看，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nm /usr/lib/x86_64-linux-gnu/crt1.o</span></span><br></pre></td></tr></table></figure><br>其中会有 <code>U main</code> 这一行，表示 <code>main</code> 这个符号未定义，这是由我们自己实现 <code>main</code> 函数。</p>
+<p>其实还有 <code>crti.o</code> 目标文件也会链接进入，这个目标文件中实现了 <code>_init</code> 和 <code>_finit</code> 函数，分别在 <code>main</code> 函数之前和 之后执行。<br><img src="/images/cpp/C_linking_process.png" alt=""><center>C 程序链接过程 参考[文章](https://akaedu.github.io/book/ch19s02.html)</center></p>
+<h1 id="静态库"><a href="#静态库" class="headerlink" title="静态库"></a>静态库</h1><p>使用 <code>ar</code> 命令生成静态库，静态库是有着全局符号表的目标文件的集合。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ar crv libhello.a hello.o</span></span><br></pre></td></tr></table></figure><br>关于 <code>ar</code> 命令的更多介绍可参考<a target="_blank" rel="noopener" href="https://linux.die.net/man/1/ar">这篇文章</a></p>
+<p>当链接到一个静态库时，目标代码拷贝进最终的可执行体，所有的符号地址重新计算。</p>
+<p>静态库抽取出目标文件，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ar -x libhello.a</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="动态库"><a href="#动态库" class="headerlink" title="动态库"></a>动态库</h1><p>动态库比静态库更接近于可执行体（executable），动态库相当于 executable 少了 <code>main</code> 函数，而静态库相当于多个目标文件的打包。</p>
+<p>生成动态库命令，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc -fPIC -c hello.c</span></span><br></pre></td></tr></table></figure><br>这里不能链接，否则编译器会报错：<code>main</code> 函数未定义。</p>
+<p>然后链接生成动态库，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ld -shared hello.o -o libhello.so</span></span><br></pre></td></tr></table></figure><br>我们也可以直接一步生成动态库，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -shared -fPIC -o hello.c</span><br></pre></td></tr></table></figure></p>
+<h1 id="链接过程"><a href="#链接过程" class="headerlink" title="链接过程"></a>链接过程</h1><p>链接器分为静态链接器和动态（运行时）链接器。</p>
 <ol>
-<li>如果变量被括号包围，例如 <code>(x)</code>，那么就是一个表达式了，此时 <code>decltype((x))</code> 结果为一引用类型</li>
+<li>静态链接器 static linker 负责生成 shared library 和 executable，linux 上为 <code>ld</code>，google 还提供了一个替代 <code>gold</code>。</li>
+<li>动态链接器 dynamic linker 负责在执行期间载入 shared library，linux 上使用 <code>ld.so</code>。</li>
 </ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/28/cpp/constructor/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/06/28/cpp/constructor/" class="post-title-link" itemprop="url">C++ 边学边忘——构造函数</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-06-28 18:47:45" itemprop="dateCreated datePublished" datetime="2021-06-28T18:47:45+08:00">2021-06-28</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/25/cpp/string/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/06/25/cpp/string/" class="post-title-link" itemprop="url">C++ 边学边忘——字符（串）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-06-25 12:02:49" itemprop="dateCreated datePublished" datetime="2021-06-25T12:02:49+08:00">2021-06-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-15 10:04:30" itemprop="dateModified" datetime="2021-09-15T10:04:30+08:00">2021-09-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>C++ 中的字符串编码。<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/06/25/cpp/string/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/16/python/ext3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/06/16/python/ext3/" class="post-title-link" itemprop="url">python C/C++ Extension Type</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-06-16 18:23:47" itemprop="dateCreated datePublished" datetime="2021-06-16T18:23:47+08:00">2021-06-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-15 10:06:21" itemprop="dateModified" datetime="2021-09-15T10:06:21+08:00">2021-09-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>python 的 C/C++ 扩展类型简介。<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/06/16/python/ext3/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/16/python/ext2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/06/16/python/ext2/" class="post-title-link" itemprop="url">python C/C++ Extension（二）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-06-16 14:09:08" itemprop="dateCreated datePublished" datetime="2021-06-16T14:09:08+08:00">2021-06-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-15 10:05:58" itemprop="dateModified" datetime="2021-09-15T10:05:58+08:00">2021-09-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>python 的 C/C++ 扩展使用说明（二）。<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/06/16/python/ext2/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/15/python/ext1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/06/15/python/ext1/" class="post-title-link" itemprop="url">python C/C++ Extensions（一）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-06-15 14:06:41" itemprop="dateCreated datePublished" datetime="2021-06-15T14:06:41+08:00">2021-06-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-15 10:05:45" itemprop="dateModified" datetime="2021-09-15T10:05:45+08:00">2021-09-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>python 的 C/C++ 扩展使用说明（一）。<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/06/15/python/ext1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/12/python/setup/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/06/12/python/setup/" class="post-title-link" itemprop="url">python setup</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-06-12 17:03:32" itemprop="dateCreated datePublished" datetime="2021-06-12T17:03:32+08:00">2021-06-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-15 10:06:40" itemprop="dateModified" datetime="2021-09-15T10:06:40+08:00">2021-09-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>python 的 setup 介绍。<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/06/12/python/setup/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/08/cpp/cmake_target/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/06/08/cpp/cmake_target/" class="post-title-link" itemprop="url">cmake TARGET</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-06-08 17:15:50" itemprop="dateCreated datePublished" datetime="2021-06-08T17:15:50+08:00">2021-06-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-15 10:09:04" itemprop="dateModified" datetime="2021-09-15T10:09:04+08:00">2021-09-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>cmake 的目标 TARGET。<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/06/08/cpp/cmake_target/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/08/cpp/cmake_find/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/06/08/cpp/cmake_find/" class="post-title-link" itemprop="url">cmake 查找</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-06-08 14:08:47" itemprop="dateCreated datePublished" datetime="2021-06-08T14:08:47+08:00">2021-06-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-15 10:07:40" itemprop="dateModified" datetime="2021-09-15T10:07:40+08:00">2021-09-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>cmake 的包查找。<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/06/08/cpp/cmake_find/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/08/cpp/link/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/06/08/cpp/link/" class="post-title-link" itemprop="url">链接</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-06-08 11:06:44" itemprop="dateCreated datePublished" datetime="2021-06-08T11:06:44+08:00">2021-06-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-08-11 14:32:07" itemprop="dateModified" datetime="2021-08-11T14:32:07+08:00">2021-08-11</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="动态库目录"><a href="#动态库目录" class="headerlink" title="动态库目录"></a>动态库目录</h2><ol>
-<li>加入 <code>/lib</code>, <code>/usr/lib</code> 等默认搜索路径</li>
-<li>设置 <code>export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:&lt;YOUR LIB PATH&gt;</code></li>
-<li>修改配置文件 <code>/etc/ld.so.conf</code>，然后执行 <code>ldconfig</code></li>
-<li><code>gcc</code> 添加选项 <code>-Wl,-rpath=&lt;YOUR LIB PATH&gt;</code>。这个路径会保存到程序中。<br>以上是动态（运行时）链接器（也可称为加载器）寻找动态库的搜索目录。</li>
+<p>为了称呼简便，下文将 static linker 称为 linker，将 dynamic linker 称为 loader。</p>
+<h2 id="搜索路径"><a href="#搜索路径" class="headerlink" title="搜索路径"></a>搜索路径</h2><ol>
+<li>对于 linker，使用 <code>-L</code> option，例如 <code>ld -o main main.c -L. -lhello</code></li>
+<li>对于 loader，使用 <code>-rpath</code>，例如 <code>gcc -o main main.c -Wl,-rpath=. -L. -lhello</code></li>
 </ol>
-<h3 id="Wl"><a href="#Wl" class="headerlink" title="-Wl"></a>-Wl</h3><p>这个参数表示后面的参数传递给链接器 <code>ld</code></p>
-<h3 id="rpath"><a href="#rpath" class="headerlink" title="-rpath"></a>-rpath</h3><p>添加一个目录到运行库搜索路径，可以使用 <code>$ORIGIN</code>，它表示执行文件所在的目录，注意在 Makefile 中需要写为 <code>$$ORIGIN</code>。</p>
-<h3 id="—as-needed"><a href="#—as-needed" class="headerlink" title="—as-needed"></a>—as-needed</h3><p>链接器参数，表示仅链接其 symbol 在 binary 中用到的库。默认是开启这个 flag，若要关闭，使用 <code>--no-as-needed</code>，例如</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.c</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">foo</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/foo.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span> </span>&#123; <span class="built_in">printf</span>(<span class="string">&quot;foo\n&quot;</span>); &#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/bar.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">()</span> </span>&#123; <span class="built_in">printf</span>(<span class="string">&quot;bar\n&quot;</span>); &#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Makefile</span></span><br><span class="line"><span class="section">main: main.c lib/libfoo.so lib/libbar.so</span></span><br><span class="line">    gcc -o main main.c -Wl,--no-as-needed,-rpath=&#x27;$$ORIGIN/lib&#x27; -L. -lfoo -lbar</span><br><span class="line"></span><br><span class="line"><span class="section">lib/libfoo.so: lib/foo.c</span></span><br><span class="line">    gcc -fPIC -shared -o lib/libfoo.so lib/foo.c</span><br><span class="line"></span><br><span class="line"><span class="section">lib/libbar.so: lib/bar.c</span></span><br><span class="line">    gcc -fPIC -shared -o lib/libbar.so lib/bar.c</span><br></pre></td></tr></table></figure>
-<p>查看 <code>main</code> 链接的库，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ldd main</span></span><br></pre></td></tr></table></figure></p>
+<p>动态库搜索路径的设置方法有以下几种：</p>
+<ol>
+<li><p>如果当前目录 <code>.</code> 下 hello 库为静态库 <code>libhello.a</code>，那么 使用第 <code>1</code> 条命令即可，如果是 动态库 <code>libhello.so</code>，那么仅指定 <code>-L. -lhello</code> 还不够，还需要指定 <code>-Wl,-rpath=.</code>，其他 <code>-Wl</code> 表示逗号之后的 option 均传给链接器 linker，<code>-rpath</code> 表示将动态库的目录嵌入到可执行体，这样运行时 loader 才能找到动态库。</p>
+</li>
+<li><p>设置 <code>LD_LIBRARY_PATH</code> 这个环境变量，使得 loader 在运行时尝试从这个环境变量指定的目录中寻找动态库。</p>
+</li>
+<li><p>将动态库目录添加至配置文件。配置文件通常为 <code>/etc/ld.so.conf</code>，在此文件中添加搜索路径条目，然后再执行 <code>ldconfig</code>。如果将动态库安装到 <code>/lib</code> 或 <code>/usr/lib</code> ，则不需要修改配置文件，只需要执行 <code>ldconfig</code>即可。</p>
+</li>
+</ol>
+<p>注意：<code>LD_LIBRARY_PATH</code> 有副作用，不是一个好的方法，应尽量避免使用。</p>
+<p>给 <code>-rpath</code> 选项赋值，有时候会使用 <code>$ORIGIN</code>，这个路径表示可执行体所在的目录，而 <code>.</code> 则表示当前的工作目录（编译链接命令执行的路径）。如果是在 Makefile 文件中，则需要写成 <code>-Wl,-rpath=&#39;$$ORIGIN&#39;</code>，在命令窗口中写成 <code>-Wl,-rpath=&#39;$ORIGIN&#39;</code>。</p>
 
       
     </div>
@@ -894,7 +905,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -960,7 +971,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">83</span>
+          <span class="site-state-item-count">93</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -973,7 +984,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1035,7 +1046,7 @@
 <script src="/js/schemes/pisces.js"></script>
 
 
-<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<script src="/js/next-boot.js"></script>
 
 
 
@@ -1059,6 +1070,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
 
   
 

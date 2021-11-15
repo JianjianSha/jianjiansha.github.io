@@ -26,13 +26,13 @@ $$\forall i \in [m], \quad y_i (\mathbf w^{\top} \mathbf x_i+b )>0$$
 
 **样本点 $\mathbf x$ 与超平面 $(\mathbf w, b)$ （其中 $\|\mathbf w\|=1$）之间的距离为 $|\mathbf w^{\top}\mathbf x+b|$。**
 
-这里给了 $\|\mathbf w\|=1$ 这个约束，如果没有这个约束，那么同一个超平面会有无穷多个表达，即 $a\mathbf w \mathbf x+ab=1, \ \forall a \neq 0$。给定 $\mathbf w$ 约束条件后，$b$ 可以唯一确定，故不需要对其作约束。
+这里给了 $\Vert \mathbf w \Vert=1$ 这个约束，如果没有这个约束，那么同一个超平面会有无穷多个表达，即 $a\mathbf w \mathbf x+ab=1, \ \forall a \neq 0$。给定 $\mathbf w$ 约束条件后，$b$ 可以唯一确定，故不需要对其作约束。
 
 **证：**
 
 这个距离定义为
 
-$$\min\{\|\mathbf {x-v}: \mathbf w^{\top}\mathbf v+b=0\}$$
+$$\min\{\Vert\mathbf {x-v}\Vert: \mathbf w^{\top}\mathbf v+b=0\}$$
 
 取 $\mathbf v=\mathbf x-(\mathbf w^{\top} \mathbf x+b)\mathbf w$，验证这个值在超平面上，因为
 
@@ -58,13 +58,13 @@ $$\begin{aligned} \Vert \mathbf {x-u}\Vert^2 &=\|\mathbf {x-v+v-u}\|^2
 
 ## Hard-SVM
 
-Hard-SVM 的学习准则是令超平面与数据集的“边距”最大，即，
+Hard-SVM 的学习准则是令超平面与数据集的“边距”最大，即，求解以下最优问题的解，
 
-$$arg \max_{(\mathbf w, b): \|\mathbf w\|=1} \ \min_{i \in [m]} |\mathbf w^{\top} \mathbf x_i+b| \quad s.t. \ \forall i \in [m], \ y_i(\mathbf w^{\top} \mathbf x_i+b)>0$$
+$$\arg \max_{(\mathbf w, b): \|\mathbf w\|=1} \ \min_{i \in [m]} |\mathbf w^{\top} \mathbf x_i+b| \quad s.t. \ \forall i \in [m], \ y_i(\mathbf w^{\top} \mathbf x_i+b)>0$$
 
 在训练集线性可分这一前提条件下，上式等价于
 
-$$arg \max_{(\mathbf w, b): \|\mathbf w\|=1} \ \min_{i \in [m]} y_i(\mathbf w^{\top} \mathbf x_i+b) \quad(1)$$
+$$\arg \max_{(\mathbf w, b): \|\mathbf w\|=1} \ \min_{i \in [m]} y_i(\mathbf w^{\top} \mathbf x_i+b) \tag{1} \label{1}$$
 
 ### 变换
 
@@ -78,18 +78,20 @@ $$y_i (\frac {\mathbf w^{\top}} {\gamma}\mathbf x_i+\frac {b}{\gamma}) \ge 1$$
 
 
 
-而上们 (1) 式要求 $\gamma$ 最大，
+而上面 $\eqref{1}$ 式要求 $\gamma$ 最大，
 而 $\|\mathbf w\|=1$，
 那么意味着 $\frac {\|\mathbf w^{\top}\|}{\gamma}$ 最小（$b$ 由 $\mathbf w$ 唯一确定，不对其作约束），也就是说，(1) 式可以变换为如下问题：
 
-$$arg \min_{(\mathbf w, b)}\|\mathbf w\|^2 \quad s.t. \quad \forall i \in [m], \ y_i(\mathbf w^{\top} \mathbf x_i+b) \ge 1 \quad(2)$$
+$$\arg \min_{(\mathbf w, b)}\|\mathbf w\|^2 \quad s.t. \quad \forall i \in [m], \ y_i(\mathbf w^{\top} \mathbf x_i+b) \ge 1 \tag{2}$$
 
 
 # Soft-SVM
 
-Hard-SVM 假设训练集线性可分，但是这是一强假设，对这个假设适当放宽就得到 Soft-SVM，即训练集可能线性不可分。我们在 (2) 式的基础上引入松弛变量 $\{\xi_i:\xi_i \ge 0, \forall i \in [m]\}$，使得约束条件变为 $y_i(\mathbf w^{\top} \mathbf x_i+b) \ge 1-\xi_i$，我们的目的除了使 $\|\mathbf w\|$ 最小之外，还需要使松弛变量尽量小，即尽量减小这种放宽量，或者说尽量满足 Hard-SVM 中的约束条件，这就是 Soft-SVM 优化问题：
+Hard-SVM 假设训练集线性可分，但是这是一强假设，对这个假设适当放宽就得到 Soft-SVM，即训练集可能线性不可分。我们在 (2) 式的基础上引入松弛变量 $\{\xi_i:\xi_i \ge 0, \forall i \in [m]\}$，使得约束条件变为 $y_i(\mathbf w^{\top} \mathbf x_i+b) \ge 1-\xi_i$，我们的目的除了使 $\Vert \mathbf w\Vert$ 最小之外，还需要使松弛变量尽量小，即尽量减小这种放宽量，或者说尽量满足 Hard-SVM 中的约束条件，这就是 Soft-SVM 优化问题：
 
-<center>Soft-SVM</center>
+---
+
+<center>Soft-SVM 求解思路</center>
 
 **input:** $(\mathbf x_1, y_1), \cdots (\mathbf x_m, y_m)$
 
@@ -101,6 +103,8 @@ $$\min_{\mathbf w, b, \boldsymbol \xi} \left(\lambda \|\mathbf w\|^2 + \frac 1 m
 $$s.t. \ \forall i, \ y_i(\mathbf w^{\top} \mathbf x_i+b) \ge 1- \xi_i, \ \xi_i \ge 0$$
 
 **output:** $\mathbf w, b$
+
+---
 
 我们可以使用正则化的损失最小化来改写上式。使用 hinge 损失，
 
@@ -122,7 +126,7 @@ SVM 中的“支持向量”这一词语来自 Hard-SVM 中的 $\mathbf w_0=\fra
 
 考虑齐次型，即偏置 $b=0$（事实上，可以将 $b$ 作为 $w_1$，且 $\mathbf x$ 前面增加一个元素 $\mathbf x_1=1$，使得非齐次型转换为齐次型）。那么对于 Hard-SVM 有
 
-$$\min_{\mathbf w} \ \|\mathbf w\|^2 \quad s.t. \quad \forall i \in [m], \ y_i \mathbf w^{\top} \mathbf x \ge 1 \quad(3)$$ 
+$$\min_{\mathbf w} \ \|\mathbf w\|^2 \quad s.t. \quad \forall i \in [m], \ y_i \mathbf w^{\top} \mathbf x \ge 1 \tag{3}$$ 
 
 上面所说的 $\mathbf w_0$ 则是上式的解，支持向量则为 $I=\{\mathbf x_i: |\mathbf w_0^{\top}\mathbf x_i|=1\}$。**存在系数 $\alpha_1, \cdots$ 使得**
 
@@ -138,7 +142,7 @@ $$g(\mathbf w)=\max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \
 
 上式中 $\alpha_i$ 全部非负，显然在 $y_i(\mathbf w^{\top}\mathbf x_i) \ge 1$ 条件下，$\forall i , \ \alpha=0$ 可使得 $g(\mathbf w)$ 最大，为 $0$，否则，$\forall i, \ \alpha=\infty$ 可使得 $g(\mathbf w)$ 最大，为 $\infty$。
 
-对于线性可分训练集，考虑齐次型，即 (3) 式，问题可等价为
+对于线性可分训练集，考虑齐次型，即 $\eqref{3}$ 式，问题可等价为
 
 $$\min_{\mathbf w}\ (\|\mathbf w\|^2+ g(\mathbf w))$$
 
@@ -148,7 +152,8 @@ $$\min_{\mathbf w} \max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \
 
 增加 $\frac 1 2$ 因子是为了后面计算方便。现在将最小最大位置对调，那么目标值只可能变小（弱对偶），
 
-$$\min_{\mathbf w} \max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \left(\frac 1 2 \|\mathbf w\|^2+\sum_{i=1}^m \alpha_i (1-y_i \mathbf w^{\top}\mathbf x_i)\right)\\\\ \ge
+$$\min_{\mathbf w} \max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \left(\frac 1 2 \|\mathbf w\|^2+\sum_{i=1}^m \alpha_i (1-y_i \mathbf w^{\top}\mathbf x_i)\right)
+\\ \ge
  \max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \min_{\mathbf w} \left(\frac 1 2 \|\mathbf w\|^2+\sum_{i=1}^m \alpha_i (1-y_i \mathbf w^{\top}\mathbf x_i)\right)$$
 
 实际上在这里，强对偶也成立，即上式中等式成立，于是问题转化为对偶问题
@@ -175,15 +180,15 @@ $$\sum_{i=1}^m \alpha_i \left(1-y_i \sum_{j=1}^m \alpha_j y_j \mathbf x_j^{\top}
 
 $$\max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \left(\sum_{i=1}^m \alpha_i-\frac 1 2 \sum_{1=1}^m \sum_{j=1}^m \alpha_i  \alpha_j y_iy_j \mathbf x_i^{\top}\mathbf x_j \right)$$
 
+在 [核方法](2021/09/26/ml/kernel) 这篇文章中，也有类似的思想，两个地方联系起来看看，会更有心得。
+
 ## SGD 求解 Soft-SVM
 
 使用 hinge 损失，那么 Soft-SVM 可写为
 
 $$\min_{\mathbf w} \left(\frac {\lambda} 2 \|\mathbf w\|^2 + \frac 1 m \sum_{i=1}^m \max \{0, 1-y_i \mathbf w^{\top} \mathbf x_i\}\right) \tag{4} \label{4}$$
 
-将上式写成 $f(\mathbf w)=\frac {\lambda} 2 \|\mathbf w\|^2+L_S(\mathbf w)$ 的形式，
-
-使用随机梯度下降，即 $t$ 时刻更新的梯度向量 $\mathbf v_t \in \partial l_{\mathcal D}(\mathbf w^{(t)})$，其中 $\partial l_{\mathcal D}(\mathbf w^{(t)})$ 表示经验损失在 $\mathbf w^{(t)}$ 处的次梯度集，由于真实分布 $\mathcal D$ 未知，我们构造其无偏估计，即 从训练集中 $S$ 均匀随机抽取一个样本 $z$，然后计算 $\partial l(\mathbf w^{(t)}, z)$，于是 $\mathbb E[\lambda \mathbf w^{(t)}+\mathbf v_t]$ 就是 $f$ 在 $\mathbf w^{(t)}$ 处的一个次梯度，选择学习率 $\eta=\frac 1 {\lambda t}$，于是更新公式为
+将上式写成 $f(\mathbf w)=\frac {\lambda} 2 \|\mathbf w\|^2+L_S(\mathbf w)$ 的形式，这是带正则项的经验损失，然而我们使用随机梯度下降算法，需要求真实损失的梯度，即 $t$ 时刻更新的梯度向量 $\mathbf v_t \in \partial l_{\mathcal D}(\mathbf w^{(t)})$，其中 $\partial l_{\mathcal D}(\mathbf w^{(t)})$ 表示损失在真实样本分布 $\mathcal D$ 下的 $\mathbf w^{(t)}$ 处的次梯度集，$l$ 这里表示 hinge 损失函数，由于真实分布 $\mathcal D$ 未知，我们构造其无偏估计，即 从训练集中 $S$ 均匀随机抽取一个样本 $z$，然后计算 $\partial l(\mathbf w^{(t)}, z)$，于是 $\mathbb E[\lambda \mathbf w^{(t)}+\mathbf v_t]$ 就是 $f=\frac {\lambda} 2 \|\mathbf w\|^2+L_{\mathcal D}(\mathbf w)$ 在 $\mathbf w^{(t)}$ 处的一个次梯度，选择学习率 $\eta=\frac 1 {\lambda t}$，于是更新公式为
 
 $$\begin{aligned}\mathbf w^{(t+1)} &=\mathbf w^{(t)}-\frac 1 {\lambda t}(\lambda \mathbf w^{(t)}+\mathbf v_t)
 \\\\ &=\left(1-\frac 1 t\right)\mathbf w^{(t)}-\frac 1 {\lambda t} \mathbf v_t
@@ -195,9 +200,9 @@ $$\begin{aligned}\mathbf w^{(t+1)} &=\mathbf w^{(t)}-\frac 1 {\lambda t}(\lambda
 
 $$\mathbf w^{(t+1)}=-\frac 1 {\lambda t}\sum_{i=1}^t \mathbf v_i$$
 
-$\mathbf v_i$ 是经验损失（不包括正则损失）即 hinge 损失函数在 $\mathbf w^{(i)}$ 处的次梯度，当 $y\mathbf w^{(i)\top} \mathbf x \ge 1$ 时，次梯度为 $0$，当 $y\mathbf w^{(i)\top} \mathbf x < 1$ 时，次梯度为 $-y\mathbf x$，记 $\boldsymbol {\theta}^{(t)}=-\sum_{i=1}^t \mathbf v_i$，那么 SGD 学习过程具体步骤为
+$\mathbf v_i$ 是损失（不包括正则损失）即 hinge 损失函数在 $\mathbf w^{(i)}$ 处的次梯度，当 $y\mathbf w^{(i)\top} \mathbf x \ge 1$ 时，次梯度为 $0$，当 $y\mathbf w^{(i)\top} \mathbf x < 1$ 时，次梯度为 $-y\mathbf x$，记 $\boldsymbol {\theta}^{(t)}=-\sum_{i=1}^t \mathbf v_i$，那么 SGD 学习过程具体步骤为
 
-### 算法
+---
 <center>SGD 求解 Soft-SVM</center>
 
 **目标：** 求解式 $\eqref{4}$
@@ -221,5 +226,7 @@ $\mathbf v_i$ 是经验损失（不包括正则损失）即 hinge 损失函数�
 &emsp; &emsp; $\boldsymbol {\theta}^{(t+1)}=\boldsymbol {\theta}^{(t)}$
 
 **输出：** $\overline {\mathbf w}=\frac 1 T \sum_{t=1}^T \mathbf w^{(t)}$
+
+---
 
 当然也可以使用 $\mathbf w^{T}$ 或者 $\overline {\mathbf w}=\frac 1 {k} \sum_{t=T-k+1}^T \mathbf w^{(t)}$ （latest k 个 $\mathbf w{(t)}$ 的平均） 作为最终的输出。

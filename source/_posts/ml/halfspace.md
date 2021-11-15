@@ -40,7 +40,9 @@ $$y_i \langle \mathbf w^{(t+1)}, \mathbf x_i \rangle=y_i \langle \mathbf w^{(t)}
 
 样本 $(\mathbf x_i, y_i)$ 被 $\mathbf w^{(t)}$ 分类错误，故上式右侧第一项 $\le 0$，而 $\| \mathbf x_i \|^2 \ge 0$，所以是朝着正确的方向更新 $\mathbf w$。
 
-__求解步骤__
+求解步骤:
+
+---
 
 输入：训练集 $(\mathbf x_1, y_1), \cdots , (\mathbf x_m, y_m)$
 
@@ -56,6 +58,7 @@ $\quad \quad \text{else}$
 
 $\quad \quad \quad \text{output} \ \mathbf w^{(t)}$
 
+---
 
 我们还可以证明在有限的迭代次数后能得到符合条件的 $\mathbf w$。
 

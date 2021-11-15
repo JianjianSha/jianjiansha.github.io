@@ -44,7 +44,8 @@ $$S_{ij}=\{(\mathbf x_l, (-1)^{I(y_l=j)}): y_l=i \lor y_l=j \}$$
 
 伪代码如下：
 
-<center>All-Pairs</center>
+---
+<center>All-Pairs 学习算法</center>
 
 **input:** 训练集 $S=\{(\mathbf x_1, y_1), \cdots, (\mathbf x_m, y_m)\}$，二分类学习算法 $A$.
 
@@ -62,6 +63,7 @@ $$S_{ij}=\{(\mathbf x_l, (-1)^{I(y_l=j)}): y_l=i \lor y_l=j \}$$
 
 **output:**
 $$h(\mathbf x) \in arg\max_{i \in [k]}\left(\sum_{j=1}^k \text{sign}(j-i) \cdot h_{ij}(\mathbf x)\right)$$
+---
 
 同样的，可能出现得分相同的情况，与上面分析相同，可以使用 $h_{ij}(\mathbf x)=\mathbf w_{ij}^{\top}\mathbf x$。
 
@@ -90,7 +92,7 @@ $$h(\mathbf x)=arg \max_{y \in \mathcal Y} \mathbf w^{\top} \Psi(\mathbf x, y) \
 
 其中，$\Psi(\mathbf x, y)$ 将样本 $(\mathbf x, y)$ 映射为相应的特征，且有
 
-$$\Psi(\mathbf x, y)=[0,\cdots, 0, x_1,\cdots, x_n, 0,\cdots 0]^{\top}$$
+$$\Psi(\mathbf x, y)=[\underbrace {0,\cdots, 0}_{(y-1)n}, \underbrace {x_1,\cdots, x_n}_{n}, \underbrace { 0,\cdots 0}_{(k-y)n}]^{\top}$$
 
 上式中，$x_1$ 前面有 $(y-1)n$ 个 0，$x_n$ 后面有 $(k-y)n$ 个 0。$\Psi(\mathbf x, y), \mathbf w \in \mathbb R^{nk}$。$\mathbf w$ 可以写成 
 

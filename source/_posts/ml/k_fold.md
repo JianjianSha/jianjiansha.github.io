@@ -19,6 +19,7 @@ mathjax: true
 # 模型选择
 有时候模型有一些超参数，例如多项式中的阶数 $d$，步骤如下：
 
+---
 <center>用于模型选择的 k fold 交叉验证</center>
 
 **input:**
@@ -41,6 +42,8 @@ mathjax: true
  **output**
  1. $\theta^*=\argmin_{\theta} \[\text{error}(\theta)]$
  2. $h_{\theta^*}=A(S;\theta^*)$
+
+---
 
 总结：
 1. 遍历超参数集合，对于每个超参数，分别计算 k-fold 验证误差的平均

@@ -28,7 +28,7 @@
 <meta property="og:description" content="前言为了更好的使用线性分类，有时候需要将线性不可分的数据映射到一个更高维空间，使其线性可分。虽然高维空间的 Halfspace 假设更加具有表达能力（假设空间更加丰富），但是同时也会引入样本复杂度以及计算复杂度的上升。通过引入 margin （训练集中某样本与超平面具有最小距离），可以解决样本复杂度这个问题，而计算复杂度则可以通过另一种方法解决，即本篇所介绍的 “核方法”。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-09-26T10:07:50.000Z">
-<meta property="article:modified_time" content="2021-09-27T08:30:10.250Z">
+<meta property="article:modified_time" content="2021-09-30T09:28:55.947Z">
 <meta property="article:author" content="shajianjian">
 <meta property="article:tag" content="machine learning">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-27 16:30:10" itemprop="dateModified" datetime="2021-09-27T16:30:10+08:00">2021-09-27</time>
+                <time title="修改时间：2021-09-30 17:28:55" itemprop="dateModified" datetime="2021-09-30T17:28:55+08:00">2021-09-30</time>
               </span>
 
           
@@ -244,27 +244,27 @@
 <h1 id="核方法"><a href="#核方法" class="headerlink" title="核方法"></a>核方法</h1><p>给定映射函数 $\psi$ 将域空间 $\mathcal X$ 映射到某个 Hilbert 空间，定义核函数为映射后向量的内积</p>
 <script type="math/tex; mode=display">K(\mathbf x, \mathbf x')=\psi^{\top}(\mathbf x) \psi(\mathbf x')</script><p>可以认为核函数 $K$ 用于指定两个映射向量之间的相似度（未归一化）。</p>
 <p>我们将线性分类问题转化为如下的更一般的优化问题</p>
-<script type="math/tex; mode=display">\min_{\mathbf w} f(\mathbf w^{\top} \psi(\mathbf x_1), \cdots, \mathbf w^{\top} \psi(\mathbf x_m)) + R(\|\mathbf w\|) \quad(1)</script><p>其中 $f:\mathbb R^m \rightarrow \mathbb R$ 是任意函数，$R: \mathbb R_+ \rightarrow \mathbb R$ 是单调递增函数，作为正则惩罚项。</p>
+<script type="math/tex; mode=display">\min_{\mathbf w} f(\mathbf w^{\top} \psi(\mathbf x_1), \cdots, \mathbf w^{\top} \psi(\mathbf x_m)) + R(\|\mathbf w\|) \tag{1} \label{1}</script><p>其中 $f:\mathbb R^m \rightarrow \mathbb R$ 是任意函数，$R: \mathbb R_+ \rightarrow \mathbb R$ 是单调递增函数，作为正则惩罚项。</p>
 <p>例如 Soft-SVM 中（非齐次型可转换为齐次型），$R(a)=\lambda a^2$，$f(a_1, \cdots, a_m)=\frac 1 m \sum_{i} \max \{0, 1- y_ia_i\}, \ a_i=\mathbf w^{\top}\mathbf x_i$。</p>
 <p>Hard-SVM 中，$R(a)=a^2$，且如果 $\forall i \in [m]$ 均有 $y_i(a_i+b)\ge 1$，那么 $f(a_1, \cdots, a_m)=0$，否则 $f(a_1, \cdots, a_m)=\infty$，这是因为 Hard-SVM 保证是线性可分的，所以只要有一个样本分类错误，那么总的分类错误损失就是 $\infty$。</p>
 <p><strong>存在一个向量 $\boldsymbol \alpha \in \mathbb R^m$，使得 $\mathbf w=\boldsymbol \alpha^{\top} \boldsymbol \psi$ 是 (1) 式的最优解。</strong></p>
 <p>其中 $\boldsymbol \psi = [\psi(\mathbf x_1), \cdots, \psi(\mathbf x_m)]$。事实上，在上一篇文章 <a href="/2021/09/22/ml/svm">SVM</a> 中，我们已经讨论到，$\mathbf w$ 是训练集中若干支持向量的线性组合，自然也是训练集中所有向量的线性组合。</p>
 <p>证：</p>
-<p>令 $\mathbf w^{\ast}$ 是 （1）式的最优解。由于 $\mathbf w^{\ast}$ 位于 Hilbert 空间，必然可以分解为两个向量，其中一个来自 $[\psi(\mathbf x_1), \cdots, \psi(\mathbf x_m)]$ 所张（span）空间的一个向量 $\mathbf w$，另一个向量 $\mathbf u$ 位于与这个所张空间垂直的空间，故可写为</p>
+<p>令 $\mathbf w^{\ast}$ 是 $\eqref{1}$ 式的最优解。由于 $\mathbf w^{\ast}$ 位于 Hilbert 空间，必然可以分解为两个向量，其中一个来自 $[\psi(\mathbf x_1), \cdots, \psi(\mathbf x_m)]$ 所张（span）空间的一个向量 $\mathbf w$，另一个向量 $\mathbf u$ 位于与这个所张空间垂直的空间，故可写为</p>
 <script type="math/tex; mode=display">\mathbf w^{\ast}=\mathbf w + \mathbf u=\sum_{i=1}^m \alpha_i \psi(\mathbf x_i)+\mathbf u</script><p>其中 $\mathbf u^{\top} \psi(\mathbf x_i)=0, \ \forall i \in [m]$。</p>
 <p>于是有 $|\mathbf w^{\ast}|^2=|\mathbf w|^2+|\mathbf u|^2+2\mathbf w^{\top} \mathbf u$，由于 $\mathbf w$ 所在空间与 $\mathbf u$ 所在空间垂直，故 $\mathbf w^{\top}\mathbf u=0$，故 $|\mathbf w^{\ast}|^2=|\mathbf w|^2+|\mathbf u|^2 \ge |\mathbf w|^2$，由于 $R$ 是单调增函数，所以 $R(|\mathbf w^{\ast}|) \ge R(|\mathbf w|)$。</p>
 <p>另外注意到</p>
 <script type="math/tex; mode=display">\mathbf w^{\top} \psi(\mathbf x_i)=(\mathbf w^{\ast}-\mathbf u)^{\top} \psi(\mathbf x_i)=\mathbf w^{\ast}\psi(\mathbf x_i)</script><p>所以</p>
-<script type="math/tex; mode=display">f(\mathbf w^{\top} \psi(\mathbf x_1), \cdots, \mathbf w^{\top} \psi(\mathbf x_m))=f(\mathbf w^{\ast \top} \psi(\mathbf x_1), \cdots, \mathbf w^{\ast \top} \psi(\mathbf x_m))</script><p>记 (1) 式中的优化目标为 $L(\cdot)$，所以 $L(\mathbf w^{\ast}) \ge L(\mathbf w)$ ，由于 $\mathbf w^{\ast}$ 是最优解，那么 $\mathbf w$ 也是最优解。证毕。</p>
-<p>于是 （1）式的最优解具有形式 $\mathbf w =\sum_{i=1}^m \alpha_i \psi(\mathbf x_i)$。由于</p>
-<script type="math/tex; mode=display">\mathbf w^{\top}\psi(\mathbf x_i)=\left(\sum_{j=1}^m \alpha_j \psi(\mathbf x_j)\right)^{\top} \psi(\mathbf x_i)=\sum_{j=1}^m \alpha_j \psi^{\top}(\mathbf x_j)\psi(\mathbf x_i) \quad (2)</script><script type="math/tex; mode=display">\|\mathbf w\|^2=\Vert \sum_{i=1}^m \alpha_i \psi(\mathbf x_i) \Vert^2=\sum_{i=1}^m \sum_{j=1}^m\alpha_i \alpha_j \psi^{\top}(\mathbf x_i)\psi(\mathbf x_j) \quad(3)</script><p>所以 （1）式可改写为</p>
-<script type="math/tex; mode=display">\min_{\boldsymbol \alpha \in \mathbb R^m} f\left(\sum_{j=1}^m \alpha_j K(\mathbf x_j, \mathbf x_1), \cdots, \sum_{j=1}^m \alpha_j K(\mathbf x_j, \mathbf x_m)\right) + R \left(\sqrt{\sum_{i=1}^m \sum_{j=1}^m\alpha_i \alpha_j K(\mathbf x_i,\mathbf x_j)}\right) \quad(4)</script><p>将变量从 $\mathbf w \in \mathbb R^d$ 转换为 $\boldsymbol \alpha \in \mathbb R^m$，当 $m &lt;&lt; d$ 时，可以降低计算复杂度。</p>
+<script type="math/tex; mode=display">f(\mathbf w^{\top} \psi(\mathbf x_1), \cdots, \mathbf w^{\top} \psi(\mathbf x_m))=f(\mathbf w^{\ast \top} \psi(\mathbf x_1), \cdots, \mathbf w^{\ast \top} \psi(\mathbf x_m))</script><p>记 $\eqref{1}$ 式中的优化目标为 $L(\cdot)$，所以 $L(\mathbf w^{\ast}) \ge L(\mathbf w)$ ，由于 $\mathbf w^{\ast}$ 是最优解，那么 $\mathbf w$ 也是最优解。证毕。</p>
+<p>于是 $\eqref{1}$ 式的最优解具有形式 $\mathbf w =\sum_{i=1}^m \alpha_i \psi(\mathbf x_i)$。由于</p>
+<script type="math/tex; mode=display">\mathbf w^{\top}\psi(\mathbf x_i)=\left(\sum_{j=1}^m \alpha_j \psi(\mathbf x_j)\right)^{\top} \psi(\mathbf x_i)=\sum_{j=1}^m \alpha_j \psi^{\top}(\mathbf x_j)\psi(\mathbf x_i) \tag{2}</script><script type="math/tex; mode=display">\|\mathbf w\|^2=\Vert \sum_{i=1}^m \alpha_i \psi(\mathbf x_i) \Vert^2=\sum_{i=1}^m \sum_{j=1}^m\alpha_i \alpha_j \psi^{\top}(\mathbf x_i)\psi(\mathbf x_j) \tag{3}</script><p>所以 $\eqref{1}$ 式可改写为</p>
+<script type="math/tex; mode=display">\min_{\boldsymbol \alpha \in \mathbb R^m} f\left(\sum_{j=1}^m \alpha_j K(\mathbf x_j, \mathbf x_1), \cdots, \sum_{j=1}^m \alpha_j K(\mathbf x_j, \mathbf x_m)\right) + R \left(\sqrt{\sum_{i=1}^m \sum_{j=1}^m\alpha_i \alpha_j K(\mathbf x_i,\mathbf x_j)}\right) \tag{4}</script><p>将变量从 $\mathbf w \in \mathbb R^d$ 转换为 $\boldsymbol \alpha \in \mathbb R^m$，当 $m &lt;&lt; d$ 时，可以降低计算复杂度。</p>
 <p>记 $G_{m \times m}$，其中 $G_{ij}=K(\mathbf x_i,\mathbf x_j)$，表示样本之间的内积矩阵，通常称为 Gram 矩阵。那么，(2,3) 式变为</p>
 <script type="math/tex; mode=display">\mathbf w^{\top}\psi(\mathbf x_i)=\sum_{j=1}^m \alpha_j K(\mathbf x_i, \mathbf x_j)=G_{i,:} \cdot \boldsymbol \alpha=(G \boldsymbol \alpha)_i</script><script type="math/tex; mode=display">\|\mathbf w\|^2=\sum_{i=1}^m \sum_{j=1}^m\alpha_i \alpha_j K(\mathbf x_i, \mathbf x_j)=\boldsymbol \alpha^{\top} G \boldsymbol \alpha</script><p>以 Soft-SVM 为例，根据 $\min_{\mathbf w} (\lambda |\mathbf w|^2+\frac 1 m \sum_{i=1}^m \max\{0, 1-y_i(\mathbf w^{\top} \mathbf x_i)\})$， 写成（4）式的形式为</p>
 <script type="math/tex; mode=display">\min_{\boldsymbol \alpha \in \mathbb R^m} \ \frac 1 m \sum_{i=1}^m \max\{0, 1-y_i(G \boldsymbol \alpha)_i\} + \lambda \boldsymbol \alpha^{\top} G \boldsymbol \alpha</script><p>学习到了 $\boldsymbol \alpha$ 之后，那么对新样本的预测为</p>
 <script type="math/tex; mode=display">\mathbf w^{\top}\psi(\mathbf x)=\sum_{j=1}^m \alpha_j K(\mathbf x, \mathbf x_j)</script><p>注意，$K(\mathbf x, \mathbf x_j)$ 不是 G 矩阵元素。</p>
 <h1 id="带核-Soft-SVM-的实现"><a href="#带核-Soft-SVM-的实现" class="headerlink" title="带核 Soft-SVM 的实现"></a>带核 Soft-SVM 的实现</h1><p>上一篇 <a href="/2021/09/22/ml/svm">SVM</a> 中介绍了 Soft-SVM 的 SGD 学习过程。现在考虑带核 Soft-SVM 的学习。首先给出优化目标</p>
-<script type="math/tex; mode=display">\min_{\mathbf w} \left(\frac {\lambda} 2 \|\mathbf w\|^2+\frac 1 m \sum_{i=1}^m \max \{0, 1-y_i \mathbf w^{\top} \psi(\mathbf x_i)\}\right) \quad(5)</script><p>仿照  <a href="/2021/09/22/ml/svm">SVM</a> 中 Soft-SVM 的 SGD 实现中的分析，彼时令 </p>
+<script type="math/tex; mode=display">\min_{\mathbf w} \left(\frac {\lambda} 2 \|\mathbf w\|^2+\frac 1 m \sum_{i=1}^m \max \{0, 1-y_i \mathbf w^{\top} \psi(\mathbf x_i)\}\right) \tag{5} \label{5}</script><p>仿照  <a href="/2021/09/22/ml/svm">SVM</a> 中 Soft-SVM 的 SGD 实现中的分析，彼时令 </p>
 <script type="math/tex; mode=display">\boldsymbol {\theta}^{(t+1)}=\boldsymbol {\theta}^{(t)}-\mathbf v_t=\boldsymbol {\theta}^{(t)}+y_i \mathbf x_i</script><p>那么带核后，变为</p>
 <script type="math/tex; mode=display">\boldsymbol \theta^{(t+1)}=\boldsymbol \theta^{(t)} +y_i\psi(\mathbf x_i)</script><p>且有</p>
 <script type="math/tex; mode=display">\mathbf w^{(t)}=\frac 1 {\lambda t} \boldsymbol \theta^{(t)}</script><p>由于 $\mathbf w, \boldsymbol \theta \in \mathbb R^d$，维数 $d$ 较大，所以我们不直接更新 $\boldsymbol \theta$。由于最优解可写成 $\mathbf w = \sum_{i=1}^m \alpha_i \psi(\mathbf x_i)$ 的形式，所以我们考虑直接求解 $\boldsymbol \alpha$，或者说，是以 $\psi(\mathbf x_1), \cdots, \psi(\mathbf x_m)$ 作为基向量时的坐标，对应地，$\mathbf w$ 是对应标准基向量的坐标，维度 $dim(\boldsymbol \alpha)=m &gt; dim(\mathbf w)=d$。我们还需要给出 $\boldsymbol \theta$ 在以$\psi(\mathbf x_1), \cdots, \psi(\mathbf x_m)$ 作为基向量时的坐标，记为 $\boldsymbol \beta$，有</p>
@@ -274,9 +274,10 @@
 <script type="math/tex; mode=display">\boldsymbol \theta^{(t+1)}=\boldsymbol \theta^{(t)} +y_i\psi(\mathbf x_i)=\sum_{j=1}^m \beta_j^{(t)} \psi(\mathbf x_j)+y_i \psi(\mathbf x_i)=\sum_{j=1}^m \beta_j^{(t+1)} \psi(\mathbf x_j)</script><p>可知 $\boldsymbol \beta$ 的更新为（在随机选择一个样本下标 $i$ 后）</p>
 <script type="math/tex; mode=display">\boldsymbol \beta_{j}^{(t+1)}= \begin{cases} \boldsymbol \beta_{j}^{(t)} & j \neq i \\\\ \boldsymbol \beta_{i}^{(t)}+y_i & j=i \end{cases}</script><p>最后，随机选择了样本下标 $i$ 后，判断条件变为</p>
 <script type="math/tex; mode=display">y_i \mathbf w^{\top} \psi(\mathbf x_i)=y_i \left(\sum_{j=1}^m \alpha_j^{(t)} \psi(\mathbf x_j)\right)^{\top} \psi(\mathbf x_i)=y_i\sum_{j=1}^m \alpha_j^{(t)} K(\mathbf x_j, \mathbf x_i)</script><p>最后，整个过程与 <a href="/2021/09/22/ml/svm">SVM</a> 中 Soft-SVM 的 SGD 实现基本类似，现总结如下：</p>
+<hr>
 <center>带核 Soft-SVM 的 SGD 实现</center>
 
-<p><strong>目标：</strong> 求解（5）式</p>
+<p><strong>目标：</strong> 求解 $\eqref{5}$ 式</p>
 <p><strong>参数：</strong> 总迭代次数 $T$</p>
 <p><strong>初始化：</strong> $\boldsymbol \beta^{(1)}=\mathbf 0$</p>
 <p><strong>for</strong> $\ t=1,\cdots, T$</p>
@@ -288,6 +289,7 @@
 <p>&emsp; 否则</p>
 <p>&emsp; &emsp; $\beta_i^{(t+1)}=\beta_i^{(t)}$</p>
 <p><strong>输出</strong> $\overline {\boldsymbol \alpha}=\frac 1 T \sum_{t=1}^T \boldsymbol \alpha^{(t)}$</p>
+<hr>
 <p>最后从 $\boldsymbol \alpha$ 变回 $\mathbf w$，</p>
 <script type="math/tex; mode=display">\overline {\mathbf w}=\sum_{i=1}^m \overline {\boldsymbol \alpha}\psi(\mathbf x_i)</script><p>将 $\overline {\boldsymbol \alpha}$ 的表达式代入上式，验证如下</p>
 <script type="math/tex; mode=display">\overline {\mathbf w}=\sum_{i=1}^m \left(\frac 1 T \sum_{t=1}^T \boldsymbol \alpha^{(t)}\right)\psi(\mathbf x_i)=\frac 1 T \sum_{t=1}^T\left(\sum_{i=1}^m \boldsymbol \alpha^{(t)}\psi(\mathbf x_i)\right)=\frac 1 T \sum_{t=1}^T \mathbf w^{(t)}</script><p>可见于普通的 Soft-SVM 完全一致。</p>
@@ -388,7 +390,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">83</span>
+          <span class="site-state-item-count">93</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -401,7 +403,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

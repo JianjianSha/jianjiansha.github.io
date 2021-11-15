@@ -28,7 +28,7 @@
 <meta property="og:description" content="支持向量机搜索具有最大“边距”的分类器，最大“边距”使得分类器更加健壮。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-09-22T08:04:37.000Z">
-<meta property="article:modified_time" content="2021-09-30T08:15:48.519Z">
+<meta property="article:modified_time" content="2021-09-30T10:21:29.710Z">
 <meta property="article:author" content="shajianjian">
 <meta property="article:tag" content="machine learning">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-30 16:15:48" itemprop="dateModified" datetime="2021-09-30T16:15:48+08:00">2021-09-30</time>
+                <time title="修改时间：2021-09-30 18:21:29" itemprop="dateModified" datetime="2021-09-30T18:21:29+08:00">2021-09-30</time>
               </span>
 
           
@@ -219,10 +219,10 @@
 </blockquote>
 <p>如果这个“最小距离”较大，那么即使对样本点有进行小的扰动，也不影响判别效果。</p>
 <h2 id="距离"><a href="#距离" class="headerlink" title="距离"></a>距离</h2><p><strong>样本点 $\mathbf x$ 与超平面 $(\mathbf w, b)$ （其中 $|\mathbf w|=1$）之间的距离为 $|\mathbf w^{\top}\mathbf x+b|$。</strong></p>
-<p>这里给了 $|\mathbf w|=1$ 这个约束，如果没有这个约束，那么同一个超平面会有无穷多个表达，即 $a\mathbf w \mathbf x+ab=1, \ \forall a \neq 0$。给定 $\mathbf w$ 约束条件后，$b$ 可以唯一确定，故不需要对其作约束。</p>
+<p>这里给了 $\Vert \mathbf w \Vert=1$ 这个约束，如果没有这个约束，那么同一个超平面会有无穷多个表达，即 $a\mathbf w \mathbf x+ab=1, \ \forall a \neq 0$。给定 $\mathbf w$ 约束条件后，$b$ 可以唯一确定，故不需要对其作约束。</p>
 <p><strong>证：</strong></p>
 <p>这个距离定义为</p>
-<script type="math/tex; mode=display">\min\{\|\mathbf {x-v}: \mathbf w^{\top}\mathbf v+b=0\}</script><p>取 $\mathbf v=\mathbf x-(\mathbf w^{\top} \mathbf x+b)\mathbf w$，验证这个值在超平面上，因为</p>
+<script type="math/tex; mode=display">\min\{\Vert\mathbf {x-v}\Vert: \mathbf w^{\top}\mathbf v+b=0\}</script><p>取 $\mathbf v=\mathbf x-(\mathbf w^{\top} \mathbf x+b)\mathbf w$，验证这个值在超平面上，因为</p>
 <script type="math/tex; mode=display">\mathbf w^{\top} \mathbf v+b=\mathbf w^{\top}\mathbf x-(\mathbf w^{\top} \mathbf x+b)\|\mathbf w\|^2+b=0</script><p>验证完毕。</p>
 <p>此时 $\mathbf x, \ \mathbf v$ 之间的距离为</p>
 <script type="math/tex; mode=display">\|\mathbf x-\mathbf v\|=|\mathbf w^{\top} \mathbf x+b|\|\mathbf w\|=|\mathbf w^{\top} \mathbf x+b|</script><p>另一方面，任取超平面上一点 $\mathbf u$，有</p>
@@ -232,18 +232,20 @@
 \\ &=\|\mathbf {x-v}\|^2+2(\mathbf w^{\top} \mathbf x+b)\mathbf w^{\top}(\mathbf {v-u})
 \\ &=\|\mathbf {x-v}\|^2\end{aligned}</script><p>上式倒数第二个等式用了 $\mathbf v$ 的定义，倒数第一个等式是因为 $\mathbf w^{\top}\mathbf v=\mathbf w^{\top}\mathbf u=-b$。</p>
 <p>从上式可见，$\mathbf x$ 与超平面的距离应该为 $|\mathbf {x-v}|^2$，也就是 $|\mathbf w^{\top} \mathbf x+b|$。</p>
-<h2 id="Hard-SVM"><a href="#Hard-SVM" class="headerlink" title="Hard-SVM"></a>Hard-SVM</h2><p>Hard-SVM 的学习准则是令超平面与数据集的“边距”最大，即，</p>
-<script type="math/tex; mode=display">arg \max_{(\mathbf w, b): \|\mathbf w\|=1} \ \min_{i \in [m]} |\mathbf w^{\top} \mathbf x_i+b| \quad s.t. \ \forall i \in [m], \ y_i(\mathbf w^{\top} \mathbf x_i+b)>0</script><p>在训练集线性可分这一前提条件下，上式等价于</p>
-<script type="math/tex; mode=display">arg \max_{(\mathbf w, b): \|\mathbf w\|=1} \ \min_{i \in [m]} y_i(\mathbf w^{\top} \mathbf x_i+b) \quad(1)</script><h3 id="变换"><a href="#变换" class="headerlink" title="变换"></a>变换</h3><p>对满足 $|\mathbf w|=1$ 的任意 $(\mathbf w, b)$, 记 $\gamma=\min_{i \in [m]} \ y_i(\mathbf w^{\top}\mathbf x_i+b)$，于是 $\forall i \in [m]$ 有</p>
+<h2 id="Hard-SVM"><a href="#Hard-SVM" class="headerlink" title="Hard-SVM"></a>Hard-SVM</h2><p>Hard-SVM 的学习准则是令超平面与数据集的“边距”最大，即，求解以下最优问题的解，</p>
+<script type="math/tex; mode=display">\arg \max_{(\mathbf w, b): \|\mathbf w\|=1} \ \min_{i \in [m]} |\mathbf w^{\top} \mathbf x_i+b| \quad s.t. \ \forall i \in [m], \ y_i(\mathbf w^{\top} \mathbf x_i+b)>0</script><p>在训练集线性可分这一前提条件下，上式等价于</p>
+<script type="math/tex; mode=display">\arg \max_{(\mathbf w, b): \|\mathbf w\|=1} \ \min_{i \in [m]} y_i(\mathbf w^{\top} \mathbf x_i+b) \tag{1} \label{1}</script><h3 id="变换"><a href="#变换" class="headerlink" title="变换"></a>变换</h3><p>对满足 $|\mathbf w|=1$ 的任意 $(\mathbf w, b)$, 记 $\gamma=\min_{i \in [m]} \ y_i(\mathbf w^{\top}\mathbf x_i+b)$，于是 $\forall i \in [m]$ 有</p>
 <script type="math/tex; mode=display">y_i (\mathbf w^{\top}\mathbf x_i+b) \ge \gamma</script><p>根据数据集线性可分这一假设，有 $\gamma&gt;0$，于是变换上式为</p>
-<script type="math/tex; mode=display">y_i (\frac {\mathbf w^{\top}} {\gamma}\mathbf x_i+\frac {b}{\gamma}) \ge 1</script><p>而上们 (1) 式要求 $\gamma$ 最大，<br>而 $|\mathbf w|=1$，<br>那么意味着 $\frac {|\mathbf w^{\top}|}{\gamma}$ 最小（$b$ 由 $\mathbf w$ 唯一确定，不对其作约束），也就是说，(1) 式可以变换为如下问题：</p>
-<script type="math/tex; mode=display">arg \min_{(\mathbf w, b)}\|\mathbf w\|^2 \quad s.t. \quad \forall i \in [m], \ y_i(\mathbf w^{\top} \mathbf x_i+b) \ge 1 \quad(2)</script><h1 id="Soft-SVM"><a href="#Soft-SVM" class="headerlink" title="Soft-SVM"></a>Soft-SVM</h1><p>Hard-SVM 假设训练集线性可分，但是这是一强假设，对这个假设适当放宽就得到 Soft-SVM，即训练集可能线性不可分。我们在 (2) 式的基础上引入松弛变量 $\{\xi_i:\xi_i \ge 0, \forall i \in [m]\}$，使得约束条件变为 $y_i(\mathbf w^{\top} \mathbf x_i+b) \ge 1-\xi_i$，我们的目的除了使 $|\mathbf w|$ 最小之外，还需要使松弛变量尽量小，即尽量减小这种放宽量，或者说尽量满足 Hard-SVM 中的约束条件，这就是 Soft-SVM 优化问题：</p>
-<center>Soft-SVM</center>
+<script type="math/tex; mode=display">y_i (\frac {\mathbf w^{\top}} {\gamma}\mathbf x_i+\frac {b}{\gamma}) \ge 1</script><p>而上面 $\eqref{1}$ 式要求 $\gamma$ 最大，<br>而 $|\mathbf w|=1$，<br>那么意味着 $\frac {|\mathbf w^{\top}|}{\gamma}$ 最小（$b$ 由 $\mathbf w$ 唯一确定，不对其作约束），也就是说，(1) 式可以变换为如下问题：</p>
+<script type="math/tex; mode=display">\arg \min_{(\mathbf w, b)}\|\mathbf w\|^2 \quad s.t. \quad \forall i \in [m], \ y_i(\mathbf w^{\top} \mathbf x_i+b) \ge 1 \tag{2}</script><h1 id="Soft-SVM"><a href="#Soft-SVM" class="headerlink" title="Soft-SVM"></a>Soft-SVM</h1><p>Hard-SVM 假设训练集线性可分，但是这是一强假设，对这个假设适当放宽就得到 Soft-SVM，即训练集可能线性不可分。我们在 (2) 式的基础上引入松弛变量 $\{\xi_i:\xi_i \ge 0, \forall i \in [m]\}$，使得约束条件变为 $y_i(\mathbf w^{\top} \mathbf x_i+b) \ge 1-\xi_i$，我们的目的除了使 $\Vert \mathbf w\Vert$ 最小之外，还需要使松弛变量尽量小，即尽量减小这种放宽量，或者说尽量满足 Hard-SVM 中的约束条件，这就是 Soft-SVM 优化问题：</p>
+<hr>
+<center>Soft-SVM 求解思路</center>
 
 <p><strong>input:</strong> $(\mathbf x_1, y_1), \cdots (\mathbf x_m, y_m)$</p>
 <p><strong>parameter:</strong>  $\lambda &gt;0$ （平衡因子）</p>
 <p><strong>solve:</strong></p>
 <script type="math/tex; mode=display">\min_{\mathbf w, b, \boldsymbol \xi} \left(\lambda \|\mathbf w\|^2 + \frac 1 m \sum_{i=1}^m \xi_i\right)</script><script type="math/tex; mode=display">s.t. \ \forall i, \ y_i(\mathbf w^{\top} \mathbf x_i+b) \ge 1- \xi_i, \ \xi_i \ge 0</script><p><strong>output:</strong> $\mathbf w, b$</p>
+<hr>
 <p>我们可以使用正则化的损失最小化来改写上式。使用 hinge 损失，</p>
 <script type="math/tex; mode=display">l(\mathbf w, b, \mathbf x, y)=\max \{0, 1-y(\mathbf w^{\top}\mathbf x+b)\}</script><p>分类器在训练集 $S$ 上的损失记为 $L_S(\mathbf w, b)$，那么正则化损失最小问题为</p>
 <script type="math/tex; mode=display">\min_{\mathbf w, b} (\lambda \|\mathbf w\|^2+L_S(\mathbf w, b))</script><p>固定 $(\mathbf w, b)$ 的值，对于某个样本 $(\mathbf x_i, y_i)$，由于 $\xi_i \ge 0$，所以如果 $y_i(\mathbf w^{\top} \mathbf x_i+b) \ge 1$，那么 $\xi_i=0$，如果 $y_i(\mathbf w^{\top} \mathbf x_i+b) &lt; 1$，那么损失为 $1-y_i(\mathbf w^{\top} \mathbf x_i+b) =\xi_i$，所以 $L_S(\mathbf w, b)=\frac 1 m \sum_{i=1}^m \xi_i$。</p>
@@ -252,30 +254,32 @@
 SVM 中的“支持向量”这一词语来自 Hard-SVM 中的 $\mathbf w_0=\frac {\mathbf w^{\ast}} {\gamma^{\ast}}$，其中 $\mathbf w^{\ast}$ 是 (1) 式的解，$\gamma^{\ast}$ 则是 (1) 式的值，即 $\forall i \in [m], \ y_i(\mathbf w^{{\ast}\top} \mathbf x_i+b)\ge\gamma^{\ast}$，那么，向量 $\mathbf w_0$ 由训练集中的样本子集$\{(\mathbf x_i, y_i): y_i(\mathbf w^{{\ast}\top} \mathbf x_i+b)=\gamma^{\ast}\}$ 支持（支撑），这个样本子集中的样本到判别超平面距离最小，均为 $\gamma^{\ast}$，称这个样本子集中的数据向量为“支持向量”。
 
 <p>考虑齐次型，即偏置 $b=0$（事实上，可以将 $b$ 作为 $w_1$，且 $\mathbf x$ 前面增加一个元素 $\mathbf x_1=1$，使得非齐次型转换为齐次型）。那么对于 Hard-SVM 有</p>
-<script type="math/tex; mode=display">\min_{\mathbf w} \ \|\mathbf w\|^2 \quad s.t. \quad \forall i \in [m], \ y_i \mathbf w^{\top} \mathbf x \ge 1 \quad(3)</script><p>上面所说的 $\mathbf w_0$ 则是上式的解，支持向量则为 $I=\{\mathbf x_i: |\mathbf w_0^{\top}\mathbf x_i|=1\}$。<strong>存在系数 $\alpha_1, \cdots$ 使得</strong></p>
+<script type="math/tex; mode=display">\min_{\mathbf w} \ \|\mathbf w\|^2 \quad s.t. \quad \forall i \in [m], \ y_i \mathbf w^{\top} \mathbf x \ge 1 \tag{3}</script><p>上面所说的 $\mathbf w_0$ 则是上式的解，支持向量则为 $I=\{\mathbf x_i: |\mathbf w_0^{\top}\mathbf x_i|=1\}$。<strong>存在系数 $\alpha_1, \cdots$ 使得</strong></p>
 <script type="math/tex; mode=display">\mathbf w_0=\sum_{i \in I} \alpha_i \mathbf x_i</script><p>可以使用拉格朗日乘子法证明上述结论，略。</p>
 <h2 id="对偶"><a href="#对偶" class="headerlink" title="对偶"></a>对偶</h2><p>考虑以下函数</p>
 <script type="math/tex; mode=display">g(\mathbf w)=\max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \sum_{i=1}^m \alpha_i (1-y_i \mathbf w^{\top}\mathbf x_i)=\begin{cases} 0 & \forall i, \ y_i(\mathbf w^{\top}\mathbf x_i) \ge 1 \\ \infty & \text{otherwise} \end{cases}</script><p>上式中 $\alpha_i$ 全部非负，显然在 $y_i(\mathbf w^{\top}\mathbf x_i) \ge 1$ 条件下，$\forall i , \ \alpha=0$ 可使得 $g(\mathbf w)$ 最大，为 $0$，否则，$\forall i, \ \alpha=\infty$ 可使得 $g(\mathbf w)$ 最大，为 $\infty$。</p>
-<p>对于线性可分训练集，考虑齐次型，即 (3) 式，问题可等价为</p>
+<p>对于线性可分训练集，考虑齐次型，即 $\eqref{3}$ 式，问题可等价为</p>
 <script type="math/tex; mode=display">\min_{\mathbf w}\ (\|\mathbf w\|^2+ g(\mathbf w))</script><p>综合起来就是</p>
 <script type="math/tex; mode=display">\min_{\mathbf w} \max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \left(\frac 1 2 \|\mathbf w\|^2+\sum_{i=1}^m \alpha_i (1-y_i \mathbf w^{\top}\mathbf x_i)\right)</script><p>增加 $\frac 1 2$ 因子是为了后面计算方便。现在将最小最大位置对调，那么目标值只可能变小（弱对偶），</p>
-<script type="math/tex; mode=display">\min_{\mathbf w} \max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \left(\frac 1 2 \|\mathbf w\|^2+\sum_{i=1}^m \alpha_i (1-y_i \mathbf w^{\top}\mathbf x_i)\right)\\\\ \ge
+<script type="math/tex; mode=display">\min_{\mathbf w} \max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \left(\frac 1 2 \|\mathbf w\|^2+\sum_{i=1}^m \alpha_i (1-y_i \mathbf w^{\top}\mathbf x_i)\right)
+\\ \ge
  \max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \min_{\mathbf w} \left(\frac 1 2 \|\mathbf w\|^2+\sum_{i=1}^m \alpha_i (1-y_i \mathbf w^{\top}\mathbf x_i)\right)</script><p>实际上在这里，强对偶也成立，即上式中等式成立，于是问题转化为对偶问题</p>
 <script type="math/tex; mode=display">\max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \min_{\mathbf w} \left(\frac 1 2 \|\mathbf w\|^2+\sum_{i=1}^m \alpha_i (1-y_i \mathbf w^{\top}\mathbf x_i)\right)</script><p>当固定 $\boldsymbol \alpha$ 时，优化问题转换为无约束条件且目标可微，根据梯度为 0 求解，得</p>
 <script type="math/tex; mode=display">\mathbf w-\sum_{i=1}^m \alpha_i y_i \mathbf x_i=\mathbf 0 \Rightarrow \mathbf w=\sum_{i=1}^m \alpha_i y_i \mathbf x_i</script><p>这表示解 $\mathbf w$ 处于样本向量所张空间中。于是对偶问题变成</p>
 <script type="math/tex; mode=display">\max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \left(\frac 1 2 \|\sum_{i=1}^m \alpha_i y_i \mathbf x_i\|^2+\sum_{i=1}^m \alpha_i \left(1-y_i \sum_{j=1}^m \alpha_j y_j \mathbf x_j^{\top}\mathbf x_i \right)\right)</script><p>简化上式，其中第一项，</p>
 <script type="math/tex; mode=display">\frac 1 2 \|\sum_{i=1}^m \alpha_i y_i \mathbf x_i\|^2=\frac 1 2 \left(\sum_i \alpha_i y_i \mathbf x_i^{\top}\right)\left(\sum_j \alpha_j y_j \mathbf x_j \right)</script><p>第二项为</p>
 <script type="math/tex; mode=display">\sum_{i=1}^m \alpha_i \left(1-y_i \sum_{j=1}^m \alpha_j y_j \mathbf x_j^{\top}\mathbf x_i \right)=\sum_i \alpha_i-\left(\sum_{j=1}^m \alpha_j y_j \mathbf x_j^{\top}\right)\left(\sum_{i=1}^m \alpha_i y_i \mathbf x_i\right)</script><p>于是对偶问题简化为</p>
-<script type="math/tex; mode=display">\max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \left(\sum_{i=1}^m \alpha_i-\frac 1 2 \sum_{1=1}^m \sum_{j=1}^m \alpha_i  \alpha_j y_iy_j \mathbf x_i^{\top}\mathbf x_j \right)</script><h2 id="SGD-求解-Soft-SVM"><a href="#SGD-求解-Soft-SVM" class="headerlink" title="SGD 求解 Soft-SVM"></a>SGD 求解 Soft-SVM</h2><p>使用 hinge 损失，那么 Soft-SVM 可写为</p>
-<script type="math/tex; mode=display">\min_{\mathbf w} \left(\frac {\lambda} 2 \|\mathbf w\|^2 + \frac 1 m \sum_{i=1}^m \max \{0, 1-y_i \mathbf w^{\top} \mathbf x_i\}\right) \tag{4} \label{4}</script><p>将上式写成 $f(\mathbf w)=\frac {\lambda} 2 |\mathbf w|^2+L_S(\mathbf w)$ 的形式，</p>
-<p>使用随机梯度下降，即 $t$ 时刻更新的梯度向量 $\mathbf v_t \in \partial l_{\mathcal D}(\mathbf w^{(t)})$，其中 $\partial l_{\mathcal D}(\mathbf w^{(t)})$ 表示经验损失在 $\mathbf w^{(t)}$ 处的次梯度集，由于真实分布 $\mathcal D$ 未知，我们构造其无偏估计，即 从训练集中 $S$ 均匀随机抽取一个样本 $z$，然后计算 $\partial l(\mathbf w^{(t)}, z)$，于是 $\mathbb E[\lambda \mathbf w^{(t)}+\mathbf v_t]$ 就是 $f$ 在 $\mathbf w^{(t)}$ 处的一个次梯度，选择学习率 $\eta=\frac 1 {\lambda t}$，于是更新公式为</p>
+<script type="math/tex; mode=display">\max_{\boldsymbol \alpha \in \mathbb R^m:\boldsymbol \alpha \ge \mathbf 0} \left(\sum_{i=1}^m \alpha_i-\frac 1 2 \sum_{1=1}^m \sum_{j=1}^m \alpha_i  \alpha_j y_iy_j \mathbf x_i^{\top}\mathbf x_j \right)</script><p>在 <a href="2021/09/26/ml/kernel">核方法</a> 这篇文章中，也有类似的思想，两个地方联系起来看看，会更有心得。</p>
+<h2 id="SGD-求解-Soft-SVM"><a href="#SGD-求解-Soft-SVM" class="headerlink" title="SGD 求解 Soft-SVM"></a>SGD 求解 Soft-SVM</h2><p>使用 hinge 损失，那么 Soft-SVM 可写为</p>
+<script type="math/tex; mode=display">\min_{\mathbf w} \left(\frac {\lambda} 2 \|\mathbf w\|^2 + \frac 1 m \sum_{i=1}^m \max \{0, 1-y_i \mathbf w^{\top} \mathbf x_i\}\right) \tag{4} \label{4}</script><p>将上式写成 $f(\mathbf w)=\frac {\lambda} 2 |\mathbf w|^2+L_S(\mathbf w)$ 的形式，这是带正则项的经验损失，然而我们使用随机梯度下降算法，需要求真实损失的梯度，即 $t$ 时刻更新的梯度向量 $\mathbf v_t \in \partial l_{\mathcal D}(\mathbf w^{(t)})$，其中 $\partial l_{\mathcal D}(\mathbf w^{(t)})$ 表示损失在真实样本分布 $\mathcal D$ 下的 $\mathbf w^{(t)}$ 处的次梯度集，$l$ 这里表示 hinge 损失函数，由于真实分布 $\mathcal D$ 未知，我们构造其无偏估计，即 从训练集中 $S$ 均匀随机抽取一个样本 $z$，然后计算 $\partial l(\mathbf w^{(t)}, z)$，于是 $\mathbb E[\lambda \mathbf w^{(t)}+\mathbf v_t]$ 就是 $f=\frac {\lambda} 2 |\mathbf w|^2+L_{\mathcal D}(\mathbf w)$ 在 $\mathbf w^{(t)}$ 处的一个次梯度，选择学习率 $\eta=\frac 1 {\lambda t}$，于是更新公式为</p>
 <script type="math/tex; mode=display">\begin{aligned}\mathbf w^{(t+1)} &=\mathbf w^{(t)}-\frac 1 {\lambda t}(\lambda \mathbf w^{(t)}+\mathbf v_t)
 \\\\ &=\left(1-\frac 1 t\right)\mathbf w^{(t)}-\frac 1 {\lambda t} \mathbf v_t
 \\\\ &=\frac {t-1} t \mathbf w^{(t)}-\frac 1 {\lambda t} \mathbf v_t
 \\\\ &=\frac {t-1} t \left(\frac {t-2}{t-1}\mathbf w^{(t-1)}-\frac 1 {\lambda (t-1)}\mathbf v_{t-1}\right)-\frac 1 {\lambda t} \mathbf v_t
 \\\\ &=\frac {t-2} t \mathbf w^{(t-1)}-\frac 1 {\lambda t} \mathbf v_{t-1}-\frac 1 {\lambda t} \mathbf v_t\end{aligned}</script><p>根据上述迭代公示，可知</p>
-<script type="math/tex; mode=display">\mathbf w^{(t+1)}=-\frac 1 {\lambda t}\sum_{i=1}^t \mathbf v_i</script><p>$\mathbf v_i$ 是经验损失（不包括正则损失）即 hinge 损失函数在 $\mathbf w^{(i)}$ 处的次梯度，当 $y\mathbf w^{(i)\top} \mathbf x \ge 1$ 时，次梯度为 $0$，当 $y\mathbf w^{(i)\top} \mathbf x &lt; 1$ 时，次梯度为 $-y\mathbf x$，记 $\boldsymbol {\theta}^{(t)}=-\sum_{i=1}^t \mathbf v_i$，那么 SGD 学习过程具体步骤为</p>
-<h3 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h3><center>SGD 求解 Soft-SVM</center>
+<script type="math/tex; mode=display">\mathbf w^{(t+1)}=-\frac 1 {\lambda t}\sum_{i=1}^t \mathbf v_i</script><p>$\mathbf v_i$ 是损失（不包括正则损失）即 hinge 损失函数在 $\mathbf w^{(i)}$ 处的次梯度，当 $y\mathbf w^{(i)\top} \mathbf x \ge 1$ 时，次梯度为 $0$，当 $y\mathbf w^{(i)\top} \mathbf x &lt; 1$ 时，次梯度为 $-y\mathbf x$，记 $\boldsymbol {\theta}^{(t)}=-\sum_{i=1}^t \mathbf v_i$，那么 SGD 学习过程具体步骤为</p>
+<hr>
+<center>SGD 求解 Soft-SVM</center>
 
 <p><strong>目标：</strong> 求解式 $\eqref{4}$</p>
 <p><strong>参数：</strong> $T$ （总迭代次数）</p>
@@ -288,6 +292,7 @@ SVM 中的“支持向量”这一词语来自 Hard-SVM 中的 $\mathbf w_0=\fra
 <p>&emsp; 否则</p>
 <p>&emsp; &emsp; $\boldsymbol {\theta}^{(t+1)}=\boldsymbol {\theta}^{(t)}$</p>
 <p><strong>输出：</strong> $\overline {\mathbf w}=\frac 1 T \sum_{t=1}^T \mathbf w^{(t)}$</p>
+<hr>
 <p>当然也可以使用 $\mathbf w^{T}$ 或者 $\overline {\mathbf w}=\frac 1 {k} \sum_{t=T-k+1}^T \mathbf w^{(t)}$ （latest k 个 $\mathbf w{(t)}$ 的平均） 作为最终的输出。</p>
 
     </div>
@@ -372,7 +377,7 @@ SVM 中的“支持向量”这一词语来自 Hard-SVM 中的 $\mathbf w_0=\fra
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BE%B9%E8%B7%9D%E5%92%8C-Hard-SVM"><span class="nav-number">1.</span> <span class="nav-text">边距和 Hard-SVM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B7%9D%E7%A6%BB"><span class="nav-number">1.1.</span> <span class="nav-text">距离</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hard-SVM"><span class="nav-number">1.2.</span> <span class="nav-text">Hard-SVM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%98%E6%8D%A2"><span class="nav-number">1.2.1.</span> <span class="nav-text">变换</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Soft-SVM"><span class="nav-number">2.</span> <span class="nav-text">Soft-SVM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F"><span class="nav-number">2.1.</span> <span class="nav-text">支持向量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E5%81%B6"><span class="nav-number">2.2.</span> <span class="nav-text">对偶</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SGD-%E6%B1%82%E8%A7%A3-Soft-SVM"><span class="nav-number">2.3.</span> <span class="nav-text">SGD 求解 Soft-SVM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E6%B3%95"><span class="nav-number">2.3.1.</span> <span class="nav-text">算法</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BE%B9%E8%B7%9D%E5%92%8C-Hard-SVM"><span class="nav-number">1.</span> <span class="nav-text">边距和 Hard-SVM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B7%9D%E7%A6%BB"><span class="nav-number">1.1.</span> <span class="nav-text">距离</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hard-SVM"><span class="nav-number">1.2.</span> <span class="nav-text">Hard-SVM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%98%E6%8D%A2"><span class="nav-number">1.2.1.</span> <span class="nav-text">变换</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Soft-SVM"><span class="nav-number">2.</span> <span class="nav-text">Soft-SVM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F"><span class="nav-number">2.1.</span> <span class="nav-text">支持向量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E5%81%B6"><span class="nav-number">2.2.</span> <span class="nav-text">对偶</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SGD-%E6%B1%82%E8%A7%A3-Soft-SVM"><span class="nav-number">2.3.</span> <span class="nav-text">SGD 求解 Soft-SVM</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -386,7 +391,7 @@ SVM 中的“支持向量”这一词语来自 Hard-SVM 中的 $\mathbf w_0=\fra
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">83</span>
+          <span class="site-state-item-count">93</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -399,7 +404,7 @@ SVM 中的“支持向量”这一词语来自 Hard-SVM 中的 $\mathbf w_0=\fra
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

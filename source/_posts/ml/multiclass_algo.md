@@ -41,7 +41,7 @@ $$\Delta(h_{\mathbf w}(\mathbf x), y) \le \Delta(h_{\mathbf w}(\mathbf x), y)+\l
 
 由于 $h_{\mathbf w}(\mathbf x) \in \mathcal Y$，可以将上面这个不等式的右端 upper bound 为
 
-$$\max_{y' \in \mathcal Y} \ (\Delta(y', y)+\langle \mathbf w, \Psi(\mathbf x, y')-\Psi(\mathbf x, y)\rangle) \stackrel{def}=  l(\mathbf w, (\mathbf x, y)) \tag{*} \label{\star}$$
+$$\max_{y' \in \mathcal Y} \ (\Delta(y', y)+\langle \mathbf w, \Psi(\mathbf x, y')-\Psi(\mathbf x, y)\rangle) \stackrel{def}=  l(\mathbf w, (\mathbf x, y)) \tag{100} \label{100}$$
 
 于是 $l(\mathbf w, (\mathbf x, y)) \ge \Delta(h_{\mathbf w}(\mathbf x), y)+\langle \mathbf w, \Psi(\mathbf x, h_{\mathbf w}(\mathbf x))-\Psi(\mathbf x, y)\rangle\ge \Delta(h_{\mathbf w}(\mathbf x), y)$，第一个非严格不等关系中，当
 
@@ -68,7 +68,7 @@ $$l(\mathbf w, (\mathbf x, y)) \ge \Delta(h_{\mathbf w}(\mathbf x), y) \tag{5}$$
 $l(\mathbf w, (\mathbf x, y))$ 是若干个有关 $\mathbf w$ 的线性函数的最大值函数，根据本文附录的 **定理 1**， **$l(\mathbf w, (\mathbf x, y))$ 是 $\mathbf w$ 的凸函数。并且 $l(\mathbf w, (\mathbf x, y))$ 是 $\rho-$Lipschitz 函数。**（证明见下方附录）
 
 
-$\eqref{\star}$ 式定义的 $l(\mathbf w, (\mathbf x, y))$ 就是泛 hinge 损失。对于二分类情况，令原损失 $\Delta$ 为 $0-1$ 损失，当 $\mathcal Y = \{\pm 1\}$ 时，设置 $\Psi(\mathbf x, y)=y\mathbf x/2$，那么泛 hinge 损失将退化为普通 hinge 损失，
+$\eqref{100}$ 式定义的 $l(\mathbf w, (\mathbf x, y))$ 就是泛 hinge 损失。对于二分类情况，令原损失 $\Delta$ 为 $0-1$ 损失，当 $\mathcal Y = \{\pm 1\}$ 时，设置 $\Psi(\mathbf x, y)=y\mathbf x/2$，那么泛 hinge 损失将退化为普通 hinge 损失，
 
 $$l(\mathbf w, (\mathbf x, y))=\max_{y'\in \{y, -y\}} \Delta(y', y)+\langle \mathbf w, (y'-y)\mathbf x/2 \rangle$$
 
@@ -82,11 +82,11 @@ $$l(\mathbf w, (\mathbf x, y))=\max_{y'\in \{y, -y\}} \Delta(y', y)+\langle \mat
 
 $$\mathbf w'=\begin{bmatrix} \mathbf w \\\\ -\mathbf w \end{bmatrix}
 
-\\\\\Psi(\mathbf x, y=1)=[x_1,\cdots, x_n, 0,\cdots 0]^{\top}=\begin{bmatrix} \mathbf x \\\\ \mathbf 0 \end{bmatrix}
-\\\\\Psi(\mathbf x, y=2)=[0,\cdots 0, x_1,\cdots, x_n]^{\top}=\begin{bmatrix} \mathbf 0 \\\\ \mathbf x \end{bmatrix}
-\\\\h(\mathbf x)=arg \max_{y \in \mathcal Y} \mathbf w'^{\top} \Psi(\mathbf x, y)$$
+\\ \Psi(\mathbf x, y=1)=[x_1,\cdots, x_n, 0,\cdots 0]^{\top}=\begin{bmatrix} \mathbf x \\\\ \mathbf 0 \end{bmatrix}
+\\ \Psi(\mathbf x, y=2)=[0,\cdots 0, x_1,\cdots, x_n]^{\top}=\begin{bmatrix} \mathbf 0 \\\\ \mathbf x \end{bmatrix}
+\\h(\mathbf x)=arg \max_{y \in \mathcal Y} \mathbf w'^{\top} \Psi(\mathbf x, y)$$
 
-根据 $\eqref{\star}$ 式，有
+根据 $\eqref{100}$ 式，有
 
 $$l(\mathbf w, (\mathbf x, y))=\max_{y' \in \{1,2\}} \Delta(y', y)+\mathbf w'^{\top}(\Psi(\mathbf x, y')-\Psi(\mathbf x, y))$$
 
@@ -106,8 +106,54 @@ $$l(\mathbf w, (\mathbf x, y))=\max_{y' \in \{1,2\}} \Delta(y', y)+\mathbf w'^{\
 
 解决多分类问题，其核心是将原来二分类中的 $\mathbf w, \ \mathbf x \in \mathbb R^n$ 映射到更高维的空间中 $\mathbf w, \ \Psi(\mathbf x, y) \in \mathbb R^{nk}$ 中去。现在我们使用 SGD 学习算法，并给损失函数增加一个正则项，
 
-$$L=l(\mathbf w, (\mathbf x, y))+ \frac {\lambda} 2 \Vert \mathbf w \Vert^2$$
+$$L=\mathbb E_{(\mathbf x, y)\sim \mathcal D}[l(\mathbf w, (\mathbf x, y))]+ \frac {\lambda} 2 \Vert \mathbf w \Vert^2$$
 
+$t$ 时刻更新的梯度向量 $\mathbf v_t \in \partial l(\mathbf w^{(t)})$，其中 $\partial l(\mathbf w^{(t)})$ 表示真实分布 $\mathcal D$ 下，泛 hinge 损失函数在 $\mathbf w^{(t)}$ 的次梯度集。从训练集中随机抽取一个样本 $(\mathbf x, y)$，计算 $\partial l(\mathbf w^{(t)},(\mathbf x, y))$，选择学习率 $\eta$，那么更新公式为
+
+$$\begin{aligned}
+\mathbf w^{(t+1)}&=\mathbf w^{(t)}-\eta(\lambda \mathbf w^{(t)}+\mathbf v_t)
+\\ &= \frac {t-2} t \mathbf w{(t-1)}-\eta \mathbf v_{t-1}-\eta \mathbf v_t
+\\ &= \cdots
+\\&=\frac 0 t \mathbf w^{(1)}-\eta\sum_{i=1}^t \mathbf v_i
+\\&=-\eta\sum_{i=1}^t \mathbf v_i
+\end{aligned}$$
+
+其中初始化 $\mathbf w^{(t)}=\mathbf 0$ 。 具体推导过程与 [SVM](/2021/09/22/ml/svm) 中完全一样。
+
+由于 $\mathbf v_i$ 是泛 hinge 损失在 $\mathbf w{(i)}$ 处的次梯度，根据 $\eqref{100}$ 式，易知次梯度为 
+
+$$\mathbf v_i=\Psi(\mathbf x, \hat y)-\Psi(\mathbf x, y)$$
+
+其中 $\hat y= \arg_{y'}  l(\mathbf w, (\mathbf x, y))$，显然当 $\hat y=y$ 时，次梯度 $\mathbf v_i=\mathbf 0$。
+
+总结算法步骤如下
+
+---
+<center> 多分类问题的 SGD 算法</center>
+
+**参数：**
+
+&emsp; 学习率 $\eta$，迭代次数 $T$。
+
+&emsp; 原损失函数 $\Delta: \mathcal Y \times \mathcal Y \rightarrow \mathbb R_+$
+
+&emsp; 映射到特征空间的函数 $\Psi: \mathcal X \times \mathcal Y \rightarrow \mathbb R^d$
+
+**初始化：** $\ \mathbf w^{(1)}=\mathbf 0 \in \mathbb R^d$
+
+**for** $t=1,2,\cdots, T$
+
+&emsp; 随机取样 $(\mathbf x, y) \in \mathcal D$
+
+&emsp; $\hat y=\arg \max_{y' \in \mathcal Y} (\Delta(y', y)+\langle \mathbf w^{(t)}, \Psi(\mathbf x, y')-\Psi(\mathbf x, y)\rangle)$
+
+&emsp; $\mathbf v_t=\Psi(\mathbf x, \hat y)-\Psi(\mathbf x, y)$
+
+&emsp; $\mathbf w^{(t+1)}=\mathbf w^{(t)}-\eta \mathbf v_t$
+
+**输出：** $\ \overline {\mathbf w}=\frac 1 T \sum_{t=1}^T \mathbf w^{(t)}$
+
+---
 
 # Appendix
 **1. 定理1**

@@ -1,0 +1,201 @@
+---
+title: 高斯混合模型
+date: 2021-11-13 13:53:13
+tags: machine learning
+p: ml/GMM
+mathjax: true
+---
+机器学习中，我们常用某种方式去表征数据，例如选取合适的模型。单一模型的表征能力很弱，故可以采用混合模型，例如混合高斯分布。
+<!--more-->
+
+混合模型是由多个单个模型凸组合而成，例如 $K$ 个简单分布凸组合成分布
+
+$$p(\mathbf x) = \sum_{k=1}^K \pi_k p_k(\mathbf x)$$ (GMM1)
+
+$$0 \le \pi_k \le 1, \quad \sum_{k=1}^K \pi_k = 1$$
+
+本文主要讨论高斯混合模型 (GMM)，即，每个简单分布都是高斯分布。
+
+# GMM
+
+K 个高斯分布的线性组合如下，
+
+$$p(\mathbf x|\theta)=\sum_{k=1}^K \pi_k \mathcal N(\mathbf x|\mu_k, \Sigma_k)$$ (GMM2)
+
+$$0 \le \pi_k \le 1, \quad \sum_{k=1}^K \pi_k = 1$$
+
+定义参数 $\theta := \{\mu_k, \Sigma_k, \pi_k: k = 1,\ldots, K\}$
+
+## 参数学习
+
+根据最大似然学习参数
+
+记数据集为 $\mathcal X = \{\mathbf x_1, \cdots, \mathbf x_N\}$ 。似然函数为
+
+$$p(\mathcal X|\theta)=\prod_{n=1}^N p(\mathbf x_n |\theta)$$ (GMM3)
+
+$$p(\mathbf x_n|\theta)=\sum_{k=1}^K \pi_k \mathcal N(\mathbf x_n |\mu_k,\Sigma_k)$$ (GMM4)
+
+对数似然为
+
+$$\log p(\mathcal X|\theta)=\underbrace {\sum_{n=1}^N \log \sum_{k=1}^K \pi_k \mathcal N(\mathbf x_n |\mu_k,\Sigma_k)}_{=:\mathcal L}$$ (GMM5)
+
+考虑单个高斯分布（即，非高斯混合），那么单个样本的似然函数为
+
+$$\log \mathcal N(\mathbf x|\mu,\Sigma)=-\frac D 2 \log(2\pi)-\frac 1 2 \log \det(\Sigma) - \frac 1 2 (\mathbf x-\mu)^{\top}\Sigma^{-1}(\mathbf x-\mu)$$
+
+此时我们可以求得关于参数 $\mu$ 和 $\Sigma$ 的最大似然估计的解析解。但是 {eq}`GMM5` 中，`log` 无法放入 $\sum_{k=1}^K$ 中，所以无法求得解析解。
+
+我们依然使用求偏导并令偏导为 0 的方法进行求解，
+
+$$\frac {\partial \mathcal L} {\partial \mu_k} =\mathbf 0 \Leftrightarrow \sum_{n=1}^N \frac {\partial \log p(\mathbf x_n |\theta)} {\partial \mu_k} = \mathbf 0$$
+
+$$\frac {\partial \mathcal L} {\partial \Sigma_k} =\mathbf 0 \Leftrightarrow \sum_{n=1}^N \frac {\partial \log p(\mathbf x_n |\theta)} {\partial \Sigma_k} = \mathbf 0$$
+
+$$\frac {\partial \mathcal L} {\partial \pi_k} =\mathbf 0 \Leftrightarrow \sum_{n=1}^N \frac {\partial \log p(\mathbf x_n |\theta)} {\partial \pi_k} = \mathbf 0$$
+
+此外，log 函数的求导规则为
+
+$$\frac {\log p(\mathbf x_n|\theta)} {\partial \theta}=\frac 1 {p(\mathbf x_n |\theta)}\cdot \frac {\partial p(\mathbf x_n |\theta)} {\partial \theta}$$
+
+## Responsibility
+
+定义GMM 中第 $k$ 个高斯分量对第 $n$ 个数组点的 responsibility 为
+
+$$r_{nk}=\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k, \Sigma_k)} {\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_k)}$$ (GMM6)
+
+或者说是第 $n$ 个数据点属于第 $k$ 个高斯分量的概率（数据点由这个高斯分量产生的概率，这个概率不是真实的概率，而是基于最大似然估计）。
+
+$\mathbf r_n :=[r_{n1},\ldots,r_{nK}]^{\top}$ 为一个归一化的概率向量。
+
+将 $K$ 个高斯分量对 $N$ 个数据点的 responsibilities 写成矩阵形式 $R \in \mathbb R^{N \times K}$，那么矩阵中第 $n$ 行表示数据 $\mathbf x_n$ 来自各个高斯分量的概率，这是一个归一化向量，第 $k$ 列表示高斯分量 $\mathcal N(\mu_k,\Sigma_k)$ 对所有数据的 responsibilities（注意这不是归一化的向量）。
+
+基于 responsibilities，我们可以对模型参数 $\theta$ 进行更新，而 responsibilities 又依赖于模型参数，所以对 $\theta$ 更新时，需要固定 responsibilities，然后更新 $\theta$，然后再计算新的 responsibilities，然后再更新 $\theta$，如此迭代更新下去，直到达到一个预设的最大迭代次数，或者参数的变化量（例如 F2 范数的变化量）小于一个预设的阈值。
+
+## 更新 Mean
+
+均值（期望）参数 $\mu_k$ 的更新为
+
+$$\mu_k^{new}=\frac {\sum_{n=1}^N r_{nk}\mathbf x_n} {\sum_{n=1}^N r_{nk}}$$ (GMM7)
+
+证：
+
+计算单个数据的概率对参数 $\mu_k$ 的梯度，
+$$\begin{aligned} \frac {\partial p(\mathbf x_n |\theta)}{\partial \mu_k}&=\sum_{j=1}^K \pi_j \frac {\partial \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)} {\partial \mu_k}=\pi_k \frac {\partial \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\partial \mu_k}
+\\&=\pi_k (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)
+\end{aligned}$$
+
+于是，数据集的对数似然对 $\mu_k$ 的梯度为
+
+$$\begin{aligned} \frac {\partial \mathcal L} {\partial \mu_k}&=\sum_{n=1}^N \frac {\partial \log p(\mathbf x_n|\theta)}{\partial \mu_k}=\sum_{n=1}^N \frac 1 {p(\mathbf x_n|\theta)} \frac {p(\mathbf x_n|\theta)}{\partial \mu_k}
+\\&=\sum_{n=1}^N (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \underbrace {\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\sum_{j=1}^N \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)}}_{=r_{nk}}
+\\&=\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1}
+\end{aligned}$$
+
+令上式这个梯度为零，得
+
+$$\sum_{n=1}^N r_{nk} (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1}=\mathbf 0$$
+
+上式两端右乘 $\Sigma_k$，得
+
+$$\sum_{n=1}^N r_{nk} \mathbf x_n = \sum_{n=1}^N r_{nk} \mu_k \Leftrightarrow \mu_k^{new}=\frac {\sum_{n=1}^N r_{nk}\mathbf x_n} {\sum_{n=1}^N r_{nk}}=\frac 1 {N_k} \sum_{n=1} r_{nk}\mathbf x_n$$
+
+其中 $N_k :=\sum_{n=1}^N r_{nk}$ 就是上面我们所说的 responsibilites 矩阵的 第 $k$ 列的和，表示第 $k$ 个高斯分量对所有数据的 responsibilities 之和。
+
+{eq}`GMM7` 可以看作是所有数据在分布 
+$$\mathbf r_k := [r_{1k},\cdots, r_{Nk}]/N_k$$ (GMM8)
+
+下的期望，
+
+$$\mu_k \leftarrow \mathbb E_{\mathbf r_k} [\mathcal X]$$
+
+（类比，数据 $1,2,\ldots, 6$ 在 $[1/6,1/6,\cdots,1/6]$ 分布下的期望）
+
+## 更新协方差
+
+协方差矩阵 $\Sigma_k$ 的更新为
+
+$$\Sigma_k^{new} = \frac 1 {N_k} \sum_{n=1}^N r_{nk} (\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}$$ (GMM9)
+
+从形式上看，{eq}`GMM9` 式可以看作是所有数据在分布 {eq}`GMM8` 分布下的二阶中心矩。下面来证明 {eq}`GMM9` 式。
+
+证：
+
+计算数据集的对数似然对 $\Sigma_k$ 的梯度，
+
+$$\frac {\partial \mathcal L}{\partial \Sigma_k}= \sum_{n=1}^N \frac {\partial \log p(\mathbf x_n|\theta)} {\partial \Sigma_k}=\sum_{n=1}^N \frac 1 {p(\mathbf x_n|\theta)} \frac {\partial p(\mathbf x_n|\theta)}{\partial \Sigma_k}$$ (GMM10)
+
+$p(\mathbf x_n|\theta)$ 由 {eq}`GMM4` 式给出，故只要计算
+
+$$\begin{aligned} \frac {\partial p(\mathbf x_n|\theta)} {\partial \Sigma_k}&=\frac {\partial}{\partial \Sigma_k}\left(\pi_k (2\pi)^{-D/2} \det(\Sigma_k)^{-1/2} \exp (-\frac 1 2 (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} (\mathbf x_n-\mu_k))\right)
+\\&=\pi_k (2\pi)^{-D/2} [{\color{red}\frac {\partial}{\partial \Sigma_k}\det(\Sigma_k)^{-1/2}}\exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k))
+\\& \quad +\det(\Sigma_k)^{-1/2} \frac {\partial}{\partial \Sigma_k} \exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k))
+]
+\end{aligned}$$ (GMM11)
+
+红色部分表示一个整体，即求导不包括后面的 $\exp$ 部分。根据矩阵的求导规则可知，
+
+$$\frac {\partial}{\partial \Sigma_k} \det(\Sigma_k)^{-1/2}=-\frac 1 2 \det(\Sigma_k)^{-1/2} \Sigma_k^{-1}$$
+
+$$\frac {\partial} {\partial \Sigma_k}(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k) = -\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}$$
+
+将上面两式 代入 {eq}`GMM11`式 得
+
+$$\begin{aligned} \frac {\partial p(\mathbf x_n|\theta)}{\partial \Sigma_k}&=\pi_k (2\pi)^{-D/2} [-\frac 1 2 \det(\Sigma_k)^{-1/2} \Sigma_k^{-1} \exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k)) 
+\\ & \quad +\frac 1 2 \det(\Sigma_k)^{-1/2} \Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1} \exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k))]
+\\& = \pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)[-\frac 1 2 \Sigma_k^{-1}+\frac 1 2\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}]
+\\&=\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)\cdot [-\frac 1 2 (\Sigma_k^{-1}-\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1})]
+\end{aligned}$$
+
+将上式和 {eq}`GMM4` 式代入 {eq}`GMM10` 式，得
+
+$$\begin{aligned}\frac {\partial \mathcal L} {\partial \Sigma_k}&= \sum_{n=1}^N \underbrace {\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)}}_{=r_{nk}} \cdot  [-\frac 1 2 (\Sigma_k^{-1}-\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1})]
+\\&=-\frac 1 2 \sum_{n=1}^N r_{nk} (\Sigma_k^{-1}-\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1})
+\\&=-\frac 1 2 \Sigma_k^{-1} \underbrace{\sum_{n=1}^N r_{nk}}_{=N_k} + \frac 1 2 \Sigma_k^{-1}\left(\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\right)\Sigma_k^{-1}
+\end{aligned}$$
+
+令上式这个梯度为零，得
+
+$$N_k\Sigma_k^{-1}=\Sigma_k^{-1}\left(\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\right)\Sigma_k^{-1}$$
+
+上式两边右乘 $\Sigma_k^{-1}$，得
+
+$$N_k \mathbf I = \left(\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\right)\Sigma_k^{-1}$$
+
+然后左乘 $\Sigma_k$ 得到 {eq}`GMM9` 。
+
+## 更新混合权重
+
+混合模型的权重参数 $\pi_k$ 的更新为
+
+$$\pi_k^{new} = \frac {N_k} N$$ (GMM11)
+
+证：
+
+由于 $\sum_{k=1}^N \pi_k=1$ 这个约束条件，我们采用拉格朗日乘子法，
+
+$$\begin{aligned}L &=\mathcal L + \lambda \left(\sum_{k=1}^K \pi_k-1\right)
+\\&= \sum_{n=1}^N \log \sum_{k=1}^K \pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k) + \lambda \left(\sum_{k=1}^K \pi_k-1\right)
+\end{aligned}$$
+
+求梯度，由于 $\pi_k$ 不存在于 $\mathcal N$ 中，故梯度非常容易计算，
+
+$$\begin{aligned}\frac {\partial L}{\partial \pi_k}&=\sum_{n=1}^N \frac {\mathcal N(\mathbf x_n|\mu_k,\Sigma_k)}{\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j, \Sigma_j)} + \lambda
+\\&= \frac 1 {\pi_k} \underbrace{ \sum_{n=1}^N \frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)}{\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j, \Sigma_j)}}_{=N_k} + \lambda = \frac {N_k} {\pi_k}+\lambda
+\end{aligned}$$
+
+$$\frac {\partial L}{\partial \lambda}=\sum_{k=1}^K \pi_k -1$$
+
+
+令上面两个梯度均为零，得
+
+$$\pi_k = - \frac {N_k}{\lambda}$$
+
+$$\sum_{k=1}^K \pi_k -1 = \sum_{k=1}^K \left(-\frac {N_k} {\lambda}\right)-1=0 \Leftrightarrow \lambda = -\sum_{k=1}^K N_k=-N$$
+
+于是
+
+$$\pi_k^{new} = \frac {N_k} N$$
+
+其中 $N$ 为数据集大小。
+

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="EM （Expection-Maximization）算法，是一种迭代算法，求期望和求最大交替迭代，从而更新我们所关心的变量，直到收敛（更新足够小）。EM 算法通常用于含有隐变量的概率模型参数的极大似然估计。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EM 算法">
+<meta property="og:url" content="https://shajianjian.github.io/2021/11/01/ml/em/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="EM （Expection-Maximization）算法，是一种迭代算法，求期望和求最大交替迭代，从而更新我们所关心的变量，直到收敛（更新足够小）。EM 算法通常用于含有隐变量的概率模型参数的极大似然估计。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-11-01T10:20:46.000Z">
+<meta property="article:modified_time" content="2021-11-15T08:24:33.104Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="machine learning">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/11/01/ml/em/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>EM 算法 | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/11/01/ml/em/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          EM 算法
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-01 18:20:46" itemprop="dateCreated datePublished" datetime="2021-11-01T18:20:46+08:00">2021-11-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-15 16:24:33" itemprop="dateModified" datetime="2021-11-15T16:24:33+08:00">2021-11-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>EM （Expection-Maximization）算法，是一种迭代算法，求期望和求最大交替迭代，从而更新我们所关心的变量，直到收敛（更新足够小）。EM 算法通常用于含有隐变量的概率模型参数的极大似然估计。<br><span id="more"></span></p>
+<p>在 <a href="2021/11/13/ml/GMM">高斯混合模型</a>一文中，讲到迭代更新模型参数，这正是 EM 算法</p>
+<ol>
+<li>E 步：估计 responsibility  $r_{nk}$ 值（数据 $\mathbf x_n$ 来自第 $k$ 个分量的后验概率）。</li>
+<li>M 步：使用 $r_{nk}$ 的值更新参数 $\theta$ 。</li>
+</ol>
+<p>注：需要给出初始化参数 $\theta_0$。</p>
+<h1 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h1><p>（三硬币模型）：假设有 A,B,C 三枚硬币，正面出现的概率分布为 $\pi, p, q$。定义一次试验为：先抛 A，如出现正面，那么选择 B，否则选择 C，然后再抛所选的硬币（B 或 C），正面向上记为 1，反面向上记为 0 。独立重复试验 10 次，观测结果为<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1,1,0,1,0,0,1,0,1,1</span><br></pre></td></tr></table></figure></p>
+<p>选择的是 B 还是 C 是不可知的 ，这是隐变量记为 $z$，$z=1$ 表示选择 B，$z=0$ 表示选择 C 。观测结果变量记为 $x$，参数记为 $\theta=(\pi, p, q)$，根据以上试验的观测结果估计参数值。</p>
+<p>一次试验观测结果为 x，概率为</p>
+<script type="math/tex; mode=display">\begin{aligned}P(x;\theta)&=\sum_z P(z;\theta) P(x|z;\theta)
+\\&=\pi p^x(1-p)^{1-x}+(1-\pi)q^x(1-q)^{1-x}
+\end{aligned}</script><p>那么对于所有的试验结果 $X$，概率为</p>
+<script type="math/tex; mode=display">\begin{aligned}P(X;\theta)&=\sum_Z P(Z;\theta) P(X|Z;\theta)
+\\&=\prod_{i=1}^n [\pi p^{x_i}(1-p)^{1-x_i}+(1-\pi)q^{x_i}(1-q)^{1-x_i}]
+\end{aligned}</script><p>极大似然估计为</p>
+<script type="math/tex; mode=display">\hat \theta =\arg \max_{\theta} \log P(X;\theta)</script><p>显然上式没有解析解，故想到通过迭代方法求数值解，于是 EM 算法就大显身手了。</p>
+<p>既然是迭代，必然要设置一个初始值，记初值 $\theta_0=(\pi_0, p_0, q_0)$ 。</p>
+<p>当第 $i$ 次迭代后，参数为 $\theta_i=(\pi_i, p_i, q_i)$，那么第 $i+1$ 次迭代时，</p>
+<p><strong>E step：</strong> </p>
+<p>计算观测数据 $x_j$ 来自硬币 B ($z=1$) 的概率，</p>
+<script type="math/tex; mode=display">\begin{aligned} r_{j1}&=P(z=1|X=x_j)
+\\&=\frac {P(X=x_j,z=1)}{P(X=x_j)}
+\\&=\frac {P(X=x_j,z=1)}{P(X=x_j,z=1)+P(X=x_j,z=0)}
+\\&=\frac {\pi_i p_i^{x_j}(1-p_i)^{1-x_j}}{\pi_i p_i^{x_j}(1-p_i)^{1-x_j}+(1-\pi_i) q_i^{x_j}(1-q_i)^{1-x_j}}\end{aligned}</script><p>其中 $x_j$ 表示第 $j$ 次试验的观测结果。易得</p>
+<script type="math/tex; mode=display">r_{j0}=P(z=0|X=x_j)=1-r_{j1}</script><p><strong>M step：</strong> </p>
+<p>计算模型的新估值</p>
+<p>首先计算 $N_1=\sum_{j=1}^n r_{j1}$，然后根据 <a href="2021/11/13/ml/GMM">高斯混合模型</a> 中的 {eq}<code>GMM7</code>， {eq}<code>GMM9</code>，{eq}<code>GMM11</code> 式，得</p>
+<p>权重 </p>
+<script type="math/tex; mode=display">\pi_{i+1}=\frac 1 n \sum_{j=1}^n r_{j1}</script><p>两个分布的期望值为</p>
+<script type="math/tex; mode=display">p_{i+1}=\frac 1 {N_1} \sum_{j=1}^n r_{j1} x_j</script><script type="math/tex; mode=display">q_{i+1}=\frac 1 {N_0} \sum_{j=1}^n r_{j0} x_j</script><h1 id=""><a href="#" class="headerlink" title=" "></a> </h1>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/01/ml/hmm_learn/" rel="prev" title="隐马尔可夫模型的参数学习">
+      <i class="fa fa-chevron-left"></i> 隐马尔可夫模型的参数学习
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/12/ml/lstm/" rel="next" title="lstm">
+      lstm <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text"> </span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">93</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>
