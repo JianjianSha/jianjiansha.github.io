@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="论文：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Faster RCNN 回顾">
+<meta property="og:url" content="https://shajianjian.github.io/2021/12/23/obj_det/faster-rcnn/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="论文：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/obj_det/faster-rcnn_1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/obj_det/faster-rcnn_2.png">
+<meta property="article:published_time" content="2021-12-23T08:38:06.000Z">
+<meta property="article:modified_time" content="2022-01-11T07:31:00.260Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="object detection">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/obj_det/faster-rcnn_1.png">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/12/23/obj_det/faster-rcnn/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Faster RCNN 回顾 | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/12/23/obj_det/faster-rcnn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Faster RCNN 回顾
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-23 16:38:06" itemprop="dateCreated datePublished" datetime="2021-12-23T16:38:06+08:00">2021-12-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-11 15:31:00" itemprop="dateModified" datetime="2022-01-11T15:31:00+08:00">2022-01-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1506.01497">Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks</a><br><span id="more"></span><br>本文对 Faster R-CNN 进行梳理，主要用于复习 Faster R-CNN，重温一些实现细节。</p>
+<p>整个网络的结构示意图如图 1，<br><img src="/images/obj_det/faster-rcnn_1.png" alt=""><br>图 1. Faster R-CNN 网络示意图</p>
+<p>说明：</p>
+<ol>
+<li>任意 size 的 image 经过 一个 backbone （全卷积）得到 feature maps</li>
+<li>一方面，feature maps 经过 RPN 网络 得到 proposals，以及每个 proposal 的 objectness score，这是一个<strong>二分类</strong>，表示 proposal 是否是正例。</li>
+<li>另一方面，利用上一步得到的 proposal 在 feature maps 进行 crop，crop 之后的 部分 feature maps 经过 ROI pooling，得到固定 size 的 feature （例如 <code>7x7</code>)，作为 Fast R-CNN 的输入，Fast R-CNN 输出分类得分，以及坐标（$t_x, t_y, t_w, t_h$）。</li>
+<li>两个子网络 RPN （用于生成 proposals）和 Fast R-CNN（目标检测网络）共享 baseline。</li>
+</ol>
+<p>下面分别对 backbone 和后续的两个子网络予以讨论。</p>
+<h1 id="backbone"><a href="#backbone" class="headerlink" title="backbone"></a>backbone</h1><p>论文中采用 VGG-16，即 <code>5</code> 个 stage， stage 内的 <code>3x3 conv</code> 数量分别为 <code>2, 2, 3, 3, 3</code>，相邻 stage 之间使用 <code>mp</code> 进行降采样，故 baseline 输出的 feature maps 的 size 相较于 input size ，总的降采样率为 <code>16</code>。</p>
+<h2 id="image-预处理"><a href="#image-预处理" class="headerlink" title="image 预处理"></a>image 预处理</h2><p><strong>image 读取</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">im = cv2.imread(img_path)   <span class="comment"># BGR order</span></span><br><span class="line"><span class="comment"># use cv2.cvtColor(im, cv2.COLOR_BGR2RGB) ot convert the channel order</span></span><br></pre></td></tr></table></figure>
+<p><strong>随机flip</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> random.random() &gt; <span class="number">0.5</span>:</span><br><span class="line">    im = im[:,::-<span class="number">1</span>,:]       <span class="comment"># left to right flipped</span></span><br></pre></td></tr></table></figure></p>
+<p>gt box 的坐标 $(x_1,y_1,x_2,y_2)$ 变成 $(W-x_2,y_1,W-x_1,y_2)$</p>
+<p><strong>减去均值</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pixel mean follows the order BGR</span></span><br><span class="line">im -= np.array([<span class="number">102.9801</span>, <span class="number">115.9465</span>, <span class="number">122.7717</span>])[np.newaxis, np.newaxis,:]</span><br></pre></td></tr></table></figure></p>
+<p><strong>resize</strong></p>
+<p>resize image 使得短边为 <code>600</code>，同时 resize 后长边不超过 <code>1000</code>，<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">target_size = <span class="number">600.0</span></span><br><span class="line">max_size = <span class="number">1000.0</span></span><br><span class="line">h, w = im.shape[<span class="number">0</span>:<span class="number">2</span>]    <span class="comment"># im is an object returned from cv2.imread()</span></span><br><span class="line">size_min, size_max = np.<span class="built_in">min</span>(h, w), np.<span class="built_in">max</span>(h, w)</span><br><span class="line">im_scale = target_size / size_min</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> np.<span class="built_in">round</span>(im_scale * size_max) &gt; max_size:</span><br><span class="line">    <span class="comment"># decrease the im_scale</span></span><br><span class="line">    im_scale = max_size / size_max</span><br><span class="line">im = cv2.resize(im, fx=im_scale, fy=im_scale)</span><br><span class="line"></span><br><span class="line"><span class="comment"># update the gt_box coordinates</span></span><br><span class="line">gt_box = np.array([x1, y1, x2, y2])</span><br><span class="line">gt_box = (gt_box * im_scale).astype(np.int16)</span><br></pre></td></tr></table></figure></p>
+<p><strong>组建 blob/tensor</strong><br>经过上面的 resize 后，各个 image size 相差不大了，取这组 images 中最大的 height，和最大的 width，创建一个可以容纳 batch 内所有 images 的 blob/tensor，<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># im.shape -&gt; (h, w) -&gt; (batch_size, 2) -&gt; (2,)</span></span><br><span class="line">max_shape = np.array([im.shape <span class="keyword">for</span> im <span class="keyword">in</span> ims]).<span class="built_in">max</span>(axis=<span class="number">0</span>)</span><br><span class="line">batch_size = <span class="built_in">len</span>(imgs)</span><br><span class="line">blob = np.zeros((num_images, max_shape[<span class="number">0</span>], max_shape[<span class="number">1</span>], <span class="number">3</span>),</span><br><span class="line">                dtype=np.float32)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(batch_size):</span><br><span class="line">    im = ims[i]</span><br><span class="line">    <span class="comment"># the image is aligned with the top-left cornor</span></span><br><span class="line">    blob[i, <span class="number">0</span>:im.shape[<span class="number">0</span>], <span class="number">0</span>:im.shape[<span class="number">1</span>], :] = im</span><br><span class="line">blob = blob.transpose((<span class="number">0</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">2</span>)) <span class="comment"># from (B,H,W,C) to (B,C,H,W)</span></span><br></pre></td></tr></table></figure></p>
+<p>network 的 input size 以 <code>(600, 1000)</code> 为例，下采样率为 <code>16</code>，于是输出 feature size 大约是 <code>(38, 63)</code>。</p>
+<h1 id="RPN"><a href="#RPN" class="headerlink" title="RPN"></a>RPN</h1><p>在 baseline 得到的 feature maps，使用 <code>3x3 conv</code>，得到 <code>512-d</code>（或者如图 2 的 <code>256-d</code>） 的中间 feature，然后分别经过两个 full-connected layer，得到 <code>2k</code> 的 objectness scores，和 <code>4k</code> 个坐标，即 feature maps 上每个 location 预测 <code>k</code> 个 proposals，如图 2，<br><img src="/images/obj_det/faster-rcnn_2.png" alt=""><br>图 2. RPN</p>
+<p>说明：</p>
+<ol>
+<li><p>每个 location 的中间 feature 均为 <code>512-d</code>，对于 cls layer，全连接层参数 $W^{512\times 2k}$，reg layer 的全连接层参数 $W^{512 \times 4k}$，所有 location 处的这两个全连接层共享参数，即，分别使用 <code>1x1 Conv 2k</code> 和 <code>1x1 Conv 4k</code> 的两个卷积层，输出 shape 分别为 <code>(B, H, W, 2k)</code> 和 <code>(B, H, W, 4k)</code>， <code>(H, W)</code> 为 feature maps 上 size，<code>B</code> 为 <code>batch_size</code>。</p>
+</li>
+<li><p>训练 RPN 时，<code>batch_size=1</code>，即每个 mini-batch 内仅有 <code>1</code> 个 image。在训练 Fast RCNN 子网络时，保持 RPN 不变，此时取 <code>batch_size=2</code>。</p>
+</li>
+</ol>
+<h2 id="Anchors"><a href="#Anchors" class="headerlink" title="Anchors"></a>Anchors</h2><p>RPN （在每个 location 处）使用 <code>k</code> 个 Anchors 辅助预测 proposals，<code>k</code> 个 Anchors 具有不同的 scale 和 aspect ratio。通常 <code>k=9</code>：3 个 scales 和 3 个 aspect ratios。对于 $H \times W$ 的 feature maps，一共有 $H \times W \times k$ 个 anchors。</p>
+<p><strong>如何确定 anchor 的大小和位置</strong></p>
+<p>anchor 的 scale 取 <code>8, 16, 32</code>（人为确定，可以根据实际任务进行调整。由于 backbone 的下采样率为 <code>16</code>，映射到原 input image 就是 <code>128,256,512</code>，而 input size 大概是 <code>600 x 1000</code>，故这个 scale 较为合理）。aspect ratio （记为 $r$）取 <code>0.5, 1, 2</code> 三个值，正好覆盖 矮胖，方正，高瘦 三种情况，anchor 的 size 记为 $(h, w)$，那么有</p>
+<script type="math/tex; mode=display">r=\frac h w</script><p>对于标准 scale，即 $r=1, h \times w = 16 \times 16$。改变 $r$ 值，但是面积保持相同，故</p>
+<script type="math/tex; mode=display">s = 16 \times 16 = h  w = r w^2=\frac {h^2} r</script><p>于是</p>
+<script type="math/tex; mode=display">w= \sqrt {s/r} , \quad h = \sqrt{sr}</script><p>考虑到 scale 可取不同值，那么最终 anchor size 为</p>
+<script type="math/tex; mode=display">w = a \sqrt{s/r}, \quad h = a \sqrt{sr}, \quad a = 0.5, 1, 2, \quad r=0.5, 1, 2, \quad s = 16^2=256</script><p>上式可以确定 <code>9</code> 个 anchors 的 size，其中心点坐标相同，均为 $x_c=0+0.5(16-1), \ y_c=0+0.5(16-1)$（考虑到 C/Python 语言习惯以 <code>0</code> 开始表示第一个位置），于是左上右下坐标为</p>
+<script type="math/tex; mode=display">x_1=x_c-\frac 1 2(w-1), \quad y_1=y_c-\frac 1 2(h-1)</script><script type="math/tex; mode=display">x_2=x_c+\frac 1 2(w-1), \quad y_2=y_c+\frac 1 2(h-1)</script><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">s = <span class="number">16</span>**<span class="number">2</span></span><br><span class="line">r = torch.tensor([[<span class="number">0.5</span>, <span class="number">1.</span>, <span class="number">2.</span>]])           <span class="comment"># (1, 3)</span></span><br><span class="line">a = torch.tensor([[<span class="number">0.5</span>, <span class="number">1.</span>, <span class="number">2.</span>]]).t()       <span class="comment"># (3, 1)</span></span><br><span class="line">w = torch.sqrt(s / r) * a                   <span class="comment"># (3, 3)</span></span><br><span class="line">h = r * w                                   <span class="comment"># (3, 3)</span></span><br><span class="line"></span><br><span class="line">h = h.reshape(<span class="number">1</span>, <span class="number">9</span>)        <span class="comment"># (1, 9)</span></span><br><span class="line">w = w.reshape(<span class="number">1</span>, <span class="number">9</span>)        <span class="comment"># (1, 9)</span></span><br><span class="line">xc = <span class="number">0</span> + <span class="number">0.5</span> * (<span class="number">16</span>-<span class="number">1</span>)</span><br><span class="line">yc = <span class="number">0</span> + <span class="number">0.5</span> * (<span class="number">16</span>-<span class="number">1</span>)</span><br><span class="line">x1 = xc - <span class="number">0.5</span> * (w-<span class="number">1</span>)</span><br><span class="line">y1 = yc - <span class="number">0.5</span> * (h-<span class="number">1</span>)</span><br><span class="line">x2 = xc + <span class="number">0.5</span> * (w-<span class="number">1</span>)</span><br><span class="line">y2 = yc + <span class="number">0.5</span> * (h-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># &gt;&gt;&gt;&gt;&gt;&gt; each location has its own 9 anchors &lt;&lt;&lt;&lt;&lt;&lt;</span></span><br><span class="line">H = <span class="number">40</span>  <span class="comment"># Here I simply assign 40 and 60 to H and W respectively,</span></span><br><span class="line">W = <span class="number">60</span>  <span class="comment"># but in practice, H and W may be other values.</span></span><br><span class="line">grid_x = torch.arange(W).repeat(H, <span class="number">1</span>).view(H*W, <span class="number">1</span>)        <span class="comment"># (HW, 1)</span></span><br><span class="line">grid_y = torch.arange(H).t().repeat(<span class="number">1</span>, W).view(H*W, <span class="number">1</span>)    <span class="comment"># (HW, 1)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># all anchors locations are</span></span><br><span class="line">k = <span class="number">9</span></span><br><span class="line">x1 = (x1 + grid_x).view(H*W*k)</span><br><span class="line">y1 = (y1 + grid_y).view(H*W*k)</span><br><span class="line">x2 = (x2 + grid_x).view(H*W*k)</span><br><span class="line">y2 = (y2 + grid_y).view(H*W*k)</span><br><span class="line">anchors = torch.hstack((x1, y1, x2, y2))</span><br><span class="line"></span><br><span class="line"><span class="comment"># filter out those out-of-scope anchors</span></span><br><span class="line"><span class="comment"># inside_indices = torch.where(x1 &gt;= 0 &amp; y1 &gt;= 0 &amp; x2 &lt; W &amp; y2 &lt; H)</span></span><br></pre></td></tr></table></figure>
+<h2 id="Loss"><a href="#Loss" class="headerlink" title="Loss"></a>Loss</h2><p>RPN 这个网络的 Loss，包含分类（proposal 是否含有 object，二分类）损失，以及坐标回归损失。</p>
+<p><strong>如何确定正例</strong>： 记 image 中 gt boxes 数量为 $m$，计算 $m$ 个 gt boxes 与 $HW k$ 个 anchors 之间的 IOU ， IOU 矩阵记为 $M_{m \times HWk}$，</p>
+<ol>
+<li>与某个 gt box 具有最大 IOU 的 anchor 为正例，负责预测这个 gt box，这种正例 anchor 有 $m$ 个 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># gt: (m, 4)</span></span><br><span class="line">M = bbox_iou(gt/<span class="number">16</span>, anchors)   <span class="comment"># anchors: (H*W*k, 4)</span></span><br><span class="line"><span class="comment"># positive anchors(have a max iou with some gt box)</span></span><br><span class="line">max_ious, positive_anchor_indices = torch.<span class="built_in">max</span>(M, dim=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">labels = torch.ones(anchors.shape[<span class="number">0</span>], dtype=torch.int8) * (-<span class="number">1</span>)</span><br><span class="line"><span class="comment"># set the positive anchors with label `1`</span></span><br><span class="line">labels[positive_anchor_indices] = <span class="number">1</span></span><br></pre></td></tr></table></figure></li>
+<li>与某个 gt box 的 IOU 大于一个阈值（论文中使用 <code>0.7</code>），则认为这样的 anchor 是正例，$m$ 个 gt box 中，与这个 anchor 有最大 IOU 的 gt box，将被这个 anchor 预测， <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># the max iou(with some one gt box) for each anchor</span></span><br><span class="line"><span class="comment"># both the two tensor have the same shape of (HWk,)</span></span><br><span class="line">max_ious, gt_indices = torch.<span class="built_in">max</span>(M, dim=<span class="number">0</span>)     </span><br><span class="line"></span><br><span class="line"><span class="comment"># indices of positive anchors(with a iou &gt; 0.7)</span></span><br><span class="line"><span class="comment"># all indices are in [0, HWk)</span></span><br><span class="line">positive_anchor_indices = torch.where(max_ious &gt;= <span class="number">0.7</span>)[<span class="number">0</span>]</span><br><span class="line"><span class="comment"># extract indices of gt boxes ( in [0, m) ) for positive anchors</span></span><br><span class="line">positive_gt_indices = gt_indices[positive_anchor_indices]</span><br><span class="line"></span><br><span class="line"><span class="comment"># set the positive anchors with label `1`</span></span><br><span class="line">labels[positive_anchor_indices] = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+满足以上两个条件中的一个，认为是 positive。</li>
+</ol>
+<p><strong>如何确定负例</strong>：对于非正例的 anchor，没有全部作为负例，否则正负例样本严重不均衡。事实上，对于 IOU 在 0.5 附近的 anchor，属于 hard example，不予采用。与 gt box 的最大 IOU 小于阈值 （论文中取 <code>0.3</code>）的认为是负例：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">max_ious, gt_indices = torch.<span class="built_in">max</span>(M, dim=<span class="number">0</span>) </span><br><span class="line"><span class="comment"># indices( in [0, HWk) ） of negative anchors</span></span><br><span class="line">negative_anchor_indices = torch.where(max_ious &lt; <span class="number">0.3</span>)[<span class="number">0</span>]</span><br><span class="line"><span class="comment"># extract indices of gt boxes ( in [0, m) ) for negative anchors</span></span><br><span class="line">negative_gt_indices = gt_indices[negative_anchor_indices]</span><br><span class="line"></span><br><span class="line"><span class="comment"># set the negative anchors with label `0`</span></span><br><span class="line">labels[negative_anchor_indices] = <span class="number">0</span></span><br></pre></td></tr></table></figure></p>
+<p>单个 image 的损失如下，</p>
+<script type="math/tex; mode=display">L=\frac 1 {N_cls} \sum_i L_{cls}(p_i, p_i^{\star})+\lambda \frac 1 {N_{reg}}\sum_i p_i^{\star} L_{reg}(t_i, t_i^{\star})</script><p>其中：</p>
+<ol>
+<li>$N_{cls}=256$ 表示一个 mini-batch 内，所选取的用于分类任务的正负 anchors 的数量。按照 <code>1:1</code> 比例分配正负 anchors，如果正例 anchors 不足 <code>128</code>，那么使用负例 anchors 进行补充。前面说到 <code>batch_size=1</code>，这表明，<strong>在每个 image 上随机选择 <code>128</code> 个 positive anchors，如果不够，使用 negative anchors 补充</strong>。</li>
+<li>$N_{reg}=HWk \approx 10 N_{cls}$，$N_{reg}$ 为一个 image 上所有的 anchors 数量， 故取 $\lambda=10$ 。注意：<strong>回归损失使用全部 anchors，而非第 <code>1</code> 点中的取样 <code>256</code> 个</strong>。</li>
+<li>第 <code>i</code> 个 anchor 如果是 positive，那么 $p_i^{\star}=1$，否则 $p_i^{\star}=0$</li>
+<li>$p_i$ 表示第 <code>i</code> 个 anchor 被预测为正的得分。</li>
+<li>$L_{cls}$ 可以使用负对数似然损失，也就是交叉熵损失 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">rpn_batch = <span class="number">256</span></span><br><span class="line"><span class="comment"># imitate the sampling process</span></span><br><span class="line">scores = torch.randn((rpn_batch, <span class="number">2</span>))            <span class="comment"># (256, 2)</span></span><br><span class="line">gt_conf = torch.empty(rpn_batch).random_(<span class="number">2</span>)     <span class="comment"># (256,)</span></span><br><span class="line">loss = nn.CrossEntropyLoss()    <span class="comment"># do not need to normalize the input</span></span><br><span class="line">cls_loss = loss(scores, gt_conf)</span><br></pre></td></tr></table></figure></li>
+<li><p>$L_{reg}$ 为 smooth L1 函数</p>
+<script type="math/tex; mode=display">L_{reg}(t_i, t_i^{\star})=smooth_{L_1}(t_i-t_i^{\star})</script><script type="math/tex; mode=display">smooth_{L_1}=\begin{cases}0.5 x^2 & |x|<1 \\ |x|-0.5 & |x|\ge 1\end{cases}</script><p> 这是为了防止梯度太大，导致训练不稳定</p>
+<p> $t_i$ 是一个向量，表示第 <code>i</code> 个 anchor 的预测坐标偏差 $(t_x, t_y, t_w, t_h)$，$t_i$ 就是 reg layer （即 <code>1x1 conv 4k</code>，k=9）的输出。坐标偏差有如下关系：</p>
+<script type="math/tex; mode=display">t_x=(x_p-x_a)/w_a, \quad t_y=(y_p-y_a)/h_a</script><script type="math/tex; mode=display">t_w=\log(w_p/w_a), \quad t_h=\log(h_p/h_a)</script><p> 根据上面 4 个等式，以及 anchor 的坐标 $(x_a, y_a, w_a, h_a)$ 可以很容易得到预测 proposal 的坐标 $(x_p, y_p, w_p, h_p)$。</p>
+<p> $t_i^{\star}$ 为 gt box 对 anchor 的坐标偏差，可看作是 gt offset，其计算如下：</p>
+<script type="math/tex; mode=display">t_x^{\star}=(x_{gt}-x_a)/w_a, \quad t_y^{\star}=(y_{gt}-y_a)/h_a \tag{1}</script><script type="math/tex; mode=display">t_w^{\star}=\log(w_{gt}/w_a), \quad t_h^{\star}=\log(h_{gt}/h_a) \tag{2}</script><p> 目标就是使得正例 anchor 的预测偏差 $t_i$ 尽量逼近真实偏差 $t_i^{\star}$。</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assert</span> B == <span class="number">1</span></span><br><span class="line">loss = torch.nn.SmoothL1Loss()</span><br><span class="line"><span class="comment"># t_i: in practice, t_i is gotten from reg_layer(`1x1 conv 4k`)</span></span><br><span class="line">t_i = torch.randn((B, <span class="number">4</span>*k, H, W)).permute(<span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>).view(B*H*W*k, <span class="number">4</span>)</span><br><span class="line">t_i = t_i[labels==<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># anchors: (HWk, 4)</span></span><br><span class="line"><span class="comment"># gt_indices: index of gt(with max iou) for each anchor</span></span><br><span class="line">t_i_gt = bbox_target(anchors, gt[gt_indices])</span><br><span class="line">t_i_gt = t_i_gt[labels==<span class="number">1</span>]</span><br><span class="line">reg_loss = loss(t_i, t_i_gt)</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>根据 backbone 和 RPN 以及 RPN 对应的 loss，就可以训练 RPN ，训练好 RPN 之后，利用 RPN 来生成 proposals，见下一节内容。</p>
+<h1 id="ROI-Proposal"><a href="#ROI-Proposal" class="headerlink" title="ROI Proposal"></a>ROI Proposal</h1><p>RPN 中，我们说到有两个分支：cls 分支和 reg 分支，输出分别表示 anchor 的分类 objectness scores（未归一化）以及坐标偏差，shape 分别为 $(B, H, W, 2k), \ (B, H, W, 4k)$，按以下步骤得到 proposals：</p>
+<ol>
+<li>二分类预测得分（cls分支输出），取预测为正例的得分</li>
+<li>根据 (1,2) 式和 anchors 坐标，得到 proposals 坐标，并 clip 使得在 input image 范围内</li>
+<li>过滤掉太小的 proposals</li>
+<li>得分降序排列，proposals 顺序保持与 scores 的一致，取 top 6000 的 proposals，此举是为了加快 nms 速度</li>
+<li>执行 nms</li>
+<li>对 nms 之后的 proposals 继续取 top 300</li>
+</ol>
+<p>（代码中，TRAIN 和 TEST 阶段，上面 nms 前后的两组 top n 中 <code>n</code> 值各不相同）</p>
+<p><strong>注：<code>batch_size=1</code></strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assert</span> B == <span class="number">1</span></span><br><span class="line">scores = torch.rand((B, <span class="number">2</span>*k, H, W))</span><br><span class="line">t_i    = torch.randn((B, <span class="number">4</span>*k, H, W))</span><br><span class="line"></span><br><span class="line"><span class="comment"># normalize scores, and extract the scores of objectness(positive)</span></span><br><span class="line">scores = torch.softmax(scores, dim=<span class="number">1</span>)[:, k:, :, :]</span><br><span class="line">scores = scores.permute(<span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>).view(-<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">t_i = t_i.permute(<span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>).view(-<span class="number">1</span>, <span class="number">4</span>)</span><br><span class="line"><span class="comment"># according to eq(1) and eq(2), recover the (x1y1x2y2) of proposals</span></span><br><span class="line"><span class="comment"># multiply by 16 to recover the size relatived to image input</span></span><br><span class="line">proposals = bbox_transform(anchors, t_i) * <span class="number">16</span></span><br><span class="line"><span class="comment"># clip the x1, y1 to 0, and x2, y2 to max_shape[1] and max_shape[0], repectively</span></span><br><span class="line">proposals = clip(proposals)</span><br><span class="line"><span class="comment"># filter out those very little proposals</span></span><br><span class="line">min_scale = <span class="number">16</span> * im_scale</span><br><span class="line">pw = proposals[:, <span class="number">2</span>] - proposals[:,<span class="number">0</span>] + <span class="number">1</span></span><br><span class="line">ph = proposals[:, <span class="number">3</span>] - proposals[:,<span class="number">1</span>] + <span class="number">1</span></span><br><span class="line">keep = pw &gt;= min_scale &amp; ph &gt;= min_scale</span><br><span class="line"></span><br><span class="line">proposals = proposals[keep]</span><br><span class="line">scores = scores[keep]</span><br><span class="line"></span><br><span class="line">order = scores.sort(<span class="number">0</span>, descending=<span class="literal">True</span>)</span><br><span class="line">pre_nms_topn = <span class="number">6000</span></span><br><span class="line">order = order[:pre_nms_topn]</span><br><span class="line">proposals = proposals[order]</span><br><span class="line">scores = scores[order]</span><br><span class="line"></span><br><span class="line">keep = nms(proposals, scores, nms_thre)</span><br><span class="line">post_nms_topn = <span class="number">300</span></span><br><span class="line">keep = keep[:post_nms_topn]</span><br><span class="line"></span><br><span class="line">proposals = proposals[keep]</span><br><span class="line">scores = scores[keep]</span><br></pre></td></tr></table></figure>
+<p>以上便是使用 RPN 生成 proposals 的过程，当然因为 input image 是经过 resize 的，故，proposals 还需要除以 <code>im_scale</code>，以恢复原先的 size。</p>
+<p>在 <code>alt_opt</code> 这种训练方式中，就是使用 <code>rpn_generate</code> 专门为数据集中每个 image 生成 proposals，得到 proposals 的列表（双重列表），然后 dump 到一个 <code>.pkl</code> 文件中。</p>
+<hr>
+<p>以下内容为 <code>end2end</code> 的近似联合训练方式，可以跳过</p>
+<p>上面得到的 top 300 proposals 与这个 image 中的所有 gt boxes 一起，得到总的候选 proposals，然后：</p>
+<ol>
+<li>总的候选 proposals 与 gt boxes 计算 IOU 矩阵，并求出每个候选 proposal 对应最大 IOU 的那个 gt box，以及最大 IOU</li>
+<li>最大 IOU 大于某阈值（<code>0.5</code>）的 proposal 被认为是 正例</li>
+<li>单个 image 中取 <code>128</code> 个 proposals，作为 RCNN 检测网络的输入，其中正负 proposals 的比例为 <code>1:3</code>，故正例 proposals 数量为 <code>32</code>，如果第 <code>2</code> 步中筛选出的正例数量大于 <code>32</code>，那么随机取 <code>32</code> 个正例 proposals。</li>
+<li>最大 IOU 位于 <code>[0.1, 0.5)</code> 之间的 proposals 为负例（难负例挖掘）。负例数量为 <code>96</code>，如果第 <code>3</code> 步中正例数量小于 <code>32</code>，那么缺少的使用负例补充。最后正负 proposals 总数量可能小于 <code>128</code>。</li>
+<li>与 RPN 中类似，RCNN 中以 proposal 为 anchor，预测 proposal 的分类（PASCAL VOC 为例，为 20+1 种分类，包含 bg 分类），以及 proposal 的坐标偏差，故需要计算 gt box 相对 proposal 的坐标偏差（固定某个 proposal，取与其有最大 IOU 的那个 gt box）<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># gt_labels: class labels of all gt boxes, shape: (m,)</span></span><br><span class="line"></span><br><span class="line">all_rois = torch.vstack((proposals, gt))    <span class="comment"># (n, 4)</span></span><br><span class="line">M = bbox_iou(all_rois, gt)      <span class="comment">#(n, m), m is number of all gt boxes</span></span><br><span class="line">max_ious, gt_indices = torch.<span class="built_in">max</span>(M, dim=<span class="number">1</span>)</span><br><span class="line"><span class="comment"># fix one proposal, the class label of the gt box (with the max iou) is used</span></span><br><span class="line">labels = gt_labels[gt_indices]  </span><br><span class="line"></span><br><span class="line">fg_thre = <span class="number">0.5</span></span><br><span class="line">fg_indices = torch.where(max_ious &gt;= fg_thre)[<span class="number">0</span>]</span><br><span class="line">bg_thre_low = <span class="number">0.1</span></span><br><span class="line">bg_thre_up = <span class="number">0.5</span></span><br><span class="line">bg_indices = torch.where(max_ious &gt;= bg_thre_low &amp; max_ious &lt; bg_thre_up)[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">rois_num = <span class="number">128</span></span><br><span class="line">fg_ratio = <span class="number">0.25</span></span><br><span class="line">fg_num = <span class="built_in">int</span>(rois_num * fg_ratio)</span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(fg_indices) &gt; fg_num:</span><br><span class="line">    fg_indices = fg_indices[torch.randint(<span class="built_in">len</span>(fg_indices), (fg_num,))]</span><br><span class="line">bg_num = rois_num - fg_num</span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(bg_indices) &gt; bg_num:</span><br><span class="line">    bg_indices = bg_indices[torch.randint(<span class="built_in">len</span>(bg_indices), (bg_num,))]</span><br><span class="line"></span><br><span class="line">keep = torch.cat((fg_indices, bg_indices), axis=<span class="number">0</span>)</span><br><span class="line">labels = labels[keep]</span><br><span class="line"><span class="comment"># class label for any bg proposal is 0</span></span><br><span class="line">labels[<span class="built_in">len</span>(fg_indices):] = <span class="number">0</span></span><br><span class="line">rois = all_rois[keep]</span><br><span class="line"><span class="comment"># gt_indices: index of gt(with max iou) for each anchor</span></span><br><span class="line">gt_indices_keep = gt_indices[keep]</span><br><span class="line"><span class="comment"># according to eq(1) and eq(2), get the gt coordinate offsets for all candidated proposals</span></span><br><span class="line">bbox_target = bbox_target(rois, gt[gt_indices_keep])</span><br><span class="line"><span class="comment"># 1. for regression task, only positive proposals are used in reg-loss calculation</span></span><br><span class="line"><span class="comment"># 2. gt coordinate offsets are class related</span></span><br><span class="line">t_i_gt = torch.zeros((rois.shape[<span class="number">0</span>], <span class="number">4</span> * num_classes))</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(fg_indices)):</span><br><span class="line">    cls_id = labels[i]</span><br><span class="line">    start = <span class="number">4</span> * cls_id</span><br><span class="line">    end   = start + <span class="number">4</span></span><br><span class="line">    t_i_gt[i, start:end] = bbox_target[i,:]</span><br></pre></td></tr></table></figure>
+上面代码，最后的 <code>t_i_gt</code> 保存了正例 proposal 所对应的 gt box 的坐标偏差。</li>
+</ol>
+<p>以上内容为 <code>end2end</code> 的近似联合训练方式，可以跳过</p>
+<hr>
+<h1 id="RCNN"><a href="#RCNN" class="headerlink" title="RCNN"></a>RCNN</h1><p>训练 Fast R-CNN，需要加载数据集的 gt boxes，以及上一节所说的 proposals，既然这些 proposals 用于训练，就需要确定其分类，以及正负例（注：gt boxes 全部看作正例且已经有分类的 proposals），<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># gt_boxes of one image in the dataset</span></span><br><span class="line"><span class="comment"># gt_classes of gt_boxes of that image</span></span><br><span class="line"><span class="comment"># proposals of that image</span></span><br><span class="line">M = bbox_iou(proposals, gt_boxes)</span><br><span class="line"></span><br><span class="line">max_ious, gt_indices = torch.<span class="built_in">max</span>(M, dim=<span class="number">1</span>)</span><br><span class="line">fg_indices = torch.where(max_ious &gt; <span class="number">0</span>)[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># classes of proposals</span></span><br><span class="line">classes = torch.zeros((<span class="built_in">len</span>(proposals),))</span><br><span class="line">classes[fg_indices] = gt_classes[gt_indices[fg_indices]]</span><br><span class="line"></span><br><span class="line"><span class="comment"># combine gt boxes and proposals</span></span><br><span class="line"><span class="comment"># rois: coordinates of all rois</span></span><br><span class="line">rois = torch.vstack(gt_boxes, proposals)        <span class="comment"># concatenate two 2-d vectors</span></span><br><span class="line">roi_classes = torch.hstack(gt_classes, classes) <span class="comment"># concatenate two 1-d vectors</span></span><br><span class="line">overlaps = torch.hstack(torch.ones(<span class="built_in">len</span>(gt_classes)), max_ious)</span><br></pre></td></tr></table></figure></p>
+<p><code>batch_size=2</code></p>
+<p>Fast R-CNN 的输入为 image，以及（包含 gt boxes）的 proposals。对 image 的预处理与训练 RPN 相同（各 channel 减去 mean value，resize，然后拷贝到一个 batch 中）。重点看 rois 的处理，<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">fg_indices = torch.where(overlaps &gt;= <span class="number">0.5</span>)[<span class="number">0</span>]</span><br><span class="line">rois_per_img = <span class="number">64</span>       <span class="comment"># 128 // batch_size</span></span><br><span class="line">fg_rois_per_img = <span class="built_in">int</span>(<span class="number">0.25</span> * roi_per_img)   <span class="comment"># 16</span></span><br><span class="line"><span class="keyword">if</span> fg_indices.size &gt; fg_rois_per_img:</span><br><span class="line">    fg_indices = fg_indices[torch.randint(<span class="built_in">len</span>(fg_indices), (fg_rois_per_img,))]</span><br><span class="line"></span><br><span class="line">bg_indices = torch.where(overlaps &lt; <span class="number">0.5</span> <span class="keyword">and</span> overlaps &gt;= <span class="number">0.1</span>)[<span class="number">0</span>]</span><br><span class="line">bg_rois_per_img = rois_num - fg_rois_per_img</span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(bg_indices) &gt; bg_num:</span><br><span class="line">    bg_indices = bg_indices[torch.randint(<span class="built_in">len</span>(bg_indices), (bg_rois_per_img,))]</span><br><span class="line"></span><br><span class="line">keep = torch.cat((fg_indices, bg_indices), axis=<span class="number">0</span>)</span><br><span class="line">roi_classes = roi_classes[keep]</span><br><span class="line"><span class="comment"># class label for any bg proposal is 0</span></span><br><span class="line">roi_classes[<span class="built_in">len</span>(fg_indices):] = <span class="number">0</span></span><br><span class="line">rois = rois[keep]</span><br><span class="line">overlaps = overlaps[keep]</span><br><span class="line"></span><br><span class="line"><span class="comment"># calcucate the gt coordinate offsets (based on positive proposals)</span></span><br><span class="line">gt_indices = torch.where(overlaps == <span class="number">1</span>)[<span class="number">0</span>]</span><br><span class="line">fg_indices = torch.where(overlaps &gt;= <span class="number">0.5</span>)[<span class="number">0</span>]</span><br><span class="line">M = bbox_iou(rois[fg_indices,:], rois[gt_indices,:])</span><br><span class="line"></span><br><span class="line"><span class="comment"># find each positive proposal and its matched gt box</span></span><br><span class="line">max_ious, gt_assignments = torch.<span class="built_in">max</span>(M, dim=<span class="number">1</span>)</span><br><span class="line">fg_rois = rois[fg_indices,:]</span><br><span class="line">gt_rois = rois[gt_indices[gt_assignments],:]</span><br><span class="line"><span class="comment"># according to eq(1) and eq(2), get the gt coordinate offsets for all candidated proposals</span></span><br><span class="line">bbox_target = bbox_target(fg_rois, gt_rois)</span><br><span class="line"><span class="comment"># predicted bbox is class related, so provides the positive proposals&#x27; classes</span></span><br><span class="line">bbox_classes = roi_classes[fg_indices]  </span><br></pre></td></tr></table></figure><br>当然，<code>rois</code> 还需要乘以 <code>im_scale</code> 以与 resized input image 匹配。然后<br>将每个 image 的 <code>rois</code> 数据进行打包，<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">batched_rois = torch.zeros((<span class="number">0</span>, <span class="number">5</span>))</span><br><span class="line"><span class="keyword">for</span> i, rois <span class="keyword">in</span> <span class="built_in">enumerate</span>(rois_list):</span><br><span class="line">    batch_ind = torch.ones((rois.shape[<span class="number">0</span>], <span class="number">1</span>)) * i</span><br><span class="line">    ind_rois = torch.hstack((batch_ind, rois))</span><br><span class="line">    batched_rois = torch.vstack((batched_rois, ind_rois))</span><br></pre></td></tr></table></figure><br>其他数据如 <code>bbox_target</code> 等类似进行打包。</p>
+<p>准备好 image 数据以及 target 数据之后，就可以进行前向传播了。 batched image 经过 VGG-16 ，在 <code>conv5_3</code> 这个 layer 输出 feature maps，size 大约是 <code>40x60</code>（backbone 降采样率为 <code>16</code>），然后执行步骤：</p>
+<ol>
+<li><p>在 feature maps 上根据 <code>rois</code> crop 出 feature patches，并执行 ROI pooling 得到 <code>7x7</code> 的特征</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">scale = <span class="number">1</span>/<span class="number">16</span></span><br><span class="line">x = conv5_3(x)      <span class="comment"># (B, C, H, W)</span></span><br><span class="line">B = x.shape[<span class="number">0</span>]</span><br><span class="line">pool = nn.AdaptiveMaxPool2d((<span class="number">7</span>, <span class="number">7</span>))</span><br><span class="line">pooled_feats = []</span><br><span class="line"><span class="keyword">for</span> roi <span class="keyword">in</span> batched_rois:</span><br><span class="line">    ltrb = roi[<span class="number">1</span>:] / scale      <span class="comment"># left, top, right, bottom</span></span><br><span class="line">    <span class="comment"># x1, y1, x2, y2</span></span><br><span class="line">    feat = x[<span class="built_in">int</span>(roi[<span class="number">0</span>])].unsqueeze(<span class="number">0</span>)</span><br><span class="line">    feat = feat[:, :, ltrb[<span class="number">1</span>]: ltrb[<span class="number">3</span>], ltrb[<span class="number">0</span>]:ltrb[<span class="number">2</span>]]</span><br><span class="line">    pooled_feat = pool(feat)</span><br><span class="line">    pooled_feats.append(pooled_feat)</span><br><span class="line">x = torch.vstack(pooled_feats)</span><br><span class="line"></span><br><span class="line"><span class="comment"># x.shape (N, 512, 7, 7)，N 为 batch image 中所选的 rois 数量：128</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>上一步的输出，连续经过两个全连接层 <code>fc+relu+drop</code>，输出特征的 shape 为 <code>(N, 4096)</code>，这个特征分别经 cls layer（<code>out_channel=1+C</code> 的全连接层，其中 <code>C</code> 为分类数量，<code>1</code> 为背景数量），以及 reg layer （<code>out_channel=4x(1+C)</code> 的全连接层）这两个并列输出分支，得到（未归一化）分类得分，以及 bbox 的坐标偏差（与分类有关）。</p>
+</li>
+<li>分类损失和坐标回归损失与 RPN 中的相同，使用 <code>CrossEntropyLoss</code> 作为分类损失，<code>SmoothL1Loss</code> 作为坐标回归损失。</li>
+</ol>
+<p>以上分析过程参照 <code>alt_opt</code> 训练方法，即交替训练方法。</p>
+<h1 id="近似联合训练"><a href="#近似联合训练" class="headerlink" title="近似联合训练"></a>近似联合训练</h1><p>源码还提供了 <code>end2end</code> 训练方法，即<strong>近似联合训练</strong>方法（真正的端到端训练方法是一个 non trivial 问题，比较复杂，而采用近似端到端训练方法，已经可以取得较好的结果）。近似联合训练思路：</p>
+<ol>
+<li>backbone , RPN 和 Fast R-CNN 均合并到一个网络中，前向传播时，RPN 生成 proposals，然后使用 proposals 得到 rois，与 backbone 的 feature maps 一起作为 Fast R-CNN 的输入，继续进行前向传播。反向传播时，RPN 和 Fast R-CNN 的损失一起反向传播，用于更新网络参数。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/04/dl/ctc2/" rel="prev" title="Connectionist Temporal Classification (2)">
+      <i class="fa fa-chevron-left"></i> Connectionist Temporal Classification (2)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/12/23/img_cls/baselines_1/" rel="next" title="图像分类网络（一）">
+      图像分类网络（一） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#backbone"><span class="nav-number">1.</span> <span class="nav-text">backbone</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#image-%E9%A2%84%E5%A4%84%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">image 预处理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RPN"><span class="nav-number">2.</span> <span class="nav-text">RPN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Anchors"><span class="nav-number">2.1.</span> <span class="nav-text">Anchors</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Loss"><span class="nav-number">2.2.</span> <span class="nav-text">Loss</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ROI-Proposal"><span class="nav-number">3.</span> <span class="nav-text">ROI Proposal</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RCNN"><span class="nav-number">4.</span> <span class="nav-text">RCNN</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%91%E4%BC%BC%E8%81%94%E5%90%88%E8%AE%AD%E7%BB%83"><span class="nav-number">5.</span> <span class="nav-text">近似联合训练</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">104</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

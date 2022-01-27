@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="总结 图像分类网络的结构，包括 VGG, ResNet, DenseNet, MobileNet， MobileNetV2 以及 Inception 。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图像分类网络（一）">
+<meta property="og:url" content="https://shajianjian.github.io/2021/12/23/img_cls/baselines_1/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="总结 图像分类网络的结构，包括 VGG, ResNet, DenseNet, MobileNet， MobileNetV2 以及 Inception 。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines_1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/resnet_1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/resnet_2.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/densenet_1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/densenet_3.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines_2.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines_3.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines_4.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines_5.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines_6.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines_7.png">
+<meta property="article:published_time" content="2021-12-23T08:44:03.000Z">
+<meta property="article:modified_time" content="2022-01-05T03:59:47.086Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="image classification">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/img_cls/baselines_1.png">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/12/23/img_cls/baselines_1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>图像分类网络（一） | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/12/23/img_cls/baselines_1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图像分类网络（一）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-23 16:44:03" itemprop="dateCreated datePublished" datetime="2021-12-23T16:44:03+08:00">2021-12-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-05 11:59:47" itemprop="dateModified" datetime="2022-01-05T11:59:47+08:00">2022-01-05</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>总结</strong> 图像分类网络的结构，包括 <code>VGG</code>, <code>ResNet</code>, <code>DenseNet</code>, <code>MobileNet</code>， <code>MobileNetV2</code> 以及 <code>Inception</code> 。</p>
+<span id="more"></span>
+<h1 id="1-VGG"><a href="#1-VGG" class="headerlink" title="1. VGG"></a>1. VGG</h1><p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1409.1556">论文地址</a></p>
+<p>VGG 网络结构如图 1 所示，<br><img src="/images/img_cls/baselines_1.png" alt=""></p>
+<p>图 1. VGG 网络结构。卷积层为 “conv<kernel size>-<output channels>“ 的表示形式。表格中粗体表示新增的 layer。ReLU 省略（实际上每个 Conv 后面都跟一个 ReLU 激活层，Conv-ReLU 表示一个 layer。）</p>
+<p>说明：</p>
+<ol>
+<li><p><strong>LRN</strong> 表示 Local Response Normalisation。表示对某层的激活值做归一化，用到同一 output feature 空间位置 (x,y)，不同 channel 的激活值加权平均，具体可参考论文 <a target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf">ImageNet Classification with Deep Convolutional Neural Networks</a> 。VGG 论文中指出 LRN 在 ILSVRC 数据集上并不能带来提升，故对于较深的 VGG13 ~ VGG19 均没有采用 LRN。</p>
+</li>
+<li><p>整个网络的 down sampling rate 为 $2^5=32$。如果网络 input size 为 <code>(224,224)</code>，那么输出特征 size 为 <code>(7,7)</code>。</p>
+</li>
+</ol>
+<h1 id="2-ResNet"><a href="#2-ResNet" class="headerlink" title="2. ResNet"></a>2. ResNet</h1><p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1512.03385">论文地址</a></p>
+<p>ResNet 网络结构如图 2，<br><img src="/images/img_cls/resnet_1.png" alt=""></p>
+<p>图 2. ResNet 结构。</p>
+<p>说明：</p>
+<ol>
+<li><p><code>conv2_x</code> 中 <code>x</code> 表示第二组卷积中的第 <code>x</code> 个卷积块，conv-block。每个 conv block 由 方括号中所列的 conv layer 堆叠而成。每个 conv layer 均为 <code>Conv-bn-ReLU</code> 的形式。</p>
+</li>
+<li><p>当网络较深时（50-layers 以上），改变 conv block，如图 3，</p>
+<p> <img src="/images/img_cls/resnet_2.png" alt=""><br> 图 3. 左：普通 conv block；右：bottle-neck conv block</p>
+</li>
+<li><p>每个 conv block 有一个并列的 shortcut 分支。例如 <code>conv2_1</code> 这个 conv block，其输入 记为 <code>x</code>，在 <code>conv2_1</code> 最后一个 conv layer 的 ReLU 之前，输出记为 <code>out</code>，那么 <code>out+x</code> 再由 <code>conv2_1</code> 最后一个 ReLU 激活，输出为 <code>ReLU(out+x)</code>。</p>
+</li>
+<li><p><code>conv3_1</code>，<code>conv4_1</code> 和 <code>conv5_1</code> 这三个 conv block 中的第一个 <code>3x3</code> 的 conv layer 具有 <strong>stride=2</strong>，故整个网络的 down sampling rate 为 $2^5=32$。</p>
+</li>
+<li><p><code>conv3_1</code>，<code>conv4_1</code> 和 <code>conv5_1</code> 这三个 conv block 存在下采样，故融合 <code>out+x</code> 存在一个问题：<code>x</code> 与 <code>out</code> shape 不同。以图 2 为例说明，对于 34-layer，<code>conv3_1</code> 的输入 <code>x</code> shape （h,w,c）为 <code>56*56*64</code>，而 <code>conv3_1</code> 的 <code>out</code> shape 为 <code>28*28*128</code>。有两种解决方案：</p>
+<ul>
+<li>将 <code>x</code> 通过 zero-pad 升维，升维后，x 通过 stride=2 采样，使得 feature size 与 <code>out</code> 的 feature size 相同。</li>
+<li><p>对 <code>x</code> 使用 <code>1x1</code> conv 进行升维，同时 conv stride=2，降低 feature size，然后在接一个 <code>BN</code> 。（torchvision 实现中统一使用这种方法， projection shortcut）</p>
+<p>如果 <code>x</code> 与 <code>out</code> 的 shape 相同，那么不对 <code>x</code> 进行处理，即 identity shortcut。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h1 id="3-DenseNet"><a href="#3-DenseNet" class="headerlink" title="3. DenseNet"></a>3. DenseNet</h1><p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1608.06993">论文地址</a></p>
+<p>引入了 DenseBlock 结构，如图 4 ，<br><img src="/images/img_cls/densenet_1.png" alt=""></p>
+<p>图 4. 一个具有 5 层的 dense block（dense block 后面的那个 transition layer 也计算在内？否则，只有 4 层）。</p>
+<p>简单而言，记 dense block 层数为 <code>L</code>，那么第 <code>l</code> 层的输出作为后续 <code>L-l</code> 个 layer 的输入。</p>
+<p>dense block 说明：</p>
+<ol>
+<li>第 <code>l</code> 层输出记为 $x_l$，它有 <code>l</code> 个输入 $x_0, x_1, \cdots, x_{l-1}$，其中 $x_0$ 为本 dense block 的输入。这 <code>l</code> 个输入的融合 <strong>不是相加</strong>，而是 <strong>沿着 channel 方向 concatenate</strong>，这一点与 ResNet 不同。</li>
+<li>dense block 中各层的输出 feature size 相同，这使得 concatenate 操作简单。</li>
+<li>dense block 中各层的输出 channel 也相同，记为 <code>k</code>。（使用了 bottle neck 结构除外）</li>
+</ol>
+<p><img src="/images/img_cls/densenet_3.png" alt=""></p>
+<p>图 5. DenseNet 网络结构（应用于 ImageNet 数据集上）。**图中每个 conv 均表示 <code>BN-ReLU-Conv</code>。</p>
+<p>DenseNet 说明：</p>
+<ol>
+<li>每个 conv layer 由 <code>BN-ReLU-Conv</code> 构成（注意顺序，参考 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1603.05027">Identity Mappings in Deep Residual Networks</a> ）</li>
+<li>dense block 中每层输出 channel 数 <code>k</code> ，称为 <strong>growth rate</strong>。<code>k</code> 可以很小，例如 <code>12, 24, 32</code> 等。</li>
+<li>dense block 中可以采用 bottleneck 结构，即，dense block 由 <code>L</code> 个 bottleneck 构成，bottleneck 机构 为 <code>BN-ReLU-Conv(1x1)-BN-ReLU-Conv(3x3)</code>，采用这种结构的网络称为 <code>DenseNet-B</code> 。论文中，bottleneck 中的 <code>Conv(1x1)</code> 的输出 channel 为 <code>4k</code> 。bottleneck layer 的输出仍为 <code>k</code> ，这与普通 dense block 中各层输出 channel 相同。</li>
+<li>整个网络的 down sampling rate 为 $2^5=32$。</li>
+<li>transition layer 中的 <code>1x1 conv</code> 的输入 channel 为 $m=k_0+k \times (L-1)$，输出 channel 为 $\lfloor \theta m\rfloor$，其中 $0 &lt; \theta \le 1$，$\theta$ 用于压缩模型。当 $\theta &lt; 1$ 时，称为 <code>DenseNet-C</code>，那么 <code>DenseNet-BC</code> 表示既采用了 bottleneck layer，又压缩了 transition layer 的输出 channel。</li>
+</ol>
+<p>对于 cifar 数据集，由于图片尺寸较小（32*32），故没有 图 5 中的 <code>7x7</code> 卷积和 <code>maxpool</code>。采用了两种网络：</p>
+<ol>
+<li><p>basic DenseNet</p>
+<p> 图片输入首先通过一个 <code>3x3 conv</code> 的 layer，输出 channel 为 <code>16</code>。 然后通过三个 dense block，（每两个 dense block 依然有 transition layer，共 2 个 transition layer）。dense block 配置为 <code>&#123;L=40, k=12&#125;, &#123;L=100, k=12&#125;, &#123;L=100, k=24&#125;</code>。down sampling rate 为 $2^2=4$ 。</p>
+</li>
+<li><p>DenseNet-BC</p>
+<p> 图片输入首先通过一个 <code>3x3 conv</code> 的 layer，输出 channel 为 <code>32</code>，后面的结构与 basic DenseNet 中总体相同，三个 dense block 的配置为 <code>&#123;L=100, k =12&#125;, &#123;L=250, k=24&#125;, &#123;L=190, k=40&#125;</code>。</p>
+</li>
+</ol>
+<h1 id="4-MobileNet"><a href="#4-MobileNet" class="headerlink" title="4. MobileNet"></a>4. MobileNet</h1><h2 id="4-1-Depthwise-Separable-Convolution"><a href="#4-1-Depthwise-Separable-Convolution" class="headerlink" title="4.1 Depthwise Separable Convolution"></a>4.1 Depthwise Separable Convolution</h2><p>记为 <code>Conv dw</code>。记输入 channel 为 <code>M</code>，卷积核为 <code>k*k*1</code>，共 <code>M</code> 个这与的 kernel，输入特征的每个 channel 分别使用一个 kernel 进行卷积，故，输出 channel 依然是 <code>M</code> 。</p>
+<h2 id="4-2-Pointwise-Convolution"><a href="#4-2-Pointwise-Convolution" class="headerlink" title="4.2 Pointwise Convolution"></a>4.2 Pointwise Convolution</h2><p>kernel shape 为 <code>N*M*1*1</code>，用于 <code>Conv dw</code> 之后，使得输出 channel 变成 <code>N</code> 。</p>
+<p><img src="/images/img_cls/baselines_2.png" alt=""></p>
+<p>图 6. MobileNet 网络结构。其中 Filter shape 为 <code>(h, w, in_channel, out_channel)</code> 的顺序。图中每个 Conv 都是 <code>Conv-BN-ReLU</code> 结构。（图中最后一个 s2 应该改为 s1）。</p>
+<h2 id="4-3-Width-Multiplier"><a href="#4-3-Width-Multiplier" class="headerlink" title="4.3 Width Multiplier"></a>4.3 Width Multiplier</h2><p>引入参数 $\alpha \in (0,1)$， 原来的 conv layer 的输出 channel <code>M, N</code> 分别变为 $\alpha M$，$\alpha N$。常用的 $\alpha$ 可取 <code>1, 0.75, 0.5</code> 等。</p>
+<h2 id="4-4-Resolution-Multiplier"><a href="#4-4-Resolution-Multiplier" class="headerlink" title="4.4 Resolution Multiplier"></a>4.4 Resolution Multiplier</h2><p>引入参数 $\rho$，使得每层的输入 feature 的空间 size $(D_F, D_F)$ 变为 $(\rho D_F, \rho D_F)$ 。</p>
+<p>实际应用中，是将图 6 中每层的输出 channel 分别变为原来的 $\alpha$ 倍。将 input size 变为原来的 $\rho$ 倍即可实现 “每层的输入 feature size 变为 $\rho$ 倍” 这一目的。</p>
+<h1 id="5-MobileNetV2"><a href="#5-MobileNetV2" class="headerlink" title="5. MobileNetV2"></a>5. MobileNetV2</h1><p>MobileNetV2 是在 MobileNet 基础上进行改进：</p>
+<ol>
+<li>高 channel 的 layer 后保留使用 ReLU，而低 channel 的 layer 后不使用 ReLU，这是因为如果 channel 较大，即使使用 ReLU，大部分信息仍然保持，而如果 channel 较小，那么 ReLU 会损失较多信息。</li>
+<li>bottleneck 结构会压缩 channel ，所以根据第 <code>1</code> 点，bottleneck 的 <code>1x1 conv</code> （正是这个 layer 用于压缩 channel）后不应该使用 ReLU。</li>
+<li><p>MobileNet 没有使用 ResNet 中的 shortcut，MobileNetV2 则使用了 shortcut ，但是与 ResNet 中的 residual block 不同，而是 Inverted residual block。如图 7，</p>
+<p> <img src="/images/img_cls/baselines_3.png" alt=""><br> 图 7. 普通 residual block 和 inverted residual block。（都是 bottleneck block）</p>
+<p> 图 7 的右边的这个 inverted sidual block，block 的输入 channel 经过 <code>1x1 conv</code> 使得 channel 膨胀到 <code>k</code> 倍，然后使用 <code>3x3 dw conv</code> ，由于是 depthwise 可分离卷积，参数量和计算量都降下来了，而 channel 经过膨胀，故可以先使用 ReLU，然后再做 <code>3x3 dw conv</code>，得到的 feature channel 保持不变，故继续使用 ReLU 进行非线性激活，然后再使用 <code>1x1 conv</code>，得到的输出将作为下一个 block 的输入。具体的 block 各层结构如图 8</p>
+<p> <img src="/images/img_cls/baselines_4.png" alt=""><br> 图 8</p>
+</li>
+<li><p>shortcut 融合采用按位相加，即 bottleneck 的输入与输出按位相加。</p>
+</li>
+<li><p>ReLU6 就是限制 ReLU 的最大输出值为6（对输出值做clip）。</p>
+</li>
+</ol>
+<p>整个网络结构</p>
+<p><img src="/images/img_cls/baselines_5.png" alt=""><br>图 9. MobileNetV2：<code>t</code> 表示 channel 的膨胀率，<code>c</code> 表示 bottleneck block 的输出 channel。<code>n</code> 表示相同的 bottleneck 重复堆叠几次。<code>s</code> 表示这一组重复的 block 总的 stride。</p>
+<p>对图 9 中的结构作补充说明：</p>
+<ol>
+<li><p>除 bottleneck block 中最后一个 <code>1x1 conv</code> 之外，所有的 <code>conv</code> 具体展开均为 <code>Conv-BN-ReLU6</code>。如果是 <code>dw conv</code>，那么对应的则为 <code>dw Conv-BN-ReLU6</code>。bottleneck block 中最后一个 <code>1x1 conv</code> 则展开为 <code>Conv-BN</code>，这是因为两个 block 之间的 feature channel 较小，不应该使用 ReLu，而 block 内部由于第一个 <code>1x1 conv</code> 使得 channel 经过膨胀，所以可以使用 ReLU。</p>
+</li>
+<li><p>一组相同的 block 中，如果 <code>s&gt;1</code>，那么由这组中的第一个 block 执行 <code>stride=s</code>，具体而言是由这个 block 中的 <code>3x3 dw conv</code> layer 执行。参见 图 8。</p>
+</li>
+<li><p>在 block 的 <code>stride=1</code> 且 block 的输入和输出 channel 相等时，才有 shortcut 连接。如图 8 所示，当 <code>stride=2</code> 时，没有 shortcut 。另外，从图 9 中可见，两个相邻的 block 如果跨组了，那么后一个 block 的输入输出 channel 肯定不同，即，每组中的第一个 block 不使用 shortcut，这样就保证了输入输出 feature 的 shape 完成相同，方便实现按位相加。</p>
+</li>
+<li><p>torchvision 中的 MobileNetV2 实现源码，如果 block 的膨胀系数 <code>t=1</code>，那么就省去了第一个 <code>1x1 conv</code>，直接是 <code>3x3 dw conv</code> ，可能是因为既然 <code>1x1 conv</code> 没有提高 channel，就没必要用了，在图 9 中，第一个 <code>conv</code> 的输出 channel 32，可能是因为觉得在网络的浅层阶段，这个 channel 已经足够大了，没必要再用 <code>1x1 conv</code> 进行膨胀，即，第一个 bottleneck 中省去了第一个 <code>1x1 conv</code>。</p>
+</li>
+</ol>
+<h1 id="6-Inception"><a href="#6-Inception" class="headerlink" title="6. Inception"></a>6. Inception</h1><p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1409.4842">Going deeper with convolutions</a></p>
+<p>思路：提高性能的一个方法是增加网络的 <code>depth</code> 以及 <code>width</code>，但是随之而来的缺点是：</p>
+<ol>
+<li>大尺寸网络意味着大量的参数，在数据集不是足够大时，容易过拟合</li>
+<li>大尺寸网络增加计算量。</li>
+</ol>
+<p>设计细节：</p>
+<ol>
+<li>低层网络负责一个小的 local region，到下一 layer 时，采用 <code>1x1 Conv</code>，其感受野不变，但是我们也希望有更大的感受野，可采用 <code>3x3 Conv</code> 和 <code>5x5 Conv</code>，如图 10 左边部分所示，但是这种设计存在问题：<code>5x5 Conv</code> 计算量太大，故采用图 10 右侧部分，使用 <code>1x1 Conv</code> 先降维，然后再卷积。<br><img src="/images/img_cls/baselines_6.png" alt=""><br>图 10. 左：朴素的 Inception 模块；右：具有降维的 Inception 模块。</li>
+</ol>
+<p>说明：</p>
+<ol>
+<li>Inception 中的 max pooling <code>stride=1</code>，feature 空间 size 不变。</li>
+</ol>
+<h2 id="6-1-GoogLeNet"><a href="#6-1-GoogLeNet" class="headerlink" title="6.1 GoogLeNet"></a>6.1 GoogLeNet</h2><p><img src="/images/img_cls/baselines_7.png" alt=""><br>图 11. GoogLeNet 网络。图中 <code>#3x3 reduce</code> 实际上是 <code>1x1 Conv</code> 对应的是图 10 中右图的 <code>3x3 Conv</code> 前的降维卷积。<code>depth</code> 表示这个 module 中堆叠了几个 <code>Conv</code>。</p>
+<p>说明：</p>
+<ol>
+<li><p>表中第三行，参数量为 $64\times 1^2 \times 64+64\times 3^2 \times 192=112\times 1024=112K$</p>
+</li>
+<li><p>表中第五行，根据图 10 中右图，可知参数量为 $192\times 1^2 \times 64+192\times 1^2 \times 96 + 96\times 3^2 \times 128+ 192 \times 1^2 \times 16 +16 \times 5^2 \times 32 + 192\times 1^2 \times 32=159.5K$。这一 layer 的输出 channel 为 $64+128+32+32=256$。</p>
+</li>
+<li><p>所有的 <code>Conv</code> 后接 ReLU。</p>
+</li>
+<li><p>由于网络相对较深，梯度反向传播可能较为困难。网络的中间层已经具有辨别区分能力了，故在网络的中间层增加两个辅助分类分支，参见论文 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1409.4842">Going deeper with convolutions</a> 中的 <code>Figure 3</code>，（图太大，不贴出来）这两个辅助分支说明：</p>
+<ul>
+<li>在 <code>(4a)</code> 和 <code>(4d)</code> 后使用一个 <code>5x5 avg pooling</code>，<code>stride=3</code> ，得到输出为 <code>4x4x512</code> 和 <code>4x4x528</code></li>
+<li>一个 <code>1x1 Conv, 128</code> 的 filters 用于降维（后接 ReLU）</li>
+<li>一个全连接层，输出 units 为 <code>1024</code>，后接 ReLU</li>
+<li>drop ratio 为 <code>70%</code> 的 dropout layer</li>
+<li>一个全连接层，输出 units 为 <code>1000</code>（ImageNet 数据集），这个 layer 后面没有 ReLU，而是 softmax loss 层。</li>
+<li>这两个辅助分类分支在 inference 阶段被移除</li>
+</ul>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/image-classification/" rel="tag"># image classification</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/23/obj_det/faster-rcnn/" rel="prev" title="Faster RCNN 回顾">
+      <i class="fa fa-chevron-left"></i> Faster RCNN 回顾
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/12/27/img_cls/baselines_2/" rel="next" title="图像分类网络（二）">
+      图像分类网络（二） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-VGG"><span class="nav-number">1.</span> <span class="nav-text">1. VGG</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-ResNet"><span class="nav-number">2.</span> <span class="nav-text">2. ResNet</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-DenseNet"><span class="nav-number">3.</span> <span class="nav-text">3. DenseNet</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-MobileNet"><span class="nav-number">4.</span> <span class="nav-text">4. MobileNet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-Depthwise-Separable-Convolution"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 Depthwise Separable Convolution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-Pointwise-Convolution"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 Pointwise Convolution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-Width-Multiplier"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 Width Multiplier</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-4-Resolution-Multiplier"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 Resolution Multiplier</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-MobileNetV2"><span class="nav-number">5.</span> <span class="nav-text">5. MobileNetV2</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-Inception"><span class="nav-number">6.</span> <span class="nav-text">6. Inception</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#6-1-GoogLeNet"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 GoogLeNet</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">104</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

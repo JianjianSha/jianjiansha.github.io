@@ -33,7 +33,7 @@
 <meta property="og:image" content="https://shajianjian.github.io/images/mAP_fig4.png">
 <meta property="og:image" content="https://shajianjian.github.io/images/mAP_fig5.png">
 <meta property="article:published_time" content="2019-06-16T03:43:57.000Z">
-<meta property="article:modified_time" content="2020-04-24T10:36:27.200Z">
+<meta property="article:modified_time" content="2021-12-04T02:43:57.523Z">
 <meta property="article:author" content="shajianjian">
 <meta property="article:tag" content="object detection">
 <meta name="twitter:card" content="summary">
@@ -202,7 +202,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-24 18:36:27" itemprop="dateModified" datetime="2020-04-24T18:36:27+08:00">2020-04-24</time>
+                <time title="修改时间：2021-12-04 10:43:57" itemprop="dateModified" datetime="2021-12-04T10:43:57+08:00">2021-12-04</time>
               </span>
 
           
@@ -244,7 +244,9 @@ GT_1=\underset{GT_i} {\text{argmax}} \quad \text{IoU}(Det_b, GT_i) \\\\
 <p>VOC 使用阈值 <code>0.5</code>。</p>
 <h2 id="指标"><a href="#指标" class="headerlink" title="指标"></a>指标</h2><h3 id="PR-曲线"><a href="#PR-曲线" class="headerlink" title="PR 曲线"></a>PR 曲线</h3><p>每个预测 box 均有一个 score 表示 confidence，对这个 confidence 设置阈值，仅考虑大于等于这个阈值的预测 box，小于这个阈值的检测结果则忽略，于是每个不同的 confidence 阈值均对应一对 PR（Precision x Recall）值。实际计算中，按 confidence 降序排列，将预测数量从 1 增加到全部预测数量（从 rank=1 到全部预测数量），每次计算一对 PR 值，于是得到原始的 PR 曲线，对于召回率 R’ &gt;= R 选取最大的 P 值则得到插值 PR 曲线。我们使用一个例子予以说明（搬运自<a target="_blank" rel="noopener" href="https://datascience.stackexchange.com/questions/25119/how-to-calculate-map-for-detection-task-for-the-pascal-voc-challenge">stackexchange</a>）。</p>
 <p>给定目标分类 “Aeroplane”，假设检测结果如下,<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">BB  | confidence | GT</span><br><span class="line">----------------------</span><br><span class="line">BB1 |  0.9       | 1</span><br><span class="line">----------------------</span><br><span class="line">BB2 |  0.9       | 1</span><br><span class="line">----------------------</span><br><span class="line">BB3 |  0.7       | 0</span><br><span class="line">----------------------</span><br><span class="line">BB4 |  0.7       | 0</span><br><span class="line">----------------------</span><br><span class="line">BB5 |  0.7       | 1</span><br><span class="line">----------------------</span><br><span class="line">BB6 |  0.7       | 0</span><br><span class="line">----------------------</span><br><span class="line">BB7 |  0.7       | 0</span><br><span class="line">----------------------</span><br><span class="line">BB8 |  0.7       | 1</span><br><span class="line">----------------------</span><br><span class="line">BB9 |  0.7       | 1</span><br><span class="line">----------------------</span><br></pre></td></tr></table></figure><br>（BB 表示检测结果所匹配 “match” 的 GT box）</p>
-<p>以上表格中已经按 confidence 降序排列，GT=1 表示 TP，GT=0 表示 FP，此外还有两个未检测到的 BBox，即 FN=2。TP=5 (BB1,BB2,BB5,BB8,BB9)，FP=5，其中有一个检测为 BB1，但是其 confidence 小于 0.9 而被抑制，故认为此检测是 FP，对应如下的 rank=3 这个 case，舍弃这个检测。这一点在 PASCAL VOC 主页的 Detection Task 的 <a target="_blank" rel="noopener" href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/devkit_doc.html#SECTION00054000000000000000">Evaluation</a> 一节也进行了说明。GT box 数量为 TP+FN=5+2=7。计算所有点的 PR 值如下，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">rank=1  precision=1.00 and recall=0.14</span><br><span class="line">----------</span><br><span class="line">rank=2  precision=1.00 and recall=0.29</span><br><span class="line">----------</span><br><span class="line">rank=3  precision=0.66 and recall=0.29</span><br><span class="line">----------</span><br><span class="line">rank=4  precision=0.50 and recall=0.29</span><br><span class="line">----------</span><br><span class="line">rank=5  precision=0.40 and recall=0.29</span><br><span class="line">----------</span><br><span class="line">rank=6  precision=0.50 and recall=0.43</span><br><span class="line">----------</span><br><span class="line">rank=7  precision=0.43 and recall=0.43</span><br><span class="line">----------</span><br><span class="line">rank=8  precision=0.38 and recall=0.43</span><br><span class="line">----------</span><br><span class="line">rank=9  precision=0.44 and recall=0.57</span><br><span class="line">----------</span><br><span class="line">rank=10 precision=0.50 and recall=0.71</span><br><span class="line">----------</span><br></pre></td></tr></table></figure><br>稍作解释：</p>
+<p>以上表格中已经按 confidence 降序排列，GT=1 表示 TP，GT=0 表示 FP。 BB 那一列的 <code>BBi</code> 表示 GT box 编号。预测 box 总共有 10 个，上表中列出了 9 个，还有一个 预测 box，gt boxes 中与这个预测 box 有最大 IOU 的是 <code>BB1</code>，不过其相应的 confidence 比上表中第一行的预测 box （与 <code>BB1</code> ) 的 confidence （值为 0.9）小（注意，这里是 confidence 比较，不是 IOU 比较，所以不知道这两个预测 box 哪个与 <code>BB1</code> 的 IOU 更大），所以这个预测 box 被第一行的预测 box 抑制，故认为此检测是 FP。除了此外，还有两个未检测到的 BBox 未在上表中列出， FN=2。</p>
+<p>TP=5 (对应的匹配 gt box 为 BB1,BB2,BB5,BB8,BB9)，FP=5 ，其中 4 个在上表中列出，还有一个是上面所说的被第一行的 TP 预测 box 所抑制的预测 box，这个被抑制的 box 对应如下的 rank=3 这个 case，舍弃这个检测。这一点在 PASCAL VOC 主页的 Detection Task 的 <a target="_blank" rel="noopener" href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/devkit_doc.html#SECTION00054000000000000000">Evaluation</a> 一节也进行了说明。</p>
+<p>GT box 数量为 TP+FN=5+2=7。计算所有点的 PR 值如下，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">rank=1  precision=1.00 and recall=0.14</span><br><span class="line">----------</span><br><span class="line">rank=2  precision=1.00 and recall=0.29</span><br><span class="line">----------</span><br><span class="line">(被第一行预测 box 所抑制的预测box，其 confidence &lt;0.9，例如可取 0.8，它们两个都匹配 BB1)</span><br><span class="line">rank=3  precision=0.66 and recall=0.29</span><br><span class="line">----------</span><br><span class="line">rank=4  precision=0.50 and recall=0.29</span><br><span class="line">----------</span><br><span class="line">rank=5  precision=0.40 and recall=0.29</span><br><span class="line">----------</span><br><span class="line">rank=6  precision=0.50 and recall=0.43</span><br><span class="line">----------</span><br><span class="line">rank=7  precision=0.43 and recall=0.43</span><br><span class="line">----------</span><br><span class="line">rank=8  precision=0.38 and recall=0.43</span><br><span class="line">----------</span><br><span class="line">rank=9  precision=0.44 and recall=0.57</span><br><span class="line">----------</span><br><span class="line">rank=10 precision=0.50 and recall=0.71</span><br><span class="line">----------</span><br></pre></td></tr></table></figure><br>稍作解释：（使用所匹配的 GT box 编号进行说明）</p>
 <ol>
 <li>rank=1，检测数量为 1（此时其他检测结果均被舍弃），TP 仅 BB1 一个，没有 FP，故 P=1，R=1/7=0.14</li>
 <li>rank=2，检测数量为 2，TP 包括 BB1,BB2，没有 FP，故 P=1，R=2/7=0.29</li>
@@ -253,9 +255,9 @@ GT_1=\underset{GT_i} {\text{argmax}} \quad \text{IoU}(Det_b, GT_i) \\\\
 </ol>
 <h3 id="AP"><a href="#AP" class="headerlink" title="AP"></a>AP</h3><p>VOC 在 2010 之前，选择固定的 11 个 R 值 等分点，即 R={0,0.1,…,1}，然后对 R’ &gt;= R 选择最大 P 值得到插值 PR 曲线。 AP 则是每个 R 阈值处的平均正确率（average precision）。VOC 2010 之后，仍然是对 R’ &gt;= R 选择最大 P 值，但是 R 是 [0,1] 之间的所有值（参考上一节内容 <strong>PR 曲线</strong> 中的计算过程），此时 AP 为 PR 曲线下方的面积 AUC （area under the curve）。两种计算方法如下：</p>
 <h4 id="11-点插值"><a href="#11-点插值" class="headerlink" title="11-点插值"></a>11-点插值</h4><p>取11个 R 值的 [0,1] 区间等分点计算平均正确率：</p>
-<script type="math/tex; mode=display">AP=\frac 1 {11} \sum_{r \in {0,0.1,...,1}} \rho_{interp(r)} \qquad(1) \\\\
-\rho_{interp(r)}=\max_{\tilde r:\tilde r \ge r} \rho(\tilde r) \qquad(2)</script><p>其中，$\rho(\tilde r)$ 为计算得到的正确率。<br>举个例子如图（完整例子请参考<a target="_blank" rel="noopener" href="https://github.com/rafaelpadilla/Object-Detection-Metrics">这里</a>），<br><img src="/images/mAP_fig1.png" alt=""></p>
-<p>蓝色折线的顶点为根据预测结果计算得到的 PR 值，红色点则是根据11个固定的 R 值进行插值得到的 PR 值，比如计算阈值 R=0.2 处的插值，根据式 (2)，大于等于 0.2 的 $\tilde r$ 值可取 {0.2,0.2666,0.3333,0.4,0.4666}，当 $\tilde r=0.4$ 时，显然 P 有最大值为 0.4285。根据 11-点插值，计算 AP：</p>
+<script type="math/tex; mode=display">AP=\frac 1 {11} \sum_{r \in {0,0.1,...,1}} \rho_{interp(r)} \tag(1)</script><script type="math/tex; mode=display">\rho_{interp(r)}=\max_{\tilde r:\tilde r \ge r} \rho(\tilde r) \tag(2)</script><p>其中，$\rho(\tilde r)$ 为计算得到的正确率。<br>举个例子如图（完整例子请参考<a target="_blank" rel="noopener" href="https://github.com/rafaelpadilla/Object-Detection-Metrics">这里</a>），<br><img src="/images/mAP_fig1.png" alt=""></p>
+<p>（上图中的 PR 数据与上面表格的数据无关，它们来自不同的例子）</p>
+<p>蓝色折线的 <strong>上顶点</strong> 为根据预测结果计算得到的 PR 值，即，每一个竖直线段的上端点为 PR 值。红色点则是根据11个固定的 R 值进行插值得到的 PR 值，比如计算阈值 R=0.2 处的插值，根据式 (2)，大于等于 0.2 的 $\tilde r$ 值可取 {0.2,0.2666,0.3333,0.4,0.4666}，当 $\tilde r=0.4$ 时，显然 P 有最大值为 0.4285。根据 11-点插值，计算 AP：</p>
 <p>$AP=\frac 1 {11} \sum_{r \in {0,0.1,…,1}} \rho_{interp(r)}$</p>
 <p>$AP=\frac 1 {11}(1+0.6666+0.4285+0.4285+0.4285+0+0+0+0+0+0)$</p>
 <p>$AP=26.84\%$</p>
@@ -405,7 +407,7 @@ F_0(x)=\int_{-\infty}^{x} f_1(x) dx</script><p>概率密度分别为 $f_1,f_0$�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">93</span>
+          <span class="site-state-item-count">104</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -418,7 +420,7 @@ F_0(x)=\int_{-\infty}^{x} f_1(x) dx</script><p>概率密度分别为 $f_1,f_0$�
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -445,7 +447,7 @@ F_0(x)=\int_{-\infty}^{x} f_1(x) dx</script><p>概率密度分别为 $f_1,f_0$�
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

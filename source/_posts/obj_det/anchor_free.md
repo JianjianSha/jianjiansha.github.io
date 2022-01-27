@@ -1,7 +1,7 @@
 ---
 title: Anchor-free Object Detection
 date: 2021-02-25 12:31:28
-tags:
+tags: object detection
 ---
 # FCOS
 每个 scale 的 detection head 输出的 feature maps 上的每一 location 处预测 `C` 个分类和 `4` 个坐标，以及一个 center 得分，对每种分类采用二值分类。某个 location 位于 gt box 内，则为正例样本，否则为负例样本，box 回归 target 记为 $\mathbf t^{*}=(l^{*}, t^{*}, r^{*}, b^{*})$，某一 location `(x,y)` 位于 gt box $B_i=(x_0^{(i)}, y_0^{(i)}, x_1^{(i)}, y_1^{(i)})$ 内部，那么有

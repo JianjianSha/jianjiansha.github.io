@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="论文：End-to-End Object Detection with Transformers 代码：facebookresearch&#x2F;detr 首次将 transformer 应用于目标检测任务中。模型简称 DETR。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DETR">
+<meta property="og:url" content="https://shajianjian.github.io/2022/01/21/transformer/detr/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="论文：End-to-End Object Detection with Transformers 代码：facebookresearch&#x2F;detr 首次将 transformer 应用于目标检测任务中。模型简称 DETR。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/transformer/DETR1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/transformer/DETR.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/transformer/DETR3.png">
+<meta property="article:published_time" content="2022-01-21T05:39:50.000Z">
+<meta property="article:modified_time" content="2022-01-27T02:25:15.882Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="transformer, object detection">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/transformer/DETR1.png">
+
+<link rel="canonical" href="https://shajianjian.github.io/2022/01/21/transformer/detr/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>DETR | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2022/01/21/transformer/detr/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DETR
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-01-21 13:39:50" itemprop="dateCreated datePublished" datetime="2022-01-21T13:39:50+08:00">2022-01-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-27 10:25:15" itemprop="dateModified" datetime="2022-01-27T10:25:15+08:00">2022-01-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2005.12872">End-to-End Object Detection with Transformers</a></p>
+<p>代码：<a target="_blank" rel="noopener" href="https://github.com/facebookresearch/detr">facebookresearch/detr</a></p>
+<p>首次将 transformer 应用于目标检测任务中。模型简称 <code>DETR</code>。</p>
+<span id="more"></span>
+<h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>特点：</p>
+<ol>
+<li>端到端训练</li>
+<li>可以基于任意的 CNN baseline</li>
+<li><p>采用非自回归并行解码（non-autoregressive parallel decoding）</p>
+<p> 自回归模型例如机器翻译任务，每一 step，Decoder 的输出依赖之前的输出，即，每次 Decoder 输出一个新的 token 后，都附加到输入 sequence 之后，作为下一次 Decoder 的输入。</p>
+<p> 非自回归模型，则是并行生成所有的 tokens，这样解码速度更快。</p>
+<p> 在 DETR 中，对于一个 gt box，仅将一个预测 box 与它对应起来，得到一个 pair，并计算匹配 loss，这样预测 boxes 的顺序可以是任意，即 预测 boxes 之间是独立的，从而使得可以并行计算得到所有预测 boxes。</p>
+</li>
+<li><p>对大目标的检测上，DETR 比之前的目标检测模型效果更好，这是因为 transformer 的 attention 是 global 的，而 CNN 则是 local 的。相对的，在小目标检测上，则效果差些。</p>
+</li>
+<li><p>set prediction</p>
+<p> DETR 一次性预测所有的 box 集合，需要一个 matching loss 函数，用于 预测 box 与 gt box 之间的匹配，采用基于匈牙利算法（Hungarian algorithm）的 loss 计算方式，一个 gt box 最多只有一个预测 box 与之匹配，从而省去了 NMS 等 postprocessing。</p>
+<p> 匈牙利算法可以参考这个 <a target="_blank" rel="noopener" href="https://gist.github.com/JianjianSha/ed5ea9022a8aa1217113dc7d30b52044">代码实现</a></p>
+</li>
+</ol>
+<h1 id="2-DETR"><a href="#2-DETR" class="headerlink" title="2. DETR"></a>2. DETR</h1><p>DETR 的结构示意图如下，</p>
+<p><img src="/images/transformer/DETR1.png" alt=""><br>图 1. DETR 直接一次性（并行）预测所有的 box 集合。输入 image 经过一个 CNN 网络输出 features，然后作为 transformer 的输入，（并行）输出预测 box 集合。</p>
+<h2 id="2-1-DETR-结构"><a href="#2-1-DETR-结构" class="headerlink" title="2.1 DETR 结构"></a>2.1 DETR 结构</h2><p><img src="/images/transformer/DETR.png" alt=""><br>图 2. DETR 包含：1. CNN backbone，输出 feature maps；2. encoder-decoder transformer；3. 前馈网络 FFN。</p>
+<p><strong>Backbone</strong></p>
+<p>CNN backbone 的输入 image $x \in \mathbb R^{3 \times H_0 \times W_0}$，输出 features 为 $f \in \mathbb R^{C \times H \times W}$。通常取，$C=2048$，$H,W=H_0/32, W_0/32$。</p>
+<p>代码中 backbone 默认使用 <code>ResNet50</code>，（代码 1）<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">parser.add_argument(<span class="string">&#x27;--backbone&#x27;</span>, default=<span class="string">&#x27;resnet50&#x27;</span>, <span class="built_in">type</span>=<span class="built_in">str</span>)</span><br><span class="line">backbone = <span class="built_in">getattr</span>(torchvision.models, <span class="string">&#x27;resnet50&#x27;</span>)(...) <span class="comment"># create resnet50</span></span><br><span class="line"><span class="comment"># 标记 layer4 为 backbone 的输出层，其编号为 0</span></span><br><span class="line"><span class="comment"># 对于 segmentation task，则有多个输出层</span></span><br><span class="line">return_layers = &#123;<span class="string">&#x27;layer4&#x27;</span>: <span class="string">&#x27;0&#x27;</span>&#125;</span><br><span class="line"><span class="comment"># self.body 输出 layer4 的 output features</span></span><br><span class="line">self.body = IntermediateLayerGetter(backbone, return_layers=return_layers)</span><br></pre></td></tr></table></figure></p>
+<p>机器翻译任务中，对短句子的末尾进行填充 <code>&lt;pad_tok&gt;</code>，然后再创建 <code>src_mask</code>，其中 <code>&lt;pad_tok&gt;</code> 对应 <code>mask=1</code>，这里对 image 采取类似的预处理，（代码 2）<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">nested_tensor_from_tensor_list</span>(<span class="params">tensor_list</span>):</span></span><br><span class="line">    <span class="comment"># tensor_list: a list of tensors. each tensor represents an image data</span></span><br><span class="line">    <span class="comment"># each tensor has a shape of (C, H, W)</span></span><br><span class="line">    max_size = _max_by_axis([<span class="built_in">list</span>(img.shape) <span class="keyword">for</span> img <span class="keyword">in</span> tensor_list])</span><br><span class="line">    <span class="comment"># 得到一个最大的 size，可以容纳 mini-batch 中所有的 images</span></span><br><span class="line">    batch_shape = [<span class="built_in">len</span>(tensor_list)] + max_size</span><br><span class="line">    b, c, h, w = batch_shape</span><br><span class="line">    dtype = tensor_list[<span class="number">0</span>].dtype</span><br><span class="line">    device = tensor_list[<span class="number">0</span>].device</span><br><span class="line">    tensor = torch.zeros(batch_shape, dtype=dtype, device=device)</span><br><span class="line">    <span class="comment"># 创建 mask，指示哪些 spatial pixeles 是填充数据</span></span><br><span class="line">    mask = torch.ones((b, h, w), dtype=dtype, device=device)</span><br><span class="line">    <span class="keyword">for</span> img, pad_img, m <span class="keyword">in</span> <span class="built_in">zip</span>(tensor_list, tensor, mask):</span><br><span class="line">        pad_img[:img.shape[<span class="number">0</span>], :img.shape[<span class="number">1</span>], :img.shape[<span class="number">2</span>]].copy_(img)</span><br><span class="line">        m[:img.shape[<span class="number">1</span>], :img.shape[<span class="number">2</span>]] = <span class="number">0</span></span><br><span class="line">    <span class="keyword">return</span> NestedTensor(tensor, mask)   <span class="comment"># 打包 image 数据和 mask</span></span><br></pre></td></tr></table></figure></p>
+<p>经过 backbone 之后，image 转变成 features，其 spatial size 缩小了 $32$ 倍，故 mask 也需要等比例缩小 $32$ 倍，（代码 3）<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, tensor_list: NestedTensor</span>):</span></span><br><span class="line">    xs = self.body(tensor_list.tensors) <span class="comment"># (batch_size, C=2048, H, W)</span></span><br><span class="line">    out = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> name, x <span class="keyword">in</span> xs.items():  <span class="comment"># 对应上面 return_layers 的输出，name 为 编号</span></span><br><span class="line">        m = tensor_list.mask</span><br><span class="line">        <span class="comment"># mask 先从 3-D，转为 4-D，然后对最低的两个维度（spatial dimension）进行</span></span><br><span class="line">        <span class="comment"># 插值，rescale 之后，再转为 3-D</span></span><br><span class="line">        mask = F.interpolate(m[<span class="literal">None</span>].<span class="built_in">float</span>(), size=x.shape[-<span class="number">2</span>:]).to(torch.<span class="built_in">bool</span>)[<span class="number">0</span>]</span><br><span class="line">        out[name] = NestedTensor(x, mask)</span><br><span class="line">    <span class="comment"># 根据 return_layers 的输出，继续打包 features 与 masks</span></span><br><span class="line">    <span class="keyword">return</span> out</span><br></pre></td></tr></table></figure></p>
+<p><strong>Transformer encoder</strong></p>
+<ol>
+<li>使用一个 <code>1x1 conv</code> 对 CNN backbone 的输出 features 进行降维，从维度 $C$ 降到 $d=256$，得到 features 为 $z_0 \in \mathbb R^{d \times H \times W}$</li>
+<li>将 spatial 特征压缩至一维，即 $d \times HW$，这里 $d$ 就是特征维度，$HW$ 则作为输入 sequence 的 <code>seq_len</code>。</li>
+<li>Encoder 为标准结构，包含一个 multi-head self-attention 和 一个 FFN</li>
+<li>对特征  $z_0 \in \mathbb R^{d \times H \times W}$ 进行 positional encoding，然后加到 $z_0$ 上</li>
+</ol>
+<p><strong>position encoding</strong></p>
+<script type="math/tex; mode=display">PE(pos_x, 2i)=\sin(pos_x / 10000^{2i/128})
+\\PE(pos_x, 2i+1)=\cos(pos_x/10000^{2i/128})
+\\PE(pos_y, 2i)=\sin(pos_y/10000^{2i/128})
+\\PE(pos_y, 2i+1)=\cos(pos_y/10000^{2i/128})</script><p>考虑了二维 spatial 位置上 x 轴 与 y 轴的位置编码，$i \in [0, d//4)$，每个空间位置 <code>pos</code> 处，位置 encoding 向量维度为 $d=256$，前 <code>128</code> 维表示 <code>pos_y</code> 位置编码，后 <code>128</code> 维表示 <code>pos_x</code> 位置编码。（代码 4）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取 position embedding</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, tensor_list: NestedTensor</span>):</span></span><br><span class="line">    <span class="comment"># tensor_list: the data pack of one return_layer(refer to return_layers)</span></span><br><span class="line">    x = tensor_list.tensors     <span class="comment"># feartures of batch-images</span></span><br><span class="line">    mask = tensor_list.mask     <span class="comment"># corresponding masks of features</span></span><br><span class="line">    <span class="comment"># x: (B, C, H, W)</span></span><br><span class="line">    <span class="comment"># mask: (B, H, W), where `1` elements represent padding pixels</span></span><br><span class="line">    not_mask = ~mask</span><br><span class="line">    <span class="comment"># position of y-axis, (B, H, W)</span></span><br><span class="line">    <span class="comment"># for one image features: [[1,1,...], </span></span><br><span class="line">    <span class="comment">#                          [2,2,...],...]</span></span><br><span class="line">    y_embed = not_mask.cumsum(<span class="number">1</span>, dtype=torch.float32)</span><br><span class="line">    <span class="comment"># position of x_axis</span></span><br><span class="line">    <span class="comment"># for one image feature: [[1,2,3,...],</span></span><br><span class="line">    <span class="comment">#                         [1,2,3,...],...]</span></span><br><span class="line">    x_embed = not_mask.cumsum(<span class="number">2</span>, dtype=torch.float32)</span><br><span class="line">    <span class="keyword">if</span> self.normalize:   <span class="comment"># True, normalize position to [0, 1]</span></span><br><span class="line">        eps = <span class="number">1e-6</span></span><br><span class="line">        <span class="comment"># normalize the y-position</span></span><br><span class="line">        y_embed = y_embed / (y_embed[:,-<span class="number">1</span>:,:] + eps) * self.scale   <span class="comment"># scale: 2*math.pi</span></span><br><span class="line">        x_embed = x_embed / (x_embed[:,:,-<span class="number">1</span>:] + eps) * self.scale</span><br><span class="line">    <span class="comment"># self.temperature: 10000</span></span><br><span class="line">    <span class="comment"># self.num_pos_feats = d//2 = 256/2=128</span></span><br><span class="line">    dim_t = torch.arange(self.num_pos_feats, dtype=torch.float32, device=x.device)</span><br><span class="line">    <span class="comment"># dim_t // 2: 0, 0, 1, 1, 2, 2, ... , 63, 63</span></span><br><span class="line">    <span class="comment"># 2 * (dim_t // 2): 0, 0, 2, 2, 4, 4, ... , 126, 126</span></span><br><span class="line">    <span class="comment"># dim_ := ...,  10000^&#123;2i/128&#125;</span></span><br><span class="line">    dim_t = self.temperature ** (<span class="number">2</span> * (dim_t //<span class="number">2</span>) / self.num_pos_features)</span><br><span class="line">    <span class="comment"># dim_t: (128,)</span></span><br><span class="line">    <span class="comment"># pos_x / 10000^&#123;2i/128&#125;</span></span><br><span class="line">    <span class="comment"># PE(pos_x, (2i, 2i+1)), PE(pos_y, (2i, 2i+1))</span></span><br><span class="line">    pos_x = x_embed[:,:,:,<span class="literal">None</span>] / dim_t     <span class="comment"># (B, H, W, 128)</span></span><br><span class="line">    pos_y = y_embed[:,:,:,<span class="literal">None</span>] / dim_t     <span class="comment"># (B, H, W, 128)</span></span><br><span class="line">    <span class="comment"># cross: [(B,H,W,64),(B,H,W,64)] =&gt; (B,H,W,64,2) =&gt; (B,H,W,128)</span></span><br><span class="line">    <span class="comment">#   [sin, cos, sin, cos, sin, ...]</span></span><br><span class="line">    pos_x = torch.stack((pos_x[:,:,:,<span class="number">0</span>::<span class="number">2</span>].sin(), pos_x[:,:,:,<span class="number">1</span>::<span class="number">2</span>].cos()), dim=<span class="number">4</span>).flatten(<span class="number">3</span>)</span><br><span class="line">    pos_y = torch.stack((pos_y[:,:,:,<span class="number">0</span>::<span class="number">2</span>].sin(), pos_y[:,:,:,<span class="number">1</span>::<span class="number">2</span>].cos()),</span><br><span class="line">    dim=<span class="number">4</span>).flatten(<span class="number">3</span>)</span><br><span class="line">    <span class="comment"># (B, H, W, 256) =&gt; (B, 256, H, W)</span></span><br><span class="line">    pos = torch.cat((pos_y, pos_x), dim=<span class="number">3</span>).permute(<span class="number">0</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">    <span class="keyword">return</span> pos</span><br></pre></td></tr></table></figure>
+<p>整个 features 的位置编码 shape 为 $(d, H, W)$ （未考虑 batch_size 这一维度）。Backbone 的输出 features 经过 <code>1x1 Conv</code> 降维后特征 shape 为 $(d, H, W)$，两者执行 element-wise 相加，然后 flatten spatial，得到 $d \times HW$ 的特征，作为 encoder 的输入。（代码 5）<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># decrease channels from 2048 to 256</span></span><br><span class="line">input_proj = nn.Conv2d(backbone.num_channels, hidden_dim, kernel_size=<span class="number">1</span>)</span><br><span class="line"><span class="comment"># param: src is xs, where xs is the output of backbone</span></span><br><span class="line"><span class="comment">#   xs = self.body(tensor_list.tensors) # (batch_size, C=2048, H, W)</span></span><br><span class="line">src = input_proj(src)</span><br></pre></td></tr></table></figure></p>
+<p><img src="/images/transformer/DETR3.png" alt=""><br>图 3. DETR 中 Transformer 的具体结构</p>
+<p>从图 3 中可见，backbone 输出特征经过 <code>1x1 conv</code> 降维后，直接作为 Encoder 的一个 input，记为 <code>f</code>，position encoding 作为另一个 input，记为 <code>PE</code>，这两个 tensor 的 shape 均为 $(d, HW)$（实际实现中，习惯按 <code>(seq_len, batch_size, feature_dim)</code> 的顺序 reshape，于是一个 mini-batch 中这两个 tensor 的 shape 为 $(HW,B,d)$ ），然后：</p>
+<ol>
+<li><code>f+PE</code> 作为 query, key；<code>f</code> 作为 value。value 中不需要 position encoding，可能是因为最终是一次性解码得到所有 object 列表，这个列表是无序的，例如原 image 上编号 <code>1</code> 的 object，其可以解码输出的列表中任意位置（index，下标），但是计算 attention 需要位置信息，故 <code>query</code> 和 <code>key</code> 上叠加了 <code>PE</code>。</li>
+<li>multi-head self-attention 的输出与输入 <code>f</code> 做 Add&amp;Norm 操作，得到输出记为 <code>f1</code>，然后 <code>f1</code> 经过一个 FFN 得到的输出特征记为 <code>f2</code>，<code>f1</code> 与 <code>f2</code> 再次做 Add&amp;Norm 操作，得到 block 的输出。</li>
+<li>Encoder 除了 <code>PE</code> 接入的位置不同，其他均与原生 transfromer 相同。</li>
+</ol>
+<p><strong>Encoder 总结：</strong></p>
+<p><code>batch_size</code> 记为 $B$，考虑维度顺序 <code>(seq_len, batch_size, feature_dim)</code>。 $d=256$。</p>
+<ol>
+<li>输入 image backbone 的特征经过一个 <code>1x1 Conv</code> 降维，输出为 $z_0 \in \mathbb R^{HW \times B \times d}$，位置编码 $PE \in \mathbb R^{HW \times B \times d}$</li>
+<li>PE 叠加到 <code>Q, K</code> 上</li>
+<li>Block 输出 tensor 的 shape 为 $(HW, B, d)$ ，保持不变</li>
+<li>上一步的输出继续作为输入 input embedding，重复 <code>2~3</code> 若干次，最后得到整个 Encoder 的输出 shape 依然是 $(HW, B, d)$。</li>
+</ol>
+<p>Encoder 的代码：（代码 6）<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, src, mask=<span class="literal">None</span>, src_key_padding_mask=<span class="literal">None</span>, pos=<span class="literal">None</span></span>):</span></span><br><span class="line">    <span class="comment"># 由于 position embedding 直接作用到 attention 模块上的，所以直接调用</span></span><br><span class="line">    <span class="comment">#   attention 模块</span></span><br><span class="line">    output = src    <span class="comment"># `1x1 Conv` 输出特征 （reshape 之后）</span></span><br><span class="line">    <span class="keyword">for</span> layer <span class="keyword">in</span> self.layers:</span><br><span class="line">        output = layer(output, src_mask=mask, \</span><br><span class="line">            src_key_padding_mask=src_key_padding_mask, pos=pos)</span><br><span class="line">    <span class="keyword">if</span> self.norm <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:   <span class="comment"># normalize_before is false, so self.norm is None</span></span><br><span class="line">        <span class="comment"># normalize_after, so do not need norm here.</span></span><br><span class="line">        output = self.norm(output)</span><br><span class="line">    <span class="keyword">return</span> output</span><br></pre></td></tr></table></figure></p>
+<p><strong>Encoder layer (block) 小结：</strong></p>
+<ol>
+<li>features 与 position embedding 相加，作为 <code>query</code> 和 <code>key</code>，features 作为 <code>value</code></li>
+<li>计算 mh self-attn 的输出，然后与输入相加，然后计算 layer_norm</li>
+<li>FFN 的输出再与 FFN 的输入相加，然后计算 layer_norm。</li>
+<li>Encoder layer 的输入输出 shape 均为 $(HW, B, d)$。</li>
+</ol>
+<p>Encoder layer 代码：（代码 7）<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">forward_post</span>(<span class="params">self, src, src_mask, src_key_padding_mask, pos</span>):</span></span><br><span class="line">    <span class="comment"># src: input embedding      (HW, B, d)</span></span><br><span class="line">    <span class="comment"># pos: position embedding   (HW, B, d)</span></span><br><span class="line">    <span class="comment"># src_mask：对 attention 参数矩阵做 mask</span></span><br><span class="line">    <span class="comment"># src_key_padding_mask: 对 `key` 做 mask</span></span><br><span class="line">    q = k = self.with_pos_embed(src, pos)   <span class="comment"># 叠加 position embedding</span></span><br><span class="line">    src2 = self.self_attn(q, k, value=src, attn_mask=src_mask,</span><br><span class="line">                          key_padding_mask=src_key_padding_mask)[<span class="number">0</span>]</span><br><span class="line">    src = src + self.dropout(src2)      <span class="comment"># residual 结构</span></span><br><span class="line">    src = self.norm1(src)</span><br><span class="line">    <span class="comment"># linear -&gt; act -&gt; dropout -&gt; linear</span></span><br><span class="line">    src2 = self.linear2(self.dropout(self.activation(self.linear1(src))))</span><br><span class="line">    src = src + src2</span><br><span class="line">    src = self.norm2(src)</span><br><span class="line">    <span class="keyword">return</span> src</span><br></pre></td></tr></table></figure></p>
+<p><strong>Transformer decoder</strong></p>
+<ol>
+<li><p>decoder 采用标准结构，但是是并行解码得到 $N$ 个预测 objects，非自回归。</p>
+<p> $N$ 是手动给出的，且需要大于单个 image 中的 object 数量，通常 $N \neq HW$</p>
+</li>
+<li><p>decoder 结构如图 3 所示，输入称为 object queries，这是 N 个 positional embedding（向量，维度为 $d$），是可学习的 positional embedding。</p>
+<p> （代码 8）</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">N  =  <span class="number">100</span>       <span class="comment"># 默认为 100，大于单个 image 中可能的 object 数量</span></span><br><span class="line"><span class="comment"># hidden_dim = 256，就是前面 Encoder 中的参数 `d` </span></span><br><span class="line">query_embed = nn.Embedding(N, hidden_dim)</span><br><span class="line"></span><br><span class="line"><span class="comment"># src: output of `backbone + 1x1 Conv`</span></span><br><span class="line"><span class="comment"># mask: set mask=1 for all padding pixels in mini-batch</span></span><br><span class="line"><span class="comment"># query_emb: N x d, object queries</span></span><br><span class="line"><span class="comment"># pos: position embeddings of all return_layers</span></span><br><span class="line"><span class="comment">#   pos[-1] -&gt; PE of the last return_layer, (B, d, H, W)</span></span><br><span class="line">transformer(src, mask, query_emb, pos[-<span class="number">1</span>])</span><br></pre></td></tr></table></figure>
+<p> 图 3 关于 Decoder 的输入标注会有些误导，其实 Decoder 还有一个输入，是与 object queries 相同 shape 的全 0 tensor，如下代码中的 <code>tgt</code>。</p>
+<p> Transformer （Encoder+Decoder）代码实现：（代码 9）</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, src, mask, query_embed, pos_embed</span>):</span></span><br><span class="line">    <span class="comment"># src: output of input_proj(...), the input of encoder, (B, 256, H, W)</span></span><br><span class="line">    <span class="comment"># mask: mask of backbone output, (B, H, W)</span></span><br><span class="line">    <span class="comment"># query_embed: object query embedding of decoder, (N, 256)</span></span><br><span class="line">    <span class="comment"># pos_embed: positional embedding, (B, 256, H, W)</span></span><br><span class="line">    b, c, h, w = src</span><br><span class="line">    <span class="comment"># (B, 256, H, W) -&gt; (B, 256, HW) -&gt; (HW, B, 256)</span></span><br><span class="line">    src = src.flatten(<span class="number">2</span>).permute(<span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>)</span><br><span class="line">    pos_embed = pos_embed.flatten(<span class="number">2</span>),permute(<span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>)</span><br><span class="line">    <span class="comment"># (N, 256) -&gt; (N, B, 256)</span></span><br><span class="line">    query_embed = query_embed.unsqueeze(<span class="number">1</span>).repeat(<span class="number">1</span>, b, <span class="number">1</span>)</span><br><span class="line">    <span class="comment"># (B, H, W) -&gt; (B, HW)</span></span><br><span class="line">    mask = mask.flatten(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    tgt = torch.zeros_like(query_embed)     <span class="comment"># (N, B, 256)</span></span><br><span class="line">    <span class="comment"># memory: output of encoder, (HW, B, 256)</span></span><br><span class="line">    memory = self.encoder(src, src_key_padding_mask=mask, pos=pos_embed)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># hs：(M, N, B, d)，其中 M 为 decoder layer iteration number。参见代码 11 的返回结果</span></span><br><span class="line">    hs = self.decoder(tgt, memory, memory_key_padding_mask=mask,</span><br><span class="line">                    pos=pos_embed, query_pos=query_embed)</span><br><span class="line">    <span class="comment"># hs: (M, N, B, 256) -&gt; (M, B, N, 256)</span></span><br><span class="line">    <span class="comment"># memory: (HW, B, 256) -&gt; (B, 256, HW) -&gt; (B, C, H, W)</span></span><br><span class="line">    <span class="keyword">return</span> hs.transpose(<span class="number">1</span>, <span class="number">2</span>), memory.permute(<span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>).view(b, c, h, w)</span><br></pre></td></tr></table></figure></li>
+<li><p>Decoder 的第一个 mh self-attn 的 <code>query</code> 和 <code>key</code> 均为 <code>tgt</code> 与 object queries 相加，</p>
+<p> Decoder layer 的代码：（代码 10）</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">forward_post</span>(<span class="params">self, tgt, memory, tgt_mask, memory_mask, tgt_key_padding_mask, </span></span></span><br><span class="line"><span class="params"><span class="function">    memory_key_padding_mask, pos, query_pos</span>):</span></span><br><span class="line">    <span class="comment"># query_pos: 就是前面说的 object queries `query_emb`， shape 为 (N, B, d)</span></span><br><span class="line">    <span class="comment"># tgt: 初始时为全零 tensor，shape 为 (N, B, d)</span></span><br><span class="line">    <span class="comment"># tgt_mask: 对 tgt 做 mask，这里不需要，为 None</span></span><br><span class="line">    <span class="comment"># memory: encoder 的最终输出 (HW, B, d), </span></span><br><span class="line">    <span class="comment"># memory_mask： 第二个 mh self-attn 中与 memory 计算 attention 之后的的 mask，这里为 None</span></span><br><span class="line">    <span class="comment"># tgt_key_padding_mask: 第一个 mh self-attn 中 `key` 的 mask， 为 None</span></span><br><span class="line">    <span class="comment"># memory_key_padding_mask: 第二个 mh self-attn 中 `key` 的 mask</span></span><br><span class="line">    <span class="comment">#   由于 batch 中 image 大小各不相同，左上角对齐，右下防 padding，padding pixels 的 mask=1</span></span><br><span class="line">    <span class="comment">#   memory_mask 缩放到 (H, W) 空间大小，(B,H,W) -&gt; (B, HW)，参见代码 3 中的 mask</span></span><br><span class="line">    <span class="comment"># pos: encoder 中的 position embedding，(HW, B, d)</span></span><br><span class="line">    q = k = self.with_pos_embed(tgt, query_pos)     <span class="comment"># target 输入，Q, K 需要叠加 query embedding</span></span><br><span class="line">    <span class="comment"># 调用第一个 mh self-attn，参数 tgt_mask, tgt_key_padding_mask 均为 None，即不做 mask</span></span><br><span class="line">    tgt2 = self.self_attn(q, k, value=tgt, attn_mask=tgt_mask, key_padding_mask=tgt_key_padding_mask)[<span class="number">0</span>]</span><br><span class="line">    tgt = tgt + self.dropout1(tgt2)     <span class="comment"># redisual 结构</span></span><br><span class="line">    tgt = self.norm1(tgt)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 调用第二个 mh self-attn，first mh self-attn 的输出作为 query，encoder 的最终输出作为 key 和 value，</span></span><br><span class="line">    <span class="comment"># query 和 key 分别使用 query_embedding 和 position embedding 叠加，value 保持不变</span></span><br><span class="line">    <span class="comment"># memory_mask：为 None，计算出 attention 之后不需要做 mask；</span></span><br><span class="line">    <span class="comment"># memory_key_padding_mask：与 encoder 中 src mask 相同，(B, HW)，由于 images 大小各不相同，存在 padding，故需要 mask</span></span><br><span class="line">    tgt2 = self.multihead_attn(query=self.with_pos_embed(tgt, query_pos), key=self.with_pos_embed(memory, pos),</span><br><span class="line">                               value=memory, attn_mask=memory_mask, key_padding_mask=memory_key_padding_mask)[<span class="number">0</span>]</span><br><span class="line">    tgt = tgt + self.dropout2(tgt2)</span><br><span class="line">    tgt = self.norm2(tgt)</span><br><span class="line">    tgt2 = self.linear2(self.dropout(self.activation(self.linear1(tgt))))</span><br><span class="line">    tgt = tgt + self.dropout(tgt2)</span><br><span class="line">    tgt = self.norm3(tgt)       <span class="comment"># (N, B, d)</span></span><br><span class="line">    <span class="keyword">return</span> tgt</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>整个 Decoder 的前向过程：（代码 11）</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, tgt, memory, tgt_mask, memory_mask, tgt_key_padding_mask, memory_key_padding_mask,</span></span></span><br><span class="line"><span class="params"><span class="function">            pos, query_pos</span>):</span></span><br><span class="line">    <span class="comment"># 参数与 Decoder layer 的前向传播方法参数相同，略过解释</span></span><br><span class="line">    output = tgt        <span class="comment"># 全零 tensor，(N, B, d)，N=100</span></span><br><span class="line">    intermediate = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> layer <span class="keyword">in</span> self.layers:   <span class="comment"># 循环执行 Decoder layer 若干次</span></span><br><span class="line">        output = layer(output, memory, tgt_mask=tgt_mask, memory_mask=memory_mask,</span><br><span class="line">                       tgt_key_padding_mask=tgt_key_padding_mask,</span><br><span class="line">                       memory_key_padding_mask=memory_key_padding_mask,</span><br><span class="line">                       pos=pos, query_pos=query_pos)</span><br><span class="line">        <span class="comment"># refer to the paper&#x27;s section &quot;Auxiliary decoding losses&quot;:</span></span><br><span class="line">        <span class="comment">#   add prediction FFNs and Hungarian loss after each decoder layer...</span></span><br><span class="line">        <span class="keyword">if</span> self.return_intermediate:</span><br><span class="line">            intermediate.append(self.norm(output))</span><br><span class="line">    <span class="keyword">if</span> self.norm <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:   <span class="comment"># True</span></span><br><span class="line">        output = self.norm(output)  <span class="comment"># the last (final) decoder layer&#x27;s output</span></span><br><span class="line">    <span class="keyword">if</span> self.return_intermediate:    <span class="comment"># 默认为 True，即，使用辅助 decoding loss</span></span><br><span class="line">        <span class="comment"># (M, N, B, d)，M is the total iteration number for decoder layer</span></span><br><span class="line">        <span class="keyword">return</span> torch.stack(intermediate)</span><br><span class="line">    <span class="keyword">return</span> output.unsqueeze(<span class="number">0</span>)      <span class="comment"># (1, N, B, d)</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p><strong>prediction heads</strong></p>
+<p>decoder 的输出 shape 为 $(M, B, N, d)$，其中 $M$ 为 decoder layer 循环次数，$B$ 为 <code>batch_size</code>，<code>d=256</code> 表示模型维度，$N$ 表示单个 image 中预测的 object 数量。</p>
+<ol>
+<li>decoder 的输出经一个线性变换，使得维度从 <code>d</code> 变为 <code>C+1</code>，这里 <code>C</code> 表示 fg 分类数量，<code>1</code> 表示 bg 。（代码 12） <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">class_embed = nn.Linear(hidden_dim, num_classes+<span class="number">1</span>)</span><br><span class="line">outputs_class = class_embed(hs)         <span class="comment"># hs 为 decoder layers 的输出，shape 为 (M, B, N, d)</span></span><br><span class="line"><span class="comment"># 得到分类（非归一化）得分，(M, B, N, C+1)</span></span><br></pre></td></tr></table></figure></li>
+<li>decoder 的输出经另一路分支即，由三层全连接层组成的分支，中间层的输出单元保持不变，输出层的输出单元数量为 4，表示坐标，坐标数据 shape 为 <code>(M, B, N, 4)</code>，（代码 13） <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bbox_embed = MLP(hidden_dim, hidden_dim, <span class="number">4</span>, <span class="number">3</span>)</span><br><span class="line">outputs_coord = bbox_embed(hs).sigmoid()        <span class="comment"># 归一化坐标</span></span><br><span class="line"><span class="comment"># tensor 经 MLP，shape 变化为</span></span><br><span class="line"><span class="comment"># MLP 输入 (M, B, N, d) -&gt; (M, B, N, d) -&gt; (M, B, N, d) -&gt; (M, B, N, 4)</span></span><br><span class="line"><span class="comment"># 每一个 &quot;-&gt;&quot; 表示一个全连接层</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="2-2-set-prediction-loss"><a href="#2-2-set-prediction-loss" class="headerlink" title="2.2 set prediction loss"></a>2.2 set prediction loss</h2><h3 id="2-2-1-原理"><a href="#2-2-1-原理" class="headerlink" title="2.2.1 原理"></a>2.2.1 原理</h3><p>记 $y$ 为 gt box 集合，$\hat y = \{\hat y_i \}_{i=1}^N$ 为预测 box 集合，                      </p>
+<ol>
+<li>$N$ 为某固定不变的值，表示对单个 image，预测 box 的数量。设置 $N$ 的值使得较大于一般意义上单个 image 中 object 数量。论文中设置 $N=100$</li>
+<li>如果 gt box 数量不足 $N$，用 no-object进行填充，使得数量为 $N$。</li>
+<li>填充的表示 no-object 的 gt boxes，其分类 index 为 <code>0</code>，表示背景 bg，坐标无所谓，因为坐标回归 loss 中只对正例预测 box 的坐标计算损失</li>
+<li>官方代码实现中，没有执行 <code>2~3</code> 两个步骤即，没有填充 gt boxes 使得数量达到 $N$。</li>
+</ol>
+<p>那么在预测 box 集合和 gt box 集合上的二分匹配（bipartite matching）loss 为，</p>
+<script type="math/tex; mode=display">\hat {\sigma} = \arg \min_{\sigma \in \mathcal G_N} \Sigma_i^N \mathcal L_{match}(y_i, \hat y_{\sigma(i)})</script><p>其中 $\sigma$ 表示 <code>1~N</code> 个自然数集合 $[N]$ 的一个 permutation（排列），$\sigma(i)$ 表示这个排列中第 $i$ 个数。$\mathcal G_N$ 表示 $[N]$ 的所有排列的集合。$\mathcal L_{match}(y_i, \hat y_{\sigma(i)})$ 表示 $y_i$ 和 $\hat y_{\sigma(i)}$ 的匹配 loss，这个 loss 包含了分类预测 loss 和 box 位置大小预测</p>
+<p>记 gt box 为 $y_i=(c_i, b_i)$，其中 $c_i$ 表示分类 label index（约定 <code>0</code> 为 bg index），$b_i \in [0,4]^4$ 表示 box 的 center 坐标和 height，width（相对于 image size 进行了归一化）。单个 matching pair 的损失</p>
+<script type="math/tex; mode=display">\mathcal L_{match}(y_i, \hat y_{\sigma(i)})=-\hat p_{\sigma(i)}(c_i)+ \mathbb I_{c_i \neq 0} \cdot \mathcal L_{box}(b_i, \hat b_{\sigma(i)})</script><p><strong>注：这里没有使用 NLL 损失，而是直接使用概率的负数作为损失</strong></p>
+<p>对于单个 image，输出的预测分类概率应该类似于一个矩阵 $P \in [0, 1]^{N \times C}$，其中 $N$ 为单个 image 中预测 box 的数量，$C$ 为分类数量（包含了 bg）。第 <code>i</code> 个 gt box $y_i=(c_i, b_i)$ 与之匹配的预测 box 下标为 $\sigma(i)$，那么其对应到 $c_i$ 这个分类的预测概率为 $\hat p_{\sigma(i)}(c_i)=P_{\sigma(i),c_i}$</p>
+<p>定义 Hungarian loss 表示单个 image 中所有 matching pairs 的损失，</p>
+<script type="math/tex; mode=display">\mathcal L_{Hungarian}(y, \hat y)=\sum_{i=1}^N \left[-\log \hat p_{\hat \sigma(i)}(c_i) + \mathbb I_{c_i \neq 0} \cdot \mathcal L_{box}(b_i, \hat b_{\hat \sigma(i)})\right] \tag{1}</script><p>说明：</p>
+<ol>
+<li><p>实际应用中，对于 $c_i=0$ 的分类损失，相较于 $c_i \neq 0$ 的分类损失，我们使用一个权重因子 $\lambda_{no-object}=0.1$，以便缓和分类不平衡的问题。</p>
+</li>
+<li><font color="magenta">使用概率而非对数概率，即，去掉 （1）式中的 log，这样分类损失与坐标损失就比较相称</font>
+
+</li>
+</ol>
+<p><strong>Bound box loss</strong></p>
+<p>DETR 直接预测 box，而非 box 相对于 anchor 的坐标偏差，故直接使用 $L_1$ 损失不合适，没有考虑到 scale 带来的影响，故结合 $L_1$ 和 GIOU 作为坐标损失。</p>
+<script type="math/tex; mode=display">L_1(b, \hat b) = |b-\hat b|</script><p>GIOU 损失参考 <a href="/2019/06/13/GIoU">这篇文章</a>。</p>
+<p>于是 </p>
+<script type="math/tex; mode=display">\mathcal L_{box}(b_i, \hat b_i)=\lambda_{iou} \mathcal L_{iou}(b_i, \hat b_{\sigma(i)})+\lambda_{L_1}||b_i - \hat b_{\sigma(i)}||_1</script><p>上式中使用了两个平衡因子 $\lambda_{iou}, \ \lambda_{L_i}$，实际上分类损失也有平衡因子，只不过 $\lambda_{cls}=1$。</p>
+<h3 id="2-2-2-代码"><a href="#2-2-2-代码" class="headerlink" title="2.2.2 代码"></a>2.2.2 代码</h3><p><strong>SetCriterion</strong></p>
+<p>集合匹配损失，（代码 14）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, outputs, targets</span>):</span></span><br><span class="line">    <span class="comment"># 只保留最后一个 decoder layer 的输出，辅助输出（非最后 decoder layer 的输出）的损失后面再计算</span></span><br><span class="line">    outputs_without_aux = &#123;k: v <span class="keyword">for</span> k, v <span class="keyword">in</span> outputs.items() <span class="keyword">if</span> k != <span class="string">&#x27;aux_outputs&#x27;</span>&#125;  </span><br><span class="line">    indices = self.matcher(output_without_aux, targets)     <span class="comment"># 计算 Hungarian Loss，见下文代码 17</span></span><br><span class="line"></span><br><span class="line">    num_boxes = <span class="built_in">sum</span>(<span class="built_in">len</span>(t[<span class="string">&#x27;labels&#x27;</span>]) <span class="keyword">for</span> t <span class="keyword">in</span> targets)      <span class="comment"># 统计 minibatch 中所有 gt box 数量</span></span><br><span class="line">    <span class="comment"># </span></span><br><span class="line">    num_boxes = torch.as_tensor([num_boxes], dtype=torch.<span class="built_in">float</span>, device=<span class="built_in">next</span>(<span class="built_in">iter</span>(outputs.values())).device)</span><br><span class="line">    num_boxes = torch.clamp(num_boxes / get_world_size(), <span class="built_in">min</span>=<span class="number">1</span>).item()<span class="comment"># 不考虑分布式训练，get_world_size()=1</span></span><br><span class="line"></span><br><span class="line">    losses = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> loss <span class="keyword">in</span> self.losses:    [<span class="string">&#x27;labels&#x27;</span>, <span class="string">&#x27;boxes&#x27;</span>, <span class="string">&#x27;cardinality&#x27;</span>]</span><br><span class="line">        <span class="comment"># get_loss: 根据指定的 loss 类型，获取相应的 loss 值；</span></span><br><span class="line">        <span class="comment"># labels -&gt; loss_labels(); boxes -&gt; loss_boxes; cardinality -&gt; loss_cardinality</span></span><br><span class="line">        losses.update(self.get_loss(loss, outputs, targets, indices, num_boxes))</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;aux_outputs&#x27;</span> <span class="keyword">in</span> outputs:</span><br><span class="line">        <span class="keyword">for</span> i, aux_outputs <span class="keyword">in</span> <span class="built_in">enumerate</span>(outputs[<span class="string">&#x27;aux_outputs&#x27;</span>]):    <span class="comment"># 计算辅助 loss</span></span><br><span class="line">            indices = self.matcher(aux_outputs, targets)            <span class="comment"># 获取 匹配 indices</span></span><br><span class="line">            <span class="keyword">for</span> loss <span class="keyword">in</span> self.losses:</span><br><span class="line">                <span class="keyword">if</span> loss == <span class="string">&#x27;masks&#x27;</span>: <span class="keyword">continue</span>    <span class="comment"># 分割任务，不计算辅助 mask loss</span></span><br><span class="line">                l_dict = self.get_loss(loss, aux_outputs, targets, indices, num_boxes, log=loss!=<span class="string">&#x27;labels&#x27;</span>)</span><br><span class="line">                l_dict = &#123;k+<span class="string">f&#x27;_<span class="subst">&#123;i&#125;</span>&#x27;</span>: v <span class="keyword">for</span> k, v <span class="keyword">in</span> l_dict.items()&#125;</span><br><span class="line">                losses.update(l_dict)</span><br><span class="line">    <span class="keyword">return</span> losses</span><br></pre></td></tr></table></figure>
+<p>最终返回一个 loss dict，以 <code>loss_ce</code> 开头的 key 表示交叉熵分类损失，<code>loss_bbox</code> 开头的 key 表示 l1 坐标（xywh）损失，以 <code>loss_giou</code> 开头的 key 表示 giou 损失。对于非最后一个 decoder layer 的损失，使用 <code>_&lt;i&gt;</code> 结尾，其中 <code>i</code> 为从 0 开始的编号。</p>
+<ol>
+<li><p>分类损失。注意，这里使用 NLL，用于反向传播更新梯度。（代码 15）</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">loss_labels</span>(<span class="params">self, outputs, targets, indices, num_boxes, log=<span class="literal">True</span></span>):</span></span><br><span class="line">    <span class="comment"># outputs: &#123;&#x27;pred_logits&#x27;: (B, N, C+1), &#x27;pred_boxes&#x27;: (B, N, 4)&#125;</span></span><br><span class="line">    <span class="comment"># targets: dict list, 每个 dict 表示一个 image 的 target</span></span><br><span class="line">    <span class="comment"># indices: tuple list，每个 tuple 表示一个 image 的预测 box ind 和 gt box ind</span></span><br><span class="line">    <span class="comment"># num_boxes: minibatch 中所有 gt box 的数量</span></span><br><span class="line">    src_logits = outputs[<span class="string">&#x27;pred_logits&#x27;</span>]     <span class="comment"># (B, N, C+1)</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># batch_idx: (BM,)  where BM=M_1+M_2+...+M_B, first M_1 is `0`, and</span></span><br><span class="line">    <span class="comment">#   then are M_2 `1`, and so on...</span></span><br><span class="line">    <span class="comment"># src_idx: (BM,)   first M_1 are row ind of first image, and so on...</span></span><br><span class="line">    <span class="comment"># idx: (batch_idx, src_idx)</span></span><br><span class="line">    idx = self._get_src_permutation_idx(indices)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># t: i-th target, this is a dict. t[&#x27;labels&#x27;] has a shape of (M_i,)</span></span><br><span class="line">    <span class="comment"># J: i-th gt box ind, its shape is (M_i,)</span></span><br><span class="line">    <span class="comment"># target_boxes_o: (BM,) ，minibatch 中所有匹配的 gt boxes 的 分类 id</span></span><br><span class="line">    target_classes_o = torch.cat([t[<span class="string">&#x27;labels&#x27;</span>][J] <span class="keyword">for</span> t, (_, J) <span class="keyword">in</span> <span class="built_in">zip</span>(targets, indices)])</span><br><span class="line">    <span class="comment"># target_classes: (B, N), 预测 box 对应的 gt 分类 id，</span></span><br><span class="line">    <span class="comment">#       默认为 bg id，即 `num_classes`，不是 `0`，表示 预测 box 是 no-object（负例）</span></span><br><span class="line">    target_classes = torch.full(src_logits.shape[:<span class="number">2</span>], self.num_classes, </span><br><span class="line">                                dtype=torch.int64, device=src_logits.device)</span><br><span class="line">    <span class="comment"># 设置预测正例的 gt 分类 id</span></span><br><span class="line">    <span class="comment"># target_classes[idx]: (BM,)，因为 len(batch_idx)=len(src_idx)=BM</span></span><br><span class="line">    <span class="comment">#   且 batch_idx 取值范围 [0, B), src_idx 取值范围 [0, max(M_1,M_2,...) )</span></span><br><span class="line">    target_classes[idx] = target_classes_o</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 计算交叉熵，即 NLL 损失</span></span><br><span class="line">    <span class="comment"># empty_weight: torch.ones(num_classes+1), 且 empty_weight[-1] = 0.1</span></span><br><span class="line">    <span class="comment">#       正例损失系数 1.0， 负例损失系数为 0.1</span></span><br><span class="line">    <span class="comment"># 交叉熵的 input shape：(B, C+1, d1,d2,...), target shape：(B, d1, d2,...)</span></span><br><span class="line">    <span class="comment"># 交叉熵的各分类权重 shape：(C+1)</span></span><br><span class="line">    loss_ce = F.cross_entropy(src_logits.transpose(<span class="number">1</span>, <span class="number">2</span>), target_classes, self.empty_weight)</span><br><span class="line">    losses = &#123;<span class="string">&#x27;loss_ce&#x27;</span>:loss_ce&#125;</span><br><span class="line">    <span class="keyword">return</span> losses</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>坐标损失，包括 l1 损失和 GIOU 损失，（代码 16）</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">loss_boxes</span>(<span class="params">self, outputs, targets, indices, num_boxes</span>):</span></span><br><span class="line">    idx = self._get_src_permutation_idx(indices)</span><br><span class="line">    <span class="comment"># predicted boxes</span></span><br><span class="line">    src_boxes = outputs[<span class="string">&#x27;pred_boxes&#x27;</span>][idx]  <span class="comment"># (BM, 4)</span></span><br><span class="line">    <span class="comment"># t: j-th target, this is a dict. t[&#x27;boxes&#x27;] has a shape of (M_j, 4)</span></span><br><span class="line">    <span class="comment"># i: j-th gt box ind, its shape is (M_j,)</span></span><br><span class="line">    <span class="comment"># target_boxes: (BM, 4)</span></span><br><span class="line">    target_boxes = torch.cat([t[<span class="string">&#x27;boxes&#x27;</span>][i] <span class="keyword">for</span> t, (_, i) <span class="keyword">in</span> <span class="built_in">zip</span>(targets, indices)], dim=<span class="number">0</span>)</span><br><span class="line">    loss_bbox = F.l1_loss(src_boxes, target_boxes, reduction=<span class="string">&#x27;none&#x27;</span>)    <span class="comment"># (BM, 4)</span></span><br><span class="line"></span><br><span class="line">    losses = &#123;&#125;</span><br><span class="line">    losses[<span class="string">&#x27;loss_bbox&#x27;</span>] = loss_bbox.<span class="built_in">sum</span>() / num_boxes   <span class="comment"># num_boxes 应该等于 src_boxes.shape[0]?</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># GIOU loss = 1 - GIOU</span></span><br><span class="line">    loss_giou = <span class="number">1</span>-torch.diag(box_ops.generalized_box_iou(</span><br><span class="line">        box_ops.box_cxcywh_to_xyxy(src_boxes),</span><br><span class="line">        box_ops.box_cxcywh_to_xyxy(target_boxes)</span><br><span class="line">    ))</span><br><span class="line">    losses[<span class="string">&#x27;loss_giou&#x27;</span>] = loss_giou.<span class="built_in">sum</span>() / num_boxes</span><br><span class="line">    <span class="keyword">return</span> losses</span><br></pre></td></tr></table></figure></li>
+<li><p>cardinality loss：预测 fg box 数量与 gt box 数量（在一个 mini-batch 内）的平均差。</p>
+<p> 预测 box 为非 bg 的数量 <code>card_pred</code>，其 shape 为 $(B,)$，gt box 的数量 <code>tgt_lengths</code>，其 shape 为 $(B,)$，表示 mini-batch 中各个 image 中的预测为 fg 的数量和 gt box 数量，计算这两个 tensor 的 l1 损失，并求均值，这个损失不用于反向传播。</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">card_err = F.l1_loss(card_pred.<span class="built_in">float</span>(), tgt_lengths.<span class="built_in">float</span>())</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p><strong>HungarianMatcher</strong></p>
+<p>预测集与 target 集 的匹配采用匈牙利算法匹配，Hungarian 匹配算法仅仅是用于获取与 gt boxes 匹配的预测 boxes，这个匹配过程，也用到了一些损失计算，目标是求使得损失最小的二分图匹配，这个损失与上面求网络的优化目标损失不同，后者用于反向传播更新梯度，而前者不是。（代码 17）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># HungarianMatcher 是一个 nn.Module 子类</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, outputs, targets</span>):</span></span><br><span class="line">    <span class="comment"># outputs 是 DETR 的输出，这是一个 dict 类型，key 可以是：</span></span><br><span class="line">    <span class="comment">#   pred_logits: 最后一个 decoder layer 的输出分类未归一化得分  (B, N, C+1)</span></span><br><span class="line">    <span class="comment">#   pred_boxes: 最后一个 decoder layer 的输出坐标       (B, N, 4)</span></span><br><span class="line">    <span class="comment"># targets: dict list，每个 dict 表示一个 image 的 target，包含 key：</span></span><br><span class="line">    <span class="comment">#   boxes: 某个 image 中 objects 的 (x, y, w, h)， shape 为 (M, 4)，</span></span><br><span class="line">    <span class="comment">#           M 表示 object 数量，每个 image 的 M 均不同</span></span><br><span class="line">    <span class="comment">#   labels：某个 image 中 objects 的分类 index（0 表示 bg），shape 为 (M, )</span></span><br><span class="line">    <span class="comment">#   image_id：image 的 id（coco 数据集中每个 image 有一个数值编号）</span></span><br><span class="line">    <span class="comment">#   ...：其他 keys 省略</span></span><br><span class="line">    bs, num_queries = outputs[<span class="string">&#x27;pred_logits&#x27;</span>].shape[:<span class="number">2</span>]  <span class="comment"># B, N</span></span><br><span class="line">    out_prob = outputs[<span class="string">&#x27;pred_logits&#x27;</span>].flatten(<span class="number">0</span>, <span class="number">1</span>).softmax(-<span class="number">1</span>) <span class="comment"># (B*N, C+1)</span></span><br><span class="line">    out_bbox = outputs[<span class="string">&#x27;pred_boxes&#x27;</span>].flatten(<span class="number">0</span>, <span class="number">1</span>)  <span class="comment"># (B*N, 4)</span></span><br><span class="line"></span><br><span class="line">    tgt_ids = torch.cat([v[<span class="string">&#x27;labels&#x27;</span>] <span class="keyword">for</span> v <span class="keyword">in</span> targets]) <span class="comment"># (BM,), BM = M_1+M_2+...+M_B</span></span><br><span class="line">    tgt_bbox = torch.cat([v[<span class="string">&#x27;boxes&#x27;</span>] <span class="keyword">for</span> v <span class="keyword">in</span> targets]) <span class="comment"># (BM, 4)</span></span><br><span class="line"></span><br><span class="line">    cost_class = -out_prob[:, tgt_ids]      <span class="comment"># (B*N, BM)</span></span><br><span class="line">    cost_bbox = torch.cdist(out_bbox, tgt_bbox, p=<span class="number">1</span>)     <span class="comment"># (B*N, BM)</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#（B*N, BM)</span></span><br><span class="line">    cost_giou = -generalized_box_iou(box_cxcywh_to_xyxy(out_bbox), box_cxcywh_to_xyxy(tgt_bbox))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 计算总的损失，加权求和，损失 tensor (B*N, BM)</span></span><br><span class="line">    C = self.cost_bbox * cost_bbox + self.cost_class * cost_class + self.cost_giou * cost_giou</span><br><span class="line">    C = C.view(bs, num_queries, -<span class="number">1</span>).cpu()       <span class="comment"># (B, N, BM)</span></span><br><span class="line"></span><br><span class="line">    sizes = [<span class="built_in">len</span>(v[<span class="string">&quot;boxes&quot;</span>]) <span class="keyword">for</span> v <span class="keyword">in</span> targets]  <span class="comment"># (B,)  gt number of all images in batch</span></span><br><span class="line">    <span class="comment"># C.split(sizes, -1) -&gt; ((B, N, M_1), (B, N, M_2), ... , (B, N, M_B))</span></span><br><span class="line">    <span class="comment"># c[i] -&gt; (N, M_i)  assignment the i-th image</span></span><br><span class="line">    <span class="comment"># linear_sum_assignment: 计算二分图匹配中最小损失的匹配对，返回结果：(row_ind, col_ind)</span></span><br><span class="line">    indices = [linear_sum_assignment(c[i]) <span class="keyword">for</span> i, c <span class="keyword">in</span> <span class="built_in">enumerate</span>(C.split(sizes, -<span class="number">1</span>))]</span><br><span class="line">    <span class="comment"># tuple list，每个 tuple 表示对应 image 中，最佳匹配（loss 最小）的 预测 box ind 和 gt box ind</span></span><br><span class="line">    <span class="comment">#       每个 tuple 的 shape ((M_i,), (M_i,))</span></span><br><span class="line">    <span class="keyword">return</span> [(torch.as_tensor(i, dtype=torch.int64), torch.as_tensor(j, dtype=torch.int64)) <span class="keyword">for</span> i,j <span class="keyword">in</span> indices]</span><br></pre></td></tr></table></figure>
+<p><strong>反向传播</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">loss_dict = criterion(outputs, targets)     <span class="comment"># 分类损失，l1 损失，giou 损失</span></span><br><span class="line">weight_dict = criterion.weight_dict     <span class="comment"># 各损失的权重，分类损失为基准（其权值为 1），l1 权值为 5，giou 权值为 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算所有损失的加权和，包括所有 decoder layer 的各项损失</span></span><br><span class="line">losses = <span class="built_in">sum</span>(loss_dict[k] * weight_dict[k] <span class="keyword">for</span> k <span class="keyword">in</span> loss_dict.keys() <span class="keyword">if</span> k <span class="keyword">in</span> weight_dict)</span><br><span class="line"></span><br><span class="line">optimizer.zero_grad()</span><br><span class="line">losses.backward()</span><br><span class="line"><span class="keyword">if</span> max_norm &gt; <span class="number">0</span>:    <span class="comment"># 默认 0.1</span></span><br><span class="line">    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)</span><br><span class="line">optimizer.step()</span><br></pre></td></tr></table></figure>
+<h2 id="2-3-测试"><a href="#2-3-测试" class="headerlink" title="2.3 测试"></a>2.3 测试</h2><p>对一个新的 input image 进行预测时，根据前面分析，知道两个预测分支的输出为：1.分类得分$(1, N, C+1)$，2.预测坐标（xywh） $(1, N, 4)$。</p>
+<p>首先根据分类得分得到 fg boxes 以及对应的分类 id<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pred_logits, pred_boxes</span></span><br><span class="line"><span class="comment"># batch_size  B=1</span></span><br><span class="line">pred_ind = pred_logits.argmax(-<span class="number">1</span>)   <span class="comment"># (B, N)</span></span><br><span class="line">fg_ind = pred_ind != pred_logits.shape[-<span class="number">1</span>] - <span class="number">1</span>  <span class="comment"># (B, N)</span></span><br><span class="line">fg_num = torch.<span class="built_in">sum</span>(fg_ind.<span class="built_in">int</span>(), dim=-<span class="number">1</span>)        <span class="comment"># (B,)  each element is the number of pred_fg boxes for some one image</span></span><br><span class="line">fg_boxes = pred_boxes[fg_ind]       <span class="comment"># (n, 4)  n 为 mini-batch 中所有预测为 fg 的数量</span></span><br><span class="line">x, y, w, h = fg_boxes.unbind(-<span class="number">1</span>)    <span class="comment"># 4 个变量 shape 均为 (n,)</span></span><br><span class="line">xyxy = torch.stack([x-<span class="number">0.5</span>*w, y-<span class="number">0.5</span>*h, x+<span class="number">0.5</span>*w, y+<span class="number">0.5</span>*h], dim=-<span class="number">1</span>)    <span class="comment"># (n, 4)</span></span><br><span class="line">cls_id = pred_ind[fg_ind]           <span class="comment"># (n,)</span></span><br><span class="line"><span class="comment"># normalized (x1, y1, x2, y2)</span></span><br><span class="line">xyxy_tuple = torch.split(xyxy, fg_num)  <span class="comment"># (tensor_1,...,tensor_B), each tensor has a shape (n_i, 4), s.t. sum_i n_i = n</span></span><br><span class="line"><span class="comment"># fg predicted class id</span></span><br><span class="line">cls_id_tuple = torch.split(cls_id, fg_num)  <span class="comment"># (tensor1,...,tensor_B), each tensor&#x27;s shape (n_i,), s.t. sum_i n_i = n</span></span><br></pre></td></tr></table></figure></p>
+<p>DETR 没有 post processing，故获取预测结果非常简单。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/transformer-object-detection/" rel="tag"># transformer, object detection</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/19/pytorch/embedding/" rel="prev" title="词嵌入向量">
+      <i class="fa fa-chevron-left"></i> 词嵌入向量
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/25/pytorch/attention/" rel="next" title="Attention">
+      Attention <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">1. 简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-DETR"><span class="nav-number">2.</span> <span class="nav-text">2. DETR</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-DETR-%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 DETR 结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-set-prediction-loss"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 set prediction loss</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-%E5%8E%9F%E7%90%86"><span class="nav-number">2.2.1.</span> <span class="nav-text">2.2.1 原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-%E4%BB%A3%E7%A0%81"><span class="nav-number">2.2.2.</span> <span class="nav-text">2.2.2 代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-%E6%B5%8B%E8%AF%95"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 测试</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">104</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

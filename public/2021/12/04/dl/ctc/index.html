@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="隐马尔可夫模型中，可观测序列 $X$ 与隐状态序列 $Y$ 的长度是相等的，但是在语音识别中，语音序列被转为文字序列，这两者长度可能不相等，也就是说，语音片与文字无法一一对应。这就需要寻找其他解决方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Connectionist Temporal Classification (1)">
+<meta property="og:url" content="https://shajianjian.github.io/2021/12/04/dl/ctc/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="隐马尔可夫模型中，可观测序列 $X$ 与隐状态序列 $Y$ 的长度是相等的，但是在语音识别中，语音序列被转为文字序列，这两者长度可能不相等，也就是说，语音片与文字无法一一对应。这就需要寻找其他解决方法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shajianjian.github.io/2021/12/04/dl/ctc/images/dl/CTC1.png">
+<meta property="og:image" content="https://shajianjian.github.io/2021/12/04/dl/ctc/images/dl/CTC2.png">
+<meta property="og:image" content="https://shajianjian.github.io/2021/12/04/dl/ctc/images/dl/CTC3.png">
+<meta property="article:published_time" content="2021-12-04T08:02:36.000Z">
+<meta property="article:modified_time" content="2021-12-04T10:58:44.842Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="deep learning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shajianjian.github.io/2021/12/04/dl/ctc/images/dl/CTC1.png">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/12/04/dl/ctc/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Connectionist Temporal Classification (1) | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/12/04/dl/ctc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Connectionist Temporal Classification (1)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-12-04 16:02:36 / 修改时间：18:58:44" itemprop="dateCreated datePublished" datetime="2021-12-04T16:02:36+08:00">2021-12-04</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>隐马尔可夫模型中，可观测序列 $X$ 与隐状态序列 $Y$ 的长度是相等的，但是在语音识别中，语音序列被转为文字序列，这两者长度可能不相等，也就是说，语音片与文字无法一一对应。这就需要寻找其他解决方法。<br><span id="more"></span></p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>我们将“对数据序列打标签”看作是 <strong>时序分类</strong>，通常可采用 RNN 网络实现，这称为 connectionist temporal classification（CTC），所适用的任务包括 语音识别，图片中的文字识别等。</p>
+<p>记输入序列为 $X=[x_1,\ldots, x_T]$，输出序列为 $Y=[y_1,\ldots,y_U]$，（通常 $T &gt; U$）。我们的任务是找到一个准确的 $X \rightarrow Y$ 的映射，但是可以想象这其中的难点：</p>
+<ol>
+<li>$X, \ Y$ 长度可变</li>
+<li>$X, \ Y$ 长度之比可变</li>
+<li>$X, \ Y$ 序列元素之间没有明确关系。</li>
+</ol>
+<h2 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h2><p>采用负对数似然函数。给定一个输入 $X$ 以及对应的输出 $Y$，我们的目标是求 $p(Y|X)$ 的最大化。</p>
+<h2 id="推断"><a href="#推断" class="headerlink" title="推断"></a>推断</h2><p>给定输入 $X$，求最有可能的输出 $Y$，即</p>
+<script type="math/tex; mode=display">Y^{\star}=\arg \max_Y p(Y|X)</script><h1 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h1><h2 id="对齐方式"><a href="#对齐方式" class="headerlink" title="对齐方式"></a>对齐方式</h2><p>通常，输入序列的一个或多个元素用于生成一个输出元素，是多对一的关系，所以输出序列长度小于输入序列长度。例如一个输入序列长度为 6，输出序列长度为 3，如下<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x1 x2 x3 x4 x5 x6       input(X)</span><br><span class="line">c  c  a  a  a  t        alignment</span><br><span class="line"> c  |    a   | t        output(Y)</span><br></pre></td></tr></table></figure><br>通过将连续相邻的重复的输出元素进行合并（去重），可以得到输出序列为 <code>cat</code>。</p>
+<p>但是这种做法也存在以下两个问题：</p>
+<ol>
+<li>有时候输入元素不一定必须要对应一个输出元素。例如语音识别中，语音之中存在沉默片段，这部分不应对应任何一个文字（或单词）。</li>
+<li>将相邻的重复元素去重，会使得例如 “hello” 变成 “helo”，而无法得到想要的 “hello”。</li>
+</ol>
+<p>为了解决这两个问题，CTC 引入了一个新的 token $\epsilon$ 表示空白（blank token），这个 $\epsilon$ 最终从输出序列中移除。于是，对于一段语音，可以通过如下方式进行识别，</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>h</th>
+<th>h</th>
+<th>e</th>
+<th>$\epsilon$</th>
+<th>$\epsilon$</th>
+<th>l</th>
+<th>l</th>
+<th>l</th>
+<th>$\epsilon$</th>
+<th>l</th>
+<th>l</th>
+<th>o</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>h</td>
+<td></td>
+<td>e</td>
+<td>$\epsilon$</td>
+<td></td>
+<td>l</td>
+<td></td>
+<td></td>
+<td>$\epsilon$</td>
+<td>l</td>
+<td></td>
+<td>o</td>
+<td>合并相邻重复的元素</td>
+</tr>
+<tr>
+<td>h</td>
+<td></td>
+<td>e</td>
+<td></td>
+<td></td>
+<td>l</td>
+<td></td>
+<td></td>
+<td></td>
+<td>l</td>
+<td></td>
+<td>o</td>
+<td>移除 $\epsilon$</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>最后就得到了 <code>hello</code> 这个输出序列。</p>
+<h2 id="损失函数-1"><a href="#损失函数-1" class="headerlink" title="损失函数"></a>损失函数</h2><p>我们采用 RNN 网络结构，记输入序列长度为 $T$，那么 RNN 一共有 $T$ 个输出，每个时刻 $t$ 的输出 $z_t$ 为一个长度为 $L+1$ 的得分向量，其中 $L$ 为输出字符集大小，$+1$ 是由于我们增加了一个 $\epsilon$。RNN 的输出序列记为 $A$，那么通过上述的合并相邻重复和去掉 $\epsilon$ 这个操作，可得到最终的输出序列 $Y$，记这个操作为 $B$，即 $Y=B(A)$，显然 $A$ 与 $Y$ 是多对一的关系，即 $A \in B^{-1}(Y)$，那么似然函数</p>
+<script type="math/tex; mode=display">p(Y|X)=\sum_{A \in B^{-1}(Y)} \prod_{t=1}^T p_t(a_t|X)</script><p>对于一个输出 $Y$，有很多个 $Z$，故如果想暴力计算，那么计算量会非常大，考虑动态规划方法。</p>
+<p>空白 token  $\epsilon$ 可出现在输出序列 $Y$ 的任意位置，那么不妨我们将每两个 $y_i , \ i \in [U]$ 之间均插入 $\epsilon$，以及最起始位置和最后位置也插入  $\epsilon$，那么序列变为</p>
+<script type="math/tex; mode=display">Z=[\epsilon, y_1,\epsilon, y_2,\ldots, \epsilon, y_U, \epsilon]</script><p>仍以语音识别为例，如果语音开头有沉默，那么 RNN 输出序列 $A$ 以 $\epsilon$，否则以 $y_1$ 开头。具体而言，将语音等分为 $T$ 个语音片，即 $A=[a_1,a_2,\ldots,a_T]$，第 1 个语音片为沉默（无声音），那么对应 $\epsilon$，否则对应 $y_1$，第 2 个语音片则需要根据上一个语音片的情况进行讨论，如下表所示，</p>
+<script type="math/tex; mode=display">\begin{array}{c|c|c}
+a_1 & a_1 & (a_1,a_2)
+\\
+\hline
+\\
+a_1=y_1 & \begin{aligned}a_2&=\epsilon \\ a_2&=y_1 \\ a_2&=y_2 (y_2\neq y_1)\end{aligned} & \begin{aligned} &(y_1, \epsilon) \\ &(y_1,y_1) \\ &(y_1,y_2)\end{aligned}
+\\
+\hline
+\\
+a_1=\epsilon & \begin{aligned}a_2&=\epsilon \\ a_2&=y_1\end{aligned} & \begin{aligned} &(\epsilon, \epsilon) \\ &(\epsilon,y_1)\end{aligned}
+\end{array}</script><p>注意，$a_1=y_1, \ a_2=y_2$ 时，必须保证 $y_1\neq y_2$ 这个条件成立，否则 $B(a_1,a_2)=B(y_1,y_1)=(y_1)$，即，经过合并后，就少了一个 $y_1$。</p>
+<p>我们讨论更一般的情况。</p>
+<p>输出 $Y$ 的长度为 $U$，$Z$ 的长度为 $2U+1$，另外 $U \le T$，如果 ：</p>
+<ol>
+<li>$2U+1 &lt;= T$，这表示需要重复 $Z$ 中的部分元素，共重复 $T-(2U+1)$ 次。</li>
+<li>$2U+1 &gt; T$，这表示需要跳过 $Z$ 中的部分 $\epsilon$ ，共跳过 $2U+1-T$ 次。</li>
+</ol>
+<p>为了使用动态规划方法，定义 $\alpha_{s,t}$ 表示到达 $t$ 时刻止，预测为 $Z_{1:s}$ 的概率，</p>
+<script type="math/tex; mode=display">\alpha_{s,t}=P\{C(A_{1:t}) = Z_{1:s}\}</script><p>其中 $C$ 表示合并连续重复的元素操作。</p>
+<p>对于 $Z$ 中连续的三个元素 $z_{s-2}, z_{s-1},z_s$，有两种情况：</p>
+<p><strong>1. 无法跳过 $z_{s-1}$</strong>，即，必须有一个 RNN 输出 $a_j$ 对齐到 $z_{s-1}$。</p>
+<p>第一个原因是 $z_{s-2}=z_s \ \neq \epsilon$，如果跳过预测 $z_{s-1}$，那么有一个 $y_i$ 值被合并，导致 $Y$ 长度减小了 1。 第二个原因是 $z_s=\epsilon$，由于 $\epsilon$ 与 $y_i$ 是间隔的，说明 $z_{s-1}=y_i$，此时若跳过预测 $z_{s-1}$，那么就少了一个 $y_i$，导致 $Y$ 长度减小了 1 。</p>
+<p>如图1 所示，</p>
+<p><img src="images/dl/CTC1.png" alt=""></p>
+<center>图 1 （来源于 ref 1）</center>
+
+<p>也就是说 $\alpha_{s,t}$ 可由 $\alpha_{s,t-1}$ 转化而来，即 $a_t=a_{t-1}$，也可由 $\alpha_{s-1,t-1}$ 转化而来，即 $a_t \neq a_{t-1}$，只能是这两种之一。</p>
+<p>转化公式为</p>
+<script type="math/tex; mode=display">\alpha_{s,t}=(\alpha_{s-1,t-1}+\alpha_{s,t-1}) \cdot p_t(z_s|X)</script><p><strong>2. 允许跳过 $z_{s-1}$</strong>，允许跳过，即，可以跳过，也可以不跳过。<br>如图 2 所示，</p>
+<p><img src="images/dl/CTC2.png" alt=""></p>
+<center>图 2 （来源于 ref 1）</center>
+
+<p>可见，只有 $z_{s-1}=\epsilon$，且 $z_{s-2}\neq z_s$ 时才允许跳过预测 $z_{s-1}$。此时，$\alpha_{s,t}$ 可由 $\alpha_{s-2,t-1}$ 或 $\alpha_{s-1,t-1}$ 或者 $\alpha_{s,t-1}$ 转化而来。</p>
+<script type="math/tex; mode=display">\alpha_{s,t}=(\alpha_{s-2,t-1}+\alpha_{s-1,t-1}+\alpha_{s,t-1})\cdot p_t(z_s|X)</script><p><strong>综上</strong></p>
+<p>对于连续的三个元素 $z_{s-2},z_{s-1},z_s$，只有以下三种可能的情形：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">z(s-2)    z(s-1)     z(s)</span><br><span class="line">a         epsilon    a</span><br><span class="line">epsilon   a          epsilon</span><br><span class="line">a         epsilon    b</span><br></pre></td></tr></table></figure></p>
+<p>例如，一个输入序列长度为 6，输出序列 $Y=[a,b]$，那么所有可能的预测路径如下图，</p>
+<p><img src="images/dl/CTC3.png" alt=""></p>
+<center>图 3 （来源于 ref 1）</center>
+
+<p>从图3可知，只有两个有效的起始节点，以及两个有效的终止节点。</p>
+<p>现在，就可以快速地计算似然函数了，损失函数采用负对数似然，对于一个训练集 $\mathcal D$，损失函数为 </p>
+<script type="math/tex; mode=display">\sum_{(X,Y) \in \mathcal D} -\log p(Y|X)</script><p>接下来就是计算梯度并训练模型了。<br>将 CTC 损失函数对每个时刻的输出概率求导。</p>
+<p>推断一节在下一篇讨论。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://distill.pub/2017/ctc/">Sequence Modeling With CTCT</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/deep-learning/" rel="tag"># deep learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/26/tools/docker/" rel="prev" title="容器使用示例">
+      <i class="fa fa-chevron-left"></i> 容器使用示例
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/12/04/dl/ctc2/" rel="next" title="Connectionist Temporal Classification (2)">
+      Connectionist Temporal Classification (2) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0"><span class="nav-number">1.1.</span> <span class="nav-text">损失函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A8%E6%96%AD"><span class="nav-number">1.2.</span> <span class="nav-text">推断</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%97%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E9%BD%90%E6%96%B9%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">对齐方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0-1"><span class="nav-number">2.2.</span> <span class="nav-text">损失函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">104</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

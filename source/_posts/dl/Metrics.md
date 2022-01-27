@@ -2,7 +2,7 @@
 p: dl/metrics
 title: Metrics
 date: 2021-02-20 10:09:36
-tags:
+tags: deep learning
 ---
 
 总结机器学习/深度学习中常用的一些指标

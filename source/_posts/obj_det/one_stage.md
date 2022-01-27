@@ -1,7 +1,7 @@
 ---
 title: One-stage Object Detection
 date: 2021-02-23 10:36:44
-tags: Object Detection
+tags: object detection
 p: obj_det/one_stage
 mathjax: true
 ---

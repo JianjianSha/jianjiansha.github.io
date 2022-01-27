@@ -1,7 +1,7 @@
 ---
 title: Normalization
 date: 2021-03-08 11:26:46
-tags:
+tags: deep learning
 ---
 
 # Batch Norm

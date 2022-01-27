@@ -2,7 +2,7 @@
 title: Cross Entropy Loss
 p: dl/x_ent_loss
 date: 2021-01-12 10:35:40
-tags: Deep Learning
+tags: deep learning
 mathjax: true
 ---
 

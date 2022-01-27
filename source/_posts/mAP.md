@@ -63,12 +63,17 @@ BB9 |  0.7       | 1
 ```
 （BB 表示检测结果所匹配 "match" 的 GT box）
 
-以上表格中已经按 confidence 降序排列，GT=1 表示 TP，GT=0 表示 FP，此外还有两个未检测到的 BBox，即 FN=2。TP=5 (BB1,BB2,BB5,BB8,BB9)，FP=5，其中有一个检测为 BB1，但是其 confidence 小于 0.9 而被抑制，故认为此检测是 FP，对应如下的 rank=3 这个 case，舍弃这个检测。这一点在 PASCAL VOC 主页的 Detection Task 的 [Evaluation](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/devkit_doc.html#SECTION00054000000000000000) 一节也进行了说明。GT box 数量为 TP+FN=5+2=7。计算所有点的 PR 值如下，
+以上表格中已经按 confidence 降序排列，GT=1 表示 TP，GT=0 表示 FP。 BB 那一列的 `BBi` 表示 GT box 编号。预测 box 总共有 10 个，上表中列出了 9 个，还有一个 预测 box，gt boxes 中与这个预测 box 有最大 IOU 的是 `BB1`，不过其相应的 confidence 比上表中第一行的预测 box （与 `BB1` ) 的 confidence （值为 0.9）小（注意，这里是 confidence 比较，不是 IOU 比较，所以不知道这两个预测 box 哪个与 `BB1` 的 IOU 更大），所以这个预测 box 被第一行的预测 box 抑制，故认为此检测是 FP。除了此外，还有两个未检测到的 BBox 未在上表中列出， FN=2。
+
+TP=5 (对应的匹配 gt box 为 BB1,BB2,BB5,BB8,BB9)，FP=5 ，其中 4 个在上表中列出，还有一个是上面所说的被第一行的 TP 预测 box 所抑制的预测 box，这个被抑制的 box 对应如下的 rank=3 这个 case，舍弃这个检测。这一点在 PASCAL VOC 主页的 Detection Task 的 [Evaluation](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/devkit_doc.html#SECTION00054000000000000000) 一节也进行了说明。
+
+GT box 数量为 TP+FN=5+2=7。计算所有点的 PR 值如下，
 ```
 rank=1  precision=1.00 and recall=0.14
 ----------
 rank=2  precision=1.00 and recall=0.29
 ----------
+(被第一行预测 box 所抑制的预测box，其 confidence <0.9，例如可取 0.8，它们两个都匹配 BB1)
 rank=3  precision=0.66 and recall=0.29
 ----------
 rank=4  precision=0.50 and recall=0.29
@@ -86,7 +91,7 @@ rank=9  precision=0.44 and recall=0.57
 rank=10 precision=0.50 and recall=0.71
 ----------
 ```
-稍作解释：
+稍作解释：（使用所匹配的 GT box 编号进行说明）
 
 1. rank=1，检测数量为 1（此时其他检测结果均被舍弃），TP 仅 BB1 一个，没有 FP，故 P=1，R=1/7=0.14
 2. rank=2，检测数量为 2，TP 包括 BB1,BB2，没有 FP，故 P=1，R=2/7=0.29
@@ -98,14 +103,16 @@ VOC 在 2010 之前，选择固定的 11 个 R 值 等分点，即 R={0,0.1,...,
 
 #### 11-点插值
 取11个 R 值的 [0,1] 区间等分点计算平均正确率：
-$$AP=\frac 1 {11} \sum_{r \in {0,0.1,...,1}} \rho_{interp(r)} \qquad(1) \\\\
-\rho_{interp(r)}=\max_{\tilde r:\tilde r \ge r} \rho(\tilde r) \qquad(2) $$
+$$AP=\frac 1 {11} \sum_{r \in {0,0.1,...,1}} \rho_{interp(r)} \tag(1)$$
+$$\rho_{interp(r)}=\max_{\tilde r:\tilde r \ge r} \rho(\tilde r) \tag(2) $$
 
 其中，$\rho(\tilde r)$ 为计算得到的正确率。
 举个例子如图（完整例子请参考[这里](https://github.com/rafaelpadilla/Object-Detection-Metrics)），
 ![](/images/mAP_fig1.png)
 
-蓝色折线的顶点为根据预测结果计算得到的 PR 值，红色点则是根据11个固定的 R 值进行插值得到的 PR 值，比如计算阈值 R=0.2 处的插值，根据式 (2)，大于等于 0.2 的 $\tilde r$ 值可取 {0.2,0.2666,0.3333,0.4,0.4666}，当 $\tilde r=0.4$ 时，显然 P 有最大值为 0.4285。根据 11-点插值，计算 AP：
+（上图中的 PR 数据与上面表格的数据无关，它们来自不同的例子）
+
+蓝色折线的 **上顶点** 为根据预测结果计算得到的 PR 值，即，每一个竖直线段的上端点为 PR 值。红色点则是根据11个固定的 R 值进行插值得到的 PR 值，比如计算阈值 R=0.2 处的插值，根据式 (2)，大于等于 0.2 的 $\tilde r$ 值可取 {0.2,0.2666,0.3333,0.4,0.4666}，当 $\tilde r=0.4$ 时，显然 P 有最大值为 0.4285。根据 11-点插值，计算 AP：
 
 $AP=\frac 1 {11} \sum_{r \in {0,0.1,...,1}} \rho_{interp(r)}$
 

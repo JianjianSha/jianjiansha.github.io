@@ -2,7 +2,7 @@
 p: dl/training_ops
 title: Training Operations
 date: 2021-02-19 14:16:51
-tags:
+tags: deep learning
 ---
 深度学习中的训练有很多技巧，这里总结一些常用的操作技巧。
 

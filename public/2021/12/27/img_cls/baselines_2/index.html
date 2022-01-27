@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="总结 图像分类网络的结构，包括 ResNeXt, ShuffleNet, ShuffleNetV2, SENet， 以及 Res2Net 。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图像分类网络（二）">
+<meta property="og:url" content="https://shajianjian.github.io/2021/12/27/img_cls/baselines_2/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="总结 图像分类网络的结构，包括 ResNeXt, ShuffleNet, ShuffleNetV2, SENet， 以及 Res2Net 。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_2.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_3.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_4.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_5.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_6.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_7.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_8.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_9.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_10.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_11.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_12.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/img_cls/baselines2_13.png">
+<meta property="article:published_time" content="2021-12-27T02:44:36.000Z">
+<meta property="article:modified_time" content="2022-01-11T07:37:53.740Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="image classification">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/img_cls/baselines2_1.png">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/12/27/img_cls/baselines_2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>图像分类网络（二） | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/12/27/img_cls/baselines_2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图像分类网络（二）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-27 10:44:36" itemprop="dateCreated datePublished" datetime="2021-12-27T10:44:36+08:00">2021-12-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-11 15:37:53" itemprop="dateModified" datetime="2022-01-11T15:37:53+08:00">2022-01-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>总结</strong> 图像分类网络的结构，包括 <code>ResNeXt</code>, <code>ShuffleNet</code>, <code>ShuffleNetV2</code>, <code>SENet</code>， 以及 <code>Res2Net</code> 。</p>
+<span id="more"></span>
+<h1 id="1-ResNeXt"><a href="#1-ResNeXt" class="headerlink" title="1. ResNeXt"></a>1. ResNeXt</h1><p>论文地址：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1611.05431">Aggregated Residual Transformations for Deep Neural Networks</a></p>
+<p>主要思路：<strong>分组卷积</strong>，改造 ResNet 中的 Bottleneck block，如图 1，<br><img src="/images/img_cls/baselines2_1.png" alt=""><br>图 1. 左：ResNet 中的 block；右：ResNeXt 中的 block，称 path 的数量为 <code>cardinality</code>，图中 <code>cardinality=32</code>。（每一 layer 的标注顺序：<code>in_channels, filter size, out_channels</code>）</p>
+<blockquote>
+<p>图 1 中多路分支的 <code>3x3</code> 卷积实际上就是 <code>128, 3x3, 128</code> 的分组卷积。</p>
+</blockquote>
+<p>除了图 1 中的这种划分方法，还有其他两种方法，如图 2，<br><img src="/images/img_cls/baselines2_2.png" alt=""><br>图 2. ResNeXt 可用的三种 block 结构。</p>
+<p>整个 ResNeXt 结构如图 3，从图中可见，大体框架相同，只是 block 不同。<br><img src="/images/img_cls/baselines2_3.png" alt=""><br>图 3. ResNet 与 ResNeXt 结构对比。<code>C</code> 表示 <code>cardinality</code> 。</p>
+<p>说明：</p>
+<ol>
+<li>ResNeXt 就是在 ResNet 基础之上，对 block 加以改进，即 <code>3x3 conv</code> 变为分组卷积，其他则几乎保持不变，故：</li>
+<li><code>stage 3/4/5</code> 的第一个 block（内的 <code>3x3 conv group</code>）有 <code>stride=2</code>。</li>
+<li>整个网络的 down sampling rate 为 $2^5=32$。</li>
+<li>在 <code>stride=2</code> 的 block 上的 shortcut 分支需要一个 <code>downsample</code> 映射函数，将 <code>x</code> 的 channel 增加一倍，feature size 缩小原来的到 $1/2 \times 1/ 2$。</li>
+</ol>
+<h1 id="2-ShuffleNet"><a href="#2-ShuffleNet" class="headerlink" title="2. ShuffleNet"></a>2. ShuffleNet</h1><p>论文地址：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1707.01083">ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile Devices</a></p>
+<h2 id="2-1-Channel-Shuffle"><a href="#2-1-Channel-Shuffle" class="headerlink" title="2.1 Channel Shuffle"></a>2.1 Channel Shuffle</h2><p>MobileNet 中采用了对 <code>3x3 conv</code> 采用了 depthwise seprable conv，导致在一个 block 中， <code>1x1 conv</code> 计算量占比非常高，ShuffleNet 对 <code>1x1 conv</code> 也采用分组卷积，但是连续的分组卷积，导致某个输出 channel 只能从一部分输入通道中获取信息，如图 4，于是 ShuffleNet 在 <code>1x1 conv</code> 分组卷积之前，将 channel 顺序重组，降低连续分组卷积导致的 side effect，<br><img src="/images/img_cls/baselines2_4.png" alt=""><br>图 4. 分组数量为 <code>3</code>。左：连续两次分组卷积；中：第一次分组卷积之后，将 channel 重组，使得重组后每个分组具有所有原来分组中的部分 channel；右：使用 channel shuffle 实现 channel 重组，与（中）等效。</p>
+<blockquote>
+<p>channel shuffle 操作：记 channel 数量为 <code>g x n</code>，<code>g</code> 为分组数量，<code>n</code> 为每个分组内的 channel 数量；reshape channel 为 <code>(g,n)</code>，然后转置为 <code>(n, g)</code>，然后再 flatten 为 <code>n x g</code>，即可。</p>
+</blockquote>
+<h2 id="2-2-ShuffleNet-网络结构"><a href="#2-2-ShuffleNet-网络结构" class="headerlink" title="2.2 ShuffleNet 网络结构"></a>2.2 ShuffleNet 网络结构</h2><p>ShuffleNet Unit 如图 5，<br><img src="/images/img_cls/baselines2_5.png" alt=""><br>图 5. 左：ResNet 中的 bottleneck block。中：第一个 <code>1x1 conv</code> 后使用了 channel shuffle，第二个 <code>1x1 conv</code> 后没有 channel shuffle（实验验证说明使用了也没有什么改善）；右：stride=2 的 block。</p>
+<p>图 5 的说明：</p>
+<ol>
+<li><code>GConv</code> 表示分组卷积。<code>DWConv</code> 表示深度可分离卷积。</li>
+<li><code>DWConv</code> 后没有 <code>ReLU</code>。</li>
+<li><code>stride=2</code> 时，shortcut 采用 <code>(3x3 avg pool stride=2)</code> 进行降采样，然后使用 <code>concat</code> 进行 <strong>特征融合</strong>。</li>
+</ol>
+<p>ShuffleNet 总体结构如图 6 所示，<br><img src="/images/img_cls/baselines2_6.png" alt=""><br>图 6. ShuffleNet 网络。<code>Stage 2</code> 的第一个 <code>1x1 conv</code> 没有应用 <code>group conv</code>，这是因为其输入 channel 太小（为 <code>24</code>）。</p>
+<p>图 6 的补充说明：</p>
+<ol>
+<li>三个 <code>stage</code>，每个 <code>stage</code> 的第一个 <code>block</code> 具有 <code>stride=2</code>，具有 <code>stride=2</code> 的 block 结构参见图 5 右。</li>
+<li>ShuffleNet Unit 的各 layer 参数为 <code>c, 1x1, m, g</code> -&gt; <code>channel shuffle</code> -&gt; <code>m, 3x3, m, dwConv</code> -&gt; <code>m, 1x1, c,g</code>，其中 <code>c</code> 为 block 的输入 channel，<code>m</code> 为 bottleneck 的 channel。</li>
+<li><code>block</code> 的内部 bottleneck 的 channel （参见图 5 中间 block 的第一个 <code>1x1 GConv</code> 的输出 channel）为 block 输出 channel 的 <code>1/4</code>，例如，<code>stage 2</code> 的每个 block 的输出 channel 为 <code>200</code>（对应 <code>g=2</code> 这个 case），那么 bottleneck channel 为 <code>50</code>。</li>
+<li>整个网络的 down sampling rate 为 $2^5=32$。</li>
+<li>为进一步控制网络的复杂度，对各 layer 的输出 channel，乘以一个因子， <code>s</code>，图 6 中则对应 <code>s=1</code> 的情况，记为 <code>ShuffleNet 1x</code>，那么 <code>ShuffleNet sx</code> 则大约是 <code>ShuffleNet 1x</code> 复杂度的 $s^2$ 倍。</li>
+</ol>
+<h1 id="3-ShuffleNetV2"><a href="#3-ShuffleNetV2" class="headerlink" title="3. ShuffleNetV2"></a>3. ShuffleNetV2</h1><p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1807.11164">ShuffleNet V2: Practical Guidelines for Efficient CNN Architecture Design</a></p>
+<p>本文所考虑的点：</p>
+<ol>
+<li>FLOP 是间接指标，network 运行速度才是直接指标，而影响速度的除了 FLOP，还有 memory access cost（<strong>MAC</strong>）等。此外，CUDNN 库中，<code>3x3</code> 卷积并不比 <code>1x1</code> 卷积慢 <code>9</code> 倍。</li>
+<li>network 运行在不同的设备上，其速度也不同，例如 GPU 和 ARM，过去声称为了 移动设备 而设计的网络如 MobileNet 和 ShuffleNet 并没有真正在移动设备上测试。</li>
+</ol>
+<p>分析（以下结论的前提是 <code>FLOP</code> 保持不变）：</p>
+<ol>
+<li>输入输出 channel 相等时 MAC 最小。</li>
+<li>分组卷积中，分组数量越大, MAC 也越大。</li>
+<li>增加网络分支数量会降低计算的并行度。</li>
+<li>Element-wise 计算不可忽略。</li>
+</ol>
+<h2 id="3-1-ShuffleNetV2-网络设计"><a href="#3-1-ShuffleNetV2-网络设计" class="headerlink" title="3.1 ShuffleNetV2 网络设计"></a>3.1 ShuffleNetV2 网络设计</h2><p>在 ShuffleNetV1 基础上进行修改，如图 7 所示，<br><img src="/images/img_cls/baselines2_7.png" alt=""></p>
+<p>图 7. 左一： basic ShuffleNet block；左二：具有 down sampling(2x) 的 ShuffleNet block；左三：basic ShuffleNetV2 block；右一：具有 down sampling(2x) 的 ShuffleNetV2 block。</p>
+<p>ShuffleNetV2 的说明：</p>
+<ol>
+<li>block 的输入沿 channel 方向 split 成两部分（通常是 <code>二等分</code>）：一部分作为 identity shortcut；另一部分经过<strong>三个卷积层</strong>，输入输出 channel 均相同。</li>
+<li>block 中的两个 <code>1x1 conv</code> 不是 group Conv，而是普通 Conv（分组数量大会增加 MAC）。另外 channel split 可视作一种分组。</li>
+<li>最后两个分支 concatenate，使得 block 的输入输出 channel 保持相等。</li>
+<li>block 的最后使用 <code>channel shuffle</code>，这样是为了使得两个分组之间实现信息交流。</li>
+<li>down sampling rate 为 <code>2</code> 时，去掉 <code>channel split</code> 这个操作，故 block 的输出 channel 变为 <code>2</code> 倍。</li>
+</ol>
+<p>整个网络的结构如图 8，</p>
+<p><img src="/images/img_cls/baselines2_8.png" alt=""><br>图 8. ShuffleNetV2 的网络结构。分别取四种不同的 channel。</p>
+<p>说明：</p>
+<ol>
+<li>Global Pool 之前增加了一个 <code>1x1 conv</code>，用于 mix up features。</li>
+</ol>
+<h1 id="4-SENet"><a href="#4-SENet" class="headerlink" title="4. SENet"></a>4. SENet</h1><p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1709.01507">Squeeze-and-Excitation Networks</a></p>
+<p>思路：上一 layer 的输出经过 channel 加权后再输入到下一 layer。如图 9 所示，<br><img src="/images/img_cls/baselines2_9.png" alt=""></p>
+<h2 id="4-1-squeeze"><a href="#4-1-squeeze" class="headerlink" title="4.1 squeeze"></a>4.1 squeeze</h2><script type="math/tex; mode=display">z_c=\mathbf F_{sq}(\mathbf u_c)=\frac 1 {H \times W} \sum_{i=1}^H \sum_{j=1}^W u_c(i,j)</script><h2 id="4-2-Excitation"><a href="#4-2-Excitation" class="headerlink" title="4.2 Excitation"></a>4.2 Excitation</h2><script type="math/tex; mode=display">\mathbf s = \mathbf F_{ex}(\mathbf z, \mathbf W)=\sigma(g(\mathbf z, \mathbf W)) = \sigma(\mathbf W_2 \cdot \delta(\mathbf W_1 \cdot \mathbf z))</script><p>其中 $\mathbf W_1 \in \mathbb R^{\frac C r \times C}$，$\mathbf W_2 \in \mathbb R^{C \times \frac C r}$。$\delta$ 是 ReLU 函数， $\sigma$ 是 sigmoid 函数。</p>
+<p>最终的输出则为</p>
+<script type="math/tex; mode=display">\hat {\mathbf x_c} = \mathbf F_{scale} (\mathbf u_c, s_c) = s_c \mathbf u_c</script><p>$c$ 为 channel 编号。</p>
+<p>整个过程如图 10 所示，</p>
+<p><img src="/images/img_cls/baselines2_10.png" alt=""></p>
+<p>图 10. 左：在 Inception 上使用 SE block；右：在 Residual 上使用 SE block</p>
+<p><img src="/images/img_cls/baselines2_11.png" alt=""><br>图 11. 左：ResNet-50；中：SE-ResNet-50；右：SE-ResNeXt-50</p>
+<h1 id="5-Res2Net"><a href="#5-Res2Net" class="headerlink" title="5. Res2Net"></a>5. Res2Net</h1><p>论文：Res2Net: <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1904.01169">A New Multi-scale Backbone Architecture</a></p>
+<p>设计一个具有 multi-scale 特征的网络，以前的网络为了达到这一目的，均依赖于多个 layer，每个 layer 的输出 feature 的空间 size 不同，这是从 layer 层面实现，本文在 layer 内部实现 multi-scale 特征，具有更细粒度的级别，如图 12，</p>
+<p><img src="/images/img_cls/baselines2_12.png" alt=""></p>
+<p>图 12. 左：普通的 bottleneck block；右：Res2Net 模块，图中 scale dimension <code>s=4</code>。</p>
+<p>说明：</p>
+<ol>
+<li>将 <code>3x3 conv</code> 输出 channel 为 <code>n</code> 的 filters 替换为若干组小的 filters，每组 filters 的输出 channel 为 <code>w</code> （即，每组 <code>w</code> 个 filter）。</li>
+<li>将输入 feature maps 分成若干组。取第一组 filters，对一组 input feature maps 抽取特征，然后与另一组 input feature maps 一起（elementwise add?）送入第二组 filters，直到用完所有 filters。</li>
+<li>每次引入一个 <code>3x3 conv</code>，感受野就增大，从而得到 multi-scale 的特征。</li>
+</ol>
+<h2 id="5-1-Res2Net-模块"><a href="#5-1-Res2Net-模块" class="headerlink" title="5.1 Res2Net 模块"></a>5.1 Res2Net 模块</h2><p>Res2Net 模块中，<code>1x1 conv</code> 之后，feature maps 被等分成 <code>s</code> 份，记 $\mathbf x_i, \ i \in \{1,2,\ldots , s\}$，每个 $\mathbf x_i$ 空间 size 相等，但是 channel 为原来的  $1/s$，除 $\mathbf x_1$ 之外，每个 $\mathbf x_i$ 对应一组 <code>3x3 conv</code> filters，记为 $\mathbf K_i$，显然有 $i &gt; 1$，这组 filters 的输出为 $\mathbf y_i$，$\mathbf x_i$ 与 $\mathbf K_{i-1}$ 的输出相加，然后作为 $\mathbf K_i$ 的输入，于是</p>
+<script type="math/tex; mode=display">\mathbf y_i = \begin{cases}\mathbf x_i & i=1 \\ \mathbf K_i(\mathbf x_i) & i=2 \\ \mathbf K_i(\mathbf x_i + \mathbf y_{i-1}) & 2 < i \le s \end{cases}</script><p>所有的 $\mathbf y_i$ concatenate，然后通过 <code>1x1 conv</code> 进行特征融合。</p>
+<p>如图 13，还可以结合 SE block（先 squeeze 得到 <code>1x1xC</code> 的特征，然后 excite 得到 <code>1x1xC</code> 的 channel 权重） 和 cardinality dimension（分组卷积），</p>
+<p><img src="/images/img_cls/baselines2_13.png" alt=""></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/image-classification/" rel="tag"># image classification</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/23/img_cls/baselines_1/" rel="prev" title="图像分类网络（一）">
+      <i class="fa fa-chevron-left"></i> 图像分类网络（一）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/12/obj_det/fpn/" rel="next" title="FPN 回顾">
+      FPN 回顾 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-ResNeXt"><span class="nav-number">1.</span> <span class="nav-text">1. ResNeXt</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-ShuffleNet"><span class="nav-number">2.</span> <span class="nav-text">2. ShuffleNet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-Channel-Shuffle"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 Channel Shuffle</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-ShuffleNet-%E7%BD%91%E7%BB%9C%E7%BB%93%E6%9E%84"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 ShuffleNet 网络结构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-ShuffleNetV2"><span class="nav-number">3.</span> <span class="nav-text">3. ShuffleNetV2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-ShuffleNetV2-%E7%BD%91%E7%BB%9C%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 ShuffleNetV2 网络设计</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-SENet"><span class="nav-number">4.</span> <span class="nav-text">4. SENet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-squeeze"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 squeeze</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-Excitation"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 Excitation</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-Res2Net"><span class="nav-number">5.</span> <span class="nav-text">5. Res2Net</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-Res2Net-%E6%A8%A1%E5%9D%97"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 Res2Net 模块</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">104</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

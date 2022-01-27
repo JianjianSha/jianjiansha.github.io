@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="论文 Generative Adversarial Nets">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GAN">
+<meta property="og:url" content="https://shajianjian.github.io/2019/07/23/gan/GAN/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="论文 Generative Adversarial Nets">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shajianjian.github.io/images/GAN_fig1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/GAN_alg1.png">
+<meta property="og:image" content="https://shajianjian.github.io/images/GAN_fig2.png">
+<meta property="article:published_time" content="2019-07-23T02:15:08.000Z">
+<meta property="article:modified_time" content="2022-01-27T11:43:31.349Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="GAN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shajianjian.github.io/images/GAN_fig1.png">
+
+<link rel="canonical" href="https://shajianjian.github.io/2019/07/23/gan/GAN/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>GAN | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2019/07/23/gan/GAN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          GAN
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-07-23 10:15:08" itemprop="dateCreated datePublished" datetime="2019-07-23T10:15:08+08:00">2019-07-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-27 19:43:31" itemprop="dateModified" datetime="2022-01-27T19:43:31+08:00">2022-01-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>论文 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1406.2661">Generative Adversarial Nets</a><br><span id="more"></span></p>
+<h1 id="GAN"><a href="#GAN" class="headerlink" title="GAN"></a>GAN</h1><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>生成对抗网络 GAN：一个生成模型 G 和一个判别模型 D，G 尽可能模拟真实的数据分布，D 尽可能的区分样本是模型生成的还是真实的。下文以图像数据为例说明。</p>
+<p>定义一个输入噪声随机变量 z，其分布为 $p_z(z)$，G 根据 z 生成图像 $G(z;\theta_g)$，我们假设 G 是一个多层感知机 MLP 网络，网络参数为 $\theta_g$。D 也是一个 MLP $D(x;\theta_d)$ 输出是一个标量，表示 x 是真实图像的概率。训练 D 使其对输入 x 预测正确的概率最大化，即当 x 来自真实的训练数据时，$D(x)$ 尽可能大，当 x 来自 G 生成样本时，预测概率 $D(G(z))$ 尽可能小；而训练 G 目的是为了让 $D(G(x))$ 尽可能大，或者说让 $\log(1-D(G(z)))$ 尽可能小，于是目标函数为，</p>
+<script type="math/tex; mode=display">\min_G \max_D V(D,G)=\Bbb E_{x \sim p_{data}(x)}[\log D(x)] + \Bbb E_{z \sim p_z(z)}[\log(1-D(G(z)))] \tag{1}</script><p>（对 D 而言，这是一个 log 似然函数，D 希望它越大越大，所以求最大值；而 G 却希望 D 的 log 似然函数越小越好，所以求最小值）</p>
+<p>这是一个二人零和博弈。图 1 是训练过程示意图，训练使用迭代的，数值计算的方法。<br><img src="/images/GAN_fig1.png" alt=""></p>
+<p>图 1 中 D 模型分布为蓝色虚线，数据 x 的分布 $p_x$ 为黑色点线，G 模型分布 $p_g$ 为绿色实线（黑绿曲线上某一点分别表示此 x 值处真实数据的概率密度和生成数据的概率密度）。下面的水平线为随机噪声变量 z 的定义域，在其上对 z 均匀采样，上面水平线是 x 的定义域，向上箭头表示映射过程 x=G(z) （G 生成过程）。<br>(a) 是收敛附近的对抗情况：此时 $p_g,\ p_{data}$ 两者相似，D 分类不完全准确。<br>(b) 在内层循环中，训练 D 判别样本，训练过程收敛于 $D^{\ast}(x)=\frac {p_{data}(x)}{p_{data}(x)+p_g(x)}$。<br>(c) D 的梯度可指引 G(z) 移动到更容易被分类为真实数据的区域，即，G 更新后，更加逼近真实数据分布。<br>(d) 经过几次训练，G 和 D 到达一个平衡点，此时 $p_g=p_{data}$，D 无法再区分这两个分布，即，$D(x)=1/2$。</p>
+<p>训练算法如下，<br><img src="/images/GAN_alg1.png" alt=""></p>
+<p>k 次 D 的优化与一次 G 的优化交替进行，这可以使得 G 变化缓慢，而 D 维持在最优解附近。</p>
+<p>实际应用中，(1) 式可能无法提供足够的梯度来更新 G。训练初期，G 性能较差，生成样本与真实训练样本区别较大，所以 D 可以较高的置信度判别，此时，$\log (1-D(G(z)))$ 达到饱和（log 曲线右端较为平坦），于是我们改为训练 G 以最大化 $\log D(G(z))$，最终训练能到达相同的 G 和 D 的平衡点，但是训练初期的梯度较大（log 曲线的左端较为陡峭）。</p>
+<h2 id="理论分析"><a href="#理论分析" class="headerlink" title="理论分析"></a>理论分析</h2><p>已知噪声随机变量 z 的分布 $p_z$ 时，可以获得 G 的模型分布，根据算法 1，如果 G 模型的假设空间和训练时间足够，G 可以拟合真实数据分布 $p_{data}$。现在我们来证明 $p_g=<br>p_{data}$ 是 (1) 式的全局最优解。</p>
+<h3 id="全局最优解"><a href="#全局最优解" class="headerlink" title="全局最优解"></a>全局最优解</h3><p><strong>Proposition 1.</strong> 对于任意的 G，D 的最优解为</p>
+<script type="math/tex; mode=display">D_G^{\ast}(x)=\frac {p_{data}(x)}{p_{data}(x)+p_g(x)} \qquad (2)</script><p><strong>证明：</strong>  给定任意 G，D 的训练准则是最大化 V(G,D)  </p>
+<script type="math/tex; mode=display">\begin{aligned} V(G,D)&=\int_x p_{data}(x) \log D(x) dx+\int_z p_z(z) \log (1-D(g(z))) dz
+\\\\ &=\int_x p_{data}(x) \log D(x)+p_g(x) \log(1-D(x))dx \end{aligned}</script><p>$\forall (a,b) \in \Bbb R^2 \setminus \{0,0\}$，函数 $y \rightarrow a \log y+b \log(1-y)$ 在 (0,1) 区间上当 $y=\frac a {a+b}$ 时有最大值（梯度为 0 求解得到），所以要使得 V(G,D) 最大，那么对于每个 x 值，都要使 D(x) 达到最大，即 (2) 式。证毕。</p>
+<p>D 的训练目标函数可以看作是条件概率 $P(Y=y|x)$ 的最大 log 似然函数（或者是最小化 binary cross-entropy），其中当 x 来自 $p_{data}$ 时 y=1，当 x 来自 $p_g$ 时 y=0。得到 D 的最优解 $D_G^{\ast}$ 后 (1) 式变为，  </p>
+<script type="math/tex; mode=display">\begin{aligned} C(G)&=\max_D V(G,D)
+\\\\ &=\Bbb E_{x \sim p_{data}}[\log D_G^{\ast}(x)] + \Bbb E_{z \sim p_z} [\log(1-D_G^{\ast}(G(z)))]
+\\\\ &=\Bbb E_{x \sim p_{data}}[\log D_G^{\ast}(x)] + \Bbb E_{x \sim p_g} [\log(1-D_G^{\ast}(x))]
+\\\\ &=\Bbb E_{x \sim p_{data}} \left[\log \frac {P_{data}(x)} {p_{data}(x)+p_g(x)} \right]+\Bbb E_{x \sim p_g} \left[\log \frac {p_g(x)} {p_{data}(x)+p_g(x)}\right] \qquad(4) \end{aligned}</script><p><strong>Theorem 1.</strong> 当且仅当 $p_g=p_{data}$ 时， C(G) 有全局最优解 -log4。  </p>
+<p><strong>证明：</strong> </p>
+<ol>
+<li>充分性<br>令 $p_g=p_{data}$，根据 (2) 式有 $D_G^{\ast}(x)=1/2$，然后根据 (4) 式有，<script type="math/tex; mode=display">C(G)=\Bbb E_{x \sim p_{data}}[-\log 2]+\Bbb E_{x \sim p_g}[-\log 2] \equiv -\log 4</script></li>
+<li>必要性  <script type="math/tex; mode=display">\begin{aligned}C(G)&=C(G)+\Bbb E_{x \sim p_{data}}[\log 2]+\Bbb E_{x \sim p_g}[\log 2]  -\log 4 \\\\ &=-\log4 +\Bbb E_{x \sim p_{data}}\left[\log \frac {P_{data}(x)} {\frac {p_{data}(x)+p_g(x)} 2} \right]+\Bbb E_{x \sim p_g} \left[\log \frac {p_g(x)} {\frac {p_{data}(x)+p_g(x)} 2}\right] \\\\ &=-\log4+KL \left(p_{data} \| \frac {p_{data}+p_g} 2 \right)+KL \left(p_g \| \frac {p_{data}+p_g} 2 \right) \\\\ &=-\log4 + 2\cdot JSD(p_{data} \| p_g) \end{aligned}</script>其中 KL 表示 Kullback-Leibler 散度，JSD 表示 Jensen-Shannon 散度。由于 JSD 非负，且仅在 $p_g=p_{data}$ 时取得最小值 0，所以 C(G)=-log4 时，$p_g=p_{data}$。  </li>
+</ol>
+<p>证毕。</p>
+<h3 id="算法-1-的收敛"><a href="#算法-1-的收敛" class="headerlink" title="算法 1 的收敛"></a>算法 1 的收敛</h3><p>上一小节我们分析了全局最优解是存在的，并且取得全局最优解的条件是 $p_g=p_{data}$。<strong>Proposition 2</strong> 表明基于算法 1 的更新是有效的，训练可以收敛到全局最优解。</p>
+<p><strong>Proposition 2.</strong> 如果 G 和 D 有足够的模型空间，且在算法 1 每次迭代中给定 G 的情况下判别器可以达到最优解，且以调优（使更小） G 的训练标准 C(G) 更新 $p_g$ </p>
+<script type="math/tex; mode=display">\Bbb E_{x \sim p_{data}}[\log D_G^{\ast}(x)] + \Bbb E_{x \sim p_g} [\log(1-D_G^{\ast}(x))] \qquad(5)</script><p>那么，$p_g$ 趋于 $p_{data}$。</p>
+<p><strong>证明：</strong></p>
+<p>考虑 $V(G,D)=U(p_g,D)$ 是 $p_g$ 的函数，$p_g$ 可根据 (5) 式标准进行优化。注意到 $U(p_g,D)$ 是 $p_g$ （定义域）上的凸函数，不同 D 形成的凸函数集合的上确界（它也是一个凸函数）的 <strong>次导数</strong> 包含了此凸函数集合在某个 D 值取得最大值所对应函数的导数，也就是说，给定任意 $p_g$（它是函数自变量），D 是可变参数，（在任意自变量 $p_g$ 处）上述结论均成立。用数学语言描述就是：</p>
+<ul>
+<li>如果 $f(x)=\sup_{\alpha \in \mathcal A} f_{\alpha}(x)$，且 $f_{\alpha}(x)$ 对任意 $\alpha$ 在 x 上均为凸，那么当 $\beta=\arg \sup_{\alpha \in \mathcal A} f_{\alpha}(x)$ 时有 $\partial f_{\beta}(x) \in \partial f(x)$。</li>
+</ul>
+<p>$V(G,D)=U(p_g,D)$ 相当于上述的上确界函数，不能保证在 $p_g$ 定义域上处处严格可导，但是这个上确界函数也是一个凸函数，保证了其具有全局唯一最优解。而上面这个结论 “在任意 $p_g$ 处，其次导数包含了在某个 D 值取得最大值所对应函数的导数”，即，“包含了在 D 取最优解 D* 时 V(G,D) 的导数”，而这个导数正是对 (5) 式求导，于是可以使用这个导数进行梯度上升/下降法更新 $p_g$，并且这个更新将会使得 $p_g$ 趋于 $p_{data}$（参考 Theorem 1）。证毕</p>
+<p>对 (5) 式求导与算法 1 中的梯度本质相同，只是似然函数的期望改为批 SGD 中各样本损失的均值（没办法，数值计算使然），注意第一个期望在更新 $p_g$ 时不起作用，为什么这么讲？因为更新 $p_g$ 时，D 已经被固定，此时第一个期望与 $p_g$ 无关。</p>
+<p>实际应用中，对抗网络使用 $G(z;\theta_g)$ 表示 $p_g$ 的分布，其中 $\theta_g$ 是 G 模型参数，在选定 G 的网络模型如 MLP 时，$\theta_g$ 就决定了 $p_g$ 的分布，故以上有所对 $p_g$ 的更新其实都转为对  $\theta_g$ 的更新，例如，使用 MLP 作为 G 的模型，目标函数 (1) 式中的 $p_g$ 分布替换为某个 batch 中的生成样本分布，$p_{data}$ 则替换为 batch 中的真实样本分布，简单点说，目标函数 (1) 变为 batch 中所有样本的 log-likelihood function 的均值，包含真实数据和生成数据两部分的log 似然函数，具体可参见下文的代码分析。</p>
+<h2 id="PyTorch-代码分析"><a href="#PyTorch-代码分析" class="headerlink" title="PyTorch 代码分析"></a>PyTorch 代码分析</h2><p>代码来自 <a target="_blank" rel="noopener" href="https://github.com/eriklindernoren/PyTorch-GAN">eriklindernoren/PyTorch-GAN</a></p>
+<p><strong>Generator</strong></p>
+<p>生成器就是一个简单的 MLP，将随机噪声 $(B, d)$ 转变为 $(B, C\times H \times W)$，其中 $B$ 表示 batch size，$d$ 表示噪声空间维度，手动设置，$C, H, W$ 为数据集中图片的 shape。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Generator</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="built_in">super</span>(Generator, self).__init__()</span><br><span class="line">    </span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">block</span>(<span class="params">in_feat, out_feat, normalize=<span class="literal">True</span></span>):</span></span><br><span class="line">            <span class="string">&#x27;&#x27;&#x27;create a Conv+BN+ReLU layer&#x27;&#x27;&#x27;</span></span><br><span class="line">            layers = [nn.Linear(in_feat, out_feat)]</span><br><span class="line">            <span class="keyword">if</span> normalize:</span><br><span class="line">                layers.append(nn.BatchNorm1d(out_feat, <span class="number">0.8</span>))</span><br><span class="line">            layers.append(nn.LeakyReLU(<span class="number">0.2</span>, inplace=<span class="literal">True</span>))</span><br><span class="line">            <span class="keyword">return</span> layers</span><br><span class="line">        </span><br><span class="line">        self.model = nn.Sequential(</span><br><span class="line">            *block(opt.latent_dim, <span class="number">128</span>, normalize=<span class="literal">False</span>),   <span class="comment"># latent_dim：噪声维度</span></span><br><span class="line">            *block(<span class="number">128</span>, <span class="number">256</span>),</span><br><span class="line">            *block(<span class="number">256</span>, <span class="number">512</span>),</span><br><span class="line">            *block(<span class="number">512</span>, <span class="number">1024</span>),</span><br><span class="line">            nn.Linear(<span class="number">1024</span>, <span class="built_in">int</span>(np.prod(img_shape))),   <span class="comment"># 线性变换，输出 CxHxW</span></span><br><span class="line">            nn.Tanh()</span><br><span class="line">        )</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, z</span>):</span></span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;z is the noise, (B, latent_dim)&#x27;&#x27;&#x27;</span></span><br><span class="line">        img = self.model(z)     <span class="comment"># (B, C*H*W)    对于 mnist，灰度图片，C=1</span></span><br><span class="line">        img = img.view(img.size(<span class="number">0</span>), *img_shape)</span><br><span class="line">        <span class="keyword">return</span> img</span><br></pre></td></tr></table></figure></p>
+<p><strong>Discriminator</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Discriminator</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="built_in">super</span>(Discriminator, self).__init__()</span><br><span class="line"></span><br><span class="line">        self.model =  nn.Sequential(</span><br><span class="line">            nn.Linear(<span class="built_in">int</span>(np.prod(img_shape)), <span class="number">512</span>),</span><br><span class="line">            nn.LeakyReLU(<span class="number">0.2</span>, inplace=<span class="literal">True</span>),</span><br><span class="line">            nn.Linear(<span class="number">512</span>, <span class="number">256</span>),</span><br><span class="line">            nn.LeakyReLU(<span class="number">0.2</span>, inplace=<span class="literal">True</span>),</span><br><span class="line">            nn.Linear(<span class="number">256</span>, <span class="number">1</span>),</span><br><span class="line">            nn.Sigmoid(),</span><br><span class="line">        )</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, img</span>):</span></span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;img: (B, C, H, W)，真实图片数据，或者 G 生成的图片数据&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将输入 flatten 为 (B, C*H*W)，然后通过 MLP，输出 (B, 1)</span></span><br><span class="line">        img_flat = img.view(img.size(<span class="number">0</span>), -<span class="number">1</span>)</span><br><span class="line">        validity = self.model(img_flat).view(-<span class="number">1</span>)     <span class="comment"># 归一化，(B, 1) -&gt; (B, )</span></span><br><span class="line">        <span class="keyword">return</span> validity</span><br></pre></td></tr></table></figure>
+<p><strong>损失</strong></p>
+<ol>
+<li><p>训练判别器 D</p>
+<p> 将公式 (1) 进行调整，对于一个 mini-batch，真实图片的 target 为 1，生成图片的 target 为 0，$D(x)$ 和 $D(G(z))$ 为各自的预测概率，于是公式 (1) 对判别器 D 而言可以看作是最大化似然函数，或者说是最小化交叉熵/NLL 损失，判别器的目标是能正确判别，故真实图片 <code>target=1</code>，生成图片 <code>target=0</code>，使用 <code>BCELoss</code> 损失函数。</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adversarial_loss = nn.BCELoss()</span><br></pre></td></tr></table></figure></li>
+<li><p>训练生成器 G</p>
+<p> 生成器 G 希望 D 将生成数据判别为 1，即，最大化预测概率 $D(G(z))$，这与公式 (1) 中最小化 $1-D(G(z))$ 是一致的。最大化预测概率 $D(G(z))$ 等价于最小化 NLL/交叉熵 损失，故训练 G 时，生成数据的 <code>target=1</code>，使用 <code>BCELoss</code> 损失函数。</p>
+</li>
+</ol>
+<p><strong>训练</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">latent_dim = <span class="number">100</span></span><br><span class="line">G = Generator()         <span class="comment"># 根据正态分布随机初始化模型参数：N(0, 0.02)</span></span><br><span class="line">D = Discriminator()</span><br><span class="line"></span><br><span class="line">optimizer_G = optim.Adam(G.parameters(),lr=<span class="number">1e-3</span>)</span><br><span class="line">optimizer_D = optim.Adam(D.parameters(),lr=<span class="number">1e-3</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> epoch_num:</span><br><span class="line">    <span class="keyword">for</span> i, (imgs, _) <span class="keyword">in</span> <span class="built_in">enumerate</span>(dataloader):      <span class="comment"># 批次取真实数据</span></span><br><span class="line">        <span class="comment"># imgs: ToTensor(), Normalize([0.5], [0.5])</span></span><br><span class="line">        <span class="comment"># ====================== 训练 G =========================</span></span><br><span class="line">        B, C, H, W = img.shape</span><br><span class="line">        target = torch.ones((B,))</span><br><span class="line">        fake_t = torch.zeros((B,))</span><br><span class="line">        z = torch.randn(B, latent_dim)      <span class="comment"># 噪声</span></span><br><span class="line">        fake_imgs = G(z)                    <span class="comment"># 生成数据，(B, C, H, W)</span></span><br><span class="line"></span><br><span class="line">        optimizer_G.zero_grad()</span><br><span class="line">        <span class="comment"># G 希望 D 将生成数据预测为 1</span></span><br><span class="line">        g_loss = adversarial_loss(D(fake_imgs), target)</span><br><span class="line">        g_loss.backward()</span><br><span class="line">        optimizer_G.step()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># ====================== 训练 D =========================</span></span><br><span class="line">        optimizer_D.zero_grad()</span><br><span class="line">        real_loss = adversarial_loss(D(imgs), target)   <span class="comment"># D(imgs): (B,)</span></span><br><span class="line">        fake_loss = adversarial_loss(D(fake_imgs.detach()), fake_t)</span><br><span class="line">        d_loss = (real_loss + fake_loss) / <span class="number">2</span></span><br><span class="line">        d_loss.backward()</span><br><span class="line">        optimizer_D.step()</span><br></pre></td></tr></table></figure>
+<p><strong>生成 image</strong></p>
+<p>生成器 G 输出的 image data 范围为 <code>[-1,1]</code>，所以还需要恢复到 <code>[0,255]</code>，可以直接使用 torchvision 中的 <code>save_image</code> 方法，可以帮我们实现 rescale 到 <code>[0,255]</code> 这个步骤，<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torchvision.utils <span class="keyword">import</span> save_image</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存 5*5 个生成 images</span></span><br><span class="line"><span class="comment"># 保存一个大的 image，由这 25 个 images 按 5x5 的 grid 排列</span></span><br><span class="line">row = <span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定 normalize，将最小值映射为 0， 最大值映射为 1， 然后乘以 255 取整，即可</span></span><br><span class="line"><span class="comment"># 否则，img * 0.5 + 0.5，然后乘以 255，取整</span></span><br><span class="line">save_image(G(torch.randn(row**<span class="number">2</span>, latent_dim)), save_path, nrow=row, normalize=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure></p>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>由于原生实现所用到的库太古老，以下内容可以忽略。</p>
+<p>实验介绍和结果分析略。在这里，我们重点看一下源码 <a target="_blank" rel="noopener" href="http://www.github.com/goodfeli/adversarial">adversarial</a></p>
+<blockquote>
+<p>声明：本源码使用库 Theano 和 Pylearn2，而我从来没接触过这两个库，代码分析全凭函数名、变量名和类名等。github 上也有 GAN 的其他实现如 <a target="_blank" rel="noopener" href="https://github.com/wiseodd/generative-models">generative-models</a>，代码通俗易懂，读者可自行查阅。</p>
+</blockquote>
+<p>从 github 上 clone 这个仓库，进入 adversarial 本项目的根目录。以 mnist 数据集为例说明。</p>
+<p>首先看下 mnist.yaml 这个文件，<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">!obj:pylearn2.train.Train</span> &#123;         <span class="comment"># 训练配置</span></span><br><span class="line">    <span class="attr">dataset:</span> <span class="string">&amp;train</span> <span class="type">!obj:pylearn2.datasets.mnist.MNIST</span> &#123;    <span class="comment"># 训练使用 mnist 数据集</span></span><br><span class="line">        <span class="attr">which_set:</span> <span class="string">&#x27;train&#x27;</span>,                                 <span class="comment"># 使用 train 数据的前 50000 条</span></span><br><span class="line">        <span class="attr">start:</span> <span class="number">0</span>,</span><br><span class="line">        <span class="attr">stop:</span> <span class="number">50000</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">model:</span> <span class="type">!obj:adversarial.AdversaryPair</span> &#123;                 <span class="comment"># GAN：G &amp; D</span></span><br><span class="line">        <span class="attr">generator:</span> <span class="type">!obj:adversarial.Generator</span> &#123;             <span class="comment"># G</span></span><br><span class="line">            <span class="attr">noise:</span> <span class="string">&#x27;uniform&#x27;</span>,                               <span class="comment"># noise 分布使用均匀分布</span></span><br><span class="line">            <span class="attr">monitor_ll:</span> <span class="number">1</span>,</span><br><span class="line">            <span class="attr">mlp:</span> <span class="type">!obj:pylearn2.models.mlp.MLP</span> &#123;</span><br><span class="line">            <span class="attr">layers:</span> [</span><br><span class="line">                     <span class="type">!obj:pylearn2.models.mlp.RectifiedLinear</span> &#123; <span class="comment"># 带 ReLu 的 FC 层</span></span><br><span class="line">                         <span class="attr">layer_name:</span> <span class="string">&#x27;h0&#x27;</span>,</span><br><span class="line">                         <span class="attr">dim:</span> <span class="number">1200</span>,                             <span class="comment"># 本层 output units 数量</span></span><br><span class="line">                         <span class="attr">irange:</span> <span class="number">.05</span>,</span><br><span class="line">                     &#125;,</span><br><span class="line">                     <span class="string">...</span></span><br><span class="line">                     <span class="type">!obj:pylearn2.models.mlp.Sigmoid</span> &#123;     <span class="comment"># FC 层后接 sigmoid</span></span><br><span class="line">                         <span class="attr">init_bias:</span> <span class="type">!obj:pylearn2.models.dbm.init_sigmoid_bias_from_marginals</span> &#123; <span class="attr">dataset:</span> <span class="string">*train</span>&#125;,</span><br><span class="line">                         <span class="attr">layer_name:</span> <span class="string">&#x27;y&#x27;</span>,</span><br><span class="line">                         <span class="attr">irange:</span> <span class="number">.05</span>,</span><br><span class="line">                         <span class="attr">dim:</span> <span class="number">784</span>                               <span class="comment"># 784=28x28，为 mnist 单个样本大小</span></span><br><span class="line">                     &#125;</span><br><span class="line">                    ],</span><br><span class="line">            <span class="attr">nvis:</span> <span class="number">100</span>,                                          <span class="comment"># G 的噪声随机变量的向量维度</span></span><br><span class="line">        &#125;&#125;,</span><br><span class="line">        <span class="attr">discriminator:</span>                                          <span class="comment"># D</span></span><br><span class="line">            <span class="type">!obj:pylearn2.models.mlp.MLP</span> &#123;</span><br><span class="line">            <span class="attr">layers:</span> [</span><br><span class="line">                     <span class="string">...</span></span><br><span class="line">                     <span class="type">!obj:pylearn2.models.mlp.Sigmoid</span> &#123;</span><br><span class="line">                         <span class="attr">layer_name:</span> <span class="string">&#x27;y&#x27;</span>,</span><br><span class="line">                         <span class="attr">dim:</span> <span class="number">1</span>,                                <span class="comment"># 输出为标量</span></span><br><span class="line">                         <span class="attr">irange:</span> <span class="number">.005</span></span><br><span class="line">                     &#125;</span><br><span class="line">                    ],</span><br><span class="line">            <span class="attr">nvis:</span> <span class="number">784</span>,                                          <span class="comment"># 输入向量维度</span></span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">algorithm:</span> <span class="type">!obj:pylearn2.training_algorithms.sgd.SGD</span> &#123;      <span class="comment"># 优化算法</span></span><br><span class="line">        <span class="string">...</span></span><br><span class="line">        <span class="attr">cost:</span> <span class="type">!obj:adversarial.AdversaryCost2</span> &#123;                 <span class="comment"># 损失实现类</span></span><br><span class="line">            <span class="attr">scale_grads:</span> <span class="number">0</span>,</span><br><span class="line">            <span class="comment">#target_scale: 1.,</span></span><br><span class="line">            <span class="attr">discriminator_default_input_include_prob:</span> <span class="number">.5</span>,</span><br><span class="line">            <span class="attr">discriminator_input_include_probs:</span> &#123;</span><br><span class="line">                <span class="attr">&#x27;h0&#x27;:</span> <span class="number">.8</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">discriminator_default_input_scale:</span> <span class="number">2</span><span class="string">.</span>,</span><br><span class="line">            <span class="attr">discriminator_input_scales:</span> &#123;</span><br><span class="line">                <span class="attr">&#x27;h0&#x27;:</span> <span class="number">1.25</span>   </span><br><span class="line">            &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">        <span class="string">...</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>可以明显知道，训练使用 mnist 的 <code>train</code> 数据集中前 50000 个数据，模型类实现为 adversarial.AdversaryPair，生成器类为 adversarial.Generator，其内部封装了一个 MLP，判别器类直接使用 MLP。损失实现类为 adversarial.AdversaryCost2。这些类的实现均位于 <code>__init__.py</code> 中。这里主要分析一下 AdversaryCost2（其他类的实现均比较简单明了）。</p>
+<p>首先看一下生成样本和目标函数 <code>get_samples_and_objectives</code>，<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">g=model.generator       <span class="comment"># model is an instance of AdversaryPair</span></span><br><span class="line">d=model.discriminator</span><br><span class="line">X=data                  <span class="comment"># 真实数据（来自训练样本）的 batch</span></span><br><span class="line">m=data.shape[space.get_batch_axis()]    <span class="comment"># 获取 batch 的大小，即批样本数量</span></span><br><span class="line">y1=T.alloc(<span class="number">1</span>,m,<span class="number">1</span>)       <span class="comment"># 长度为 m 的全 1 向量，代表真实数据的 label</span></span><br><span class="line">y0=T.alloc(<span class="number">0</span>,m,<span class="number">1</span>)       <span class="comment"># 长度为 m 的全 0 向量，代表生成数据的 label</span></span><br><span class="line"><span class="comment"># 1. 生成 m 个噪声作为 G 模型的输入 z</span></span><br><span class="line"><span class="comment"># 2. G 前向传播生成 m 个样本 S</span></span><br><span class="line">S,z,other_layers=g.sample_and_noise(m,</span><br><span class="line">    default_input_include_prob=self.generator_default_input_include_prob,   <span class="comment"># 1</span></span><br><span class="line">    default_input_scale=self.generator_default_input_scale,                 <span class="comment"># 1</span></span><br><span class="line">    all_g_layers=(self.infer_layer <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>)                         <span class="comment"># False</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">if</span> self.noise_both !=<span class="number">0</span>:     <span class="comment"># 真实数据和生成数据均添加一个噪声干扰</span></span><br><span class="line">    ...</span><br><span class="line"><span class="comment"># D 前向传播，分别得到真实数据的预测 label 和生成数据的预测 label</span></span><br><span class="line">y_hat1 = d.dropout_fprop(...)       <span class="comment"># 参数略</span></span><br><span class="line">y_hat0 = d.dropout_fprop(...)</span><br><span class="line"><span class="comment"># D 的目标损失。d.layers[-1] 为 Sigmoid 层，其目标损失为 KL 散度</span></span><br><span class="line">d_obj = <span class="number">0.5</span>*(d.layers[-<span class="number">1</span>].cost(y1,y_hat1)+d.layers[-<span class="number">1</span>].cost(y0,y_hat0))</span><br><span class="line"><span class="comment"># G 的目标损失。G 希望 D 的判别结果 y_hat0 与真实 label y1 越小越好  </span></span><br><span class="line">g_obj = d.layers[-<span class="number">1</span>].cost(y1,y_hat0)</span><br><span class="line"><span class="keyword">if</span> model.inferer <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:       <span class="comment"># 模型推断器</span></span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    i_obj = <span class="number">0</span></span><br><span class="line"><span class="keyword">return</span> S, d_obj, g_obj, i_obj       <span class="comment"># 返回生成样本，D 损失和 G 损失</span></span><br></pre></td></tr></table></figure><br>再来看计算梯度函数 <code>get_gradients</code> 的实现部分，<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">g=model.generator</span><br><span class="line">d=model.generator</span><br><span class="line">S,d_obj,g_obj,i_obj = self.get_samples_and_objectives(model,data)   <span class="comment"># 调用上面分析的函数</span></span><br><span class="line">g_params = g.get_params()</span><br><span class="line">d_params = d.get_params()</span><br><span class="line"><span class="comment"># 计算损失对各参数的梯度</span></span><br><span class="line">d_grads = T.grad(d_obj,d_params)</span><br><span class="line">g_grads = T.grad(g_obj,g_params)</span><br><span class="line"><span class="keyword">if</span> self.scale_grads:    <span class="comment"># 缩小 g_grads</span></span><br><span class="line">    S_grad = T.grad(g_obj, S)   <span class="comment"># G 损失对生成样本（也就是 G 的输出）的梯度</span></span><br><span class="line">    <span class="comment"># S_grad 的平方和的平方根的倒数作为缩小比例</span></span><br><span class="line">    scale = T.maximum(<span class="number">1.</span>,self.target_scale/T.sqrt(T.sqr(S_grad).<span class="built_in">sum</span>()))</span><br><span class="line">    <span class="comment"># 缩小 g_grads</span></span><br><span class="line">    g_grads = [g_grad * scale <span class="keyword">for</span> g_grad <span class="keyword">in</span> g_grads]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存各模型参数与其对应的梯度</span></span><br><span class="line">rval = OrderDict()</span><br><span class="line">rval.update(OrderedDict(safe_zip(d_params, [self.now_train_discriminator * dg <span class="keyword">for</span> dg <span class="keyword">in</span> d_grads])))</span><br><span class="line">rval.update(OrderedDict(safe_zip(g_params, [self.now_train_generator * gg <span class="keyword">for</span> gg <span class="keyword">in</span> g_grads])))</span><br><span class="line"></span><br><span class="line">updates = OrderDict()</span><br><span class="line"><span class="keyword">if</span> self.alternate_g:</span><br><span class="line">    updates[self.now_train_generator]=<span class="number">1.</span> - self.now_train_generator</span><br><span class="line"><span class="keyword">return</span> rval, updates</span><br></pre></td></tr></table></figure><br>最终的更新操作由 Pylearn2/Theano 库完成。</p>
+<p>以上代码片段中，目标函数为损失，与 log 似然函数相差一个负号，所以上文分析中某些求最大值的地方变为求最小值，然后使用随机梯度下降更新模型参数，这与算法 1 中的情况完成相同。另外，对 <code>g_grads</code> 进行 scale 缩小，一种可能的原因是，</p>
+<p>生成样本 $S=\theta_g \cdot z$，损失对 $\theta_g$ 的梯度满足</p>
+<script type="math/tex; mode=display">\nabla_{\theta_g}L=\nabla_S L \cdot \frac {\partial S}{\partial \theta_g}</script><p>记生成样本 S 经过 D 的输出为 y_0，即，$y_0=\theta_d \cdot S$，于是</p>
+<script type="math/tex; mode=display">\nabla_S L=\frac {dL}{dy_0}\cdot \theta_d</script><p>可以看出在计算损失对 G 模型参数的梯度之前，$\nabla_S L$ 这个梯度已经经过 D 中各层的传播：</p>
+<ol>
+<li><p>如果其 L2 范数大于 1，那么再经过 G 中各层反向传播时，极有可能出现梯度爆炸，即 $\nabla_{\theta_g}L$ 很大， 导致训练不稳定，所以需要将其进行 scale 缩小，缩小的比例正好能使 $\nabla_S L$ 的 L2 范数为指定值 <code>self.target_scale</code>（默认为1）。<br>关于 G 模型参数的梯度过大导致训练不稳定，如下图，<br><img src="/images/GAN_fig2.png" alt=""><center>fig 2. 图来自于网络。左图表示 $G_0$ 时的 V(G,D) 曲线；右图表示 $G_1$ 时的 V(G,D) 曲线。（这个图我觉得有点奇怪，按道理不应该是凸函数吗，以及右图右边的红点不是说明存在合适的 $D_1^{\ast}$ 吗，用这个图能说明什么问题，我没有搞懂。相反，我倒觉得是用来说明不要更新 G 太多以便可以达到这个图中的效果。如我理解有误，恳请大佬指正~）</center></p>
+<p>上图表示在 $D_0^{\ast}$ 取得最大值 $\max_D V(G_0,D_0)=V(G_0,D_0^{\ast})$，然后更新 $G_0$ 为 $G_1$后，由于 G 的更新会降低 V(G,D)，故 $V(G_1,D_0^{\ast}) &lt; V(G_0,D_0^{\ast})$，但是此时更新 D 以最大化 V(G,D)，可能会出现 $V(G_1,D_1^{\ast}) &lt; V(G_0,D_0^{\ast})$，这意味着判别器 $D_1^{\ast}$ 的判别能力比之前的 $D_0^{\ast}$ 的判别能力差，而 G 伪装能力的增强是建立在 D 判别能力的增强这个基础上，否则更新 G 就达不到应该有的效果，所以降低损失对 G 模型参数的梯度，以便不要更新 G 太多，或者多次更新 D 与一次更新 G 交替进行。</p>
+</li>
+<li>如果其 L2 范数小于等于1，则对梯度不做 scale 缩小操作。</li>
+</ol>
+<p>当然，还有其他损失实现类，具体请查阅源码，不再讨论。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>给定一个预先已知分布的噪声随机变量 z，G 根据 z 生成图像 G(z)，D 将 G(z) 与训练样本区分开来。训练过程根据 (1) 式交替优化 D 和 G，使得 G 尽可能拟合真实数据分布，而 D 提高判别能力，最终 G 分布与真实分布相同，D 无法判别模型分布和真实数据分布。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/GAN/" rel="tag"># GAN</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/07/19/Grid-RCNN/" rel="prev" title="Grid-RCNN">
+      <i class="fa fa-chevron-left"></i> Grid-RCNN
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/07/25/gan/WGAN/" rel="next" title="WGAN">
+      WGAN <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GAN"><span class="nav-number">1.</span> <span class="nav-text">GAN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%90%86%E8%AE%BA%E5%88%86%E6%9E%90"><span class="nav-number">1.2.</span> <span class="nav-text">理论分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E6%9C%80%E4%BC%98%E8%A7%A3"><span class="nav-number">1.2.1.</span> <span class="nav-text">全局最优解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E6%B3%95-1-%E7%9A%84%E6%94%B6%E6%95%9B"><span class="nav-number">1.2.2.</span> <span class="nav-text">算法 1 的收敛</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PyTorch-%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">1.3.</span> <span class="nav-text">PyTorch 代码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">1.4.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.5.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">104</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

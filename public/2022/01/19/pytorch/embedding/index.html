@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="embedding 就是将一个 word 转换为 一个 vector，最简单的方法就是使用 one-hot vector，其长度为词汇表大小，但是 one-hot vector 无法表示词的语义，比如两个词是相近还是相反含义，或者无关，embedding vector 则可以很好的表征词的语义。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="词嵌入向量">
+<meta property="og:url" content="https://shajianjian.github.io/2022/01/19/pytorch/embedding/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="embedding 就是将一个 word 转换为 一个 vector，最简单的方法就是使用 one-hot vector，其长度为词汇表大小，但是 one-hot vector 无法表示词的语义，比如两个词是相近还是相反含义，或者无关，embedding vector 则可以很好的表征词的语义。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-01-19T02:05:19.000Z">
+<meta property="article:modified_time" content="2022-01-20T02:00:52.377Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="PyTorch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2022/01/19/pytorch/embedding/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>词嵌入向量 | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2022/01/19/pytorch/embedding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          词嵌入向量
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-01-19 10:05:19" itemprop="dateCreated datePublished" datetime="2022-01-19T10:05:19+08:00">2022-01-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-20 10:00:52" itemprop="dateModified" datetime="2022-01-20T10:00:52+08:00">2022-01-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>embedding 就是将一个 word 转换为 一个 vector，最简单的方法就是使用 <code>one-hot vector</code>，其长度为词汇表大小，但是 <code>one-hot vector</code> 无法表示词的语义，比如两个词是相近还是相反含义，或者无关，embedding vector 则可以很好的表征词的语义。</p>
+<span id="more"></span>
+<h1 id="1-原理"><a href="#1-原理" class="headerlink" title="1. 原理"></a>1. 原理</h1><p>给词汇表中每个 word 分配一个唯一的编号 index，例如词汇表大小为 $V$，那么 index 为 $1,\ldots, V$，记 embedding vector 维度为 $d$，那么可以使用一个矩阵 $E \in \mathbb R^{V \times d}$，矩阵每一行表示一个 word 对应的 embedding。</p>
+<p>这个 embedding 过程其实就是一层全连接层（fc），fc 的参数就是上面说的矩阵 $E$，fc 的输入是 <code>one-hot vector</code>，记为 $\mathbf x_i \in \mathbb R^{1 \times V}$，第 <code>i</code> 个元素值为 <code>1</code>，那么 fc 的输出 $\mathbf e_i = \mathbf x E \in \mathbb R^{1 \times d}$。</p>
+<p>将 word 转换为 embedding vector 后，可以作为网络的输入，既然如此，可以直接像训练网络那样训练这个 fc。</p>
+<h1 id="2-Embedding-类型"><a href="#2-Embedding-类型" class="headerlink" title="2. Embedding 类型"></a>2. Embedding 类型</h1><p>在 PyTorch 中，使用 <code>Embedding</code> 类来实现 embedding 相关操作，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.Embedding(num_embeddings, embedding_dim, padding_idx=<span class="literal">None</span>,</span><br><span class="line">    max_norm=<span class="literal">None</span>, norm_type=<span class="number">2.0</span>, scale_grad_by_freq=<span class="literal">False</span>, sparse=<span class="literal">False</span>,</span><br><span class="line">    _weight=<span class="literal">None</span>, device=<span class="literal">None</span>, dtype=<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+<p>参数说明：</p>
+<ol>
+<li><code>num_embeddings</code> ： embeddings 数量，即词汇表大小。</li>
+<li><code>embedding_dim</code>： embedding vector 维度</li>
+<li><p><code>padding_idx</code>：可选，指定填充 index 值。通常选取 <code>batch_size</code> 数量的句子（word sequence）作为一个 batch，但是各个句子长度（word 数量，即 sequence length）可能不同，所以固定一个值作为 sequence length，然后对于那些较短的句子，使用 <code>padding_idx</code> 进行填充。一种经典的做法是：</p>
+<ul>
+<li>取 <code>batch_size</code> 的 sentences，使用分词器分词，得到 <code>batch_size</code> 个 sequences</li>
+<li>取 sequences 中长度最大值，记为 <code>L</code></li>
+<li><p>对每个 sequence， prepend <code>&lt;init_token&gt;</code>，然后再 append <code>&lt;end_token&gt;</code>，最后，对长度不足 <code>L</code> 的 sequence，填充 <code>&lt;pad_token&gt;</code>，使得长度为 <code>L</code>。这里的长度 <code>L</code> 不包括 <code>&lt;init_token&gt;</code> 和 <code>&lt;end_token&gt;</code>。</p>
+<p><strong><code>padding_idx</code> 如果指定，那么对应的 embedding vector 在训练过程中将保持不变，这个 embedding vector 初始为全 0 向量，但是可以手动更改。</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 默认 padding embedding 为 0-vector</span></span><br><span class="line">embedding = nn.Embedding(<span class="number">10</span>, <span class="number">3</span>, padding_idx=<span class="number">0</span>)</span><br><span class="line"><span class="built_in">input</span> = torch.LongTensor([[<span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">5</span>]])    <span class="comment"># (B, seq_len) = (1, 4)</span></span><br><span class="line">embedding(<span class="built_in">input</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 手动修改 padding embedding</span></span><br><span class="line">padding_idx = <span class="number">0</span></span><br><span class="line">embedding.weight    <span class="comment"># print embeddings before updating</span></span><br><span class="line"><span class="keyword">with</span> torch.no_grad():</span><br><span class="line">    embedding.weight[padding_idx] = torch.ones(<span class="number">3</span>)</span><br><span class="line">embedding.weight    <span class="comment"># print embeddings after updating</span></span><br></pre></td></tr></table></figure>
+<p><code>padding_idx</code> 如果指定，那么 <code>num_embeddings</code> 为 <code>V+1</code> 。</p>
+</li>
+</ul>
+</li>
+<li><p><code>max_norm</code> ： 可选。如果指定，那么任何 embedding vector，如果其 norm 超过这个值，会被收缩使得 norm 等于 <code>max_norm</code>。</p>
+</li>
+<li><code>norm_type</code>：norm 类型，与 <code>max_norm</code> 配合使用。</li>
+<li><code>scale_grad_by_freq</code>：如果为 True，将根据 word 在 mini-batch 中的频率倒数，rescale （weight 关联的）gradient，类似于样本均衡，否则如果某个 word 出现太多，导致其对应的 gradient 太大，网络注意力全在这些高频 word 上了。</li>
+<li><code>sparse</code>：如果为 True，那么 <code>gradient</code> w.r.t. <code>Embedding.weight</code> 矩阵为稀疏矩阵，由于这个矩阵维度较大，采用稀疏矩阵可以节约内存，但是只有几个优化器支持稀疏矩阵：<code>optim.SGD(CUDA 和 CPU)</code>，<code>optim.SparseAdam(CUDA 和 CPU)</code>，以及 <code>optim.Adagrad(CPU)</code>。</li>
+</ol>
+<p>注意：<code>max_norm</code> 不为 none 时，Embedding 类的 <code>forward</code> 方法会 in-place 修改其 <code>weight</code> tensor，然而在梯度计算时，不能 in-place 修改 tensor，否则梯度计算不准确，所以如果在损失计算式中包含了 <code>weight</code>，那么必须要使用 <code>weight</code> 的 clone，示例代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">n, d, m = <span class="number">10</span>, <span class="number">3</span>, <span class="number">5</span></span><br><span class="line">embedding = nn.Embedding(n, d, max_norm=<span class="number">1</span>)</span><br><span class="line">W = torch.randn((m, d), requires_grad=<span class="literal">True</span>)</span><br><span class="line"><span class="built_in">input</span> = torch.tensor([<span class="number">1</span>, <span class="number">2</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 这里，a 必须要使用 weight 的 clone，如果不使用 clone，那么 a 的计算</span></span><br><span class="line"><span class="comment">#   必须要放在 b 的计算之后，此时表示另一种含义的 out</span></span><br><span class="line">a = embedding.weight.clone() @ W.t()</span><br><span class="line">b = embedding(<span class="built_in">input</span>) @ W.t()    <span class="comment"># 这一步，修改了 weight</span></span><br><span class="line"></span><br><span class="line">out = (a.unsqueeze(<span class="number">0</span>) + b.unsqueeze(<span class="number">1</span>))</span><br><span class="line">loss = out.sigmoid().prod()</span><br><span class="line">loss.backward()</span><br></pre></td></tr></table></figure></p>
+<p><code>forward</code> 参数：</p>
+<ol>
+<li><p><code>input</code>：为 IntTensor 或 LongTensor 类型，为任意 shape，记为 $(\star)$，元素值为 index，注意不是 <code>one-hot</code> vector，第 <code>1</code> 节中使用 <code>one-hot</code> vector 仅仅是为了说明，PyTorch 中使用 <code>index</code> （例如 $idx \in [0, V]$，其中 <code>0</code> 表示 <code>padding_idx</code> ）。</p>
+</li>
+<li><p><code>forward</code> 方法的输出：shape 为 $(\star, d)$， 其中 embedding 维度为 <code>d</code>，相当于为最后增加一个维度，维度大小为 <code>d</code>。</p>
+</li>
+</ol>
+<h1 id="3-from-pretrained-方法"><a href="#3-from-pretrained-方法" class="headerlink" title="3. from_pretrained 方法"></a>3. from_pretrained 方法</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CLASSMETHOD from_pretrained(embeddings, freeze=<span class="literal">True</span>, padding_idx=<span class="literal">None</span>,</span><br><span class="line">    max_norm=<span class="literal">None</span>, norm_type=<span class="number">2.0</span>, scale_grad_by_freq=<span class="literal">False</span>, sparse=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+<p>根据给定的一个 embeddings 矩阵，创建一个 <code>Embedding</code> 实例<br>参数说明</p>
+<ol>
+<li><code>embeddings</code>：指定 embeddings 矩阵，shape 为 <code>(num_embeddings, embedding_dim)</code>。</li>
+<li>其他参数含义与 <code>Embedding</code> 构造函数的参数意义相同。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">weight = torch.FloatTensor([[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>], [<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]])  <span class="comment"># (2, 3)</span></span><br><span class="line">embedding = nn.Embedding.from_pretrained(weight)</span><br><span class="line"></span><br><span class="line"><span class="built_in">input</span> = torch.LongTensor([<span class="number">1</span>])   <span class="comment"># input shape: (1,)</span></span><br><span class="line">embedding(<span class="built_in">input</span>)                <span class="comment"># output shape: (1, 3)</span></span><br><span class="line"><span class="comment"># tensor([[4.0000, 5.0000, 6.0000]])</span></span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/17/transformer/self_attention/" rel="prev" title="attention is all you need">
+      <i class="fa fa-chevron-left"></i> attention is all you need
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/21/transformer/detr/" rel="next" title="DETR">
+      DETR <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">1. 原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Embedding-%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">2. Embedding 类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-from-pretrained-%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">3. from_pretrained 方法</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">104</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="123torch.nn.MultiheadAttention(embed_dim, num_heads, dropout&#x3D;0.0, bias&#x3D;True,add_bias_kv&#x3D;False, add_zero_attn&#x3D;False, kdim&#x3D;None, vdim&#x3D;None, batch_first&#x3D;False,device&#x3D;None, dtype&#x3D;None)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Attention">
+<meta property="og:url" content="https://shajianjian.github.io/2022/01/25/pytorch/attention/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="123torch.nn.MultiheadAttention(embed_dim, num_heads, dropout&#x3D;0.0, bias&#x3D;True,add_bias_kv&#x3D;False, add_zero_attn&#x3D;False, kdim&#x3D;None, vdim&#x3D;None, batch_first&#x3D;False,device&#x3D;None, dtype&#x3D;None)">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-01-25T01:25:37.000Z">
+<meta property="article:modified_time" content="2022-01-25T08:29:05.957Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="PyTorch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2022/01/25/pytorch/attention/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Attention | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2022/01/25/pytorch/attention/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Attention
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-01-25 09:25:37 / 修改时间：16:29:05" itemprop="dateCreated datePublished" datetime="2022-01-25T09:25:37+08:00">2022-01-25</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.MultiheadAttention(embed_dim, num_heads, dropout=<span class="number">0.0</span>, bias=<span class="literal">True</span>,</span><br><span class="line">add_bias_kv=<span class="literal">False</span>, add_zero_attn=<span class="literal">False</span>, kdim=<span class="literal">None</span>, vdim=<span class="literal">None</span>, batch_first=<span class="literal">False</span>,</span><br><span class="line">device=<span class="literal">None</span>, dtype=<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+<span id="more"></span>
+<p>相关论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a></p>
+<p><a href="/transformer/2022/01/17/self_attention">论文解读</a></p>
+<h1 id="1-流程简介"><a href="#1-流程简介" class="headerlink" title="1. 流程简介"></a>1. 流程简介</h1><p>为了方便理解，这里我简洁地进行总结。以机器翻译任务为例说明。</p>
+<p>将 multi-head self-attention 简记为 mh self-attn</p>
+<h2 id="1-1-Encoder"><a href="#1-1-Encoder" class="headerlink" title="1.1 Encoder"></a>1.1 Encoder</h2><p>输入预处理：</p>
+<ol>
+<li>输入 shape 按 <code>(batch_size, seq_len)</code> 的顺序，记为 <code>(B, L)</code>，input 中各元素表示 word 的 index，index 范围为 <code>[0, V]</code>，其中 <code>0</code> 表示 <code>&lt;pad_tok&gt;</code>，<code>V</code> 表示词汇表大小。</li>
+<li>heads 数量为 <code>n</code>，模型维度为 <code>d</code>，每个 head 的维度为 $d/n$ </li>
+<li>输入 tensor 经 embedding 转化为 input embedding，其 shape 为 <code>(B, L, d)</code>，embedding 参数矩阵维度为 <code>(V+1, d)</code></li>
+<li>叠加 position embedding，故叠加后 shape 相同，仍为 <code>(B, L, d)</code>。</li>
+</ol>
+<p>mh self-attn 过程：</p>
+<ol>
+<li>input embedding 使用参数矩阵 $W^Q \in \mathbb R^{d \times d}$，得到 <code>query</code> 数据，记为 $Q$，其 shape 为 $(B, L, d)$。</li>
+<li><p>input embedding 分别使用参数矩阵 $W^K \in \mathbb R^{d \times d_k}$，$W^V \in \mathbb R^{d \times d_v}$，线性转换为 <code>key</code> 和 <code>value</code>，记为 $K, \ V$，其 shape 分别为 $(B, L, d_k), \ (B, L, d_v)$。</p>
+</li>
+<li><p>$Q, K ,V$ 的最后一维，实际上是 <code>n</code> 个 heads concatenate 的结果，可以 <code>Q1=Q.view(B, L, n, d/n)</code>，<code>K1=K.view(B, L, n, d_k/n)</code>， <code>V1=V.view(B, L, n, d_v/n)</code>。</p>
+</li>
+<li>执行 attention 操作，$A_i=Q_iK_i^{\top}, \ i=1,2,…,n$，注意这里是每个 head 内部进行 atention 操作，由于 attention 涉及到 <code>L</code> 和 最后一维，为了方便矩阵计算，进行以下维度调整， <code>Q1.permute(0,2,1,3)</code>，使得 shape 变为 <code>(B, n, L, d/n)</code>，$K$ 进行同样的维度调整，为 <code>(B,n,L,d_k/n)</code>，通常 $d_k=d$，然后计算 attention tensor，其 shape 为 $(B,n,L,L)$</li>
+<li>对 attention 做 softmax 进行归一化，结果记为 $\hat A$</li>
+<li>使用 attention 作为权重，加权求和输出，这个步骤依然是每个 heads 内部进行，<code>V1.permute(0, 2, 1, 3)</code>，调整维度顺序变为 <code>(B,n,L,d_v/n)</code>，然后就可以执行矩阵乘法 $\hat A_i V_i$，得到的 n 个 heads 的输出 tensor，记为 $O$，其 shape 为 $(B,n,L,d_v/n)$</li>
+<li>然后再调整维度顺序，使得 shape 变为 $(B, L, d_v)$ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O.permute(<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>).contiguous().view(B,L, d_v)</span><br></pre></td></tr></table></figure></li>
+<li><p>最后使用一个线性变换，参数矩阵 $W^O \in \mathbb R{d_v \times d}$，将上一步结果映射为 $OW^O$，其 shape 为 $(B, L, d)$</p>
+</li>
+<li><p>FFN 就不详细介绍了。 将第 <code>8</code> 步中的输出作为 input embedding，循环执行 <code>1~8</code> 步 <code>N-1</code> 次，最终得到输出的 shape 依然是 $(B, L, d)$</p>
+</li>
+</ol>
+<p>注：</p>
+<ol>
+<li>$d_k \equiv d$，这样才能执行向量内积 $\mathbf q_i \mathbf k_i$，或者矩阵相乘 $Q_iK_i^{\top}$，但是 <code>MultiheadAttention</code> 构造函数中用到了表示 $d_k$ 的参数 <code>kdim</code>，难道还能 $d_k \neq d$？不理解。</li>
+</ol>
+<p>_<strong>Image 相关任务如目标检测，分割等</strong>_</p>
+<p>_Image 经过 backbone 得到特征 <code>features</code>，其 shape 为 $(B, C, H, W)$，通过一个 <code>1x1 Conv</code>，将维度 <code>C</code> 调整为模型维度 <code>d</code>，然后再 <code>features.view(B, d, HW).permute(0, 2, 1)</code>，使得顺序为 <code>(batch_size, seq_len, feature_dim)</code>。但是图像任务中，Transformer 结构稍有不同，具体参考论文 <a href="">DETR</a>，以及我的文章 <a href="">detr 解读</a>_</p>
+<h2 id="2-2-Decoder"><a href="#2-2-Decoder" class="headerlink" title="2.2 Decoder"></a>2.2 Decoder</h2><p>Encoder 中的 <code>N</code> 个循环的 Block 中，每个 Block 均由一个 mh self-attn 和一个 FFN 构成，而 Decoder 中对应的 Block 则是两个 mh self-attn 和一个 FFN 构成。</p>
+<p>Decoder 输入的预处理部分：</p>
+<ol>
+<li>输入 shape 为 <code>(B, L)</code>，这里 <code>seq_len</code> 为 $L$，与 Encoder 中的 <code>L</code> 可能不相等，输入 tensor 中各元素表示 word index，通过线性变换转为 embedding，其 shape 为 <code>(B, L, d)</code>。</li>
+<li>叠加 position embedding，shape 不变。</li>
+<li>将 input embedding 分别线性变换为 $Q, K, V$，shape 均为 $(B, L, d)$，作为第一个 mh self-attn 的 <code>query</code>，<code>key</code>，<code>value</code>。第一个 mh self-attn 的输出 shape 保持不变，为 $(B,L,d)$</li>
+<li>第一个 mh self-attn 输出作为第二个 mh self-attn 的 <code>query</code>，而 Encoder 最终（<code>N</code> 次循环之后）的输出 <code>src_enc</code>，作为第二个 mh self-attn 的 <code>key</code> 和 <code>value</code>，这两个变量的 shape 均为 $(B, S, d)$，注意与 <code>query</code> 具有不同的 shape，且将 Encoder 输出 shape 中的 <code>seq_len</code> 记为 $S$ 。</li>
+<li>根据 $A=QK^{\top}$ 可知，attention 矩阵维度为 $L \times S$，故第二个 mh self-attn 的输出 $\hat A V$ 的维度为 $(B, L, d)$。</li>
+<li>FFN 结构略。Decoder 中 block（两个 mh self-attn 和一个 FFN）的输出 shape 为 $(B, L, d)$。</li>
+<li>第 <code>6</code> 步的输出作为 input embedding，循环步骤 <code>3~6</code> 若干次，得到最终的输出。</li>
+<li>使用线性变换将上一步的输出 $(B, L, d)$ 变为 $(B, L, V+1)$，然后执行 Softmax 分类。</li>
+</ol>
+<p>构造函数参数：</p>
+<ol>
+<li><code>embed_dim</code>： 模型维度，通常指 <code>query</code> 变量的最后一维的大小。</li>
+<li><code>num_heads</code>：multi-head 中 heads 数量</li>
+<li><code>dropout</code>：防止过拟合，丢弃率。</li>
+<li><code>bias</code>：是否对线性变换 (nn.Linear) 增加偏置。</li>
+<li><code>kdim</code>： <code>key</code> 的最后一维大小，默认为 <code>embed_dim</code></li>
+<li><code>vdim</code>： <code>value</code> 的最后一维大小，默认为 <code>embed_dim</code></li>
+<li><code>batch_first</code>：True，那么维度顺序为 <code>(batch_size, seq_len, feat_dim)</code>，否则为 <code>(seq_len, batch_size, feat_dim)</code>。</li>
+</ol>
+<p>前向传播参数：</p>
+<ol>
+<li><code>query</code>：$(B, L, d)$</li>
+<li><code>key</code>：  $(B, S, d)$</li>
+<li><p><code>value</code>：$(B, S, d)$</p>
+</li>
+<li><p><code>key_padding_mask</code>：$(B, S)$，对 <code>key</code> 做 mask。</p>
+<p> attention 中，对 <code>query</code> 中的每个部分（mini-batch 中单个 instance，query 一共有 $L$ 个部分）对 $S$ 个 key 做 attention，但是有时候由于 sequence 长度不够而进行 padding，或者 autoregression 中预测是 one-by-one 的，所以无法对后面的 <code>key</code> 的部分做 attention，这两种情况下，都需要对 <code>key</code> 做 mask。</p>
+</li>
+<li><p><code>need_weights</code>：True，返回 attention 权重矩阵 $\hat A$，否则不返回。</p>
+</li>
+<li><p><code>attn_mask</code>：指定 对 attention 做 mask。shape 为 $(L, S)$ 或者 $(B \cdot n, L, S)$</p>
+<p> 由于 $A_i =Q_i K_i^{\top} \in \mathbb R^{L \times S}$，所以 mask shape 为 $(L, S)$ ，表示 mini-batch 中 $B \cdot n$ 个 heads 均使用相同的 mask；如果为 $(B \cdot n, L, S)$，那么为  mini-batch 中 $B \cdot n$ 个 heads 分别指定 mask。</p>
+</li>
+</ol>
+<p>前向传播输出参数：</p>
+<ol>
+<li><code>attn_output</code>：attention 的输出，shape 为 $(B, L, d)$，其中 $d$ 为模型维度。</li>
+<li><code>attn_output_weights</code>：attention 权重参数 $\hat A$，shape 为 $(B,L, S)$。<br> 由于 multi-head，本来 weights shape 应该为 $(B, n,L, S)$，沿着 <code>dim=1</code> 求均值。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/21/transformer/detr/" rel="prev" title="DETR">
+      <i class="fa fa-chevron-left"></i> DETR
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E6%B5%81%E7%A8%8B%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">1. 流程简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-Encoder"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 Encoder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-Decoder"><span class="nav-number">1.2.</span> <span class="nav-text">2.2 Decoder</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">104</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>

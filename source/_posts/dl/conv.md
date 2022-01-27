@@ -1,7 +1,7 @@
 ---
 title: Convolution
 date: 2021-02-19 09:27:01
-tags: CNN, Deep Learning
+tags: CNN, deep learning
 p: dl/conv
 mathjax: true
 ---

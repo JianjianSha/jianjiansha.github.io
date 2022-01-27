@@ -2,7 +2,7 @@
 title: Deep Learning Tricks1
 p: dl/tricks1
 date: 2021-01-08 14:32:52
-tags: Deep Learning
+tags: deep learning
 mathjax: true
 ---
 深度学习中有很多训练技巧，这里做一些总结。

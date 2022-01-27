@@ -1,7 +1,7 @@
 ---
 title: lstm
 date: 2021-11-12 16:16:11
-tags:
+tags: RNN
 mathjax: true
 ---
 Long short term memory
@@ -11,7 +11,7 @@ Long short term memory
 
 RNN 适合处理时序输入，例如机器翻译、语言识别等。RNN 结构如下图，
 
-![](./images/ml/lstm1.png)
+![](/images/ml/lstm1.png)
 
 <center>图 1. RNN结构</center>
 
@@ -38,7 +38,7 @@ LSTM 是一种可以学习 long-term 依赖的 RNN 结构。
 
 先给出标准 RNN 的结构图，激活函数用 `tanh` 为例，如图 2
 
-![](./images/ml/lstm2.png)
+![](/images/ml/lstm2.png)
 
 <center>图 2. 标准 RNN 结构</center>
 
@@ -55,7 +55,7 @@ $$\hat y^{(t)} = \text{softmax} (o^{(t)})$$
 
 LSTM 与标准 RNN 有大体相似的连接结构，但是方框中的部分不同，如图 3
 
-![](./images/ml/lstm3.png)
+![](/images/ml/lstm3.png)
 
 <center>图 3 lstm 结构</center>
 
@@ -73,7 +73,7 @@ LSTM 的关键是引入了 cell 状态，即图 3 中的上面那条水平线，
 
 如图 4，
 
-![](./images/ml/lstm4.png)
+![](/images/ml/lstm4.png)
 <center>图 4. 遗忘门（gate）结构</center>
 
 这个门由 一个 sigmoid 激活函数以及一个按位相乘操作组成，sigmoid 函数位于 $(0,1)$ 之间，越接近 0 则表示不让 cell 中的信息通过，越接近 1 表示尽量让 cell 中信息通过。
@@ -91,7 +91,7 @@ LSTM 中，链接起来的方框称为 `cell`，每个 `cell` 包含几个重要
 ### 遗忘门
 如图 5 （a），
 
-![](./images/ml/lstm5.png)
+![](/images/ml/lstm5.png)
 <center>图 5</center>
 
 遗忘门的数学表示为
@@ -134,7 +134,7 @@ $$h_t=o_t \star \tanh (C_t)$$
 
 **第一个变体** 结构如下 图 6(a)，
 
-![](./images/ml/lstm6.png)
+![](/images/ml/lstm6.png)
 
 <center>图 6. LSTM 变体</center>
 

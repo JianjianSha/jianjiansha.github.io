@@ -50,7 +50,7 @@ $$\begin{aligned}P(\mathbf x;A,B)&=P(x_1,x_2,\cdots,x_T;A,B)\\
 
 $$\alpha_j(t)=\sum_{i=1}^{|S|} \alpha_i(t-1) A_{ij}B_{jx_t}, \quad j=1,\cdots,|S|, t=1,\cdots, T$$
 
-上式表明，$t$ 长度的观测序列是在 $t-1$ 长度的观测序列的基础商，再观测一个$t$ 时刻的值得到，这个 $t$ 时刻观测值为 $x_t$，其状态 $z_t=s_j$ 可以是由 $t-1$ 时刻的状态转移得到，$z_{t-1}$ 可以是 $1,2,\cdots,|S|$ 中的任意一个，然后根据 $z_t=s_j$ 这个状态生成观测值 $x_t$，这个概率为 $B_{jx_t}$。迭代关系的初始条件为
+上式表明，$t$ 长度的观测序列是在 $t-1$ 长度的观测序列的基础上，再观测一个$t$ 时刻的值得到，这个 $t$ 时刻观测值为 $x_t$，其状态 $z_t=s_j$ 可以是由 $t-1$ 时刻的状态转移得到，$z_{t-1}$ 可以是 $1,2,\cdots,|S|$ 中的任意一个，然后根据 $z_t=s_j$ 这个状态生成观测值 $x_t$，这个概率为 $B_{jx_t}$。迭代关系的初始条件为
 
 $$\alpha_i(0)=A_{0i}, \quad i=1,\cdots, |S|$$
 
@@ -62,16 +62,27 @@ $$\alpha_i(0)=A_{0i}, \quad i=1,\cdots, |S|$$
 
 采用后向过程也可以快速计算概率，需要定义相关量为 $\beta_i(t)=P(x_T,x_{T-1},\cdots,x_{t+1},z_t=s_i;A,B)$，那么观测序列概率为
 
-$$P(\mathbf x;A,B)=\sum_{i=1}^{|S|}\beta_i(0)$$
+$$P(\mathbf x;A,B)=\sum_{i=1}^{|S|} A_{0i} B_{i,x_1}\beta_i(1)$$
 
 迭代公式为
 
 $$\begin{aligned}\beta_i(t)&=P(x_{t+1},\cdots,x_T,z_t=i)\\
 &=\sum_{j=1}^{|S|}P(j|i)P(x_{t+1}|j)P(x_{t+2},\cdots,x_T,z_{t+1}=j)\\
-&=\sum_{j=1}^{|S|}A_{ij}B_{jx_{t+1}}\beta_j(t+1)
+&=\sum_{j=1}^{|S|}A_{ij}B_{j,x_{t+1}}\beta_j(t+1)
 \end{aligned}$$
 
-初始条件为 $\beta_i(T)=1, \quad i=1,\cdots,|S|$，这是因为根据定义 $\beta_i(T)=P(x_{T+1},x_T,z_T=s_i)$，由于从 $T+1$ 时刻到 $T$ 时刻的观测（子）序列不存在，为了使上式迭代成立，令其为 1 。
+初始条件为 $\beta_i(T)=1, \quad i=1,\cdots,|S|$，这是因为根据定义 $\beta_i(T)=P(x_{T},x_{T+1},z_{T}=s_i)$，由于从 $T+1$ 时刻到 $T$ 时刻的观测（子）序列不存在，为了使上式迭代成立，令其为 1 。
+
+
+
+<!-- **前后下关系**
+
+前向算法和后向算法的相关量的关系，根据定义有
+
+$$\begin{aligned}P(\mathbf x,\mathbf z;A,B)&=\sum_{i=1}^{|S|} P(x_1,\ldots,x_t,z_t=s_i;A,B) P(x_t,x_{t+1},\ldots, x_T, z_t=s_i)
+\\&=\sum_{i=1}^{|S|} \alpha_i(t) \beta_i(t)
+\\&=\sum_{i=1}^{|S|} \sum_{j}^{|S|} \alpha_i(t) A_{ij}\beta_j(t+1)
+\end{aligned} \tag{1}$$ -->
 
 ## 最可能的状态序列（解码）
 
@@ -93,6 +104,9 @@ $$\begin{aligned}\delta_j(t+1)&=\max_{z_1,\cdots,z_t} \ P(x_1,\cdots, x_{t+1},z_
 \end{aligned}$$
 
 上式中 $j=1,\cdots,|S|$ 。
+
+初始条件 
+    $$\delta_i(1)=\max_{z_0} P(x_1;z_1=s_i;A,B)=A_{0i} B_{i,x_1}, \ i=1,2,\ldots, |S|$$
 
 这样，对 $t+1$ 时刻的每一种可能的状态 $j$，均可计算出一个确定的 $t$ 时刻的状态 $i$，使得 $\delta_j(t+1)$ 最大，这表示，在任意时刻 $t$，对 $t$ 时刻的任意一个状态 $i$，均可确定一条状态路径 $path(z_t=i)=(z_1,\cdots,z_{t-1})$ 使得局部概率 $\delta_i(t)$ 最大，根据 $\delta_i(t)$ 的定义，最终目标的最大概率为 $\max_i \delta_i(T)$，求出  $\hat i = \arg \max_i \delta_i(T)$ 后，就可以确定最优状态路径 $path(z_T=\hat i)=(z_1,\cdots,z_{T-1})$ 了。
 

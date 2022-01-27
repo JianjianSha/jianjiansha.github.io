@@ -28,7 +28,7 @@
 <meta property="og:description" content="机器学习中，我们常用某种方式去表征数据，例如选取合适的模型。单一模型的表征能力很弱，故可以采用混合模型，例如混合高斯分布。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-11-13T05:53:13.000Z">
-<meta property="article:modified_time" content="2021-11-15T08:16:40.832Z">
+<meta property="article:modified_time" content="2021-11-24T03:31:41.652Z">
 <meta property="article:author" content="shajianjian">
 <meta property="article:tag" content="machine learning">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-15 16:16:40" itemprop="dateModified" datetime="2021-11-15T16:16:40+08:00">2021-11-15</time>
+                <time title="修改时间：2021-11-24 11:31:41" itemprop="dateModified" datetime="2021-11-24T11:31:41+08:00">2021-11-24</time>
               </span>
 
           
@@ -257,7 +257,7 @@ $$\mu_k^{new}=\frac {\sum_{n=1}^N r_{nk}\mathbf x_n} {\sum_{n=1}^N r_{nk}}$$ (GM
 $$\begin{aligned} \frac {\partial p(\mathbf x_n |\theta)}{\partial \mu_k}&=\sum_{j=1}^K \pi_j \frac {\partial \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)} {\partial \mu_k}=\pi_k \frac {\partial \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\partial \mu_k}
 \\&=\pi_k (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)
 \end{aligned}</script><p>于是，数据集的对数似然对 $\mu_k$ 的梯度为</p>
-<script type="math/tex; mode=display">\begin{aligned} \frac {\partial \mathcal L} {\partial \mu_k}&=\sum_{n=1}^N \frac {\partial \log p(\mathbf x_n|\theta)}{\partial \mu_k}=\sum_{n=1}^N \frac 1 {p(\mathbf x_n|\theta)} \frac {p(\mathbf x_n|\theta)}{\partial \mu_k}
+<script type="math/tex; mode=display">\begin{aligned} \frac {\partial \mathcal L} {\partial \mu_k}&=\sum_{n=1}^N \frac {\partial \log p(\mathbf x_n|\theta)}{\partial \mu_k}=\sum_{n=1}^N \frac 1 {p(\mathbf x_n|\theta)} \frac {\partial p(\mathbf x_n|\theta)}{\partial \mu_k}
 \\&=\sum_{n=1}^N (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \underbrace {\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\sum_{j=1}^N \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)}}_{=r_{nk}}
 \\&=\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1}
 \end{aligned}</script><p>令上式这个梯度为零，得</p>
@@ -317,7 +317,48 @@ $$\begin{aligned}L &=\mathcal L + \lambda \left(\sum_{k=1}^K \pi_k-1\right)
 \end{aligned}</script><script type="math/tex; mode=display">\frac {\partial L}{\partial \lambda}=\sum_{k=1}^K \pi_k -1</script><p>令上面两个梯度均为零，得</p>
 <script type="math/tex; mode=display">\pi_k = - \frac {N_k}{\lambda}</script><script type="math/tex; mode=display">\sum_{k=1}^K \pi_k -1 = \sum_{k=1}^K \left(-\frac {N_k} {\lambda}\right)-1=0 \Leftrightarrow \lambda = -\sum_{k=1}^K N_k=-N</script><p>于是</p>
 <script type="math/tex; mode=display">\pi_k^{new} = \frac {N_k} N</script><p>其中 $N$ 为数据集大小。</p>
+<h1 id="EM"><a href="#EM" class="headerlink" title="EM"></a>EM</h1><p>EM 算法迭代步骤：</p>
+<ol>
+<li>初始化 $\ \pi_k, \mu_k, \Sigma_k$，$k=1,\ldots, K$ 。例如可以初始化为 $\pi_k=1/K$，$\mu_k=\mathbf 0$，$\Sigma_k=\mathbf I$ 。</li>
+<li>E-step。 计算每个分量对每个数据 $\mathbf x_n$ 的 responsibility，{eq}<code>GMM6</code> 式。</li>
+<li>M-step。 更新参数的值。{eq}<code>GMM7</code> ，{eq}<code>GMM9</code> ， {eq}<code>GMM11</code> 式。</li>
+</ol>
+<h1 id="隐变量视角"><a href="#隐变量视角" class="headerlink" title="隐变量视角"></a>隐变量视角</h1><p>可以将 GMM 看作是一个具有隐变量 $z$ 的模型。</p>
+<p>生成过程：</p>
+<p>数据点 $\mathbf x$ 是由 GMM 中 K 个概率中的某个确定的概率生成，记 $z_k \in \{0,1\}$ 表示是否选择第 k 个概率，如果 $z_k=1$ 表示选择第 k 个概率，然后生成 $\mathbf x$，故</p>
+<script type="math/tex; mode=display">p(\mathbf x|z_k=1)=\mathcal N(\mathbf x|\mu_k, \Sigma_k)</script><p>定义 $\mathbf z=[z_1,\ldots,z_K]^{\top}$ 为随机向量，它是一个 one-hot 向量，显然有</p>
+<script type="math/tex; mode=display">p(\mathbf z)=\pi, \quad \sum_{k=1}^K \pi_k=1</script><p>单个样本的最大似然为</p>
+<script type="math/tex; mode=display">p(\mathbf x|\theta) = \sum_{\mathbf z} p(\mathbf x|\theta, \mathbf z)\cdot p(\mathbf z|\theta)=\sum_{k=1}^K \pi_k \mathcal N(\mathbf x|\mu_k,\Sigma_k)</script><h2 id="后验概率分布"><a href="#后验概率分布" class="headerlink" title="后验概率分布"></a>后验概率分布</h2><p>上面所讨论的 responsibility 实际上就是隐变量 $\mathbf z$ 的后验概率，</p>
+<script type="math/tex; mode=display">\begin{aligned}p(z_k=1|\mathbf x_n)&=\frac {p(z_k=1)p(\mathbf x_n|z_k=1)}{p(\mathbf x)}
+\\&=\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)}{\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)}
+\\&=r_nk
+\end{aligned}</script><h2 id="EM-算法回顾"><a href="#EM-算法回顾" class="headerlink" title="EM 算法回顾"></a>EM 算法回顾</h2><p>从隐变量视角回顾 EM 算法，发现 E-step 实际上就是计算 $\mathbf z$ 的后验概率 $p(\mathbf z|\mathbf x, \theta^{(t)})$，M-step 是求最大化</p>
+<script type="math/tex; mode=display">\begin{aligned}Q(\theta|\theta^{(t)})&=\mathbb E_{\mathbf z|\mathbf x, \theta^{(t)}} [\log p(\mathbf x, \mathbf z|\theta)]
+\\&=\int [\log p(\mathbf x, \mathbf z|\theta)] \cdot p(\mathbf z|\mathbf x, \theta^{(t)}) \ d \mathbf z
+\end{aligned}$$ (GMM12)
 
+的参数 $\theta$ 。
+
+对于离散型隐变量 $\mathbf z$ 而言，上式可写为
+
+$$Q(\theta|\theta^{(t)})=\sum_{\mathbf z} [\log p(\mathbf x, \mathbf z|\theta)] \cdot p(\mathbf z|\mathbf x, \theta^{(t)})$$ (GMM13)
+
+
+**证：**
+
+我们验证对 $\mu_k$ 的梯度是否与上面的推导一致，对 $\Sigma_k$ 的梯度验证完全类似。
+
+对 $\mu_k$ 求梯度，
+
+$$\begin{aligned} \frac {\partial Q}{\partial \mu_k}&=\frac {\partial} {\partial \mu_k} \log p(\mathbf x_n, z_k=1|\theta) p(z_k=1|\mathbf x_n, \theta^{(t)})
+\\&=\frac {\partial} {\partial \mu_k} \log \mathcal N(\mathbf x_n|\mu_k,\Sigma_k) \cdot r_{nk}
+\\&=\frac 1 {\mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} \frac {\partial \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\partial \mu_k} \cdot r_{nk}
+\\&=\frac 1 {\mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \mathcal N(\mathbf x_n|\mu_k,\Sigma_k) \cdot r_{nk}
+\\&= (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \cdot r_{nk}
+\end{aligned}</script><p>这是单个数据点的对数最大似然 对 $\mu_k$ 的梯度，如果扩展到整个数据集，那么梯度为</p>
+<script type="math/tex; mode=display">\frac {\sum_{n=1}^N \partial Q} {\partial \mu_k}=\sum_{n=1}^N  (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \cdot r_{nk}</script><p>这与 {eq}<code>GMM7</code> 式的证明中所推导的梯度 $\partial \mathcal L / \partial \mu_k$ 完全一样。</p>
+<p>根据后验概率 $p(\mathbf z|\mathbf x, \theta^{(t)})$，那么迭代更新时</p>
+<script type="math/tex; mode=display">p(z_k=1)=\sum_{\mathbf x} p(z_k=1,\mathbf x| \theta^{(t)}) = \sum_{\mathbf x} p(\mathbf z|\mathbf x, \theta^{(t)}) p(\mathbf x)=\frac 1 N \sum_{n=1}^N r_{nk}=\frac {N_k} N</script>
     </div>
 
     
@@ -338,7 +379,10 @@ $$\begin{aligned}L &=\mathcal L + \lambda \left(\sum_{k=1}^K \pi_k-1\right)
     <a href="/2021/11/12/ml/lstm/" rel="prev" title="lstm">
       <i class="fa fa-chevron-left"></i> lstm
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/26/tools/docker/" rel="next" title="容器使用示例">
+      容器使用示例 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -397,7 +441,7 @@ $$\begin{aligned}L &=\mathcal L + \lambda \left(\sum_{k=1}^K \pi_k-1\right)
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GMM"><span class="nav-number">1.</span> <span class="nav-text">GMM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E5%AD%A6%E4%B9%A0"><span class="nav-number">1.1.</span> <span class="nav-text">参数学习</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Responsibility"><span class="nav-number">1.2.</span> <span class="nav-text">Responsibility</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E5%8D%8F%E6%96%B9%E5%B7%AE"><span class="nav-number">1.3.</span> <span class="nav-text">更新协方差</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E6%B7%B7%E5%90%88%E6%9D%83%E9%87%8D"><span class="nav-number">1.4.</span> <span class="nav-text">更新混合权重</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GMM"><span class="nav-number">1.</span> <span class="nav-text">GMM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E5%AD%A6%E4%B9%A0"><span class="nav-number">1.1.</span> <span class="nav-text">参数学习</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Responsibility"><span class="nav-number">1.2.</span> <span class="nav-text">Responsibility</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E5%8D%8F%E6%96%B9%E5%B7%AE"><span class="nav-number">1.3.</span> <span class="nav-text">更新协方差</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E6%B7%B7%E5%90%88%E6%9D%83%E9%87%8D"><span class="nav-number">1.4.</span> <span class="nav-text">更新混合权重</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EM"><span class="nav-number">2.</span> <span class="nav-text">EM</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9A%90%E5%8F%98%E9%87%8F%E8%A7%86%E8%A7%92"><span class="nav-number">3.</span> <span class="nav-text">隐变量视角</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8E%E9%AA%8C%E6%A6%82%E7%8E%87%E5%88%86%E5%B8%83"><span class="nav-number">3.1.</span> <span class="nav-text">后验概率分布</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EM-%E7%AE%97%E6%B3%95%E5%9B%9E%E9%A1%BE"><span class="nav-number">3.2.</span> <span class="nav-text">EM 算法回顾</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -411,7 +455,7 @@ $$\begin{aligned}L &=\mathcal L + \lambda \left(\sum_{k=1}^K \pi_k-1\right)
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">93</span>
+          <span class="site-state-item-count">104</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -424,7 +468,7 @@ $$\begin{aligned}L &=\mathcal L + \lambda \left(\sum_{k=1}^K \pi_k-1\right)
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -451,7 +495,7 @@ $$\begin{aligned}L &=\mathcal L + \lambda \left(\sum_{k=1}^K \pi_k-1\right)
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

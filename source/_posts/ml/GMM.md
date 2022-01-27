@@ -87,7 +87,7 @@ $$\begin{aligned} \frac {\partial p(\mathbf x_n |\theta)}{\partial \mu_k}&=\sum_
 
 于是，数据集的对数似然对 $\mu_k$ 的梯度为
 
-$$\begin{aligned} \frac {\partial \mathcal L} {\partial \mu_k}&=\sum_{n=1}^N \frac {\partial \log p(\mathbf x_n|\theta)}{\partial \mu_k}=\sum_{n=1}^N \frac 1 {p(\mathbf x_n|\theta)} \frac {p(\mathbf x_n|\theta)}{\partial \mu_k}
+$$\begin{aligned} \frac {\partial \mathcal L} {\partial \mu_k}&=\sum_{n=1}^N \frac {\partial \log p(\mathbf x_n|\theta)}{\partial \mu_k}=\sum_{n=1}^N \frac 1 {p(\mathbf x_n|\theta)} \frac {\partial p(\mathbf x_n|\theta)}{\partial \mu_k}
 \\&=\sum_{n=1}^N (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \underbrace {\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\sum_{j=1}^N \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)}}_{=r_{nk}}
 \\&=\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1}
 \end{aligned}$$
@@ -199,3 +199,76 @@ $$\pi_k^{new} = \frac {N_k} N$$
 
 其中 $N$ 为数据集大小。
 
+# EM
+
+EM 算法迭代步骤：
+
+1. 初始化 $\ \pi_k, \mu_k, \Sigma_k$，$k=1,\ldots, K$ 。例如可以初始化为 $\pi_k=1/K$，$\mu_k=\mathbf 0$，$\Sigma_k=\mathbf I$ 。
+2. E-step。 计算每个分量对每个数据 $\mathbf x_n$ 的 responsibility，{eq}`GMM6` 式。
+3. M-step。 更新参数的值。{eq}`GMM7` ，{eq}`GMM9` ， {eq}`GMM11` 式。
+
+
+# 隐变量视角
+
+可以将 GMM 看作是一个具有隐变量 $z$ 的模型。
+
+生成过程：
+
+数据点 $\mathbf x$ 是由 GMM 中 K 个概率中的某个确定的概率生成，记 $z_k \in \{0,1\}$ 表示是否选择第 k 个概率，如果 $z_k=1$ 表示选择第 k 个概率，然后生成 $\mathbf x$，故
+
+$$p(\mathbf x|z_k=1)=\mathcal N(\mathbf x|\mu_k, \Sigma_k)$$
+
+定义 $\mathbf z=[z_1,\ldots,z_K]^{\top}$ 为随机向量，它是一个 one-hot 向量，显然有
+
+$$p(\mathbf z)=\pi, \quad \sum_{k=1}^K \pi_k=1$$
+
+单个样本的最大似然为
+
+$$p(\mathbf x|\theta) = \sum_{\mathbf z} p(\mathbf x|\theta, \mathbf z)\cdot p(\mathbf z|\theta)=\sum_{k=1}^K \pi_k \mathcal N(\mathbf x|\mu_k,\Sigma_k)$$
+
+## 后验概率分布
+上面所讨论的 responsibility 实际上就是隐变量 $\mathbf z$ 的后验概率，
+
+$$\begin{aligned}p(z_k=1|\mathbf x_n)&=\frac {p(z_k=1)p(\mathbf x_n|z_k=1)}{p(\mathbf x)}
+\\&=\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)}{\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)}
+\\&=r_nk
+\end{aligned}$$
+
+## EM 算法回顾
+
+从隐变量视角回顾 EM 算法，发现 E-step 实际上就是计算 $\mathbf z$ 的后验概率 $p(\mathbf z|\mathbf x, \theta^{(t)})$，M-step 是求最大化
+
+$$\begin{aligned}Q(\theta|\theta^{(t)})&=\mathbb E_{\mathbf z|\mathbf x, \theta^{(t)}} [\log p(\mathbf x, \mathbf z|\theta)]
+\\&=\int [\log p(\mathbf x, \mathbf z|\theta)] \cdot p(\mathbf z|\mathbf x, \theta^{(t)}) \ d \mathbf z
+\end{aligned}$$ (GMM12)
+
+的参数 $\theta$ 。
+
+对于离散型隐变量 $\mathbf z$ 而言，上式可写为
+
+$$Q(\theta|\theta^{(t)})=\sum_{\mathbf z} [\log p(\mathbf x, \mathbf z|\theta)] \cdot p(\mathbf z|\mathbf x, \theta^{(t)})$$ (GMM13)
+
+
+**证：**
+
+我们验证对 $\mu_k$ 的梯度是否与上面的推导一致，对 $\Sigma_k$ 的梯度验证完全类似。
+
+对 $\mu_k$ 求梯度，
+
+$$\begin{aligned} \frac {\partial Q}{\partial \mu_k}&=\frac {\partial} {\partial \mu_k} \log p(\mathbf x_n, z_k=1|\theta) p(z_k=1|\mathbf x_n, \theta^{(t)})
+\\&=\frac {\partial} {\partial \mu_k} \log \mathcal N(\mathbf x_n|\mu_k,\Sigma_k) \cdot r_{nk}
+\\&=\frac 1 {\mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} \frac {\partial \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\partial \mu_k} \cdot r_{nk}
+\\&=\frac 1 {\mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \mathcal N(\mathbf x_n|\mu_k,\Sigma_k) \cdot r_{nk}
+\\&= (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \cdot r_{nk}
+\end{aligned}$$
+
+这是单个数据点的对数最大似然 对 $\mu_k$ 的梯度，如果扩展到整个数据集，那么梯度为
+
+$$\frac {\sum_{n=1}^N \partial Q} {\partial \mu_k}=\sum_{n=1}^N  (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \cdot r_{nk}$$
+
+这与 {eq}`GMM7` 式的证明中所推导的梯度 $\partial \mathcal L / \partial \mu_k$ 完全一样。
+
+
+根据后验概率 $p(\mathbf z|\mathbf x, \theta^{(t)})$，那么迭代更新时
+
+$$p(z_k=1)=\sum_{\mathbf x} p(z_k=1,\mathbf x| \theta^{(t)}) = \sum_{\mathbf x} p(\mathbf z|\mathbf x, \theta^{(t)}) p(\mathbf x)=\frac 1 N \sum_{n=1}^N r_{nk}=\frac {N_k} N$$

@@ -1,13 +1,15 @@
 ---
 title: lightweight
 date: 2021-03-05 16:18:13
-tags:
+tags: object detection
 ---
 
 # ThunderNet
 (two-stage detector)
 
 移动设备上计算能力有限，而现在的很多 CV 实现方式都需要较强的计算力，这导致这些任务难以在移动设备上 real-time 的实现。本文研究了 two-stage 目标检测 real-time 的有效性，并提出了一个轻量级的 two-stage 检测器，名为 ThunderNet。
+
+<!--more-->
 
 简介：
 

@@ -1,7 +1,7 @@
 ---
 title: Two-stage Object Detection
 date: 2021-02-20 14:50:40
-tags:
+tags: object detection
 p: obj_det/two_stage
 mathjax: true
 ---

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="介绍简单的容器使用示例。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="容器使用示例">
+<meta property="og:url" content="https://shajianjian.github.io/2021/11/26/tools/docker/index.html">
+<meta property="og:site_name" content="SJJ">
+<meta property="og:description" content="介绍简单的容器使用示例。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-11-26T08:23:48.000Z">
+<meta property="article:modified_time" content="2022-01-11T07:35:59.495Z">
+<meta property="article:author" content="shajianjian">
+<meta property="article:tag" content="docker">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://shajianjian.github.io/2021/11/26/tools/docker/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>容器使用示例 | SJJ</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">SJJ</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/11/26/tools/docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="shajianjian">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SJJ">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          容器使用示例
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-26 16:23:48" itemprop="dateCreated datePublished" datetime="2021-11-26T16:23:48+08:00">2021-11-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-11 15:35:59" itemprop="dateModified" datetime="2022-01-11T15:35:59+08:00">2022-01-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>介绍简单的容器使用示例。<br><span id="more"></span></p>
+<h1 id="All-in-Docker"><a href="#All-in-Docker" class="headerlink" title="All in Docker"></a>All in Docker</h1><p>To check all docker images, you can type<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker images</span><br></pre></td></tr></table></figure><br>The output of this command may be<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">REPOSITORY                                                            TAG               IMAGE ID       CREATED        SIZE</span><br><span class="line">tensorflow/tensorflow                                                 latest-gpu        edb49f6a133b   2 days ago     5.53GB</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>tensorflow/tensorflow is an image provided by <code>tensorflow</code> official organization. It’s is actually a linux OS and the tensorflow library is installed systematicly.</p>
+</blockquote>
+<p>Take the first image as an example. This image is used to provide an environment for deep learning. Now we show how to clone this image to make a highly customized and suitable for ourselves deep-learning enrivonment, and we can keep modifing this new cloned image without influncing the original image. Input the following command,<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker tag tensorflow/tensorflow:latest-gpu tensorflow/tensorflow:public</span><br></pre></td></tr></table></figure><br>By using another tag name, we create a new image. Please type a command to see what has happened,<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker images</span><br></pre></td></tr></table></figure><br>and the output will be<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">REPOSITORY                                                            TAG               IMAGE ID       CREATED        SIZE</span><br><span class="line">tensorflow/tensorflow                                                 latest-gpu        edb49f6a133b   2 days ago     5.53GB</span><br><span class="line">tensorflow/tensorflow                                                 public            edb49f6a133b   18 hours ago   5.53GB</span><br></pre></td></tr></table></figure><br>Whenever want to do deep learning in future, we should first run this new image, and then train or evaluate data in our own enviromment. So, how to run an image?<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo nvidia-docker run -p 6010:6006 -p 9527:22 -v /home/shajianjian/work:/workspace -itd --name tf-public  tensorflow/tensorflow:public</span><br></pre></td></tr></table></figure><br>Be aware that we use <code>nvidia-docker</code> instead of <code>docker</code> because <code>nvidia-docker</code> can help us to load <code>cuda</code> related components automatically when lauching this deep learning environment, otherwise, we cannot use <code>GPU</code> accelarating learning.</p>
+<p>We may have a great experience with our deep learning environment for a couple of days, but afterwards, we find that some matured deep learning projects are implemented with PyTorch, which is not existed in our environment, how to do?</p>
+<p>Don’t worry, be happy!</p>
+<p>Login our environment and change current directory to</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ssh domain-user@192.168.5.116</span><br><span class="line"></span><br><span class="line">cd /workspace</span><br></pre></td></tr></table></figure>
+<p>Install miniconda, and then install pytorch by conda(details are ignored because we don’t focus on it in this artical). They say that all modications in <code>/workspace</code> are saved and even when reboot our deep learning environment(re-run our image). Suppose we install pytorch systematicly, like tensorflow, then we should save it as a new image(marked it as B, and our first cloned image is marked as A), or else the pytorch library will be disgarded when stop image <code>A</code>. Let’s see how to save A as B after changing A systematicly,</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker commit tf-public localharbor.xxxx.com/tf/public:v1</span><br></pre></td></tr></table></figure>
+<p>where <code>tf-public</code> is the name of container when we run A, and A has a tag of <code>public</code>. Use the above command, we commit our changes and re-save it as the new image B with a tag of <code>public-v1</code>. Notice that iamge <code>A</code> is not changed, our changes maked to <code>A</code> are saved in <code>B</code>, i.e. <code>B</code>=<code>A</code>+<code>changes</code>.</p>
+<p><code>localharbor.xxxx.com/tf/public:v1</code> can be substituted by any other value, but we use it here because we will push the image <code>B</code> to localharbor which is an online image repository, and anyone else can pull it(image <code>B</code>) to use directly without install tensorflow and pytorch again. This process saves his/her time.</p>
+<p>Login harbor and then pull this image,<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker login localharbor.xxxx.com</span><br><span class="line">sudo docker push localharbor.xxxx.com/tf/public:v1</span><br></pre></td></tr></table></figure></p>
+<p>Take my favorite DL framework pytorch as an example, the whole steps are:</p>
+<p>1.<br>print all running containers<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker ps</span><br></pre></td></tr></table></figure><br>the printing msg is:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CONTAINER ID   IMAGE                                                                  COMMAND                  CREATED         STATUS       PORTS                                          NAMES</span><br><span class="line">0f3dc93c8ebc   localharbor.xxxx.com/pytorch/pytorch:1.7.1-cuda11.0-cudnn8-devel   &quot;/bin/bash&quot;              3 weeks ago     Up 3 weeks   0.0.0.0:9528-&gt;9528/tcp, 0.0.0.0:9527-&gt;22/tcp   pytorch</span><br><span class="line">209def4f9cd0   scrapinghub/splash                                                     &quot;python3 /app/bin/sp…&quot;   5 weeks ago     Up 5 weeks   0.0.0.0:8050-&gt;8050/tcp                         thirsty_wu</span><br><span class="line">5917c29d675e   localharbor.xxxx.com/tf/pml:tf-remote-latest                       &quot;/bin/bash&quot;              10 months ago   Up 5 weeks   0.0.0.0:23-&gt;22/tcp, 0.0.0.0:6009-&gt;6006/tcp     tf-remote</span><br></pre></td></tr></table></figure></p>
+<p>2.<br>print all images<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo docker images</span><br><span class="line">the printing msg is</span><br><span class="line"></span><br><span class="line">localharbor.xxxx.com/pytorch/pytorch                              1.7.1-cuda11.0-cudnn8-devel      d0d89d27be2a   10 months ago   13.2GB</span><br><span class="line">...(omitted)</span><br></pre></td></tr></table></figure><br>3.<br>Exec the following commands in sequence order<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo docker commit pytorch localharbor.xxxx.com/pytorch/pytorch:1.7.1-cuda11.0-cudnn8-devel_latest</span><br><span class="line">sudo docker login localharbor.xxxx.com</span><br><span class="line">sudo docker push localharbor.xxxx.com/pytorch/pytorch:1.7.1-cuda11.0-cudnn8-devel_latest</span><br></pre></td></tr></table></figure></p>
+<h1 id="PyTorch"><a href="#PyTorch" class="headerlink" title="PyTorch"></a>PyTorch</h1><p>Specially, please execute the following command to launch a <code>PyTorch</code> environment,<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -itd --gpus all --runtime=nvidia -p 9527:22 -p 9528:9528 --shm-size 8G -v /home/shajianjian/pytorch:/workspace --name pytorch --hostname pytorch localharbor.xxxx.com/pytorch/pytorch:1.7.1-cuda11.0-cudnn8-devel</span><br></pre></td></tr></table></figure></p>
+<p>where the path and port mappings should be replaced with your own values.</p>
+<p>Maybe you should first start the <code>ssh</code> service,<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># if not install ssh service, please run this command first</span><br><span class="line"># apt install openssh-server</span><br><span class="line"></span><br><span class="line">service ssh start</span><br></pre></td></tr></table></figure><br>Check the status of <code>ssh</code>,<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service ssh status</span><br></pre></td></tr></table></figure></p>
+<p>reset the password for the user <code>root</code> on the docker os:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">passwd</span><br><span class="line"># operate according to hints</span><br></pre></td></tr></table></figure></p>
+<p>If cannot connect to os by <code>ssh root@192.158.5.116 -p 9527</code> and then input the correct password, please modify the <code>/etc/ssh/sshd_config</code> by adding the following line:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PermissionLoginRoot yes</span><br></pre></td></tr></table></figure></p>
+<p>This virtual system has a default <code>root</code> user whose password is <code>pytorch</code>, so let’s login this virtual system by<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; ssh root@192.168.5.116 -p 9527</span><br><span class="line">input password: pytorch</span><br><span class="line">(base) root@pytorch:/workspace#</span><br></pre></td></tr></table></figure><br>Enjoy it~</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/docker/" rel="tag"># docker</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/13/ml/GMM/" rel="prev" title="高斯混合模型">
+      <i class="fa fa-chevron-left"></i> 高斯混合模型
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/12/04/dl/ctc/" rel="next" title="Connectionist Temporal Classification (1)">
+      Connectionist Temporal Classification (1) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#All-in-Docker"><span class="nav-number">1.</span> <span class="nav-text">All in Docker</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PyTorch"><span class="nav-number">2.</span> <span class="nav-text">PyTorch</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">shajianjian</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">104</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
