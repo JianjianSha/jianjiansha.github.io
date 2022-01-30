@@ -359,3 +359,7 @@ $$\nabla_S L=\frac {dL}{dy_0}\cdot \theta_d$$
 
 ## 总结
 给定一个预先已知分布的噪声随机变量 z，G 根据 z 生成图像 G(z)，D 将 G(z) 与训练样本区分开来。训练过程根据 (1) 式交替优化 D 和 G，使得 G 尽可能拟合真实数据分布，而 D 提高判别能力，最终 G 分布与真实分布相同，D 无法判别模型分布和真实数据分布。
+
+
+# ref
+源码：[eriklindernoren/PyTorch-GAN](https://github.com/eriklindernoren/PyTorch-GAN)

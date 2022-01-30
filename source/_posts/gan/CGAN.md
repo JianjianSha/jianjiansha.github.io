@@ -229,7 +229,7 @@ class Generator(nn.Module):
 
 ```python
 class Discriminator(nn.Module):
-    # 整个下采样为 16
+    # 整个下采样为 16，对于 28*28 的 mnist image，最终输出的 spatial size 为 1*1
     def __init__(self):
         super(Discriminator, self).__init__()
 

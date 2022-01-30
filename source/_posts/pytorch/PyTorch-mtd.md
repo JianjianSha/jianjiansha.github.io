@@ -140,9 +140,9 @@ $$P_{i,j}=[a_{i-1}, a_i-1] \times [b_{j-1},b_j-1], \quad i,j \in \{1,...,N_{out}
 
 ## 输出大小
 转置卷积，通常又称反卷积、逆卷积，然而转置卷积并非卷积的逆过程，并且转置卷积其实也是一种卷积，只不过与卷积相反的是，输出平面的大小通常不是变小而是变大。对于普通卷积，设输入平面边长为 $L_{in}$，输出平面边长为 $L_{out}$，卷积核边长为 $k$，dilation 、stride 和 padding 分别为 $d, p, s$，那么有
-$$L_{out}=\frac {L_{in}-(d(k-1)+1)+2p} s + 1 \qquad (4-1)$$
+$$L_{out}=\frac {L_{in}-(d(k-1)+1)+2p} s + 1 \tag {4-1}$$
 对于转置卷积，令 $L_{in}^{\top}, \ L_{out}^{\top}$ 分别表示输入和输出的边长，于是有
-$$L_{out}^{\top}=s(L_{in}^{\top} - 1) +d(k-1)+1 - 2p \qquad (4-2)$$
+$$L_{out}^{\top}=s(L_{in}^{\top} - 1) +d(k-1)+1 - 2p \tag{4-2}$$
 可见，转置卷积的输入输出边长的关系与普通卷积是反过来的。
 
 ## 转置卷积计算
@@ -153,9 +153,13 @@ $$L_{out}^{\top}=s(L_{in}^{\top} - 1) +d(k-1)+1 - 2p \qquad (4-2)$$
 
 下面我们画图来展示卷积和转置卷积地过程：
 
-![普通卷积](/images/pytorch_mth_conv.png)<center>普通卷积</center>
+![](/images/pytorch_mth_conv.png)
 
-![转置卷积](/images/pytorch_mtd_conv_t.png)<center>转置卷积</center>
+<center>普通卷积</center>
+
+![](/images/pytorch_mtd_conv_t.png)
+
+<center>转置卷积</center>
 
 
 使用 Pytorch 进行验证：
