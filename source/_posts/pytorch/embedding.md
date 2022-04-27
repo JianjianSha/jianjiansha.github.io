@@ -3,6 +3,7 @@ title: 词嵌入向量
 date: 2022-01-19 10:05:19
 tags: PyTorch
 p: pytorch/embedding
+mathjax: true
 ---
 embedding 就是将一个 word 转换为 一个 vector，最简单的方法就是使用 `one-hot vector`，其长度为词汇表大小，但是 `one-hot vector` 无法表示词的语义，比如两个词是相近还是相反含义，或者无关，embedding vector 则可以很好的表征词的语义。
 

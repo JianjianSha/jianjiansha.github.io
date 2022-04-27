@@ -1,0 +1,20 @@
+/* Here is your custom css styles. */
+@font-face {
+    font-family: 'IBMPlexMono-Italic';
+    src: url('../font/IBMPlexMono-Italic.ttf');
+}
+
+body{
+    font-family: 'IBMPlexMono-Italic';
+}
+
+
+#toc-content a.is-active-link {
+    color: rgb(20 160 230 / 75%);
+}
+#toc-content {
+    line-height: 1.8;
+}
+.icon-category {
+    color: red;
+}

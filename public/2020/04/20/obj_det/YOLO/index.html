@@ -1,228 +1,465 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="zh-CN">
+
+
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <meta name="keywords" content="YOLO, SJJ">
+    <meta name="description" content="1 YOLOv11.1 简介one-stage 检测方法，从图像像素到bbox 坐标和分类概率，一步到位。优点为：
 
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
-
-  <meta name="description" content="YOLOv1简介one-stage 检测方法，从图像像素到bbox 坐标和分类概率，一步到位。优点为：  快。YOLO 每秒可处理 45 帧，可实时处理视频流。 从图像全局出发，作出预测。这种策略有效利用了上下文信息。 能学习目标的泛化特征。基于天然图像数据集上的训练，用于人工图像数据集上的测试，也能取得较好的结果。">
-<meta property="og:type" content="article">
-<meta property="og:title" content="YOLO">
-<meta property="og:url" content="https://shajianjian.github.io/2020/04/20/obj_det/YOLO/index.html">
-<meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="YOLOv1简介one-stage 检测方法，从图像像素到bbox 坐标和分类概率，一步到位。优点为：  快。YOLO 每秒可处理 45 帧，可实时处理视频流。 从图像全局出发，作出预测。这种策略有效利用了上下文信息。 能学习目标的泛化特征。基于天然图像数据集上的训练，用于人工图像数据集上的测试，也能取得较好的结果。">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://shajianjian.github.io/images/obj_det/YOLOv1_fig1.jpg">
-<meta property="og:image" content="https://shajianjian.github.io/images/obj_det/YOLOv2_fig2.png">
-<meta property="article:published_time" content="2020-04-20T05:58:33.000Z">
-<meta property="article:modified_time" content="2021-11-29T09:59:51.690Z">
-<meta property="article:author" content="shajianjian">
-<meta property="article:tag" content="object detection">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://shajianjian.github.io/images/obj_det/YOLOv1_fig1.jpg">
-
-<link rel="canonical" href="https://shajianjian.github.io/2020/04/20/obj_det/YOLO/">
+快。YOLO 每秒可处理 45 帧，可实时处理视频流。
+从图像全局出发，作出预测。这种策略有效利用了上下文信息。
+能学习目">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : true,
-    lang   : 'zh-CN'
-  };
-</script>
+    <title>YOLO | SJJ</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
 
-  <title>YOLO | SJJ</title>
-  
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 
+   <style>
+    body{
+       background-image: url(https://cdn.jsdelivr.net/gh/Tokisaki-Galaxy/res/site/medias/background.jpg);
+       background-repeat:no-repeat;
+       background-size: 100% 100%;
+       background-attachment:fixed;
+    }
+</style>
 
 
 
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
-
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
-    <div class="headband"></div>
-
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="切换导航栏">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">SJJ</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
-</div>
-
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
-
-  </li>
-        <li class="menu-item menu-item-tags">
-
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
-
-  </li>
-        <li class="menu-item menu-item-categories">
-
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
-
-  </li>
-  </ul>
-</nav>
-
-
-
-
-</div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
-
-
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content post posts-expand">
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
             
 
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
     
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
   
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2020/04/20/obj_det/YOLO/">
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          YOLO
-        </h1>
+<div id="mobile-nav" class="side-nav sidenav">
 
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
 
-              <time title="创建时间：2020-04-20 13:58:33" itemprop="dateCreated datePublished" datetime="2020-04-20T13:58:33+08:00">2020-04-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-29 17:59:51" itemprop="dateModified" datetime="2021-11-29T17:59:51+08:00">2021-11-29</time>
-              </span>
-
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
           
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
 
         </div>
-      </header>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
 
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
 
-      
-        <h1 id="YOLOv1"><a href="#YOLOv1" class="headerlink" title="YOLOv1"></a>YOLOv1</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>one-stage 检测方法，从图像像素到bbox 坐标和分类概率，一步到位。优点为：</p>
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/17.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">YOLO</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/object-detection/">
+                                <span class="chip bg-color">object detection</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2020-04-20
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    3k
+                </div>
+                
+
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="1-YOLOv1"><a href="#1-YOLOv1" class="headerlink" title="1 YOLOv1"></a>1 YOLOv1</h1><h2 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h2><p>one-stage 检测方法，从图像像素到bbox 坐标和分类概率，一步到位。优点为：</p>
 <ol>
 <li>快。YOLO 每秒可处理 45 帧，可实时处理视频流。</li>
 <li>从图像全局出发，作出预测。这种策略有效利用了上下文信息。</li>
 <li>能学习目标的泛化特征。基于天然图像数据集上的训练，用于人工图像数据集上的测试，也能取得较好的结果。</li>
 </ol>
 <span id="more"></span>
-<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><p>YOLOv1 网络结构如图1，采用的是 VOC 数据集。<br><img src="/images/obj_det/YOLOv1_fig1.jpg" alt=""> <center>图 1 YOLOv1 网络结构</center></p>
+<h2 id="1-2-方法"><a href="#1-2-方法" class="headerlink" title="1.2 方法"></a>1.2 方法</h2><p>YOLOv1 网络结构如图1，采用的是 VOC 数据集。<br><img src="/images/obj_det/YOLOv1_fig1.jpg" alt=""> <center>图 1 YOLOv1 网络结构</center></p>
 <p>输入 shape : <code>448,448,3</code>，<br>输出 shape ：<code>7,7,35</code></p>
-<h3 id="检测思想"><a href="#检测思想" class="headerlink" title="检测思想"></a>检测思想</h3><ol>
+<h3 id="1-3-检测思想"><a href="#1-3-检测思想" class="headerlink" title="1.3 检测思想"></a>1.3 检测思想</h3><ol>
 <li>将输入图像划分为 <code>SxS</code> 大小的网格，如果目标中心落于某个 grid cell，那么这个 grid cell 负责检测这个目标。对于 VOC 数据集，使用 <code>S=7</code>，这是综合考虑，平衡了计算量和准确率。</li>
 <li>每个 grid cell 预测 <code>B</code> 个 box。这里取 <code>B=3</code>。</li>
 <li>对每个 box 预测，需要 5 个数据 <code>(x,y,w,h,IOU)</code>（全部都是归一化的）。</li>
@@ -233,28 +470,28 @@
 </ol>
 <p><strong>思考：</strong> 为什么每个 grid cell 处预测不是 1 个 box 而是多个 box？</p>
 <p><strong>答：</strong> 我们假定不会有多个目标的中心落入同一个 grid cell，如果确实存在（这种概率很低），那么只有第一个目标的数据<code>x,y,w,h,IOU,class</code>会写入 gt <code>Y</code> 中。每个 grid cell 仍然预测多个 box，这是因为这些不同的预测 box 将具有不同的 size 或 aspect ratio。如果目标中心落入某个 grid cell，那么其上的 <code>B</code> 个预测 box 中，只有与目标 IOU 最大的预测 box 才负责预测。例如，某个预测 box 适合预测高的目标（人），而另一个预测 box 可能适合预测宽的目标（车）。</p>
-<h3 id="损失"><a href="#损失" class="headerlink" title="损失"></a>损失</h3><script type="math/tex; mode=display">\begin{aligned} L&=\lambda_{coord} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj}(x_i-\hat x_i)^2+(y_i-\hat y_i)^2 \\\\ &+ \lambda_{coord} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj}(\sqrt {w_i}- \sqrt {\hat w_i})^2+(\sqrt {h_i}- \sqrt {\hat h_i})^2 \\\\ &+ \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj} (C_i-\hat C_i)^2 \\\\ &+ \lambda_{noobj} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{noobj}(C_i-\hat C_i)^2 \\\\ &+ \sum_{i=1}^{S^2} \mathbf 1_i^{obj} \sum_{c \in classes}\left(p_i(c)-\hat p_i(c)\right)^2 \end{aligned}</script><p><strong>分析：</strong></p>
+<h3 id="1-4-损失"><a href="#1-4-损失" class="headerlink" title="1.4 损失"></a>1.4 损失</h3><script type="math/tex; mode=display">\begin{aligned} L&=\lambda_{coord} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj}(x_i-\hat x_i)^2+(y_i-\hat y_i)^2 \\\\ &+ \lambda_{coord} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj}(\sqrt {w_i}- \sqrt {\hat w_i})^2+(\sqrt {h_i}- \sqrt {\hat h_i})^2 \\\\ &+ \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj} (C_i-\hat C_i)^2 \\\\ &+ \lambda_{noobj} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{noobj}(C_i-\hat C_i)^2 \\\\ &+ \sum_{i=1}^{S^2} \mathbf 1_i^{obj} \sum_{c \in classes}\left(p_i(c)-\hat p_i(c)\right)^2 \end{aligned}</script><p><strong>分析：</strong></p>
 <p>带 <code>^</code> 的为网络输出，不带 <code>^</code> 则为 ground truth 值。<code>x, y, w, h</code> 为中心点坐标，<code>C</code> 为 IOU，<code>pi(c)</code> 为分类 <code>c</code> 的概率。</p>
 <p>$\mathbf 1_{ij}^{obj}$ 表示第 <code>i</code> 个 grid cell 有目标（中心），且此 grid cell 上第 <code>j</code> 个预测 box 与 gt box 有最大 IOU，即，第 <code>j</code> box 负责预测。</p>
 <p>对于较大 box 和 较小 box，在相同偏差$\Delta w, \ \Delta h$ 下，较大 box 的损失应该比较小 box 的损失更小才合理，然而两者平方差损失相同，所以我们对宽高 <code>w,h</code>，先求平方根，再求平方差，这在一定程度上降低了这种不合理性。</p>
 <p>$\mathbf 1_{ij}^{noobj}$ 表示 i) 第 <code>i</code> 个 grid cell 无目标（中心），或者 ii) 有目标（中心），但是第 <code>j</code> 个预测 box 不负责预测（即，与 gt box 的 IOU 不是 <code>B</code> 个预测 box 中最大的）。</p>
 <p>$\mathbf 1_i^{obj}$ 表示第 <code>i</code> 个 grid cell 有目标（中心）。</p>
 <p>坐标损失与分类损失分属两类损失，需要进行平衡。此外，由于大部分预测 box 其实并不负责预测，来自这部分预测 box 的 IOU 损失（损失公式中第四行）将会压制负责预测的 box 的坐标损失和 IOU 损失（损失公式中前三行），所以需要提升被压制的那部分的损失贡献。综合考虑，设置 $\lambda_{coord}=5, \ \lambda_{noobj}=0.5$。</p>
-<h2 id="细节"><a href="#细节" class="headerlink" title="细节"></a>细节</h2><ol>
+<h2 id="1-5-细节"><a href="#1-5-细节" class="headerlink" title="1.5 细节"></a>1.5 细节</h2><ol>
 <li>GT label 数据的 size 为 <code>S*S*(5+20)</code>，其中 <code>5</code> 包含了 4 个坐标值，1 个 IOU，20 为表示分类 id 的 one-hot vector 的长度。维度从高到低为 <code>(S,S,5+20)</code>，最低维数据顺序为 IOU, class id, x,y,w,h。</li>
 <li>网络输出 size 为 <code>S*S*(B*5+20)</code>，维度从高到低为 <code>(5+20,S,S)</code>，通道顺序为 class id, IOU, x,y,w,h。</li>
 <li>GT label 数据中， x,y,w,h 先进行归一化（除以图像宽/高），然后 <code>x=x*S-(int)x*S, y=y*S-(int)y*S</code>。</li>
 <li>网络输出中的 x,y 与 GT label 中含义一致，表示相对于 grid cell 的（归一化）偏差，而 w,h 则是经过了平方根处理。</li>
 </ol>
-<h1 id="YOLOv2"><a href="#YOLOv2" class="headerlink" title="YOLOv2"></a>YOLOv2</h1><h2 id="简介-1"><a href="#简介-1" class="headerlink" title="简介"></a>简介</h2><p>YOLOv2 是对 YOLOv1 的改进，包括：</p>
+<h1 id="2-YOLOv2"><a href="#2-YOLOv2" class="headerlink" title="2. YOLOv2"></a>2. YOLOv2</h1><h2 id="2-1-简介"><a href="#2-1-简介" class="headerlink" title="2.1 简介"></a>2.1 简介</h2><p>YOLOv2 是对 YOLOv1 的改进，包括：</p>
 <ol>
 <li>利用现有的分类数据集来扩展检测数据集，使得检测目标的分类种数更多。</li>
 <li>增加 Batch Normalization</li>
 <li>检测小目标更准确</li>
 </ol>
 <p>在分类集上预训练时，就使用较大分辨率的图像。YOLOv1 中使用 <code>224x224</code> 在分类集上预训练，然后直接将 <code>448x448</code> 大小的检测数据训练集喂给网络，这让网络同时适应高分辨率的图像以及学习目标检测，难免压力山大。YOLOv2 中，每隔十次 batch 训练，变更一次网络输入 size。</p>
-<h2 id="方法-1"><a href="#方法-1" class="headerlink" title="方法"></a>方法</h2><p>以 VOC 数据集为例，YOLOv2 的网络结构可以从配置文件 <code>cfg/yolov2-voc.cfg</code> 中获取。</p>
-<h3 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h3><ol>
+<h2 id="2-2-方法"><a href="#2-2-方法" class="headerlink" title="2.2 方法"></a>2.2 方法</h2><p>以 VOC 数据集为例，YOLOv2 的网络结构可以从配置文件 <code>cfg/yolov2-voc.cfg</code> 中获取。</p>
+<h3 id="2-2-1-实现细节"><a href="#2-2-1-实现细节" class="headerlink" title="2.2.1 实现细节"></a>2.2.1 实现细节</h3><ol>
 <li>输入 size 每隔 10 个 batch 变更一次，从 <code>320, 352, ..., 608</code> 这十个值中随机选择。记输入大小为 <code>(3,d,d)</code>。</li>
 <li><p>网络整体下采样率为 32，输出大小为 <code>(125, d/32, d/32)</code>。其中，<code>(d/32,d/32)</code> 与 YOLOv1 中类似，可以看作原图像上的 grid cell 数量 <code>S=d/32</code>。如果目标的中心落入某个 grid cell，那么这个 grid cell 负责预测目标。每个 grid cell 上有 <code>5</code> 个预测 box，每各 box 有 <code>1</code> 个 IOU 以及 <code>4</code> 个坐标值，每个 box 独立拥有 <code>20</code> 个分类得分，故输出 channel 为 <code>125=5*(1+4+20)</code>。注意，YOLOv1 中每个 cell 上的 <code>B</code> 个预测 box 共享 <code>20</code> 个分类得分。</p>
 </li>
@@ -262,7 +499,7 @@
 </li>
 <li><code>(route:-1，-4)</code> 层将浅层特征（高分辨率）与高层特征（低分辨率）融合，类似于 ResNet 中的 identity mapping，这种更细粒度的特征将有助于小目标的检测。</li>
 </ol>
-<h3 id="损失-1"><a href="#损失-1" class="headerlink" title="损失"></a>损失</h3><p>损失包括：分类损失，置信度损失，坐标损失三部分。</p>
+<h3 id="2-3-损失"><a href="#2-3-损失" class="headerlink" title="2.3 损失"></a>2.3 损失</h3><p>损失包括：分类损失，置信度损失，坐标损失三部分。</p>
 <script type="math/tex; mode=display">L=L_p+L_{box}+L_C</script><p><strong>分类损失</strong></p>
 <script type="math/tex; mode=display">L_p=\sum_{i=1}^{S^2} \sum_{j=1}^B \sum_{c=1}^{20} \mathbf 1_{ij}^{obj} [\hat p_{ij}(c)-p_{ij}(c)]^2</script><p><strong>坐标损失</strong></p>
 <script type="math/tex; mode=display">\begin{aligned}L_{box}&=\lambda_{obj}^{coord} \sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{obj} (\hat x_{ij} - x_{ij})^2 + (\hat y_{ij} - y_{ij})^2+ (\hat w_{ij} - w_{ij})^2+ (\hat h_{ij} - h_{ij})^2 
@@ -272,13 +509,15 @@
 <p><strong>分析：</strong></p>
 <p>网络输出 shape 从高维到低维为，<code>batch, B, 4+1+C, S, S</code>（其实无论几维，在内存中都是一维）。这里假设了输出 feature map 的 height 和 width 相等，均为 <code>S</code> （grid size），且 <code>4</code> 表示 4 个坐标，<code>1</code> 表示 IOU，<code>C</code> 表示分类数量。</p>
 <p>与 YOLOv1 中类似，目标中心落入某个 grid cell，那么这个 grid cell 负责预测目标。每个 grid cell 有 <code>B=5</code> 个预测 box，具有不同的 size。使用 5 组 anchor box 帮助预测，参考 yolov2-voc.cfg 文件中最后一个 layer 配置中 <code>anchors</code> 的值，给了 5 组 width height 的值，这些值基于输出 feature map 的 size <code>SxS</code>，即，并没有归一化。anchor box 的中心为所在 grid cell 坐标加 0.5，即 <code>(i,j)</code> 处 grid cell 的 anchor box 中心为 <code>(i+0.5, j+0.5)</code>。</p>
-<p>网络输出坐标 <code>x,y,h,w</code> 的具体含义，如图 2，<br><img src="/images/obj_det/YOLOv2_fig2.png" alt=""> <center>图2 预测 box 与 anchor box 的关系</center></p>
+<p>网络输出坐标 <code>x,y,h,w</code> 的具体含义，如图 2，<br><img src="/images/obj_det/YOLOv2_fig2.png" alt=""> </p>
+<center>图2 预测 box 与 anchor box 的关系</center>
+
 <p>网络输出坐标实际含义就是 $\sigma(t_x), \sigma(t_y), t_w, t_h$。</p>
 <p>一幅图像的 GT label 的 size 为 <code>30*5</code>，低维数据排列顺序为 <code>x,y,w,h, class id</code>，其中 <code>x,y,w,h</code> 是基于 original image 的 size 进行了归一化（<code>x,y</code> 与 YOLOv1 中稍有不同）。</p>
 <p>坐标损失中 $x_{ij}, y_{ij}, w_{ij}, h_{ij}$ 使用的是 $\sigma(t_x), \sigma(t_y), t_w, t_h$，对于网络输出，不用做任何修改，而对于 GT box 以及 anchor box，则需要做变换，也就是说，将预测 box 分别替换为 GT box 和 anchor box 来计算 $\sigma(t_x), \sigma(t_y), t_w, t_h$。</p>
 <p>位于某 location <code>(i,j)</code> 处，将 <code>B</code> 个预测 box 与 GT label 中所有目标 box 两两求 IOU，最后得到一个最大 IOU，如果这个最大 IOU 大于阈值 0.5，那么 $\mathbf 1_{ij}^{noobj}=0$，此时置信度损失中第二项为 0。</p>
 <p>对于每个 GT box，找出与这个 GT box 有最大 IOU 预测 box，注意这个 IOU 没有阈值限制，然后设置 $\mathbf 1_{ij}^{obj}=1$（每个 GT box 有且只有一个负责预测的 box），此时置信度损失中第一项非零，且分类损失非零，此时计算分类损失时，$\sum_{c=1}^C$ 求和中，当且仅当 <code>c</code> 等于 GT label 中的 class id 时，$p_{ij}(c)=1$，其余 <code>C-1</code> 种情况 $p_{ij}(c)=0$。</p>
-<h1 id="YOLOv3"><a href="#YOLOv3" class="headerlink" title="YOLOv3"></a>YOLOv3</h1><p>在 YOLOv2 基础上做了修改：</p>
+<h1 id="3-YOLOv3"><a href="#3-YOLOv3" class="headerlink" title="3. YOLOv3"></a>3. YOLOv3</h1><p>在 YOLOv2 基础上做了修改：</p>
 <ol>
 <li>三个 scale 的输出 feature maps。每组 feature maps 的大小为 <code>NxNx[3*(4+1+C)]</code>，三个不同的 <code>N</code>，依次增大 2 倍。</li>
 <li>使用 <code>9</code> 个不同 scale 的 anchor box 帮助预测。由于有 <code>3</code> 个 scale 的 feature maps，所以实际上，每个 scale 大小的 feature maps 上每个 grid cell 仅使用 <code>9/3=3</code> 个 anchor box。</li>
@@ -289,257 +528,794 @@
 <li>单个图像的 GT label 大小 为 <code>90*5</code>。这表示单个图像中目标数量最大不超过 <code>90</code>。</li>
 <li>大量使用 Residual layer。</li>
 </ol>
+<p><img src="/images/obj_det/YOLO_3.png" alt=""></p>
+<center>图 3. Darknet53 结构</center>
 
+<p>backbone 三个输出分支分别为：</p>
+<ol>
+<li>第三个 residual block 的输出，图 3 中的 <code>32x32x256</code></li>
+<li>第四个 residual block 的输出，图 3 中的 <code>16x16x512</code></li>
+<li>最后的 residual block 的输出，图 3 中的 <code>8x8x1024</code></li>
+</ol>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2020/04/20/obj_det/YOLO/">https://jianjiansha.github.io/2020/04/20/obj_det/YOLO/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
     </div>
 
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/object-detection/">
+                                    <span class="chip bg-color">object detection</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
     
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
     
+
     
 
-      <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/object-detection/" rel="tag"># object detection</a>
-          </div>
+</div>
 
-        
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
 
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
 
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2020/01/08/pytorch/optim-2/" rel="prev" title="PyTorch.optim">
-      <i class="fa fa-chevron-left"></i> PyTorch.optim
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/05/27/cv/methods/" rel="next" title="cv.methods">
-      cv.methods <i class="fa fa-chevron-right"></i>
-    </a></div>
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-      </footer>
-    
-  </article>
-  
-  
-  
-
-
-
-          </div>
-          
+</div>
 
 <script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
+    $(function () {
+        $('.tabs').tabs();
     });
-  }
 </script>
 
+            
         </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          文章目录
-        </li>
-        <li class="sidebar-nav-overview">
-          站点概览
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLOv1"><span class="nav-number">1.</span> <span class="nav-text">YOLOv1</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E6%80%9D%E6%83%B3"><span class="nav-number">1.2.1.</span> <span class="nav-text">检测思想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1"><span class="nav-number">1.2.2.</span> <span class="nav-text">损失</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%86%E8%8A%82"><span class="nav-number">1.3.</span> <span class="nav-text">细节</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLOv2"><span class="nav-number">2.</span> <span class="nav-text">YOLOv2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B-1"><span class="nav-number">2.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95-1"><span class="nav-number">2.2.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-number">2.2.1.</span> <span class="nav-text">实现细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">损失</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLOv3"><span class="nav-number">3.</span> <span class="nav-text">YOLOv3</span></a></li></ol></div>
-      </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">shajianjian</p>
-  <div class="site-description" itemprop="description"></div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">104</span>
-          <span class="site-state-item-name">日志</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-categories">
-            <a href="/categories/">
-          
-        <span class="site-state-item-count">2</span>
-        <span class="site-state-item-name">分类</span></a>
-      </div>
-      <div class="site-state-item site-state-tags">
-            <a href="/tags/">
-          
-        <span class="site-state-item-count">25</span>
-        <span class="site-state-item-name">标签</span></a>
-      </div>
-  </nav>
-</div>
-
-
-
-      </div>
-
     </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2022</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">shajianjian</span>
-</div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
-  </div>
-
-        
-
-
-
-
-
-
-
-
-      </div>
-    </footer>
-  </div>
-
-  
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/pisces.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-      
-
-<script>
-  if (typeof MathJax === 'undefined') {
-    window.MathJax = {
-      loader: {
-        source: {
-          '[tex]/amsCd': '[tex]/amscd',
-          '[tex]/AMScd': '[tex]/amscd'
-        }
-      },
-      tex: {
-        inlineMath: {'[+]': [['$', '$']]},
-        tags: 'ams'
-      },
-      options: {
-        renderActions: {
-          findScript: [10, doc => {
-            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
-              const display = !!node.type.match(/; *mode=display/);
-              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
-              const text = document.createTextNode('');
-              node.parentNode.replaceChild(text, node);
-              math.start = {node: text, delim: '', n: 0};
-              math.end = {node: text, delim: '', n: 0};
-              doc.math.push(math);
-            });
-          }, '', false],
-          insertedScript: [200, () => {
-            document.querySelectorAll('mjx-container').forEach(node => {
-              let target = node.parentNode;
-              if (target.nodeName.toLowerCase() === 'li') {
-                target.parentNode.classList.add('has-jax');
-              }
-            });
-          }, '', false]
-        }
-      }
-    };
-    (function () {
-      var script = document.createElement('script');
-      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
-      script.defer = true;
-      document.head.appendChild(script);
-    })();
-  } else {
-    MathJax.startup.document.state(0);
-    MathJax.texReset();
-    MathJax.typeset();
-  }
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
     
 
-  
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2020/05/27/cv/methods/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/17.jpg" class="responsive-img" alt="cv.methods">
+                        
+                        <span class="card-title">cv.methods</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            来总结一下 CV 中的常见方法或技巧。      
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2020-05-27
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/CV/">
+                        <span class="chip bg-color">CV</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2020/01/08/pytorch/optim-2/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="PyTorch.optim">
+                        
+                        <span class="card-title">PyTorch.optim</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            1. AdamAdam 表示 Adaptive Moment Estimation。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-01-08
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/DL/">
+                        <span class="chip bg-color">DL</span>
+                    </a>
+                    
+                    <a href="/tags/PyTorch/">
+                        <span class="chip bg-color">PyTorch</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2022</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+    <a href="https://www.zhihu.com/people/tsukaookami" class="tooltipped" target="_blank" data-tooltip="关注我的知乎: https://www.zhihu.com/people/tsukaookami" data-position="top" data-delay="50">
+        <i class="fab fa-zhihu1">知</i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
 
 </body>
+
 </html>

@@ -3,11 +3,13 @@ title: lstm
 date: 2021-11-12 16:16:11
 tags: RNN
 mathjax: true
+img: /images/ml/lstm3.png
+categories: 循环神经网络
 ---
 Long short term memory
 <!--more-->
 
-# RNN
+# 1. RNN
 
 RNN 适合处理时序输入，例如机器翻译、语言识别等。RNN 结构如下图，
 
@@ -31,7 +33,7 @@ $$W^t = (V \text {diag}(\lambda) V^{-1})^t = V \text{diag}(\lambda)^t V^{-1}$$
 
 如果特征值 $\lambda_i$ 不在 `1` 或者 `-1` 附近，那么 $\lambda_i^t$ 将会特别大或者特别小（只关心其绝对值，因为正负号只影响梯度方向）。如果特别大，则会导致“梯度爆炸”，训练过程极不稳定；如果特别小，导致“梯度消失”，那么无法确定参数的更新方向，从而无法正确的学习更新。
 
-# LSTM
+# 2. LSTM
 全称：long short term memory networks
 
 LSTM 是一种可以学习 long-term 依赖的 RNN 结构。
@@ -67,7 +69,16 @@ $$x'=\begin{bmatrix}h^{(t-1)} \\ x^{(t)}\end{bmatrix}$$
 
 $$W'x'=[W, U]\begin{bmatrix}h^{(t-1)} \\ x^{(t)}\end{bmatrix}=W h^{(t-1)}+Ux^{(t)}$$
 
-## LSTM 核心思想
+
+__总结各变量 shape：__
+
+$x^{(t)} \in \mathbb R^{d}$，输入特征维度为 $d$； $U \in \mathbb R^{n \times d}$
+
+$h^{(t)} \in \mathbb R^{n}$，隐层输出维度为 $n$； $W \in \mathbb R^{n \times n}$
+
+$o^{(t)} \in \mathbb R^{c}$，输出层维度为 $c$； $V \in \mathbb R^{c \times n}$
+
+## 2.1 核心思想
 
 LSTM 的关键是引入了 cell 状态，即图 3 中的上面那条水平线，cell state 相当于一个传送带，在整个链中，从头到尾，中间仅受到一点点小影响：门（gate）对 cell 信息流的控制。
 
@@ -78,7 +89,7 @@ LSTM 的关键是引入了 cell 状态，即图 3 中的上面那条水平线，
 
 这个门由 一个 sigmoid 激活函数以及一个按位相乘操作组成，sigmoid 函数位于 $(0,1)$ 之间，越接近 0 则表示不让 cell 中的信息通过，越接近 1 表示尽量让 cell 中信息通过。
 
-## 摸清 LSTM 脉络
+## 2.2 摸清 LSTM 脉络
 
 LSTM 中，链接起来的方框称为 `cell`，每个 `cell` 包含几个重要的变量：
 
@@ -88,7 +99,7 @@ LSTM 中，链接起来的方框称为 `cell`，每个 `cell` 包含几个重要
 
 控制信息流可以使用 leaky unit，即 `running_mean` 来实现，$\mu_t=(1-\alpha) \mu_{t-1} + \alpha x_t$，当 $\alpha$ 越大，表示遗忘很快，$\alpha$ 时，表示记忆很好，能记住较长时间之前的信息。但是 $\alpha$ 是固定的，不够灵活，在 LSTM 中采用 遗忘门 来控制信息流的传递，遗忘门的输出由 `cell` 状态，输入，和输出三者共同动态的决定。
 
-### 遗忘门
+### 2.2.1 遗忘门
 如图 5 （a），
 
 ![](/images/ml/lstm5.png)
@@ -99,7 +110,7 @@ LSTM 中，链接起来的方框称为 `cell`，每个 `cell` 包含几个重要
 $$f_t=\sigma (W_f \cdot [h_{t-1}, x_t] + b_f)$$
 其中 上一时刻 `cell` 的输出 $h_{t-1}$ 与本时刻的输入 $x_t$ 进行 concatenate，$W_f$ 和 $b_f$ 为遗忘门的权重和偏置参数，$\sigma$ 表示 sigmoid 激活。
 
-### 输入门
+### 2.2.2 输入门
 
 前面遗忘门控制 cell state 中，哪些信息是需要保留的，哪些信息是需要遗忘的。现在我们需要确定，新信息如何加到 cell state。
 
@@ -116,7 +127,7 @@ $$\hat C_t = \tanh (W_C \cdot [h_{t-1}, x_t] + b_C)$$
 
 $$C_t = f_t \star C_{t-1} + i_t \star \hat C_t$$
 
-### 输出门
+### 2.2.3 输出门
 
 现在来确定 cell 的输出。首先与 普通 RNN 一样，使用一个输出门，输出门的输入为 本时刻的输入 $x_t$ 和 上一时刻 cell 的输出 $h_{t-1}$，进行 concatenate 然后经过仿射变换后经 sigmoid 激活函数，就得到输出门的 output。
 
@@ -128,7 +139,7 @@ $$o_t=\sigma(W_o [h_{t-1},x_t]+b_o)$$
 $$h_t=o_t \star \tanh (C_t)$$
 
 
-## LSTM 变体
+## 2.3 LSTM 变体
 
 上述 LSTM 结构是一个标准形式，实际上还有很多变体，在很多论文中都对标准 LSTM 进行了一些微小改变。
 
@@ -160,11 +171,19 @@ $$\hat h_t = \tanh(W \cdot [r_t \star h_{t-1}, x_t])$$
 $$h_t = (1-z_t) \star h_{t-1} + z_t \star \hat h_t$$
 
 
+## 2.4 Bi-LSTM
+如图 7，
 
+![](/images/ml/lstm7.png)
 
+<center>图 7 双层 LSTM 结构。图源 ref 2</center>
+
+第一层从左到右，得到表征向量，例如 $h_1^{(t)}$，第二层从右到左，得到表征向量 $h_2^{(t)}$，两层向量可以 concatenate 或者 element-wise sum 得到第三次向量 $h^{(t)}$，然后使用全连接层得到 $o^{(t)}$，然后使用 softmax 得到 $y^{(t)}$ 。
 
 
 
 ref
 
 1. [Understanding LSTM Networks](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)
+
+2. [Bidirectional LSTM-CRF Models for Sequence Tagging](https://arxiv.org/pdf/1508.01991.pdf)

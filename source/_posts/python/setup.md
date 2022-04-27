@@ -1,7 +1,9 @@
 ---
 title: python setup
 date: 2021-06-12 17:03:32
-tags: cmake, C++
+tags: 
+  - cmake
+  - C++
 p: python/setup
 ---
 
@@ -11,7 +13,7 @@ python 的 setup 介绍。
 研究 python setup.py 脚本中的 setup 方法使用。
 
 一个简单的例子
-```
+```sh
 from distutils.core import setup
 
 setup(name='Distutils',
@@ -33,7 +35,7 @@ packages 列举了需要处理（生成、分发以及安装等）的纯 python 
 
 ## package_dir
 例如所有的 python 源文件均位于 root 目录下的 `lib` 文件夹中，也就是说 "root package" 实际上对应 `lib` 文件夹，例如 `foo` 包则对应 `lib/foo`文件夹，那么设置
-```
+```sh
 package_dir = {'': 'lib'}
 ```
 这是一个字典，key 表示包名称，empty string 表示 "root package"，value 表示文件目录（相对于 setup.py 所在目录），故如果此时设置 `packages=['foo']`，这表示 `lib/foo/__init__.py` 一定存在。
@@ -44,7 +46,7 @@ package_dir = {'': 'lib'}
 
 ## py_modules
 对于小的模块分发，可能想直接列出模块，而不是包，那么使用这个参数，例如
-```
+```sh
 py_modules = ['mod1', 'pkg.mod2']
 ```
 记住，模块以根目录为相对起点，所以上面例子中 `pkg` 必须是一个包，即 `pkg/__init__.py` 必须要存在。
@@ -56,7 +58,7 @@ py_modules = ['mod1', 'pkg.mod2']
 写 python 扩展模块比写 纯 python 模块复杂一些，同样，描述如何处理这些 模块模块 也比 描述如何处理纯 python 模块要复杂，需要指定扩展模块名称，源文件，编译链接需求（头文件包含路径，链接库，flags 等）
 
 ext_modules 是 `Extension` 的列表， `Extension` 描述扩展模块。一个简单的例子，
-```
+```sh
 Extension('foo', ['foo.c'])
 ```
 表示扩展模块名称为 `foo`，相关的源文件为 `foo.c`。

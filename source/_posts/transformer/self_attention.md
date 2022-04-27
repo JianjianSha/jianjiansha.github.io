@@ -50,6 +50,8 @@ $$\begin{aligned}\mathbf h_{t+1}&= \mathcal L(\mathbf x_{t+1}, \mathbf h_t)
 
 **上面在每一步中的计算中，所有 time step 都可以同时计算，于是可以实现并行计算。**
 
+<font color='magenta'>$\mathbf o_i \in \mathbb R^d \ , \ i=1,\ldots, T$</font>
+
 ## 2.2 矩阵表示
 1. 输入矩阵 $X \in \mathbb R^{T \times l}$，每一行表示一个 time step 的输入向量
 2. embedding vector 维度为 $n$，参数矩阵 $W \in \mathbb R^{n \times l}$，得到所有 embedding 序列 $I \in \mathbb R^{T \times n}$：$I=X\cdot W^{\top}$
@@ -57,24 +59,29 @@ $$\begin{aligned}\mathbf h_{t+1}&= \mathcal L(\mathbf x_{t+1}, \mathbf h_t)
     $$Q=I W_q^{\top}, \quad K=I W_k^{\top}, \quad V=IW_v^{\top}$$
 4. attention op，得到 attention 矩阵 $A \in \mathbb R^{T \times T}$：$A=Q K^{\top}/\sqrt d$
 5. 归一化 attention：$\hat A_{ij} =\exp( A_{ij})/ \sum_l \exp(A_{il})$。第 `i` 行 $\hat A_{i,:}$ 作为 time step `i` 的 weights。
-6. 输出矩阵 $O \in \mathbb R^{T \times d}$，$O=\hat A V$
+6. 输出矩阵 <font color='magenta'>$O \in \mathbb R^{T \times d}$</font>，$O=\hat A V$
 
 ## 2.3 Multi-head Self-attention
 `2.1` 节的内容可以看作是 single-head self-attention，重复横向堆叠多个相同的 **scaled dot-product attention** 可以得到 multi-head self-attention，具体过程如下：
-1. 按 `2.1` 节中得到 $Q, K, V$ 三个矩阵
-2. 记 heads 的数量为 `h`，对于第 `i` 个 head，使用三个参数矩阵 $W_i^Q \in \mathbb R^{d \times d_k}, \quad W_i^K \in \mathbb R^{d \times d_k}, \quad W_i^V \in \mathbb R^{d \times d_v}$，分别将 $Q,K,V$ 映射为新的矩阵 $Q_i \in \mathbb R^{T \times d_k}, \quad K_i \in \mathbb R^{T \times d_k}, \quad V_i \in \mathbb R^{T \times d_v}$
+1. 按 `2.1` 节中得到 $Q, K, V$ 三个矩阵（即输入的 embedding 经三个权重参数线性变换得到 $Q,K,V$ 三个矩阵，这三个权重参数分别为 $W_q,W_k,W_v \in \mathbb R^{d\times n}$）。
+2. 记 heads 的数量为 <font color='red'> $h$ </font>，对于第 $i \in [h]$ 个 head，使用三个参数矩阵 $W_i^Q \in \mathbb R^{d \times d_k}, \quad W_i^K \in \mathbb R^{d \times d_k}, \quad W_i^V \in \mathbb R^{d \times d_v}$，分别将 $Q,K,V$ 映射为新的矩阵 <font color='magenta'>$Q_i \in \mathbb R^{T \times d_k}, \quad K_i \in \mathbb R^{T \times d_k}, \quad V_i \in \mathbb R^{T \times d_v}$</font>，注意这里 $\mathbf q_i, \ \mathbf k_i$ 维度相同均为 $d_k$，因为这两个向量需要做内积，
+
     $$Q_i = Q W_i^Q, \quad K_i = K W_i^K, \quad V_i=V W_i^V, \quad i=1,\cdots, h$$
 
-    由于 $Q_i=QW_i^Q=IW_q^TW_i^Q \Rightarrow Q_i=IW_i^{Q'}$，所以也可以认为直接从 输入 embedding（word embedding）直接线性转换为 `query`；对于 `key` 和 `value` 类似处理。
-3. 每个 head 单独执行 scaled dot-product attention 即，
-    $$A_i=Q_i K_i^{\top} / \sqrt {d_k} \in \mathbb R^{T \times T} \\ \hat A_i=\text{softmax} (A_i) \\ O_i =\hat A_i V_i, \quad i=1,\cdots,h$$
-4. 将每个 head 的输出沿着 `axis=1` 方向 concatenate（类似于`torch.hstack`），再乘以个输出参数矩阵 $W^O \in \mathbb R^{hd_v \times d}$，
-    $$O=\text {Concat}(O_1,\cdots, O_h) \in \mathbb R^{T \times hd_v} \\ O:= O W^O \in \mathbb R^{T \times d}$$
+    由于 $Q_i=QW_i^Q=IW_q^TW_i^Q \Rightarrow Q_i=IW_i^{Q'}$，其中 $I$ 为输入的 embedding。所以也可以认为直接从 输入 embedding（word embedding）直接线性转换为 `query`；对于 `key` 和 `value` 类似处理。
+3. 每个 head 单独执行 scaled dot-product attention 即，对每个 head $i=1,\cdots,h$
+    $$A_i=Q_i K_i^{\top} / \sqrt {d_k} \in \mathbb R^{T \times T} \\ \hat A_i=\text{softmax} (A_i) \\ O_i =\hat A_i V_i \in \mathbb R^{T \times d_v}$$
+4. 将每个 head 的输出沿着 `axis=1` 方向 concatenate（类似于`torch.hstack`），再乘以个输出参数矩阵 $\color{magenta} W^O \in \mathbb R^{hd_v \times d}$，
+    $$O=\text {Concat}(O_1,\cdots, O_h) \in \mathbb R^{T \times hd_v} \\ O:= O W^O \in \color{magenta} \mathbb R^{T \times d}$$
 
 ![](/images/transformer/self_attention_1.png)
 图 2. 左：scaled dot-product attention; 右：multi-head self-attention
 
 通常取 $d=512, \ h=8, \ d_k=d_v=d/h=64$。
+
+__总结：__
+
+$\text{Transformer}:\mathbb R^{T \times n} \rightarrow \mathbb R^{T \times d}$，其中 $n$ 是 embedding 维度，$d$ 是隐层维度。
 
 
 **示例代码**
@@ -160,10 +167,10 @@ Decoder 在训练和测试阶段，稍有不同。
 ### 3.2.1 Decoder 训练
 **<font color=#FF88>使用 Teacher Forcing 且是并行化训练</font>** 。
 
-例如将“我有一只猫”翻译为 “I have a cat”，对于 src sentence 和 trg sentence，都要 prepend  `<sos_tok>` 和 append `<eos_tok>`，那么 trg sentence 变为 “<sos_tok> I have a cat <eos_tok>”，于是 Decoder 输入应为 (<sos_tok> I have a cat)，输出应为 （I have a cat <eos_tok>），这里输入 sequence 应该去掉最后一个 token，因为我们设计的 Decoder 是根据输入一个词，输出下一个词，而输出 sequence 应该去掉第一个 token。
+例如将“我有一只猫”翻译为 “I have a cat”，对于 src sentence 和 trg sentence，都要 prepend  `<sos_tok>` 和 append `<eos_tok>`，那么 trg sentence 变为 “`<sos_tok>` I have a cat `<eos_tok>`”，于是 Decoder 输入应为 (`<sos_tok>` I have a cat)，输出应为 （I have a cat `<eos_tok>`），这里输入 sequence 应该去掉最后一个 token，因为我们设计的 Decoder 是根据输入一个词，输出下一个词，而输出 sequence 应该去掉第一个 token。
 
 使用 sequence 输入输出，实现 Decoder 并行化计算，
-```
+```sh
 # target sequence: <sos> I have a cat <eos> <pad> <pad>
 # （填充了两个 <pad> token）
 
@@ -283,7 +290,7 @@ $$FFN(x)=\max(0, xW_1+b_1)W_2 + b_2$$
 ## 3.4 Position Encoding
 通过前面对 attention 的介绍可知，各 time step 的输入其实是位置无关的，因为每个 time step 输入的 attention 操作都是全局进行的，即 `i` 位置的输入 $\mathbf x_i$，其 attention 记为 $\mathbf o_i$，如果换到 `j` 位置，其 attention 结果记为 $\mathbf o_j$，显然有 $\mathbf o_i = \mathbf o_j$。例如 “A打B” 和 “B打A”，前者 A 是打人，后者 A 是被打，但是 attention 输出却一样，所以不合理。考虑位置信息后，就可以解决这个问题。
 
-使用 one-hot vector 来表示位置信息，例如第 `i` time step 输入 $\mathbf x_i$，其位置信息的 one-hot vector 为 $\mathbf p_i = [\underbrace{0,\cdots, 0}_{i-1}, 1, \underbrace {0, \cdots, 0}_{L-i}]$，其中 $L$ 是 max sequence length，即数据集所有 sentences 中最长的 sentence 长度（words 数量），或者根据具体任务和经验手动设置一个较大的数，数据集中长度大于 $L$ 的 sentence 都会被截断使得长度为 $L$，例如 $L=100$。于是叠加位置信息后的最终的 embedding 为
+使用 one-hot vector 来表示位置信息，例如第 `i` time step 输入 $\mathbf x_i$，其位置信息的 one-hot vector 为 $\mathbf p_i = [\underbrace{0,\cdots, 0}_{i-1}, 1, \underbrace {0, \cdots, 0}_{L-i}]$，其中 $L$ 是 max sequence length，即数据集（或一个 minibatch 中）所有 sentences 中最长的 sentence 长度（words 数量），或者根据具体任务和经验手动设置一个较大的数，数据集中长度大于 $L$ 的 sentence 都会被截断使得长度为 $L$，例如 $L=100$。于是叠加位置信息后的最终的 embedding 为
 
 $$\begin{bmatrix}W^I & W^P\end{bmatrix}\begin{bmatrix}\mathbf x_i \\ \mathbf p_i\end{bmatrix}=\mathbf o_i + \mathbf e_i$$
 
@@ -323,7 +330,7 @@ tok_embedding(src)*scale + pos_embedding(pos)
 公式计算 position embedding
 $$PE(pos, 2i)=\sin (pos/10000^{2i/d})
 \\PE(pos, 2i+1)=\cos(pos/10000^{2i/d})$$
-其中 $pos$ 表示 sequence 中 word 的位置，范围为 $[0,seq_len-1]$，$2i$ 和 $2i+1$ 表示 position embedding vector 中的 index，由于 position embedding 维度为 $d$，故
+其中 $pos$ 表示 sequence 中 word 的位置，范围为 `[0,seq_len-1]`，$2i$ 和 $2i+1$ 表示 position embedding vector 中的 index，由于 position embedding 维度为 $d$，故
 $i \le \lfloor d/2 \rfloor$
 ```python
 d = 512                             # model dimension

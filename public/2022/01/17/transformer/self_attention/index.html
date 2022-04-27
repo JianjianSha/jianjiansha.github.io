@@ -1,220 +1,454 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="zh-CN">
+
+
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
-
-  <meta name="description" content="论文：Attention Is All You Need">
-<meta property="og:type" content="article">
-<meta property="og:title" content="attention is all you need">
-<meta property="og:url" content="https://shajianjian.github.io/2022/01/17/transformer/self_attention/index.html">
-<meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="论文：Attention Is All You Need">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://shajianjian.github.io/images/ml/lstm2.png">
-<meta property="og:image" content="https://shajianjian.github.io/images/transformer/self_attention_1.png">
-<meta property="og:image" content="https://shajianjian.github.io/images/transformer/self_attention_2.png">
-<meta property="article:published_time" content="2022-01-17T09:22:56.000Z">
-<meta property="article:modified_time" content="2022-01-25T08:22:20.325Z">
-<meta property="article:author" content="shajianjian">
-<meta property="article:tag" content="transformer">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://shajianjian.github.io/images/ml/lstm2.png">
-
-<link rel="canonical" href="https://shajianjian.github.io/2022/01/17/transformer/self_attention/">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <meta name="keywords" content="attention is all you need, SJJ">
+    <meta name="description" content="论文：Attention Is All You Need
+1. Sequence处理 Sequence ，自然想到 RNN，如图 1，图 1. RNN
+输入 Sequence 长度为 T，即 $\mathbf x_1, \ldots, \m">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : true,
-    lang   : 'zh-CN'
-  };
-</script>
+    <title>attention is all you need | SJJ</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
 
-  <title>attention is all you need | SJJ</title>
-  
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 
+   <style>
+    body{
+       background-image: url(https://cdn.jsdelivr.net/gh/Tokisaki-Galaxy/res/site/medias/background.jpg);
+       background-repeat:no-repeat;
+       background-size: 100% 100%;
+       background-attachment:fixed;
+    }
+</style>
 
 
 
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
-
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
-    <div class="headband"></div>
-
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="切换导航栏">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">SJJ</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
-</div>
-
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
-
-  </li>
-        <li class="menu-item menu-item-tags">
-
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
-
-  </li>
-        <li class="menu-item menu-item-categories">
-
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
-
-  </li>
-  </ul>
-</nav>
-
-
-
-
-</div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
-
-
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content post posts-expand">
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
             
 
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
     
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
   
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2022/01/17/transformer/self_attention/">
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          attention is all you need
-        </h1>
+<div id="mobile-nav" class="side-nav sidenav">
 
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
 
-              <time title="创建时间：2022-01-17 17:22:56" itemprop="dateCreated datePublished" datetime="2022-01-17T17:22:56+08:00">2022-01-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-01-25 16:22:20" itemprop="dateModified" datetime="2022-01-25T16:22:20+08:00">2022-01-25</time>
-              </span>
-
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
           
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
 
         </div>
-      </header>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
 
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
 
-      
-        <p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a><br><span id="more"></span></p>
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/2.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">attention is all you need</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/transformer/">
+                                <span class="chip bg-color">transformer</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-01-17
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    4.6k
+                </div>
+                
+
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a><br><span id="more"></span></p>
 <h1 id="1-Sequence"><a href="#1-Sequence" class="headerlink" title="1. Sequence"></a>1. Sequence</h1><p>处理 Sequence ，自然想到 RNN，如图 1，<br><img src="/images/ml/lstm2.png" alt=""><br>图 1. RNN</p>
 <p>输入 Sequence 长度为 <code>T</code>，即 $\mathbf x_1, \ldots, \mathbf x_T$，输入为一个 $T \times l$ 的 tensor，其中 $l$ 为向量 $\mathbf x_i$ 的特征长度。</p>
 <p>RNN 的缺点是无法并行化计算，因为 <code>t</code> 时刻输出依赖 <code>t-1</code> 时刻输出，即对于网络 $\mathcal L$，<code>t+1</code> 时刻的输出 </p>
@@ -228,33 +462,66 @@
 <li>每个时刻的 input 乘以一个矩阵 $W \in \mathbb R^{n \times l}$，得到对应的 embedding 向量，$\mathbf a_i=W \mathbf x_i, \ i = 1,2,\ldots, T$。$n$ 为 embedding dimension。（这一步不属于 attention 模块，但是为了完整，这里也写出来了）</li>
 <li>使用三个矩阵分别与 embedding 向量相乘，得到 query，key，value 三个向量，这三个向量长度相同，记为 $d$，<strong><font color='red'>称 $d$ 为 model dimension</font></strong>，论文中取 $d=512$。<script type="math/tex; mode=display">\mathbf q_i=W_q^{\top} \mathbf a_i, \ \mathbf k_i=W_i^{\top} \mathbf a_i, \ \mathbf v_i =W_v^{\top} \mathbf a_i, \quad \mathbf q_i, \mathbf k_i, \mathbf v_i \in \mathbb R^d</script></li>
 <li>$\mathbf q_i$ 与 $\mathbf k_i$ 做 attention，attention 操作可以实现 time step 之间的依赖性。$\mathbf q_i$ 与 $\mathbf k_i$ 是齐头并进地计算出来的，即，可以并行计算。<strong>scaled dot-product attention：</strong><script type="math/tex; mode=display">\alpha_{ij}=\mathbf q_i \cdot \mathbf k_i / \sqrt d, \quad i,j=1,\ldots, T</script> 向量内积需要乘以因子 $1/\sqrt d$，因为如果 <code>d</code> 太大，内积分布的方差就很大，那么执行第 <code>4</code> 步的 softmax 之后，会位于 softmax 的梯度较小的区域，影响反向传播。</li>
-<li>对 $\alpha_{i1}, \ldots, \alpha_{iT}$ 做 softmax 进行归一化，<script type="math/tex; mode=display">\hat {\alpha}_{ij} = \exp(\alpha_{ij})/\sum_l \exp(\alpha_{il})</script> 记矩阵 $A \in \mathbb R^{T \times T}$，表示上述的 attention 矩阵，对每一行做 softmax， <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># A is the attention matrix, A_&#123;ij&#125; means attention between</span></span><br><span class="line"><span class="comment"># query_i and key_j. Both i and j are some time steps.</span></span><br><span class="line">torch.softmax(A, dim=<span class="number">1</span>)</span><br></pre></td></tr></table></figure></li>
+<li>对 $\alpha_{i1}, \ldots, \alpha_{iT}$ 做 softmax 进行归一化，<script type="math/tex; mode=display">\hat {\alpha}_{ij} = \exp(\alpha_{ij})/\sum_l \exp(\alpha_{il})</script> 记矩阵 $A \in \mathbb R^{T \times T}$，表示上述的 attention 矩阵，对每一行做 softmax， <pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># A is the attention matrix, A_&#123;ij&#125; means attention between</span>
+<span class="token comment"># query_i and key_j. Both i and j are some time steps.</span>
+torch<span class="token punctuation">.</span>softmax<span class="token punctuation">(</span>A<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></li>
 <li>归一化后的 attention 作为 weight，将表征信息的 $\mathbf v_i$ 向量加权求和，得到这一阶段的计算结果（$\mathbf b$ 类似于上文 RNN 中的 $\mathbf h$ ），<script type="math/tex; mode=display">\mathbf o_i=\sum_j \hat {\alpha}_{ij} \mathbf v_j, \quad i=1,\ldots, T</script></li>
 </ol>
 <p><strong>上面在每一步中的计算中，所有 time step 都可以同时计算，于是可以实现并行计算。</strong></p>
+<font color='magenta'>$\mathbf o_i \in \mathbb R^d \ , \ i=1,\ldots, T$</font>
+
 <h2 id="2-2-矩阵表示"><a href="#2-2-矩阵表示" class="headerlink" title="2.2 矩阵表示"></a>2.2 矩阵表示</h2><ol>
 <li>输入矩阵 $X \in \mathbb R^{T \times l}$，每一行表示一个 time step 的输入向量</li>
 <li>embedding vector 维度为 $n$，参数矩阵 $W \in \mathbb R^{n \times l}$，得到所有 embedding 序列 $I \in \mathbb R^{T \times n}$：$I=X\cdot W^{\top}$</li>
 <li>三个参数矩阵 $W_q,W_k,W_v \in \mathbb R^{d\times n}$， 得到 query，key，value 序列 $Q, K, V \in \mathbb R^{T \times d}$，<script type="math/tex; mode=display">Q=I W_q^{\top}, \quad K=I W_k^{\top}, \quad V=IW_v^{\top}</script></li>
 <li>attention op，得到 attention 矩阵 $A \in \mathbb R^{T \times T}$：$A=Q K^{\top}/\sqrt d$</li>
 <li>归一化 attention：$\hat A_{ij} =\exp( A_{ij})/ \sum_l \exp(A_{il})$。第 <code>i</code> 行 $\hat A_{i,:}$ 作为 time step <code>i</code> 的 weights。</li>
-<li>输出矩阵 $O \in \mathbb R^{T \times d}$，$O=\hat A V$</li>
+<li>输出矩阵 <font color='magenta'>$O \in \mathbb R^{T \times d}$</font>，$O=\hat A V$</li>
 </ol>
 <h2 id="2-3-Multi-head-Self-attention"><a href="#2-3-Multi-head-Self-attention" class="headerlink" title="2.3 Multi-head Self-attention"></a>2.3 Multi-head Self-attention</h2><p><code>2.1</code> 节的内容可以看作是 single-head self-attention，重复横向堆叠多个相同的 <strong>scaled dot-product attention</strong> 可以得到 multi-head self-attention，具体过程如下：</p>
 <ol>
-<li>按 <code>2.1</code> 节中得到 $Q, K, V$ 三个矩阵</li>
-<li><p>记 heads 的数量为 <code>h</code>，对于第 <code>i</code> 个 head，使用三个参数矩阵 $W_i^Q \in \mathbb R^{d \times d_k}, \quad W_i^K \in \mathbb R^{d \times d_k}, \quad W_i^V \in \mathbb R^{d \times d_v}$，分别将 $Q,K,V$ 映射为新的矩阵 $Q_i \in \mathbb R^{T \times d_k}, \quad K_i \in \mathbb R^{T \times d_k}, \quad V_i \in \mathbb R^{T \times d_v}$</p>
-<script type="math/tex; mode=display">Q_i = Q W_i^Q, \quad K_i = K W_i^K, \quad V_i=V W_i^V, \quad i=1,\cdots, h</script><p> 由于 $Q_i=QW_i^Q=IW_q^TW_i^Q \Rightarrow Q_i=IW_i^{Q’}$，所以也可以认为直接从 输入 embedding（word embedding）直接线性转换为 <code>query</code>；对于 <code>key</code> 和 <code>value</code> 类似处理。</p>
+<li>按 <code>2.1</code> 节中得到 $Q, K, V$ 三个矩阵（即输入的 embedding 经三个权重参数线性变换得到 $Q,K,V$ 三个矩阵，这三个权重参数分别为 $W_q,W_k,W_v \in \mathbb R^{d\times n}$）。</li>
+<li><p>记 heads 的数量为 <font color='red'> $h$ </font>，对于第 $i \in [h]$ 个 head，使用三个参数矩阵 $W_i^Q \in \mathbb R^{d \times d_k}, \quad W_i^K \in \mathbb R^{d \times d_k}, \quad W_i^V \in \mathbb R^{d \times d_v}$，分别将 $Q,K,V$ 映射为新的矩阵 <font color='magenta'>$Q_i \in \mathbb R^{T \times d_k}, \quad K_i \in \mathbb R^{T \times d_k}, \quad V_i \in \mathbb R^{T \times d_v}$</font>，注意这里 $\mathbf q_i, \ \mathbf k_i$ 维度相同均为 $d_k$，因为这两个向量需要做内积，</p>
+<script type="math/tex; mode=display">Q_i = Q W_i^Q, \quad K_i = K W_i^K, \quad V_i=V W_i^V, \quad i=1,\cdots, h</script><p> 由于 $Q_i=QW_i^Q=IW_q^TW_i^Q \Rightarrow Q_i=IW_i^{Q’}$，其中 $I$ 为输入的 embedding。所以也可以认为直接从 输入 embedding（word embedding）直接线性转换为 <code>query</code>；对于 <code>key</code> 和 <code>value</code> 类似处理。</p>
 </li>
-<li>每个 head 单独执行 scaled dot-product attention 即，<script type="math/tex; mode=display">A_i=Q_i K_i^{\top} / \sqrt {d_k} \in \mathbb R^{T \times T} \\ \hat A_i=\text{softmax} (A_i) \\ O_i =\hat A_i V_i, \quad i=1,\cdots,h</script></li>
-<li>将每个 head 的输出沿着 <code>axis=1</code> 方向 concatenate（类似于<code>torch.hstack</code>），再乘以个输出参数矩阵 $W^O \in \mathbb R^{hd_v \times d}$，<script type="math/tex; mode=display">O=\text {Concat}(O_1,\cdots, O_h) \in \mathbb R^{T \times hd_v} \\ O:= O W^O \in \mathbb R^{T \times d}</script></li>
+<li>每个 head 单独执行 scaled dot-product attention 即，对每个 head $i=1,\cdots,h$<script type="math/tex; mode=display">A_i=Q_i K_i^{\top} / \sqrt {d_k} \in \mathbb R^{T \times T} \\ \hat A_i=\text{softmax} (A_i) \\ O_i =\hat A_i V_i \in \mathbb R^{T \times d_v}</script></li>
+<li>将每个 head 的输出沿着 <code>axis=1</code> 方向 concatenate（类似于<code>torch.hstack</code>），再乘以个输出参数矩阵 $\color{magenta} W^O \in \mathbb R^{hd_v \times d}$，<script type="math/tex; mode=display">O=\text {Concat}(O_1,\cdots, O_h) \in \mathbb R^{T \times hd_v} \\ O:= O W^O \in \color{magenta} \mathbb R^{T \times d}</script></li>
 </ol>
 <p><img src="/images/transformer/self_attention_1.png" alt=""><br>图 2. 左：scaled dot-product attention; 右：multi-head self-attention</p>
 <p>通常取 $d=512, \ h=8, \ d_k=d_v=d/h=64$。</p>
+<p><strong>总结：</strong></p>
+<p>$\text{Transformer}:\mathbb R^{T \times n} \rightarrow \mathbb R^{T \times d}$，其中 $n$ 是 embedding 维度，$d$ 是隐层维度。</p>
 <p><strong>示例代码</strong></p>
 <p>实际操作中，可以将这 <code>h</code> 个 head 中的参数 concatenate 起来，然后一起执行矩阵操作，</p>
-<script type="math/tex; mode=display">W^Q=\begin{bmatrix} W_1^Q & \cdots & W_h^Q \end{bmatrix} \ \in \mathbb R^{d \times d}</script><script type="math/tex; mode=display">Q' = QW^Q=\begin{bmatrix}QW_1^Q & \cdots & QW_h^h \end{bmatrix} \ \in \mathbb R^{T \times d}</script><p>注：embedding dimension 与 model dimension 相同，即 $n=d$。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># hidden_dim is `d`, fc_q is W^Q</span></span><br><span class="line">fc_q = nn.Linear(hidden_dim, hidden_dim)</span><br><span class="line">fc_k = nn.Linear(hidden_dim, hidden_dim)</span><br><span class="line">fc_v = nn.Linear(hidden_dim, hidden_dim)</span><br><span class="line">fc_o = nn.Linear(hidden_dim, hidden_dim)</span><br><span class="line"><span class="comment"># given `query` , `key`, `value`, which are 3 linear transformed results for embedding, respectively</span></span><br><span class="line"><span class="comment"># query, key, value: (batch_size, seq_len, d)</span></span><br><span class="line">Q = fc_q(query)         <span class="comment"># Q&#x27;: (batch_size, seq_len, d)</span></span><br><span class="line">K = fc_k(key)           <span class="comment"># K&#x27;</span></span><br><span class="line">V = fc_v(value)         <span class="comment"># V&#x27;</span></span><br></pre></td></tr></table></figure></p>
-<p>然后是每个 head 单独执行 scaled dot-product attention，这里必须各个 head 分开执行，因为每个 head 的 attention 维度为 $d_k$ 而不是 $d$，如果是 single head，那么就不需要分开，但是 multi head，必须要分开，<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">scale = torch.sqrt(torch.FloatTensor([num_heads]))</span><br><span class="line"><span class="comment"># hidden_dim = num_heads * head_dim</span></span><br><span class="line"><span class="comment"># after permuting dimensions, shape is (batch_size, num_heads, seq_len, head_dim)</span></span><br><span class="line">Q = Q.view(batch_size, seq_len, num_heads, head_dim).permute(<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>)</span><br><span class="line">K = K.view(batch_size, seq_len, num_heads, head_dim).permute(<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>)</span><br><span class="line">V = V.view(batch_size, seq_len, num_heads, head_dim).permute(<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># to do attention, we must make the lowest two dimensions be (seq_len, attention_dim)</span></span><br><span class="line"><span class="comment"># A_i = Q_i K_i^&#123;\top&#125;</span></span><br><span class="line"><span class="comment"># transpose the lowest two dimensions of K</span></span><br><span class="line"><span class="comment"># A&#x27;s shape: (batch_size, num_heads, seq_len, seq_len)</span></span><br><span class="line">A = torch.matmul(Q, K.permute(<span class="number">0</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>))/scale      </span><br></pre></td></tr></table></figure><br>对 attention tensor 归一化，然后执行 dropout 以增强泛化能力，接着与 value 相乘，所有 heads 的结果 concatenate，最后经过一个输出层的线性变换，得到 multi-head self-attention layer 的输出，<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">A = torch.softmax(A, dim=-<span class="number">1</span>)</span><br><span class="line">O = torch.matmul(self.dropout(A), V)    <span class="comment"># (batch_size, num_heads, seq_len, head_dim)</span></span><br><span class="line">O = O.permute(<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>).contiguous()  <span class="comment"># (batch_size, seq_len, num_heads, head_dim)</span></span><br><span class="line">O = O.view(batch_size, -<span class="number">1</span>, hidden_dim)  <span class="comment"># concatenate all heads</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># O: (batch_size, seq_len, hidden_dim)</span></span><br><span class="line">O = fc_o(O)                             <span class="comment"># refer to fig 2.</span></span><br></pre></td></tr></table></figure></p>
+<script type="math/tex; mode=display">W^Q=\begin{bmatrix} W_1^Q & \cdots & W_h^Q \end{bmatrix} \ \in \mathbb R^{d \times d}</script><script type="math/tex; mode=display">Q' = QW^Q=\begin{bmatrix}QW_1^Q & \cdots & QW_h^h \end{bmatrix} \ \in \mathbb R^{T \times d}</script><p>注：embedding dimension 与 model dimension 相同，即 $n=d$。<br><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># hidden_dim is `d`, fc_q is W^Q</span>
+fc_q <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>hidden_dim<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">)</span>
+fc_k <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>hidden_dim<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">)</span>
+fc_v <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>hidden_dim<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">)</span>
+fc_o <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>hidden_dim<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">)</span>
+<span class="token comment"># given `query` , `key`, `value`, which are 3 linear transformed results for embedding, respectively</span>
+<span class="token comment"># query, key, value: (batch_size, seq_len, d)</span>
+Q <span class="token operator">=</span> fc_q<span class="token punctuation">(</span>query<span class="token punctuation">)</span>         <span class="token comment"># Q': (batch_size, seq_len, d)</span>
+K <span class="token operator">=</span> fc_k<span class="token punctuation">(</span>key<span class="token punctuation">)</span>           <span class="token comment"># K'</span>
+V <span class="token operator">=</span> fc_v<span class="token punctuation">(</span>value<span class="token punctuation">)</span>         <span class="token comment"># V'</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>然后是每个 head 单独执行 scaled dot-product attention，这里必须各个 head 分开执行，因为每个 head 的 attention 维度为 $d_k$ 而不是 $d$，如果是 single head，那么就不需要分开，但是 multi head，必须要分开，<br><pre class="line-numbers language-python" data-language="python"><code class="language-python">scale <span class="token operator">=</span> torch<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>FloatTensor<span class="token punctuation">(</span><span class="token punctuation">[</span>num_heads<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment"># hidden_dim = num_heads * head_dim</span>
+<span class="token comment"># after permuting dimensions, shape is (batch_size, num_heads, seq_len, head_dim)</span>
+Q <span class="token operator">=</span> Q<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span> head_dim<span class="token punctuation">)</span><span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span>
+K <span class="token operator">=</span> K<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span> head_dim<span class="token punctuation">)</span><span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span>
+V <span class="token operator">=</span> V<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span> head_dim<span class="token punctuation">)</span><span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span>
+
+
+<span class="token comment"># to do attention, we must make the lowest two dimensions be (seq_len, attention_dim)</span>
+<span class="token comment"># A_i = Q_i K_i^&#123;\top&#125;</span>
+<span class="token comment"># transpose the lowest two dimensions of K</span>
+<span class="token comment"># A's shape: (batch_size, num_heads, seq_len, seq_len)</span>
+A <span class="token operator">=</span> torch<span class="token punctuation">.</span>matmul<span class="token punctuation">(</span>Q<span class="token punctuation">,</span> K<span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">/</span>scale      <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>对 attention tensor 归一化，然后执行 dropout 以增强泛化能力，接着与 value 相乘，所有 heads 的结果 concatenate，最后经过一个输出层的线性变换，得到 multi-head self-attention layer 的输出，<br><pre class="line-numbers language-python" data-language="python"><code class="language-python">A <span class="token operator">=</span> torch<span class="token punctuation">.</span>softmax<span class="token punctuation">(</span>A<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+O <span class="token operator">=</span> torch<span class="token punctuation">.</span>matmul<span class="token punctuation">(</span>self<span class="token punctuation">.</span>dropout<span class="token punctuation">(</span>A<span class="token punctuation">)</span><span class="token punctuation">,</span> V<span class="token punctuation">)</span>    <span class="token comment"># (batch_size, num_heads, seq_len, head_dim)</span>
+O <span class="token operator">=</span> O<span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">.</span>contiguous<span class="token punctuation">(</span><span class="token punctuation">)</span>  <span class="token comment"># (batch_size, seq_len, num_heads, head_dim)</span>
+O <span class="token operator">=</span> O<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> hidden_dim<span class="token punctuation">)</span>  <span class="token comment"># concatenate all heads</span>
+
+<span class="token comment"># O: (batch_size, seq_len, hidden_dim)</span>
+O <span class="token operator">=</span> fc_o<span class="token punctuation">(</span>O<span class="token punctuation">)</span>                             <span class="token comment"># refer to fig 2.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>注：</p>
 <ol>
 <li>代码注释中使用 <code>seq_len</code>，表示一个 mini-batch 中最长 sentence 中 word 数量。上文 $T$ 表示单个 sentence 中 word 数量。代码实现中，不使用单个 sentence，而是一个 mini-batch，故对于 short sentence，需要在最后进行 padding，使得长度一致，记为 <code>seq_len</code>。</li>
@@ -275,297 +542,926 @@
 <li><p>第二个 multi-head attention 的 <code>key</code> 和 <code>value</code> 为 encoder 的输出，均位于向量空间 $\mathbb R^{T_1 \times d}$，且相同，而 <code>query</code> 为第一个 multi-head attention 的输出，位于向量空间 $\mathbb R^{T_2 \times d}$，此时 <code>query</code> 与 <code>key</code> 的 attention 矩阵为 $A = QK^{\top} \in \mathbb R^{T_2 \times T_1}$，这可能不是一个方阵，但是没关系，不影响对 <code>value</code> 的加权求和，$\hat AV \in \mathbb R^{T_2 \times d}$。</p>
 </li>
 <li><p>虽然 Encoder 和 Decoder 中的 block 数量均为 $N=6$，但是，<strong><font color='red'>使用 Encoder 的最终输出（即最后一个 block 的输出）作为 Decoder 中每个 block 中第二个 multi-head attention 的 <code>key</code> 和 <code>value</code>，而不是 Encoder 中的各个 block 的输出分别作为 Decoder 中各 block 的 <code>key</code> 和 <code>value</code>。</font></strong></p>
- <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># trg: (batch_size, trg_len)</span></span><br><span class="line"><span class="comment"># enc_src: output of encoder. has a shape of (batch_size, src_len, hidden_dim)</span></span><br><span class="line">N = <span class="number">6</span></span><br><span class="line">layers = nn.ModuleList([DecoderLayer(hidden_dim, num_heads,...) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(N)])</span><br><span class="line"><span class="keyword">for</span> layer <span class="keyword">in</span> layers:    <span class="comment"># all block use the same output of encoder</span></span><br><span class="line">    trg = layer(trg, enc_src, ...)</span><br></pre></td></tr></table></figure>
+ <pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># trg: (batch_size, trg_len)</span>
+<span class="token comment"># enc_src: output of encoder. has a shape of (batch_size, src_len, hidden_dim)</span>
+N <span class="token operator">=</span> <span class="token number">6</span>
+layers <span class="token operator">=</span> nn<span class="token punctuation">.</span>ModuleList<span class="token punctuation">(</span><span class="token punctuation">[</span>DecoderLayer<span class="token punctuation">(</span>hidden_dim<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span> <span class="token keyword">for</span> _ <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>N<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">for</span> layer <span class="token keyword">in</span> layers<span class="token punctuation">:</span>    <span class="token comment"># all block use the same output of encoder</span>
+    trg <span class="token operator">=</span> layer<span class="token punctuation">(</span>trg<span class="token punctuation">,</span> enc_src<span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 </li>
 </ol>
 <p>Decoder 在训练和测试阶段，稍有不同。</p>
 <h3 id="3-2-1-Decoder-训练"><a href="#3-2-1-Decoder-训练" class="headerlink" title="3.2.1 Decoder 训练"></a>3.2.1 Decoder 训练</h3><p><strong><font color=#FF88>使用 Teacher Forcing 且是并行化训练</font></strong> 。</p>
-<p>例如将“我有一只猫”翻译为 “I have a cat”，对于 src sentence 和 trg sentence，都要 prepend  <code>&lt;sos_tok&gt;</code> 和 append <code>&lt;eos_tok&gt;</code>，那么 trg sentence 变为 “<sos_tok> I have a cat <eos_tok>”，于是 Decoder 输入应为 (<sos_tok> I have a cat)，输出应为 （I have a cat <eos_tok>），这里输入 sequence 应该去掉最后一个 token，因为我们设计的 Decoder 是根据输入一个词，输出下一个词，而输出 sequence 应该去掉第一个 token。</p>
-<p>使用 sequence 输入输出，实现 Decoder 并行化计算，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># target sequence: &lt;sos&gt; I have a cat &lt;eos&gt; &lt;pad&gt; &lt;pad&gt;</span><br><span class="line"># （填充了两个 &lt;pad&gt; token）</span><br><span class="line"></span><br><span class="line">        &lt;sos&gt;  I  have  a  cat    &lt;eos&gt;  &lt;pad&gt;</span><br><span class="line">          |    |   |    |   |       |      |</span><br><span class="line">    +-------------------------------------------+</span><br><span class="line">    |                   Decoder                 |</span><br><span class="line">    +-------------------------------------------+</span><br><span class="line">          |    |   |    |   |       |      |</span><br><span class="line">          I  have  a   cat &lt;eos&gt;   &lt;pad&gt; &lt;pad&gt;</span><br></pre></td></tr></table></figure></p>
+<p>例如将“我有一只猫”翻译为 “I have a cat”，对于 src sentence 和 trg sentence，都要 prepend  <code>&lt;sos_tok&gt;</code> 和 append <code>&lt;eos_tok&gt;</code>，那么 trg sentence 变为 “<code>&lt;sos_tok&gt;</code> I have a cat <code>&lt;eos_tok&gt;</code>”，于是 Decoder 输入应为 (<code>&lt;sos_tok&gt;</code> I have a cat)，输出应为 （I have a cat <code>&lt;eos_tok&gt;</code>），这里输入 sequence 应该去掉最后一个 token，因为我们设计的 Decoder 是根据输入一个词，输出下一个词，而输出 sequence 应该去掉第一个 token。</p>
+<p>使用 sequence 输入输出，实现 Decoder 并行化计算，<br><pre class="line-numbers language-sh" data-language="sh"><code class="language-sh"># target sequence: &lt;sos&gt; I have a cat &lt;eos&gt; &lt;pad&gt; &lt;pad&gt;
+# （填充了两个 &lt;pad&gt; token）
+
+        &lt;sos&gt;  I  have  a  cat    &lt;eos&gt;  &lt;pad&gt;
+          |    |   |    |   |       |      |
+    +-------------------------------------------+
+    |                   Decoder                 |
+    +-------------------------------------------+
+          |    |   |    |   |       |      |
+          I  have  a   cat &lt;eos&gt;   &lt;pad&gt; &lt;pad&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>但是输出是一个一个出来的，而 attention 是对整个 sequence 全局进行的。实际的顺序应该是下面 <code>3.2.2</code> 节中说明的那样，这里一次性给出 sequence 整体仅仅是为了并行化训练，所以对于第 <code>i</code> 个 token，它不能看到之后的 token，也没法跟之后的 token 做 attention，无法进行 $\mathbf q_i \mathbf k_j / \sqrt {d_k}, \ j &gt; i$ 这样的 attention，故需要对 attention 得到的矩阵（上面的矩阵 $A$ ）进行 mask 操作，如图 2 左边部分中的 <code>Mask (opt.)</code>，在 softmax 之前执行 Mask 操作。</p>
 <p>回顾前面内容，attention 矩阵表示一个 sentence 内各 token 之间的 attention，矩阵中第 <code>i</code> 行表示第 <code>i</code> 个 token 与所有 token 之间的 attention，那么第 <code>1</code> 个 token 仅与自身有 attention，第 <code>2</code> 个 token 与前 <code>2</code> 个 token 有 attention，即这个矩阵应该是下三角矩阵（左下方有非 0 值），即，<strong>使用左下方全 1 的下三角矩阵实现 mask 操作</strong>。</p>
 <p>顺便一提，mini-batch 内部分 sentences 在末尾进行了 padding，显然前面的 token 也不应该与这些 padding token 做 attention，应该这些 padding token 本不存在，仅仅是因为 tensor 需要才进行补全。</p>
 <p>由于 attention 是作为 $\mathbf v_i$ 的权重，不存在的 attention 其权重应该为 $0$，使得相应的 $\mathbf v_i$ 贡献为 $0$。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">src_pad_idx = <span class="number">0</span></span><br><span class="line">trg_pad_idx = <span class="number">0</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">make_src_mask</span>(<span class="params">src</span>):</span></span><br><span class="line">    <span class="comment"># src: (batch_size, seq_len), src contains all indices of tokens</span></span><br><span class="line">    src_mask = (src != src_pad_idx).unsqueeze(<span class="number">1</span>).unsqueeze(<span class="number">2</span>)</span><br><span class="line">    <span class="comment"># src_mask: (batch_size, 1, 1, seq_len)</span></span><br><span class="line">    <span class="comment"># after dimension broadcasting, the right-bottom sub-matrix of src_mask is 0</span></span><br><span class="line">    <span class="keyword">return</span> src_mask</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">make_trg_mask</span>(<span class="params">trg</span>):</span></span><br><span class="line">    <span class="comment"># trg: (batch_size, seq_len), where `seq_len` may not be equal to that in src</span></span><br><span class="line">    trg_pad_mask = (trg != trg_pad_idx).unsqueeze(<span class="number">1</span>).unsqueeze(<span class="number">2</span>)</span><br><span class="line">    <span class="comment"># trg_pad_mask: (batch_size, 1, 1, seq_len)</span></span><br><span class="line">    seq_len = trg.shape[<span class="number">1</span>]</span><br><span class="line">    trg_sub_mask = torch.tril(torch.ones((seq_len, seq_len)), diagonal=<span class="number">0</span>).<span class="built_in">bool</span>()</span><br><span class="line">    trg_mask = trg_pad_mask &amp; trg_sub_mask</span><br><span class="line">    <span class="comment"># trg_mask: (batch_size, 1, seq_len, seq_len)</span></span><br><span class="line">    <span class="keyword">return</span> trg_mask</span><br></pre></td></tr></table></figure>
-<p>如图 2 左侧，对 scale 之后的结果（ $Q_i K_i^{\top} / \sqrt {d_k}$）进行 mask，<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># A = torch.matmul(Q, K.permute(0, 1, 3, 2))/scale   # refer to the related code above in section 2.3</span></span><br><span class="line"><span class="comment"># A&#x27;s shape: (batch_size, num_heads, seq_len, seq_len)</span></span><br><span class="line">A = A.masked_fill(mask==<span class="number">0</span>, -<span class="number">1e10</span>)   <span class="comment"># after softmax, -1e10 is enough to approach 0</span></span><br><span class="line"><span class="comment"># A = torch.softmax(A, dim=-1)</span></span><br></pre></td></tr></table></figure></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">src_pad_idx <span class="token operator">=</span> <span class="token number">0</span>
+trg_pad_idx <span class="token operator">=</span> <span class="token number">0</span>
+<span class="token keyword">def</span> <span class="token function">make_src_mask</span><span class="token punctuation">(</span>src<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># src: (batch_size, seq_len), src contains all indices of tokens</span>
+    src_mask <span class="token operator">=</span> <span class="token punctuation">(</span>src <span class="token operator">!=</span> src_pad_idx<span class="token punctuation">)</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span>
+    <span class="token comment"># src_mask: (batch_size, 1, 1, seq_len)</span>
+    <span class="token comment"># after dimension broadcasting, the right-bottom sub-matrix of src_mask is 0</span>
+    <span class="token keyword">return</span> src_mask
+
+<span class="token keyword">def</span> <span class="token function">make_trg_mask</span><span class="token punctuation">(</span>trg<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># trg: (batch_size, seq_len), where `seq_len` may not be equal to that in src</span>
+    trg_pad_mask <span class="token operator">=</span> <span class="token punctuation">(</span>trg <span class="token operator">!=</span> trg_pad_idx<span class="token punctuation">)</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span>
+    <span class="token comment"># trg_pad_mask: (batch_size, 1, 1, seq_len)</span>
+    seq_len <span class="token operator">=</span> trg<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span>
+    trg_sub_mask <span class="token operator">=</span> torch<span class="token punctuation">.</span>tril<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>ones<span class="token punctuation">(</span><span class="token punctuation">(</span>seq_len<span class="token punctuation">,</span> seq_len<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> diagonal<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">bool</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    trg_mask <span class="token operator">=</span> trg_pad_mask <span class="token operator">&amp;</span> trg_sub_mask
+    <span class="token comment"># trg_mask: (batch_size, 1, seq_len, seq_len)</span>
+    <span class="token keyword">return</span> trg_mask<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>如图 2 左侧，对 scale 之后的结果（ $Q_i K_i^{\top} / \sqrt {d_k}$）进行 mask，<br><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># A = torch.matmul(Q, K.permute(0, 1, 3, 2))/scale   # refer to the related code above in section 2.3</span>
+<span class="token comment"># A's shape: (batch_size, num_heads, seq_len, seq_len)</span>
+A <span class="token operator">=</span> A<span class="token punctuation">.</span>masked_fill<span class="token punctuation">(</span>mask<span class="token operator">==</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1e10</span><span class="token punctuation">)</span>   <span class="token comment"># after softmax, -1e10 is enough to approach 0</span>
+<span class="token comment"># A = torch.softmax(A, dim=-1)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>从 Decoder 的输入输出 tensor shape 来分析一波：</p>
 <p>从 target dataset 获得的 mini-batch，记为变量 <code>trg</code>， 具有 shape： <code>(batch_size, trg_len+1)</code>，Decoder 的输入为 <code>trg[:,:-1]</code>，Decoder 网络的 gt sequence 为 <code>trg[:,1:]</code>，这两个变量的 shape 均为 <code>(batch_size, trg_len)</code>，</p>
 <p>其中输入经过 embedding，shape 变为 <code>(batch_size, trg_len, hidden_dim)</code>，注意 <code>embedding_dim=hidden_dim</code>，然后经过 Decoder 的 <code>Nx</code> 个 block 后，shape 保持不变，最后经过一个全连接层（fc）和 Softmax 层，其中 fc 线性变换后 tensor shape 变为<br><code>(batch_size, trg_len, out_dim)</code>，这里 <code>out_dim</code> 为 target 词汇表大小（包括了 pad_tok，sos_tok, eos_tok），fc 的输出就是 tokens 的非归一化得分，而 Decoder 的 gt shape 为 <code>(batch_size, trg_len)</code>，很显然，使用 PyTorch 中的 <code>CrossEntropyLoss</code> 可计算损失（这个类内部包含了 softmax，所以预测为非归一化得分）。</p>
 <p><strong>目标函数（loss）</strong></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># suppose trg is the torch.tensor that stores indices of all tokens in a mini-batch</span></span><br><span class="line"><span class="comment">#   after padding and aligning</span></span><br><span class="line"><span class="comment"># trg: (batch_size, trg_len+1). trg_len is just seq_len, but in order to distinguish </span></span><br><span class="line"><span class="comment">#   with that for src, use trg_len instead and use src_len to represent </span></span><br><span class="line"><span class="comment">#   seq_len of src</span></span><br><span class="line">criterion = nn.CrossEntropyLoss(ignore_idx=TRG_PAD_IDX)</span><br><span class="line">model = Seq2Seq(...)</span><br><span class="line">output = model(src, trg[:,:-<span class="number">1</span>])     <span class="comment"># （batch_size, trg_len, out_dim)</span></span><br><span class="line">output = output.contiguous().view(-<span class="number">1</span>, out_dim)</span><br><span class="line">trg = trg[:,<span class="number">1</span>:].contiguous().view(-<span class="number">1</span>)</span><br><span class="line">loss = criterion(output, trg)</span><br></pre></td></tr></table></figure>
-<p>注意上面代码片段中，指明 <code>ignore_idx=TRG_PAD_IDX</code>。以前面举的例子来说明，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">target sequence: &lt;sos&gt; I have a cat &lt;eos&gt; &lt;pad&gt; &lt;pad&gt;</span><br><span class="line">填充了两个 &lt;pad&gt; token）</span><br><span class="line"></span><br><span class="line">gt: I have a cat &lt;eos&gt; &lt;pad&gt; &lt;pad&gt;</span><br></pre></td></tr></table></figure><br>显然，计算交叉熵损失时，应该计算 <code>I have a cat &lt;eos&gt;</code> 这些 token 的损失，而后面填补的两个 <code>&lt;pad&gt;</code> token 则不应该包含在损失计算中。因为这两个 <code>&lt;pad&gt;</code> token 仅仅是为了填充使得数据对齐从而可以存储在 tensor 中，实际上它们本不应该存在，损失则无从说起，毕竟前面已经有 <code>&lt;eos&gt;</code> 了，后面的 token 可以随便预测，都算对，因为从 <code>&lt;eos&gt;</code> 往后都被截断了，对与不对都不重要，故不应该作为惩罚性添加到 loss 中。这类似于目标检测中，只对正例 region 计算坐标回归损失，而负例 region 则不需要计算坐标回归损失。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># suppose trg is the torch.tensor that stores indices of all tokens in a mini-batch</span>
+<span class="token comment">#   after padding and aligning</span>
+<span class="token comment"># trg: (batch_size, trg_len+1). trg_len is just seq_len, but in order to distinguish </span>
+<span class="token comment">#   with that for src, use trg_len instead and use src_len to represent </span>
+<span class="token comment">#   seq_len of src</span>
+criterion <span class="token operator">=</span> nn<span class="token punctuation">.</span>CrossEntropyLoss<span class="token punctuation">(</span>ignore_idx<span class="token operator">=</span>TRG_PAD_IDX<span class="token punctuation">)</span>
+model <span class="token operator">=</span> Seq2Seq<span class="token punctuation">(</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span>
+output <span class="token operator">=</span> model<span class="token punctuation">(</span>src<span class="token punctuation">,</span> trg<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>     <span class="token comment"># （batch_size, trg_len, out_dim)</span>
+output <span class="token operator">=</span> output<span class="token punctuation">.</span>contiguous<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> out_dim<span class="token punctuation">)</span>
+trg <span class="token operator">=</span> trg<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">.</span>contiguous<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+loss <span class="token operator">=</span> criterion<span class="token punctuation">(</span>output<span class="token punctuation">,</span> trg<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>注意上面代码片段中，指明 <code>ignore_idx=TRG_PAD_IDX</code>。以前面举的例子来说明，<br><pre class="line-numbers language-none"><code class="language-none">target sequence: &lt;sos&gt; I have a cat &lt;eos&gt; &lt;pad&gt; &lt;pad&gt;
+填充了两个 &lt;pad&gt; token）
+
+gt: I have a cat &lt;eos&gt; &lt;pad&gt; &lt;pad&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre><br>显然，计算交叉熵损失时，应该计算 <code>I have a cat &lt;eos&gt;</code> 这些 token 的损失，而后面填补的两个 <code>&lt;pad&gt;</code> token 则不应该包含在损失计算中。因为这两个 <code>&lt;pad&gt;</code> token 仅仅是为了填充使得数据对齐从而可以存储在 tensor 中，实际上它们本不应该存在，损失则无从说起，毕竟前面已经有 <code>&lt;eos&gt;</code> 了，后面的 token 可以随便预测，都算对，因为从 <code>&lt;eos&gt;</code> 往后都被截断了，对与不对都不重要，故不应该作为惩罚性添加到 loss 中。这类似于目标检测中，只对正例 region 计算坐标回归损失，而负例 region 则不需要计算坐标回归损失。</p>
 <h3 id="3-2-2-Decoder-测试"><a href="#3-2-2-Decoder-测试" class="headerlink" title="3.2.2 Decoder 测试"></a>3.2.2 Decoder 测试</h3><p> 根据上一小节的分析，Decoder 输入和输出（这里的输出指经过了 argmax 之后的值）具有相同的 shape：<code>(batch_size, trg_len)</code>，简单起见，令 <code>batch_size=1</code>，于是<br> Decoder 实际的顺序应该是：</p>
 <ol>
 <li>输入 <code>[[&lt;sos&gt;]]</code>，输出 <code>[[I]]</code></li>
 <li>输入 <code>[[&lt;sos&gt;, I]]</code>，输出 <code>[[I, have]]</code></li>
 <li>输入 <code>[[&lt;sos&gt;, I, have]]</code>，输出 <code>[[I, have, a]]</code></li>
 <li>输入 <code>[[&lt;sos&gt;, I, have, a]]</code>，输出 <code>[[I, have, a, cat]]</code></li>
-<li>输入 <code>[[&lt;sos&gt;, I, have, a, cat]]</code>，输出 <code>[[I, have, a, cat, &lt;eos&gt;]]</code>，结束。<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"> max_len = <span class="number">50</span> <span class="comment"># 根据经验手动设置一个值，使得 sentence 长度不超过 `max_len-2`</span></span><br><span class="line"> model = Seq2seq(...)</span><br><span class="line"><span class="comment"># enc_src: output of encoder</span></span><br><span class="line">trg_idxs = [TRG.vocab.stoi[TRG.init_token]]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(max_len):</span><br><span class="line">    trg = torch.LongTensor(trg_idxs).unsqueeze(<span class="number">0</span>)</span><br><span class="line">    trg_mask = make_trg_mask(trg)</span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        output = model.decoder(trg, enc_src, trg_mask, src_mask)</span><br><span class="line">    pred_idx = output.argmax(dim=<span class="number">2</span>)[:,-<span class="number">1</span>].item()</span><br><span class="line">    trg_idxs.append(pred_idx)</span><br><span class="line">    <span class="keyword">if</span> pred_token == TRG.vocab.stoi[TRG.eos_token]:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"><span class="comment"># pred_tokens contains &lt;sos_tok&gt; and &lt;eos_tok &gt;</span></span><br><span class="line">pred_tokens = [TRG.vocab.itos[i] <span class="keyword">for</span> i <span class="keyword">in</span> trg_idxs]</span><br></pre></td></tr></table></figure>
+<li>输入 <code>[[&lt;sos&gt;, I, have, a, cat]]</code>，输出 <code>[[I, have, a, cat, &lt;eos&gt;]]</code>，结束。<pre class="line-numbers language-python" data-language="python"><code class="language-python"> max_len <span class="token operator">=</span> <span class="token number">50</span> <span class="token comment"># 根据经验手动设置一个值，使得 sentence 长度不超过 `max_len-2`</span>
+ model <span class="token operator">=</span> Seq2seq<span class="token punctuation">(</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span>
+<span class="token comment"># enc_src: output of encoder</span>
+trg_idxs <span class="token operator">=</span> <span class="token punctuation">[</span>TRG<span class="token punctuation">.</span>vocab<span class="token punctuation">.</span>stoi<span class="token punctuation">[</span>TRG<span class="token punctuation">.</span>init_token<span class="token punctuation">]</span><span class="token punctuation">]</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>max_len<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    trg <span class="token operator">=</span> torch<span class="token punctuation">.</span>LongTensor<span class="token punctuation">(</span>trg_idxs<span class="token punctuation">)</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+    trg_mask <span class="token operator">=</span> make_trg_mask<span class="token punctuation">(</span>trg<span class="token punctuation">)</span>
+    <span class="token keyword">with</span> torch<span class="token punctuation">.</span>no_grad<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        output <span class="token operator">=</span> model<span class="token punctuation">.</span>decoder<span class="token punctuation">(</span>trg<span class="token punctuation">,</span> enc_src<span class="token punctuation">,</span> trg_mask<span class="token punctuation">,</span> src_mask<span class="token punctuation">)</span>
+    pred_idx <span class="token operator">=</span> output<span class="token punctuation">.</span>argmax<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    trg_idxs<span class="token punctuation">.</span>append<span class="token punctuation">(</span>pred_idx<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> pred_token <span class="token operator">==</span> TRG<span class="token punctuation">.</span>vocab<span class="token punctuation">.</span>stoi<span class="token punctuation">[</span>TRG<span class="token punctuation">.</span>eos_token<span class="token punctuation">]</span><span class="token punctuation">:</span>
+        <span class="token keyword">break</span>
+<span class="token comment"># pred_tokens contains &lt;sos_tok> and &lt;eos_tok ></span>
+pred_tokens <span class="token operator">=</span> <span class="token punctuation">[</span>TRG<span class="token punctuation">.</span>vocab<span class="token punctuation">.</span>itos<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> trg_idxs<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 </li>
 </ol>
 <h2 id="3-3-前馈网络"><a href="#3-3-前馈网络" class="headerlink" title="3.3 前馈网络"></a>3.3 前馈网络</h2><p>Encoder 和 Decoder 的 block 中除了 attention 模块，还有前馈网络（FFN），这个 FFN 由两个全连接层组成，两个全连接层中间有一个 ReLU，</p>
 <script type="math/tex; mode=display">FFN(x)=\max(0, xW_1+b_1)W_2 + b_2</script><h2 id="3-4-Position-Encoding"><a href="#3-4-Position-Encoding" class="headerlink" title="3.4 Position Encoding"></a>3.4 Position Encoding</h2><p>通过前面对 attention 的介绍可知，各 time step 的输入其实是位置无关的，因为每个 time step 输入的 attention 操作都是全局进行的，即 <code>i</code> 位置的输入 $\mathbf x_i$，其 attention 记为 $\mathbf o_i$，如果换到 <code>j</code> 位置，其 attention 结果记为 $\mathbf o_j$，显然有 $\mathbf o_i = \mathbf o_j$。例如 “A打B” 和 “B打A”，前者 A 是打人，后者 A 是被打，但是 attention 输出却一样，所以不合理。考虑位置信息后，就可以解决这个问题。</p>
-<p>使用 one-hot vector 来表示位置信息，例如第 <code>i</code> time step 输入 $\mathbf x_i$，其位置信息的 one-hot vector 为 $\mathbf p_i = [\underbrace{0,\cdots, 0}_{i-1}, 1, \underbrace {0, \cdots, 0}_{L-i}]$，其中 $L$ 是 max sequence length，即数据集所有 sentences 中最长的 sentence 长度（words 数量），或者根据具体任务和经验手动设置一个较大的数，数据集中长度大于 $L$ 的 sentence 都会被截断使得长度为 $L$，例如 $L=100$。于是叠加位置信息后的最终的 embedding 为</p>
+<p>使用 one-hot vector 来表示位置信息，例如第 <code>i</code> time step 输入 $\mathbf x_i$，其位置信息的 one-hot vector 为 $\mathbf p_i = [\underbrace{0,\cdots, 0}_{i-1}, 1, \underbrace {0, \cdots, 0}_{L-i}]$，其中 $L$ 是 max sequence length，即数据集（或一个 minibatch 中）所有 sentences 中最长的 sentence 长度（words 数量），或者根据具体任务和经验手动设置一个较大的数，数据集中长度大于 $L$ 的 sentence 都会被截断使得长度为 $L$，例如 $L=100$。于是叠加位置信息后的最终的 embedding 为</p>
 <script type="math/tex; mode=display">\begin{bmatrix}W^I & W^P\end{bmatrix}\begin{bmatrix}\mathbf x_i \\ \mathbf p_i\end{bmatrix}=\mathbf o_i + \mathbf e_i</script><p>即，输入的 embedding 与位置信息的 embedding 相加。论文中提到，对于 $\mathbf o_i$ 需要进行 scale，相当于对这两种 embedding 赋予不同的权重，$\lambda \cdot\mathbf o_i + \mathbf e_i$，通常取 $\lambda = \sqrt d$。</p>
 <p>$W^I$ 就是上面所说的 embedding 矩阵，可以训练得到（参见 <a href="/2022/01/19/pytorch/embedding">embedding</a> ）。 $W^P \in \mathbb R^{n \times L}$ 则表示位置信息的 embedding 矩阵，$n$ 为 embedding dimension。$W^P$ 可以与 $W^I$ 一样训练得到，也可以使用公式计算得到。</p>
-<p>训练得到 embedding 矩阵<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">hidden_dim = <span class="number">512</span></span><br><span class="line">L = <span class="number">100</span></span><br><span class="line"><span class="comment"># hidden_dim is usually equal to model dimension `d`</span></span><br><span class="line">tok_embedding = nn.Embedding(input_dim, hidden_dim)   <span class="comment"># (l, d)</span></span><br><span class="line">pos_embedding = nn.Embedding(L, hidden_dim)</span><br><span class="line"><span class="comment"># scale the token embedding, i.e., a balance factor between</span></span><br><span class="line"><span class="comment">#   token embedding and position embedding</span></span><br><span class="line">scale = torch.sqrt(torch.FloatTensor([hidden_dim]))</span><br><span class="line"></span><br><span class="line"><span class="comment"># src: (batch_size, seq_len)</span></span><br><span class="line"><span class="comment">#   where seq_len is the max sequence length of sentences in this batch</span></span><br><span class="line">batch_size = <span class="number">8</span></span><br><span class="line">seq_len = <span class="number">10</span></span><br><span class="line">V = <span class="number">100</span>     <span class="comment"># 1-99 is indices of words, 0 is the index of padding</span></span><br><span class="line">src = torch.empty((batch_size, seq_len))</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(batch_size):</span><br><span class="line">    l = random.randint(<span class="number">5</span>, seq_len)</span><br><span class="line">    s = torch.randint(<span class="number">1</span>, <span class="number">100</span>, (random.randint(<span class="number">5</span>, seq_len)))</span><br><span class="line">    c = torch.zeros((seq_len-l), dtype=torch.<span class="built_in">int</span>)</span><br><span class="line">    src[i,:] = torch.hstack((s, c))</span><br><span class="line"></span><br><span class="line"><span class="comment"># pos: (batch_size, seq_len)</span></span><br><span class="line">pos = torch.arange(<span class="number">0</span>, seq_len).unsqueeze(<span class="number">0</span>).repeat(batch_size, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">tok_embedding(src)*scale + pos_embedding(pos)</span><br></pre></td></tr></table></figure></p>
+<p>训练得到 embedding 矩阵<br><pre class="line-numbers language-python" data-language="python"><code class="language-python">hidden_dim <span class="token operator">=</span> <span class="token number">512</span>
+L <span class="token operator">=</span> <span class="token number">100</span>
+<span class="token comment"># hidden_dim is usually equal to model dimension `d`</span>
+tok_embedding <span class="token operator">=</span> nn<span class="token punctuation">.</span>Embedding<span class="token punctuation">(</span>input_dim<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">)</span>   <span class="token comment"># (l, d)</span>
+pos_embedding <span class="token operator">=</span> nn<span class="token punctuation">.</span>Embedding<span class="token punctuation">(</span>L<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">)</span>
+<span class="token comment"># scale the token embedding, i.e., a balance factor between</span>
+<span class="token comment">#   token embedding and position embedding</span>
+scale <span class="token operator">=</span> torch<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>FloatTensor<span class="token punctuation">(</span><span class="token punctuation">[</span>hidden_dim<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token comment"># src: (batch_size, seq_len)</span>
+<span class="token comment">#   where seq_len is the max sequence length of sentences in this batch</span>
+batch_size <span class="token operator">=</span> <span class="token number">8</span>
+seq_len <span class="token operator">=</span> <span class="token number">10</span>
+V <span class="token operator">=</span> <span class="token number">100</span>     <span class="token comment"># 1-99 is indices of words, 0 is the index of padding</span>
+src <span class="token operator">=</span> torch<span class="token punctuation">.</span>empty<span class="token punctuation">(</span><span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>batch_size<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    l <span class="token operator">=</span> random<span class="token punctuation">.</span>randint<span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span> seq_len<span class="token punctuation">)</span>
+    s <span class="token operator">=</span> torch<span class="token punctuation">.</span>randint<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">100</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>random<span class="token punctuation">.</span>randint<span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span> seq_len<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    c <span class="token operator">=</span> torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span><span class="token punctuation">(</span>seq_len<span class="token operator">-</span>l<span class="token punctuation">)</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>torch<span class="token punctuation">.</span><span class="token builtin">int</span><span class="token punctuation">)</span>
+    src<span class="token punctuation">[</span>i<span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">]</span> <span class="token operator">=</span> torch<span class="token punctuation">.</span>hstack<span class="token punctuation">(</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> c<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token comment"># pos: (batch_size, seq_len)</span>
+pos <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> seq_len<span class="token punctuation">)</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span>repeat<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+
+tok_embedding<span class="token punctuation">(</span>src<span class="token punctuation">)</span><span class="token operator">*</span>scale <span class="token operator">+</span> pos_embedding<span class="token punctuation">(</span>pos<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>公式计算 position embedding</p>
 <script type="math/tex; mode=display">PE(pos, 2i)=\sin (pos/10000^{2i/d})
-\\PE(pos, 2i+1)=\cos(pos/10000^{2i/d})</script><p>其中 $pos$ 表示 sequence 中 word 的位置，范围为 $[0,seq_len-1]$，$2i$ 和 $2i+1$ 表示 position embedding vector 中的 index，由于 position embedding 维度为 $d$，故<br>$i \le \lfloor d/2 \rfloor$<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">d = <span class="number">512</span>                             <span class="comment"># model dimension</span></span><br><span class="line">L = <span class="number">100</span>                             <span class="comment"># seq_len &lt;= L</span></span><br><span class="line">a = torch.arange(<span class="number">0</span>, L)              <span class="comment"># [1~L]</span></span><br><span class="line">a = a / <span class="number">10000</span>                       <span class="comment"># [1/10000 ~ L/10000]</span></span><br><span class="line">a = a.unsqueeze(-<span class="number">1</span>).repeat(<span class="number">1</span>, d//<span class="number">2</span>) <span class="comment"># (L, d//2)</span></span><br><span class="line"></span><br><span class="line">e = torch.arange(<span class="number">0</span>, d//<span class="number">2</span>) * <span class="number">2</span> / d   <span class="comment"># (d//2,)  [0/d,2/d,...]</span></span><br><span class="line">e = e.unsqueeze(<span class="number">0</span>).repeat(L, <span class="number">1</span>)   <span class="comment"># (L, d//2)</span></span><br><span class="line">a = torch.<span class="built_in">pow</span>(a, e)</span><br><span class="line">s = torch.sin(a)</span><br><span class="line">c = torch.cos(a)</span><br><span class="line">PE = torch.empty(L, d)</span><br><span class="line">PE[:,::<span class="number">2</span>] = s</span><br><span class="line">PE[:,<span class="number">1</span>:d:<span class="number">2</span>] = c</span><br><span class="line"></span><br><span class="line"><span class="comment"># get the position embedding for current mini-batch</span></span><br><span class="line">pos = torch.arange(<span class="number">0</span>, seq_len)</span><br><span class="line">pe = PE[pos]    <span class="comment"># (seq_len, d)</span></span><br><span class="line">pe = pe.unsqueeze(<span class="number">0</span>).repeat(batch_size, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">tok_embedding(src)*scale + pe</span><br></pre></td></tr></table></figure></p>
+\\PE(pos, 2i+1)=\cos(pos/10000^{2i/d})</script><p>其中 $pos$ 表示 sequence 中 word 的位置，范围为 <code>[0,seq_len-1]</code>，$2i$ 和 $2i+1$ 表示 position embedding vector 中的 index，由于 position embedding 维度为 $d$，故<br>$i \le \lfloor d/2 \rfloor$<br><pre class="line-numbers language-python" data-language="python"><code class="language-python">d <span class="token operator">=</span> <span class="token number">512</span>                             <span class="token comment"># model dimension</span>
+L <span class="token operator">=</span> <span class="token number">100</span>                             <span class="token comment"># seq_len &lt;= L</span>
+a <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> L<span class="token punctuation">)</span>              <span class="token comment"># [1~L]</span>
+a <span class="token operator">=</span> a <span class="token operator">/</span> <span class="token number">10000</span>                       <span class="token comment"># [1/10000 ~ L/10000]</span>
+a <span class="token operator">=</span> a<span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span>repeat<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> d<span class="token operator">//</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token comment"># (L, d//2)</span>
+
+e <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> d<span class="token operator">//</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">2</span> <span class="token operator">/</span> d   <span class="token comment"># (d//2,)  [0/d,2/d,...]</span>
+e <span class="token operator">=</span> e<span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span>repeat<span class="token punctuation">(</span>L<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>   <span class="token comment"># (L, d//2)</span>
+a <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">pow</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> e<span class="token punctuation">)</span>
+s <span class="token operator">=</span> torch<span class="token punctuation">.</span>sin<span class="token punctuation">(</span>a<span class="token punctuation">)</span>
+c <span class="token operator">=</span> torch<span class="token punctuation">.</span>cos<span class="token punctuation">(</span>a<span class="token punctuation">)</span>
+PE <span class="token operator">=</span> torch<span class="token punctuation">.</span>empty<span class="token punctuation">(</span>L<span class="token punctuation">,</span> d<span class="token punctuation">)</span>
+PE<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> s
+PE<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">:</span>d<span class="token punctuation">:</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> c
+
+<span class="token comment"># get the position embedding for current mini-batch</span>
+pos <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> seq_len<span class="token punctuation">)</span>
+pe <span class="token operator">=</span> PE<span class="token punctuation">[</span>pos<span class="token punctuation">]</span>    <span class="token comment"># (seq_len, d)</span>
+pe <span class="token operator">=</span> pe<span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span>repeat<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+tok_embedding<span class="token punctuation">(</span>src<span class="token punctuation">)</span><span class="token operator">*</span>scale <span class="token operator">+</span> pe<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h1 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h1><ol>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/340149804">Vision Transformer 超详细解读</a></li>
 </ol>
 
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2022/01/17/transformer/self_attention/">https://jianjiansha.github.io/2022/01/17/transformer/self_attention/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
     </div>
 
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/transformer/">
+                                    <span class="chip bg-color">transformer</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
     
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
     
+
     
 
-      <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/transformer/" rel="tag"># transformer</a>
-          </div>
+</div>
 
-        
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
 
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
 
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2022/01/12/obj_det/fpn/" rel="prev" title="FPN 回顾">
-      <i class="fa fa-chevron-left"></i> FPN 回顾
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/01/19/pytorch/embedding/" rel="next" title="词嵌入向量">
-      词嵌入向量 <i class="fa fa-chevron-right"></i>
-    </a></div>
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-      </footer>
-    
-  </article>
-  
-  
-  
-
-
-
-          </div>
-          
+</div>
 
 <script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
+    $(function () {
+        $('.tabs').tabs();
     });
-  }
 </script>
 
+            
         </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          文章目录
-        </li>
-        <li class="sidebar-nav-overview">
-          站点概览
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Sequence"><span class="nav-number">1.</span> <span class="nav-text">1. Sequence</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Self-attention"><span class="nav-number">2.</span> <span class="nav-text">2. Self-attention</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-scaled-dot-product-attention"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 scaled dot-product attention</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E7%9F%A9%E9%98%B5%E8%A1%A8%E7%A4%BA"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 矩阵表示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-Multi-head-Self-attention"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Multi-head Self-attention</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Transformer"><span class="nav-number">3.</span> <span class="nav-text">3. Transformer</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-Encoder"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 Encoder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-Decoder"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 Decoder</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-1-Decoder-%E8%AE%AD%E7%BB%83"><span class="nav-number">3.2.1.</span> <span class="nav-text">3.2.1 Decoder 训练</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-2-Decoder-%E6%B5%8B%E8%AF%95"><span class="nav-number">3.2.2.</span> <span class="nav-text">3.2.2 Decoder 测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-%E5%89%8D%E9%A6%88%E7%BD%91%E7%BB%9C"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 前馈网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-Position-Encoding"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 Position Encoding</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ref"><span class="nav-number">4.</span> <span class="nav-text">ref</span></a></li></ol></div>
-      </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">shajianjian</p>
-  <div class="site-description" itemprop="description"></div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">104</span>
-          <span class="site-state-item-name">日志</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-categories">
-            <a href="/categories/">
-          
-        <span class="site-state-item-count">2</span>
-        <span class="site-state-item-name">分类</span></a>
-      </div>
-      <div class="site-state-item site-state-tags">
-            <a href="/tags/">
-          
-        <span class="site-state-item-count">25</span>
-        <span class="site-state-item-name">标签</span></a>
-      </div>
-  </nav>
-</div>
-
-
-
-      </div>
-
     </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2022</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">shajianjian</span>
-</div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
-  </div>
-
-        
-
-
-
-
-
-
-
-
-      </div>
-    </footer>
-  </div>
-
-  
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/pisces.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-      
-
-<script>
-  if (typeof MathJax === 'undefined') {
-    window.MathJax = {
-      loader: {
-        source: {
-          '[tex]/amsCd': '[tex]/amscd',
-          '[tex]/AMScd': '[tex]/amscd'
-        }
-      },
-      tex: {
-        inlineMath: {'[+]': [['$', '$']]},
-        tags: 'ams'
-      },
-      options: {
-        renderActions: {
-          findScript: [10, doc => {
-            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
-              const display = !!node.type.match(/; *mode=display/);
-              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
-              const text = document.createTextNode('');
-              node.parentNode.replaceChild(text, node);
-              math.start = {node: text, delim: '', n: 0};
-              math.end = {node: text, delim: '', n: 0};
-              doc.math.push(math);
-            });
-          }, '', false],
-          insertedScript: [200, () => {
-            document.querySelectorAll('mjx-container').forEach(node => {
-              let target = node.parentNode;
-              if (target.nodeName.toLowerCase() === 'li') {
-                target.parentNode.classList.add('has-jax');
-              }
-            });
-          }, '', false]
-        }
-      }
-    };
-    (function () {
-      var script = document.createElement('script');
-      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
-      script.defer = true;
-      document.head.appendChild(script);
-    })();
-  } else {
-    MathJax.startup.document.state(0);
-    MathJax.texReset();
-    MathJax.typeset();
-  }
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
     
 
-  
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/01/19/pytorch/embedding/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="词嵌入向量">
+                        
+                        <span class="card-title">词嵌入向量</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            embedding 就是将一个 word 转换为 一个 vector，最简单的方法就是使用 one-hot vector，其长度为词汇表大小，但是 one-hot vector 无法表示词的语义，比如两个词是相近还是相反含义，或者无关，em
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-01-19
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/PyTorch/">
+                        <span class="chip bg-color">PyTorch</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/01/12/obj_det/fpn/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="FPN 回顾">
+                        
+                        <span class="card-title">FPN 回顾</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            论文：Feature Pyramid Networks for Object Detection
+本文是对 FPN 的回顾，适用于复习 FPN，或者快速查看 FPN 实现的关键细节。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-01-12
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/object-detection/">
+                        <span class="chip bg-color">object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2022</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+    <a href="https://www.zhihu.com/people/tsukaookami" class="tooltipped" target="_blank" data-tooltip="关注我的知乎: https://www.zhihu.com/people/tsukaookami" data-position="top" data-delay="50">
+        <i class="fab fa-zhihu1">知</i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
 
 </body>
+
 </html>

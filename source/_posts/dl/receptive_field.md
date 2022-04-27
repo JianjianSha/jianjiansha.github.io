@@ -2,7 +2,9 @@
 title: Receptive Field
 date: 2021-02-18 10:51:00
 p: dl/receptive_field
-tags: deep learning, CNN
+tags: 
+    - deep learning
+    - CNN
 mathjax: true
 ---
 

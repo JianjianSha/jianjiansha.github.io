@@ -84,11 +84,10 @@ $$V=[\mathbf v_1, \cdots, \mathbf v_d]$$
 于是
 
 $$\begin{aligned}A\hat {\mathbf w}&=AA^+ \mathbf b
-\\&=VDV^{\top}VD^+V^{\top}\mathbf b
+\\&=VDV^{\top} VD^+ V^{\top}  \mathbf b
 \\&=VDD^+V^{\top}\mathbf b
 \\&=\sum_{i:D_{ii}\neq 0} \mathbf v_i \mathbf v_i^{\top} \mathbf b
 \\&= \overline A \ \mathbf b
-
 \\&=\sum_{i:D_{ii}\neq 0}( \mathbf v_i^{\top} \mathbf b) \mathbf v_i
 \\&= \sum_{i=1}^d q_i \mathbf v_i
 \end{aligned}$$

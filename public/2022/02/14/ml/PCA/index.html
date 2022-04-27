@@ -1,0 +1,1357 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <meta name="keywords" content="主成分分析, SJJ">
+    <meta name="description" content="主成分分析用于数据降维
+
+（本文有的大小符号表示矩阵，有的大写符号表示 scalar，可根据上下文辨别。）
+1. 问题描述考虑 i.i.d 数据集 $\mathcal X=\{\mathbf x_1,\ldots, \mathbf x_N\">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>主成分分析 | SJJ</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+
+   <style>
+    body{
+       background-image: url(https://cdn.jsdelivr.net/gh/Tokisaki-Galaxy/res/site/medias/background.jpg);
+       background-repeat:no-repeat;
+       background-size: 100% 100%;
+       background-attachment:fixed;
+    }
+</style>
+
+
+
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/19.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">主成分分析</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/machine-learning/">
+                                <span class="chip bg-color">machine learning</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-02-14
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    3.2k
+                </div>
+                
+
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>主成分分析用于数据降维</p>
+<span id="more"></span>
+<p>（本文有的大小符号表示矩阵，有的大写符号表示 scalar，可根据上下文辨别。）</p>
+<h1 id="1-问题描述"><a href="#1-问题描述" class="headerlink" title="1. 问题描述"></a>1. 问题描述</h1><p>考虑 i.i.d 数据集 $\mathcal X=\{\mathbf x_1,\ldots, \mathbf x_N\}$，$\mathbf x_n \in \mathbb R^D$，且经验期望为 $\hat {\mathbb E}[\mathbf x]=\mathbf 0$，那么经验方差（协方差矩阵）为</p>
+<script type="math/tex; mode=display">S=\frac 1 N \sum_{n=1}^N \mathbf x_n \mathbf x_n^{\top} \tag{1}</script><p>为了降维，将数据映射到低维 </p>
+<script type="math/tex; mode=display">\mathbf z = B^{\top} \mathbf x \in \mathbb R^M \tag{2}</script><p>其中 </p>
+<script type="math/tex; mode=display">B:=[\mathbf b_1,\ldots, \mathbf b_M] \in \mathbb R^{D \times M}</script><p>且 $B$ 的列相互正交且归一，$M &lt; D$</p>
+<p>从 $\mathbf z$ 再恢复到原空间的数据 $\tilde {\mathbf x}$，</p>
+<script type="math/tex; mode=display">\begin{aligned}\tilde {\mathbf x}=B^{-\top}\mathbf z =B \mathbf z&=BB^{\top}\mathbf x
+\\&=[\mathbf b_1,\ldots, \mathbf b_M]\begin{bmatrix}\mathbf b_1^{\top} \\ \vdots \\ \mathbf b_M^{\top}\end{bmatrix}\mathbf x
+\\&=\sum_{i=1}^M \mathbf b_i \mathbf b_i^{\top} \mathbf x \end{aligned}\tag{3}</script><p>其中 $B$ 是正交矩阵 $\Rightarrow B^{\top}B=I$。</p>
+<p>那么如何求这样的转换矩阵 $B$？显然需要根据某种指标优化来求解，因为满足降维的正交矩阵有无数个。</p>
+<h1 id="2-最大化方差"><a href="#2-最大化方差" class="headerlink" title="2. 最大化方差"></a>2. 最大化方差</h1><p>最大化方差来求解 $B$。</p>
+<p>上面我们假设数据集是 centered data，即均值为 $\mathbf 0$，这种假设是合理的。因为如果数据均值为 $\boldsymbol \mu$，那么变换为</p>
+<script type="math/tex; mode=display">\mathbf z =B^{\top}(\mathbf x - \boldsymbol \mu)</script><p>于是方差为</p>
+<script type="math/tex; mode=display">\mathbb V_{\mathbf z}[\mathbf z]=\mathbb V_{\mathbf x}[B^{\top}(\mathbf x-\boldsymbol \mu)]=\mathbb V_{\mathbf x}[B^{\top}\mathbf x]</script><p>即，映射到低维空间的数据分布的方差与原数据是否 centered 无关。于是可以假设 $\mathbb E_{\mathbf x}[\mathbf x]=\mathbf 0$，此时</p>
+<script type="math/tex; mode=display">\mathbb E_{\mathbf z}[\mathbf z]=B^{\top} \mathbb E_{\mathbf x}[\mathbf x]=\mathbf 0</script><p>根据 (2) 式有</p>
+<script type="math/tex; mode=display">z_1=\mathbf b_1^{\top} \mathbf x</script><p>考虑 $z_1$ 方向（或者称，变换后这个 axis）上的方差，</p>
+<script type="math/tex; mode=display">\begin{aligned}V_1:=\mathbb V[z_1]&=\frac 1 N \sum_{n=1}^N z_{1n}^2
+\\&=\frac 1 N \sum_{n=1}^N (\mathbf b_1^{\top} \mathbf x_n)^2
+\\&=\frac 1 N \sum_{n=1}^N \mathbf b_1^{\top} \mathbf x_n\mathbf x_n^{\top}\mathbf b_1
+\\&=\mathbf b_1^{\top} \left(\frac 1 N \sum_{n=1}^N \mathbf x_n \mathbf x_n^{\top} \right)\mathbf b_1
+\\&=\mathbf b_1^{\top} S \mathbf b_1
+\end{aligned}</script><p>在求 $\max V_1$ 之前，还需要增加限制条件 $||\mathbf b_1||^2=1$，否则，将 $\mathbf b_1$ 进行 scale，方差 $V$ 则会二次幂 scale，故得到优化问题</p>
+<script type="math/tex; mode=display">\max_{\mathbf b_1} \mathbf b_1^{\top} S \mathbf b_1
+\\ s.t. \ ||\mathbf b_1||^2=1</script><p>对于受限优化问题，可以使用拉格朗日乘子法，</p>
+<script type="math/tex; mode=display">\mathcal L(\mathbf b_1, \lambda_1)=\mathbf b_1^{\top} S \mathbf b_1 + \lambda_1(1-\mathbf b_1^{\top} \mathbf b_1)</script><p>求偏导</p>
+<script type="math/tex; mode=display">\frac {\partial \mathcal L}{\partial \mathbf b_1}=2\mathbf b_1^{\top} S-2\lambda_1 \mathbf b_1^{\top}, \quad \frac {\partial \mathcal L}{\partial \lambda_1}=1-\mathbf b_1^{\top}\mathbf b_1</script><p>令偏导为 $\mathbf 0$，解得</p>
+<script type="math/tex; mode=display">S\mathbf b_1=\lambda_1 \mathbf b_1, \quad \mathbf b_1^{\top}\mathbf b_1=1</script><p>即 $\lambda_1, \mathbf b_1$ 分别是矩阵 $S$ 的特征根和（归一化）特征向量。于是</p>
+<script type="math/tex; mode=display">V_1=\mathbf b_1^{\top} S \mathbf b_1=\lambda_1 \mathbf b_1^{\top} \mathbf b_1=\lambda_1 \ge 0</script><font color="magenta">$S$ 是对称矩阵，故是半正定的，其特征值非负。</font>
+
+<p><strong>故当 $\lambda_1$ 是 $S$ 的最大特征值时，方差 $V_1$ 最大，此时 $\mathbf b_1$ 为最大特征值对应的归一化特征向量。</strong></p>
+<p>映射到低维空间的 $z_1$ 分量为</p>
+<script type="math/tex; mode=display">z_1=\mathbf b_1^{\top} \mathbf x</script><p>根据 $z_1$ 恢复到原空间数据</p>
+<script type="math/tex; mode=display">\tilde {\mathbf x}^{(1)}=\mathbf b_1 z_1=\mathbf b_1 \mathbf b_1^{\top} \mathbf x</script><h2 id="2-1-最大方差的-M-维子空间"><a href="#2-1-最大方差的-M-维子空间" class="headerlink" title="2.1 最大方差的 M 维子空间"></a>2.1 最大方差的 M 维子空间</h2><p>我们考虑一般情况，假设已经找到 $m-1$ 个主成分对应的特征向量，由于协方差矩阵是对称矩阵，根据矩阵光谱定理，其特征向量可以组成 $m-1$ 维子空间的一组正交归一基，即 </p>
+<script type="math/tex; mode=display">\mathbf b_i^{\top} \mathbf b_j=\begin{cases} 1 & i=j \\ 0 & i \ne j \end{cases}, \quad 1 \le i,j \le m-1</script><p>对数据做如下处理</p>
+<script type="math/tex; mode=display">\hat X:=X-\sum_{i=1}^{m-1} \mathbf b_i \mathbf b_i^{\top} X=X-B_{m-1}X</script><p>其中 $B_{m-1}=\sum_{i=1}^{m-1} \mathbf b_i \mathbf b_i^{\top}$，$X =[\mathbf x_1, \ldots,\mathbf x_N]$ 表示数据集，$\mathbf b_i \mathbf b_i^{\top} X$ 表示根据主成分分量恢复到原空间的数据集，故 $\hat X$ 表示去掉原数据中已确定的 $m-1$ 个主成分，这样 $\hat X$ 在这 $m-1$ 子空间的方差为 $\mathbf 0_{m-1}$，于是对 $\hat X$ 求第一个主成分就是对 $X$ 求第 $m$ 个主成分，</p>
+<script type="math/tex; mode=display">V_m =\mathbb V[z_m]=\frac 1 N \sum_{n=1}^N z_{mn}^2=\frac 1 N \sum_{n=1}^N (\mathbf b_m^{\top} \hat {\mathbf x}_n)^2=\mathbf b_m^{\top}\hat S \mathbf b_m</script><p>满足 $||\mathbf b_m||^2=1$。</p>
+<p>即 <strong>$\hat S$ 的第一个特征值和对应特征向量就是 $S$ 的第 $m$ 个特征值和特征向量（特征值降序排列）</strong>。</p>
+<p>于是，</p>
+<script type="math/tex; mode=display">V_m=\mathbf b_m^{\top}S \mathbf b_m=\lambda_m</script><p>事实上有：</p>
+<ol>
+<li>$\hat S$ 的特征向量与 $S$ 的特征向量相同</li>
+<li>$\hat S$ 的后 $m-1$ 特征值均为 0，其特征向量对应 $S$ 前 $m-1$ 个特征向量</li>
+<li>$\hat S$ 的前 $D-(m-1)$ 特征值和特征向量对应 $S$ 后 $D-(m-1)$ 个特征值和特征向量。</li>
+</ol>
+<p><strong><font color="magenta">结论</font></strong><br>转换矩阵 $B \in \mathbb R^{D \times M}$ 由数据协方差矩阵 $S$ 的前 $m$ 个特征向量（列向量）组成。</p>
+<p><strong>数据恢复</strong></p>
+<p>使用前 $m$ 个主成分进行数据恢复，根据 (3) 式，</p>
+<script type="math/tex; mode=display">\tilde {\mathbf x}=\sum_{i=1}^m \mathbf b_i \mathbf b_i^{\top}\mathbf x=[\mathbf b_1,\ldots,\mathbf b_m]\begin{bmatrix}\mathbf b_1^{\top} \\ \vdots \\ \mathbf b_m^{\top}\end{bmatrix}\mathbf x=B_{:,1:m}B_{:,1:m}^{\top}\mathbf x</script><h2 id="2-2-映射"><a href="#2-2-映射" class="headerlink" title="2.2 映射"></a>2.2 映射</h2><p>最大化方差是尽可能的保证数据分布的信息，而映射则是根据最小化原数据与恢复数据之间的误差进行求解。</p>
+<p>选取空间 $\mathbb R^D$ 的一组正交归一基 （ONB）$B=(\mathbf b_1, \ldots, \mathbf b_D)$，那么任意数据点</p>
+<script type="math/tex; mode=display">\mathbf x=\sum_{d=1}^D \zeta_d \mathbf b_d=\sum_{m=1}^M \zeta_m \mathbf b_m+\sum_{j=M+1}^D \zeta_j \mathbf b_j</script><p>注意 $\zeta_j, \ j=1,\ldots, D$ 表示数据相对于 $B$ 的坐标，而 $x_j, \ j=1,\ldots, D$ 是数据在标准基 $E=[\mathbf e_1, \ldots, \mathbf e_D]$（one-hot 向量组）下的坐标。</p>
+<p>我们目的是想将数据维度从 $D$ 降到 $M$，这里 $M$ 是超参数，事先设定好的一个固定值。使用前 $M$ 个坐标来表示数据（的一个近似）：</p>
+<script type="math/tex; mode=display">\tilde {\mathbf x}=\sum_{m=1}^M z_m \mathbf b_m \tag{4}</script><p>事实上，由于 $\{\mathbf b_m| m=1,\ldots, D|$ 是正交归一基，故 $z_m=\zeta_m, \ m=1,\ldots, M$，注意 $m$ 的取值范围。下文统一使用 $z_m$ 表示 $\mathbf x$ 在 $B$ 下的坐标。</p>
+<p>求解的依据是对整个数据集而言，恢复的数据近似 $\tilde {\mathbf x}$ 与原数据 $\mathbf x$ 误差最小，误差（loss）使用欧氏距离，于是总误差为</p>
+<script type="math/tex; mode=display">L=\frac 1 N \sum_{n=1}^N ||\tilde {\mathbf x}_n-\mathbf x_n||^2 \tag{5}</script><p>其中 $N$ 是数据集大小。</p>
+<p><strong>总结</strong></p>
+<p>要求解两个部分：</p>
+<ol>
+<li>正交归一基组 $\{\mathbf b_m, \ m=1,\ldots, M\}$</li>
+<li>$\mathbf x$ 在基组 $\{\mathbf b_m, \ m=1,\ldots, M\}$ 下的坐标</li>
+</ol>
+<p>以使得 $L=\frac 1 N \sum_{n=1}^N ||\tilde {\mathbf x}_n-\mathbf x_n||^2$ 最小。</p>
+<h3 id="2-2-1-求解坐标"><a href="#2-2-1-求解坐标" class="headerlink" title="2.2.1 求解坐标"></a>2.2.1 求解坐标</h3><p>根据 (4),(5) 式，误差对坐标求偏导，</p>
+<script type="math/tex; mode=display">\begin{aligned}\frac {\partial L}{\partial z_{mn}}&=\frac {\partial L}{\partial \tilde {\mathbf x}_n} \frac {\partial \tilde {\mathbf x}_n}{\partial z_{mn}} 
+\\&=\frac 2 N(\tilde {\mathbf x}_n-\mathbf x_n)^{\top} \mathbf b_m
+\\&=\frac 2 N \left(\sum_{i=1}^M z_{in} \mathbf b_i-\mathbf x_n\right)^{\top} \mathbf b_m
+\\& \stackrel{ONB}= \frac 2 N (z_{mn} \mathbf b_m^{\top} \mathbf b_m - \mathbf x_n^{\top} \mathbf b_m)
+\\&=\frac 2 N (z_{mn} - \mathbf x_n^{\top} \mathbf b_m)
+\\&= 0
+\end{aligned}</script><p>于是 </p>
+<script type="math/tex; mode=display">z_{mn}=\mathbf x_n^{\top} \mathbf b_m=\mathbf b_m^{\top}\mathbf x_n \tag{6}</script><p>其中 $m=1,\ldots, M; \ n=1,\ldots,N$</p>
+<p>这表明 $\mathbf x$ 在 $\mathbf b_m$ 上的投影值就是对应的坐标 $z_m$，于是数据恢复为</p>
+<script type="math/tex; mode=display">\tilde {\mathbf x}=\sum_{m=1}^M  \mathbf b_m z_m=\sum_{m=1}^M \mathbf b_m \mathbf b_m^{\top} \mathbf x=B_m B_m^{\top} \mathbf x \tag{7}</script><p>其中 $B_m:=[\mathbf b_1, \ldots, \mathbf b_M] \in \mathbb R^{D \times M}$，表示主子空间的变换矩阵。(7) 式表示将数据 $\mathbf x$ 投影到主子空间，所得的投影 $\tilde {\mathbf x}$ 与原数据 $\mathbf x$ 的距离需要尽可能小。</p>
+<h3 id="2-2-2-求解基向量"><a href="#2-2-2-求解基向量" class="headerlink" title="2.2.2 求解基向量"></a>2.2.2 求解基向量</h3><p>根据 (6)(7) 式， </p>
+<script type="math/tex; mode=display">\tilde {\mathbf x}=\sum_{m=1}^M z_m \mathbf b_m =\sum_{m=1}^M (\mathbf x^{\top} \mathbf b_m)\mathbf b_m</script><p>注意右侧小括号不能省略，表示一个 scalar 与矩阵相乘。</p>
+<p>当 $M=D$ 时，$\tilde {\mathbf x}=\mathbf x$，所以，$\mathbf x=\sum_{m=1}^D (\mathbf x^{\top} \mathbf b_m)\mathbf b_m$，于是向量差</p>
+<script type="math/tex; mode=display">\mathbf x - \tilde {\mathbf x}=\sum_{j=M+1}^D (\mathbf x^{\top} \mathbf b_j)\mathbf b_j</script><p>代入 (5) 式得损失为</p>
+<script type="math/tex; mode=display">\begin{aligned}L &=\frac 1 N \sum_{n=1}^N \begin{Vmatrix}\sum_{j=M+1}^D (\mathbf x_n^{\top} \mathbf b_j)\mathbf b_j \end{Vmatrix}^2
+\\&=\frac 1 N \sum_{n=1}^N \left(\sum_{j=M+1}^D (\mathbf x_n^{\top} \mathbf b_j)\mathbf b_j\right)^{\top} \left(\sum_{j=M+1}^D (\mathbf x_n^{\top} \mathbf b_j)\mathbf b_j\right)
+\\&\stackrel{ONB}=\frac 1 N \sum_{n=1}^N \sum_{j=M+1}^D (\mathbf x_n^{\top} \mathbf b_j)^2\mathbf b_j^{\top} \mathbf b_j
+\\&=\frac 1 N \sum_{n=1}^N \sum_{j=M+1}^D (\mathbf x_n^{\top} \mathbf b_j)^{\top}(\mathbf x_n^{\top} \mathbf b_j)
+\\&=\frac 1 N \sum_{n=1}^N \sum_{j=M+1}^D \mathbf b_j^{\top}\mathbf x_n\mathbf x_n^{\top} \mathbf b_j
+\\&=\sum_{j=M+1}^D \mathbf b_j^{\top} \underbrace{\left(\frac 1 N \sum_{n=1}^N \mathbf x_n\mathbf x_n^{\top} \right)}_{:=S}\mathbf b_j
+\\&= \sum_{j=M+1}^D \mathbf b_j^{\top} S \mathbf b_j
+\end{aligned}</script><p>由于 $S$ 是对阵半正定，故 $\mathbf b_j^{\top} S \mathbf b_j\ge 0$，且<br>$\mathbf b_j^{\top} S \mathbf b_j$ 最小为 $S$ 的最小特征根，此时 $\mathbf b_j$ 就是对应的特征向量。下面简单证明。</p>
+<p><strong>证明：</strong></p>
+<p>做特征分解 $S=P^{\top} \Lambda P$，其中 $P$ 是正交矩阵，$P^{\top}$ 的列为 $S$ 的特征向量。要求下式的最小值</p>
+<script type="math/tex; mode=display">\mathbf b^{\top} S \mathbf b=\mathbf b^{\top} P^{\top} \Lambda P\mathbf b \stackrel{\mathbf c:=P\mathbf b}=\mathbf c^{\top} \Lambda \mathbf c=\sum_{i=1}^D \lambda_i c_i^2</script><p>由于 $\mathbf c^{\top}\mathbf c=\mathbf b^{\top}P^{\top}P\mathbf b=1$，特征值 $\lambda_i \ge 0 , \ i=1,\ldots, D$ 且降序排列，那么最值问题</p>
+<script type="math/tex; mode=display">\min_{\mathbf c} \ \sum_{i=1}^D \lambda_i c_i^2</script><p>的解为 $\mathbf c=[0, \ldots, 0, 1]^{\top}$，最小值为 </p>
+<script type="math/tex; mode=display">\min \mathbf b^{\top} S \mathbf b=\lambda_D</script><p>此时 $\mathbf b=P^{\top} \mathbf c=P_{:,D}^{\top}$，此即 $S$ 对应于 $\lambda_D$ 的一个特征向量（$P^{\top}$ 的最后一列）。<p align="right">$\square$</p></p>
+<p>故损失 $L$ 最小为</p>
+<script type="math/tex; mode=display">L=\sum_{j=M+1}^D \lambda_j</script><p>其中 $\lambda_j$ 可重复（可重复是指特征值几何重数 $n&gt;1$）。</p>
+<font color="magenta">结论：</font>
+
+<p>矩阵 $B$ 由协方差矩阵 $S$ 的特征向量（列向量）组成，<strong>变换矩阵 $B_M$ 由其 top <code>M</code> 特征值（可重复）对应的特征向量组成</strong>。</p>
+<p>可见，这与最大化方差的结果是相同的。</p>
+<h2 id="2-3-why-centered-data"><a href="#2-3-why-centered-data" class="headerlink" title="2.3 why centered data"></a>2.3 why centered data</h2><p>我们假设数据集经验期望为 $\boldsymbol \mu=\mathbf 0$，这样方便下文的讨论，如果不为 $\mathbf 0$，那么最终的求解结果（指转换矩阵）仍然不变，只是求解过程的展示更繁冗些。事实上，当经验期望为 $\boldsymbol \mu$ 时，做变换</p>
+<script type="math/tex; mode=display">\mathbf z=B_m^{\top} (\mathbf x-\boldsymbol \mu) \in \mathbb R^M</script><p>那么 $\tilde {\mathbf x}=B_m \mathbf z + \boldsymbol \mu$，损失对坐标 $z_{mn}$ 的偏导为</p>
+<script type="math/tex; mode=display">\begin{aligned} \frac {\partial L}{\partial z_{mn}}&=\frac 2 N(\tilde {\mathbf x}_n-\mathbf x_n)^{\top} \mathbf b_m
+\\&=\frac 2 N (z_{mn} + \boldsymbol \mu^{\top} \mathbf b_m- \mathbf x_n^{\top} \mathbf b_m)=0
+\end{aligned}\Rightarrow z_{mn}=(\mathbf x_n-\boldsymbol \mu)^{\top} \mathbf b_m</script><p>可见基向量 $\mathbf b_m$ 是不变的，于是对数据 $\mathbf x$ 转换的矩阵 $B_m$ 也是不变的，改变的只是相对于这些基向量的坐标值（平移 $-\boldsymbol \mu^{\top} \mathbf b_m$）。</p>
+<p><strong>non-centered data</strong> 处理步骤：</p>
+<ol>
+<li>将数据进行 centering 处理 $\mathbf x:=\mathbf x - \boldsymbol \mu$，其中 $\boldsymbol \mu= \frac 1 N \sum_n \mathbf x_n$</li>
+<li>将数据按 centered data 处理：求协方差矩阵的 top <code>m</code> 对应的特征向量，得到转换矩阵 $B_m$</li>
+<li>恢复数据 $\tilde {\mathbf x}=B_m \mathbf z + \boldsymbol \mu=B_mB_m^{\top} \mathbf x + \boldsymbol \mu$</li>
+</ol>
+<h1 id="3-低-rank-近似"><a href="#3-低-rank-近似" class="headerlink" title="3. 低 rank 近似"></a>3. 低 rank 近似</h1><h2 id="3-1-特征向量求解"><a href="#3-1-特征向量求解" class="headerlink" title="3.1 特征向量求解"></a>3.1 特征向量求解</h2><p>数据集的协方差矩阵</p>
+<script type="math/tex; mode=display">S=\frac 1 N \sum_{n=1}^N \mathbf x_n \mathbf x_n^{\top}=\frac XX^{\top}</script><p>其中 $X=[\mathbf x_1, \ldots, \mathbf x_N] \in \mathbb R^{D \times N}$ 表示整个数据集。</p>
+<p>获取协方差矩阵的特征向量的方法：</p>
+<ol>
+<li>直接对 $S$ 进行特征分解</li>
+<li><p>对 $X$ 进行 SVD，</p>
+<script type="math/tex; mode=display">X=U \Sigma V^{\top}</script><script type="math/tex; mode=display">S=\frac 1 N XX^{\top}=U (\frac 1 N \Sigma \Sigma^{\top}) U^{\top}</script><p> $U$ 的列就是特征向量。</p>
+</li>
+</ol>
+<h2 id="3-2-数据集低-rank-近似"><a href="#3-2-数据集低-rank-近似" class="headerlink" title="3.2 数据集低 rank 近似"></a>3.2 数据集低 rank 近似</h2><p>数据集 $X \in \mathbb R^{D \times N}$ 的近似 </p>
+<script type="math/tex; mode=display">\tilde X_M=\underbrace{U_M}_{D \times M} \underbrace{\Sigma_M}_{M\times M} \underbrace{V_M^{\top}}_{M \times N} \in \mathbb R^{D \times N} \tag{8}</script><p>其中：</p>
+<ol>
+<li>$U_M=[\mathbf u_1,\ldots, \mathbf u_M]$ 为前 $M$ 个左特征向量</li>
+<li>$\Sigma_M$ 为前 $M$ 个特征值所构成的对角矩阵</li>
+<li><p>$V_M=[\mathbf v_1,\ldots, \mathbf v_M]$ 为前 $M$ 个右特征向量</p>
+<p> 注意，代入 (8) 式中时，$V_M$ 需要转置为 $V_M^{\top}$，而 <code>numpy.linalg.svd</code> 返回的三元组 <code>u,d,v</code> 中 <code>v</code> 已经是转置过的，所以直接取 <code>v[:M,:]</code>，根据 (8) 式恢复的数据集近似则为 </p>
+ <pre class="line-numbers language-python" data-language="python"><code class="language-python">np<span class="token punctuation">.</span>dot<span class="token punctuation">(</span>np<span class="token punctuation">.</span>dot<span class="token punctuation">(</span>u<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span>M<span class="token punctuation">]</span><span class="token punctuation">,</span>np<span class="token punctuation">.</span>diag<span class="token punctuation">(</span>d<span class="token punctuation">[</span><span class="token punctuation">:</span>M<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> v<span class="token punctuation">[</span><span class="token punctuation">:</span>M<span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+</ol>
+<p>这跟这里的<a href="/2022/02/10/math/linear_algebra_concepts">图像压缩存储（图像近似）</a>本质是一样的,只要存储 $DM+M+MN$ 个数，而原数据集需要存储 $DN$ 个数，从而达到压缩目的。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2022/02/14/ml/PCA/">https://jianjiansha.github.io/2022/02/14/ml/PCA/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/machine-learning/">
+                                    <span class="chip bg-color">machine learning</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/02/15/dl/datasets/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="数据集说明">
+                        
+                        <span class="card-title">数据集说明</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            对各种常用数据集格式进行说明
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-02-15
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/deep-learning/">
+                        <span class="chip bg-color">deep learning</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/02/14/ml/prob_model/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="概率模型">
+                        
+                        <span class="card-title">概率模型</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            总结概率和概率图模型。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-02-14
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/machine-learning/">
+                        <span class="chip bg-color">machine learning</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2022</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+    <a href="https://www.zhihu.com/people/tsukaookami" class="tooltipped" target="_blank" data-tooltip="关注我的知乎: https://www.zhihu.com/people/tsukaookami" data-position="top" data-delay="50">
+        <i class="fab fa-zhihu1">知</i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+
+</body>
+
+</html>

@@ -1,238 +1,497 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="zh-CN">
+
+
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <meta name="keywords" content="python setup, SJJ">
+    <meta name="description" content="python 的 setup 介绍。
+研究 python setup.py 脚本中的 setup 方法使用。
+一个简单的例子from distutils.core import setup
 
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"shajianjian.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
-
-  <meta name="description" content="python 的 setup 介绍。">
-<meta property="og:type" content="article">
-<meta property="og:title" content="python setup">
-<meta property="og:url" content="https://shajianjian.github.io/2021/06/12/python/setup/index.html">
-<meta property="og:site_name" content="SJJ">
-<meta property="og:description" content="python 的 setup 介绍。">
-<meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-06-12T09:03:32.000Z">
-<meta property="article:modified_time" content="2021-09-15T02:06:40.634Z">
-<meta property="article:author" content="shajianjian">
-<meta property="article:tag" content="cmake, C++">
-<meta name="twitter:card" content="summary">
-
-<link rel="canonical" href="https://shajianjian.github.io/2021/06/12/python/setup/">
+setup(name&amp;#x3D;&amp;#39;Dis">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : true,
-    lang   : 'zh-CN'
-  };
-</script>
+    <title>python setup | SJJ</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
 
-  <title>python setup | SJJ</title>
-  
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
 
 
+   <style>
+    body{
+       background-image: url(https://cdn.jsdelivr.net/gh/Tokisaki-Galaxy/res/site/medias/background.jpg);
+       background-repeat:no-repeat;
+       background-size: 100% 100%;
+       background-attachment:fixed;
+    }
+</style>
 
 
 
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
-
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
-    <div class="headband"></div>
-
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="切换导航栏">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">SJJ</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
-</div>
-
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
-
-  </li>
-        <li class="menu-item menu-item-tags">
-
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
-
-  </li>
-        <li class="menu-item menu-item-categories">
-
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
-
-  </li>
-  </ul>
-</nav>
-
-
-
-
-</div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
-
-
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content post posts-expand">
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
             
 
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
     
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
   
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://shajianjian.github.io/2021/06/12/python/setup/">
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="shajianjian">
-      <meta itemprop="description" content="">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SJJ">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          python setup
-        </h1>
+<div id="mobile-nav" class="side-nav sidenav">
 
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
 
-              <time title="创建时间：2021-06-12 17:03:32" itemprop="dateCreated datePublished" datetime="2021-06-12T17:03:32+08:00">2021-06-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-15 10:06:40" itemprop="dateModified" datetime="2021-09-15T10:06:40+08:00">2021-09-15</time>
-              </span>
-
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
           
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
 
         </div>
-      </header>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
 
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
 
-      
-        <p>python 的 setup 介绍。<br><span id="more"></span></p>
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/15.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">python setup</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/cmake/">
+                                <span class="chip bg-color">cmake</span>
+                            </a>
+                        
+                            <a href="/tags/C/">
+                                <span class="chip bg-color">C++</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2021-06-12
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    2.3k
+                </div>
+                
+
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>python 的 setup 介绍。<br><span id="more"></span></p>
 <p>研究 python setup.py 脚本中的 setup 方法使用。</p>
-<p>一个简单的例子<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">from distutils.core import setup</span><br><span class="line"></span><br><span class="line">setup(name=&#x27;Distutils&#x27;,</span><br><span class="line">      version=&#x27;1.0&#x27;,</span><br><span class="line">      description=&#x27;Python Distribution Utilities&#x27;,</span><br><span class="line">      author=&#x27;Greg Ward&#x27;,</span><br><span class="line">      author_email=&#x27;gward@python.net&#x27;,</span><br><span class="line">      url=&#x27;https://www.python.org/sigs/distutils-sig/&#x27;,</span><br><span class="line">      packages=[&#x27;distutils&#x27;, &#x27;distutils.command&#x27;],</span><br><span class="line">     )</span><br></pre></td></tr></table></figure></p>
+<p>一个简单的例子<br><pre class="line-numbers language-sh" data-language="sh"><code class="language-sh">from distutils.core import setup
+
+setup(name&#x3D;&#39;Distutils&#39;,
+      version&#x3D;&#39;1.0&#39;,
+      description&#x3D;&#39;Python Distribution Utilities&#39;,
+      author&#x3D;&#39;Greg Ward&#39;,
+      author_email&#x3D;&#39;gward@python.net&#39;,
+      url&#x3D;&#39;https:&#x2F;&#x2F;www.python.org&#x2F;sigs&#x2F;distutils-sig&#x2F;&#39;,
+      packages&#x3D;[&#39;distutils&#39;, &#39;distutils.command&#39;],
+     )<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>下面分别对各参数进行解释说明</p>
 <h2 id="packages"><a href="#packages" class="headerlink" title="packages"></a>packages</h2><p>packages 列举了需要处理（生成、分发以及安装等）的纯 python 包。这里需要注意 包名称与文件路径之间的映射关系。例如，<code>distutils</code> 包应该对应 root 目录下的 <code>distutils</code> 文件夹，root 目录即 <code>setup.py</code> 文件所在目录。如果指定 <code>packages=[&#39;foo&#39;]</code>，那么 root 目录下应该有 <code>foo/__init__.py</code> 文件。</p>
 <p>当然，以上是默认约定规则，也可以手动建议映射关系：使用 <code>package_dir</code> 参数。</p>
-<h2 id="package-dir"><a href="#package-dir" class="headerlink" title="package_dir"></a>package_dir</h2><p>例如所有的 python 源文件均位于 root 目录下的 <code>lib</code> 文件夹中，也就是说 “root package” 实际上对应 <code>lib</code> 文件夹，例如 <code>foo</code> 包则对应 <code>lib/foo</code>文件夹，那么设置<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">package_dir = &#123;&#x27;&#x27;: &#x27;lib&#x27;&#125;</span><br></pre></td></tr></table></figure><br>这是一个字典，key 表示包名称，empty string 表示 “root package”，value 表示文件目录（相对于 setup.py 所在目录），故如果此时设置 <code>packages=[&#39;foo&#39;]</code>，这表示 <code>lib/foo/__init__.py</code> 一定存在。</p>
+<h2 id="package-dir"><a href="#package-dir" class="headerlink" title="package_dir"></a>package_dir</h2><p>例如所有的 python 源文件均位于 root 目录下的 <code>lib</code> 文件夹中，也就是说 “root package” 实际上对应 <code>lib</code> 文件夹，例如 <code>foo</code> 包则对应 <code>lib/foo</code>文件夹，那么设置<br><pre class="line-numbers language-sh" data-language="sh"><code class="language-sh">package_dir &#x3D; &#123;&#39;&#39;: &#39;lib&#39;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>这是一个字典，key 表示包名称，empty string 表示 “root package”，value 表示文件目录（相对于 setup.py 所在目录），故如果此时设置 <code>packages=[&#39;foo&#39;]</code>，这表示 <code>lib/foo/__init__.py</code> 一定存在。</p>
 <p>如果 <code>package_dir = &#123;&#39;foo&#39;: &#39;lib&#39;&#125;</code>，这表示只有 <code>foo</code> 包不对应 root 目录下的 <code>foo</code> 文件夹，而直接对应 <code>lib</code> 文件夹，即 <code>lib/__init__.py</code> 一定存在。package_dir 的规则将（递归）应用到某个包内的所有包上，所以 <code>foo.bar</code> 包对应 <code>lib/bar</code>，即 <code>lib/bar/__init__.py</code> 一定存在。</p>
 <p>注意：<code>packages</code> 不会递归应用到某个包的所有子包上，所以如果要处理子包，需要显式的列出来。</p>
-<h2 id="py-modules"><a href="#py-modules" class="headerlink" title="py_modules"></a>py_modules</h2><p>对于小的模块分发，可能想直接列出模块，而不是包，那么使用这个参数，例如<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">py_modules = [&#x27;mod1&#x27;, &#x27;pkg.mod2&#x27;]</span><br></pre></td></tr></table></figure><br>记住，模块以根目录为相对起点，所以上面例子中 <code>pkg</code> 必须是一个包，即 <code>pkg/__init__.py</code> 必须要存在。</p>
+<h2 id="py-modules"><a href="#py-modules" class="headerlink" title="py_modules"></a>py_modules</h2><p>对于小的模块分发，可能想直接列出模块，而不是包，那么使用这个参数，例如<br><pre class="line-numbers language-sh" data-language="sh"><code class="language-sh">py_modules &#x3D; [&#39;mod1&#39;, &#39;pkg.mod2&#39;]<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>记住，模块以根目录为相对起点，所以上面例子中 <code>pkg</code> 必须是一个包，即 <code>pkg/__init__.py</code> 必须要存在。</p>
 <p>当然也可以通过设置 <code>package_dir</code> 来手动定义 包 - 目录 的映射关系。</p>
 <h2 id="ext-modules"><a href="#ext-modules" class="headerlink" title="ext_modules"></a>ext_modules</h2><p>写 python 扩展模块比写 纯 python 模块复杂一些，同样，描述如何处理这些 模块模块 也比 描述如何处理纯 python 模块要复杂，需要指定扩展模块名称，源文件，编译链接需求（头文件包含路径，链接库，flags 等）</p>
-<p>ext_modules 是 <code>Extension</code> 的列表， <code>Extension</code> 描述扩展模块。一个简单的例子，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Extension(&#x27;foo&#x27;, [&#x27;foo.c&#x27;])</span><br></pre></td></tr></table></figure><br>表示扩展模块名称为 <code>foo</code>，相关的源文件为 <code>foo.c</code>。</p>
-<h3 id="扩展名和包"><a href="#扩展名和包" class="headerlink" title="扩展名和包"></a>扩展名和包</h3><p><code>Extension</code> 构造器的第一个参数为扩展模块的名称，也可以是包名称，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Extension(&#x27;foo&#x27;, [&#x27;src/foo1.c&#x27;, &#x27;src/foo2.c&#x27;])</span><br></pre></td></tr></table></figure><br>指定了一个名为 <code>foo</code> 且位于 root package 下的扩展模块，而<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Extension(&#x27;pkg.foo&#x27;, [&#x27;src/foo1.c&#x27;, &#x27;src/foo2.c&#x27;])</span><br></pre></td></tr></table></figure><br>制定了一个相同的扩展模块，但是位于 <code>pkg</code> 包内。</p>
+<p>ext_modules 是 <code>Extension</code> 的列表， <code>Extension</code> 描述扩展模块。一个简单的例子，<br><pre class="line-numbers language-sh" data-language="sh"><code class="language-sh">Extension(&#39;foo&#39;, [&#39;foo.c&#39;])<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>表示扩展模块名称为 <code>foo</code>，相关的源文件为 <code>foo.c</code>。</p>
+<h3 id="扩展名和包"><a href="#扩展名和包" class="headerlink" title="扩展名和包"></a>扩展名和包</h3><p><code>Extension</code> 构造器的第一个参数为扩展模块的名称，也可以是包名称，<br><pre class="line-numbers language-none"><code class="language-none">Extension(&#39;foo&#39;, [&#39;src&#x2F;foo1.c&#39;, &#39;src&#x2F;foo2.c&#39;])<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>指定了一个名为 <code>foo</code> 且位于 root package 下的扩展模块，而<br><pre class="line-numbers language-none"><code class="language-none">Extension(&#39;pkg.foo&#39;, [&#39;src&#x2F;foo1.c&#39;, &#39;src&#x2F;foo2.c&#39;])<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>制定了一个相同的扩展模块，但是位于 <code>pkg</code> 包内。</p>
 <h3 id="扩展源文件"><a href="#扩展源文件" class="headerlink" title="扩展源文件"></a>扩展源文件</h3><p><code>Extension</code> 构造器的第二个参数为扩展源文件，目前支持 C/C++/Objective-C，也可以是 SWIG 接口文件 (<code>.i</code> 后缀)。</p>
 <h3 id="预处理器选项"><a href="#预处理器选项" class="headerlink" title="预处理器选项"></a>预处理器选项</h3><p><code>Extension</code> 有三个可选参数，1. <code>include_dirs</code>，2. <code>define_macros</code>，3. <code>undef_macros</code>，分别指定头文件包含路径，定义宏，取消定义宏。</p>
-<p>例如，指定相对于项目 root 路径的 <code>include</code> 文件夹为头文件包含路径，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Extension(&#x27;foo&#x27;, [&#x27;foo.c&#x27;], include_dirs=[&#x27;include&#x27;])</span><br></pre></td></tr></table></figure></p>
+<p>例如，指定相对于项目 root 路径的 <code>include</code> 文件夹为头文件包含路径，<br><pre class="line-numbers language-none"><code class="language-none">Extension(&#39;foo&#39;, [&#39;foo.c&#39;], include_dirs&#x3D;[&#39;include&#39;])<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <p>当然也可以使用绝对路径，但是尽量避免使用绝对路径，这对分发不友好。</p>
-<p>生成 python 扩展库时，Python 包含目录会自动被搜索，例如我的机器上 python 包含目录为<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/tool/miniconda3/include/python3.8</span><br></pre></td></tr></table></figure><br>所以这个头文件目录不需要手动添加到 <code>include_dirs</code> 中。</p>
+<p>生成 python 扩展库时，Python 包含目录会自动被搜索，例如我的机器上 python 包含目录为<br><pre class="line-numbers language-none"><code class="language-none">~&#x2F;tool&#x2F;miniconda3&#x2F;include&#x2F;python3.8<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>所以这个头文件目录不需要手动添加到 <code>include_dirs</code> 中。</p>
 <p>这个路径可以使用 sysconfig 模块中的方法获得。</p>
 <p><code>define_macros</code> 用于定义宏，它是一个 <code>(name, value)</code> 元组的列表，其中 <code>name</code> 为宏名称，<code>value</code> 为宏值，是字符串类型或者 <code>None</code> 类型，<code>value</code> 等于 <code>None</code> 时，相当于 C 中定义宏 <code>#define FOO</code> ，这在一些编译器中，<code>FOO</code> 值为 <code>1</code> 。</p>
-<p><code>undef_macros</code> 则是取消定义宏的列表。例如，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Extension(...,</span><br><span class="line">          define_macros=[(&#x27;NDEBUG&#x27;, &#x27;1&#x27;),</span><br><span class="line">                         (&#x27;HAVE_STRFTIME&#x27;, None)],</span><br><span class="line">          undef_macros=[&#x27;HAVE_FOO&#x27;, &#x27;HAVE_BAR&#x27;])</span><br></pre></td></tr></table></figure></p>
-<p>等价于 C 源码<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#define NDEBUG 1</span><br><span class="line">#define HAVE_STRFTIME</span><br><span class="line">#undef HAVE_FOO</span><br><span class="line">#undef HAVE_BAR</span><br></pre></td></tr></table></figure></p>
+<p><code>undef_macros</code> 则是取消定义宏的列表。例如，<br><pre class="line-numbers language-none"><code class="language-none">Extension(...,
+          define_macros&#x3D;[(&#39;NDEBUG&#39;, &#39;1&#39;),
+                         (&#39;HAVE_STRFTIME&#39;, None)],
+          undef_macros&#x3D;[&#39;HAVE_FOO&#39;, &#39;HAVE_BAR&#39;])<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>等价于 C 源码<br><pre class="line-numbers language-none"><code class="language-none">#define NDEBUG 1
+#define HAVE_STRFTIME
+#undef HAVE_FOO
+#undef HAVE_BAR<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h3 id="库选项"><a href="#库选项" class="headerlink" title="库选项"></a>库选项</h3><p><code>Extension</code> 构造器中，可以指定链接库： <code>libraries</code> 参数，链接库的链接时搜索目录：<code>library_dirs</code> 参数，链接库运行时的搜索目录（动态库加载时搜索目录）：<code>runtime_library_dirs</code>。</p>
 <h3 id="其他选项"><a href="#其他选项" class="headerlink" title="其他选项"></a>其他选项</h3><p><code>Extension</code> 构造器还有一些其他选项参数。</p>
 <ol>
@@ -249,165 +508,581 @@
 </ol>
 <p>以上是 <code>Extension</code> 扩展的参数介绍。</p>
 <h2 id="分发和包之间的联系"><a href="#分发和包之间的联系" class="headerlink" title="分发和包之间的联系"></a>分发和包之间的联系</h2><p>分发可以 依赖/提供/废除 包或者模块，这在 <code>distutils.core.setup()</code> 中实现。</p>
-<p>对其他 python 模块/包 的依赖可以通过 <code>setup()</code> 中的 <code>requires</code> 参数指定，这个参数值是字符串列表，其他每个字符串指示一个包，并且可选择是否附加包的 version。例如指定任意 version 模块 <code>mymodule</code> 或者 <code>xml.parsers.expat</code>，如果需要指定版本，那么在括号中指定版本修饰，可以有多个版本修饰，每个修饰之间使用 <code>,</code> 逗号分隔，修饰可以包含一个比较符，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;   &gt;   ==</span><br><span class="line">&lt;=  &gt;=  !=</span><br></pre></td></tr></table></figure><br>例如，<br>|依赖库版本| 解释|<br>|—|—|<br>|==1.0| 仅 1.0 版本兼容|<br>|&gt;1.0, !=1.5.1, &lt;2.0|在 1.0 以后 2.0 以前的版本兼容，其中 1.5.1 除外|</p>
+<p>对其他 python 模块/包 的依赖可以通过 <code>setup()</code> 中的 <code>requires</code> 参数指定，这个参数值是字符串列表，其他每个字符串指示一个包，并且可选择是否附加包的 version。例如指定任意 version 模块 <code>mymodule</code> 或者 <code>xml.parsers.expat</code>，如果需要指定版本，那么在括号中指定版本修饰，可以有多个版本修饰，每个修饰之间使用 <code>,</code> 逗号分隔，修饰可以包含一个比较符，<br><pre class="line-numbers language-none"><code class="language-none">&lt;   &gt;   &#x3D;&#x3D;
+&lt;&#x3D;  &gt;&#x3D;  !&#x3D;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><br>例如，<br>|依赖库版本| 解释|<br>|—|—|<br>|==1.0| 仅 1.0 版本兼容|<br>|&gt;1.0, !=1.5.1, &lt;2.0|在 1.0 以后 2.0 以前的版本兼容，其中 1.5.1 除外|</p>
 <p>上面指定了所依赖的版本，我们也可以提供当前项目包/模块的版本，供其他项目依赖，通过<code>setup()</code> 中的 <code>provides</code> 参数指定，参数值是字符串列表，每个字符串指示 python 的模块或包名称，且可选地提供其版本，如果未提供版本，那么认为与分发版本一致。例如，<br>|提供库表达式|解释|<br>|—|—|<br>|mypkg| 提供库 <code>mypkg</code>，使用分发版本|<br>|mypkg (1.1)| 提供库 <code>mypkg</code>，版本为 1.1|</p>
 <p>通过 <code>obsoletes</code> 参数指定废除一些包/模块，与上面的 <code>requires</code> 值类似，是字符串列表，其他每个字符串指定 包/模块 地名称，后面可跟一个或多个版本修饰，版本修饰至于 <code>()</code> 中。</p>
 <h2 id="安装脚本"><a href="#安装脚本" class="headerlink" title="安装脚本"></a>安装脚本</h2><p>上面介绍的内容，处理了 python 的包和模块，这些包和模块自己不会运行，而是在脚本中被导入使用。</p>
-<p>脚本中包含 python 源码，且可以在命令行中启动执行。<code>scripts</code> 参数指定了脚本文件列表，这样，分发安装后，脚本文件就被复制到 <code>PATH</code> 下。例如，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">setup(...,</span><br><span class="line">      scripts=[&#x27;scripts/xmlproc_parse&#x27;, &#x27;scripts/xmlproc_val&#x27;]</span><br><span class="line">      )</span><br></pre></td></tr></table></figure><br>文件路径是相对于分发 root 路径，安装后，脚本文件被拷贝到<code>PATH</code> 下，于是就可以直接在命令行中，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ xmlproc_parse</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">$ xmlproc_val</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>脚本中包含 python 源码，且可以在命令行中启动执行。<code>scripts</code> 参数指定了脚本文件列表，这样，分发安装后，脚本文件就被复制到 <code>PATH</code> 下。例如，<br><pre class="line-numbers language-none"><code class="language-none">setup(...,
+      scripts&#x3D;[&#39;scripts&#x2F;xmlproc_parse&#39;, &#39;scripts&#x2F;xmlproc_val&#39;]
+      )<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><br>文件路径是相对于分发 root 路径，安装后，脚本文件被拷贝到<code>PATH</code> 下，于是就可以直接在命令行中，<br><pre class="line-numbers language-none"><code class="language-none">$ xmlproc_parse
+...
+
+$ xmlproc_val
+...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h2 id="安装包数据"><a href="#安装包数据" class="headerlink" title="安装包数据"></a>安装包数据</h2><p>有时，其他一些文件也需要被安装，例如一些数据文件，或者包含文档的文本文件。这些文件统称为 包数据。</p>
 <p>使用 <code>package_data</code> 参数指定包数据，参数值是一个映射（字典类型），从包名称到相对路径列表的映射，相对路径指示数据文件，这些文件应该被拷贝到对应的包。相对路径是相对于 包 对应的目录（注意，可能由 <code>package_dir</code> 修改过，而非默认目录）。</p>
-<p>例如，源码目录如下，<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">setup.py</span><br><span class="line">src/</span><br><span class="line">    mypkg/</span><br><span class="line">        __init__.py</span><br><span class="line">        module.py</span><br><span class="line">        data/</span><br><span class="line">            tables.dat</span><br><span class="line">            spoons.dat</span><br><span class="line">            forks.dat</span><br></pre></td></tr></table></figure></p>
-<p><code>setup()</code> 函数调用为<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">setup(...,</span><br><span class="line">     packages=[&#x27;mypkg&#x27;],</span><br><span class="line">     package_dir=&#123;&#x27;mypkg&#x27;: &#x27;src/mypkg&#x27;&#125;,</span><br><span class="line">     package_data=&#123;&#x27;mypkg&#x27;: [&#x27;data/*.dat&#x27;]&#125;,</span><br><span class="line">     )</span><br></pre></td></tr></table></figure></p>
-<h2 id="安装其他文件"><a href="#安装其他文件" class="headerlink" title="安装其他文件"></a>安装其他文件</h2><p>安装分发所需的其他文件，可以使用 <code>data_files</code> 参数，参数值是 <code>(directory, files)</code> 元组的列表，例如<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">setup(...,</span><br><span class="line">      data_files=[(&#x27;bitmaps&#x27;, [&#x27;bm/b1.gif&#x27;, &#x27;bm/b2.gif&#x27;]),</span><br><span class="line">                  (&#x27;config&#x27;, [&#x27;cfg/data.cfg&#x27;])],</span><br><span class="line">     )</span><br></pre></td></tr></table></figure></p>
+<p>例如，源码目录如下，<br><pre class="line-numbers language-none"><code class="language-none">setup.py
+src&#x2F;
+    mypkg&#x2F;
+        __init__.py
+        module.py
+        data&#x2F;
+            tables.dat
+            spoons.dat
+            forks.dat<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p><code>setup()</code> 函数调用为<br><pre class="line-numbers language-none"><code class="language-none">setup(...,
+     packages&#x3D;[&#39;mypkg&#39;],
+     package_dir&#x3D;&#123;&#39;mypkg&#39;: &#39;src&#x2F;mypkg&#39;&#125;,
+     package_data&#x3D;&#123;&#39;mypkg&#39;: [&#39;data&#x2F;*.dat&#39;]&#125;,
+     )<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h2 id="安装其他文件"><a href="#安装其他文件" class="headerlink" title="安装其他文件"></a>安装其他文件</h2><p>安装分发所需的其他文件，可以使用 <code>data_files</code> 参数，参数值是 <code>(directory, files)</code> 元组的列表，例如<br><pre class="line-numbers language-none"><code class="language-none">setup(...,
+      data_files&#x3D;[(&#39;bitmaps&#39;, [&#39;bm&#x2F;b1.gif&#39;, &#39;bm&#x2F;b2.gif&#39;]),
+                  (&#39;config&#39;, [&#39;cfg&#x2F;data.cfg&#39;])],
+     )<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p><code>files</code> 中每个文件均相对于 <code>setup.py</code> 所在目录。可以重定义文件被安装的目录，但不能改变文件名。</p>
 <p><code>directory</code> 相对于安装 prefix，系统级安装则为 <code>sys.prefix</code>，用户级安装则为 <code>site.USER_BASE</code>。 <code>directory</code> 也可以为绝对路径，但是通常不建议，会导致与 wheel 包格式的不兼容。</p>
 
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2021/06/12/python/setup/">https://jianjiansha.github.io/2021/06/12/python/setup/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
     </div>
 
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/cmake/">
+                                    <span class="chip bg-color">cmake</span>
+                                </a>
+                            
+                                <a href="/tags/C/">
+                                    <span class="chip bg-color">C++</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
     
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
     
+
     
 
-      <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/cmake-C/" rel="tag"># cmake, C++</a>
-          </div>
+</div>
 
-        
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
 
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
 
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2021/06/08/cpp/cmake_target/" rel="prev" title="cmake TARGET">
-      <i class="fa fa-chevron-left"></i> cmake TARGET
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/06/15/python/ext1/" rel="next" title="python C/C++ Extensions（一）">
-      python C/C++ Extensions（一） <i class="fa fa-chevron-right"></i>
-    </a></div>
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-      </footer>
-    
-  </article>
-  
-  
-  
-
-
-
-          </div>
-          
+</div>
 
 <script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
+    $(function () {
+        $('.tabs').tabs();
     });
-  }
 </script>
 
+            
         </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
+    </div>
 
-  <aside class="sidebar">
-    <div class="sidebar-inner">
+    
 
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          文章目录
-        </li>
-        <li class="sidebar-nav-overview">
-          站点概览
-        </li>
-      </ul>
+    
 
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#packages"><span class="nav-number">1.</span> <span class="nav-text">packages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#package-dir"><span class="nav-number">2.</span> <span class="nav-text">package_dir</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#py-modules"><span class="nav-number">3.</span> <span class="nav-text">py_modules</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ext-modules"><span class="nav-number">4.</span> <span class="nav-text">ext_modules</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A9%E5%B1%95%E5%90%8D%E5%92%8C%E5%8C%85"><span class="nav-number">4.1.</span> <span class="nav-text">扩展名和包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A9%E5%B1%95%E6%BA%90%E6%96%87%E4%BB%B6"><span class="nav-number">4.2.</span> <span class="nav-text">扩展源文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E5%A4%84%E7%90%86%E5%99%A8%E9%80%89%E9%A1%B9"><span class="nav-number">4.3.</span> <span class="nav-text">预处理器选项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%93%E9%80%89%E9%A1%B9"><span class="nav-number">4.4.</span> <span class="nav-text">库选项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E9%80%89%E9%A1%B9"><span class="nav-number">4.5.</span> <span class="nav-text">其他选项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%8F%91%E5%92%8C%E5%8C%85%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB"><span class="nav-number">5.</span> <span class="nav-text">分发和包之间的联系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC"><span class="nav-number">6.</span> <span class="nav-text">安装脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%8C%85%E6%95%B0%E6%8D%AE"><span class="nav-number">7.</span> <span class="nav-text">安装包数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%85%B6%E4%BB%96%E6%96%87%E4%BB%B6"><span class="nav-number">8.</span> <span class="nav-text">安装其他文件</span></a></li></ol></div>
-      </div>
-      <!--/noindex-->
+    
 
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">shajianjian</p>
-  <div class="site-description" itemprop="description"></div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
         
-          <span class="site-state-item-count">104</span>
-          <span class="site-state-item-name">日志</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-categories">
-            <a href="/categories/">
-          
-        <span class="site-state-item-count">2</span>
-        <span class="site-state-item-name">分类</span></a>
-      </div>
-      <div class="site-state-item site-state-tags">
-            <a href="/tags/">
-          
-        <span class="site-state-item-count">25</span>
-        <span class="site-state-item-name">标签</span></a>
-      </div>
-  </nav>
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2021/06/15/python/ext1/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="python C/C++ Extensions（一）">
+                        
+                        <span class="card-title">python C/C++ Extensions（一）</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            python 的 C/C++ 扩展使用说明（一）。
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2021-06-15
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2021/06/08/cpp/cmake_target/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt="cmake TARGET">
+                        
+                        <span class="card-title">cmake TARGET</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            cmake 的目标 TARGET。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-06-08
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
 </div>
 
 
 
-      </div>
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
 
     </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2022</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">shajianjian</span>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
-  </div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
 
         
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2022</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
 
 
 
@@ -415,50 +1090,214 @@
 
 
 
-
-      </div>
-    </footer>
-  </div>
-
-  
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/pisces.js"></script>
-
-
-<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-
-
-
-
-  
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
 
 
 
 
 
+    <a href="https://www.zhihu.com/people/tsukaookami" class="tooltipped" target="_blank" data-tooltip="关注我的知乎: https://www.zhihu.com/people/tsukaookami" data-position="top" data-delay="50">
+        <i class="fab fa-zhihu1">知</i>
+    </a>
 
 
 
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
 
 
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
 
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
 
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
 
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
 
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
 
-  
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
 
-  
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
 
-  
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
 
 </body>
+
 </html>

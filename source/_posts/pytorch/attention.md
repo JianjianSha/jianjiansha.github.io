@@ -5,17 +5,10 @@ tags: PyTorch
 mathjax: true
 ---
 
-```python
-torch.nn.MultiheadAttention(embed_dim, num_heads, dropout=0.0, bias=True,
-add_bias_kv=False, add_zero_attn=False, kdim=None, vdim=None, batch_first=False,
-device=None, dtype=None)
-```
-
-<!--more-->
 
 相关论文：[Attention Is All You Need](https://arxiv.org/abs/1706.03762)
 
-[论文解读](/transformer/2022/01/17/self_attention)
+[论文解读](/transformer/2022/01/17/transformer/self_attention)
 
 # 1. 流程简介
 为了方便理解，这里我简洁地进行总结。以机器翻译任务为例说明。
@@ -52,7 +45,7 @@ mh self-attn 过程：
 注：
 1. $d_k \equiv d$，这样才能执行向量内积 $\mathbf q_i \mathbf k_i$，或者矩阵相乘 $Q_iK_i^{\top}$，但是 `MultiheadAttention` 构造函数中用到了表示 $d_k$ 的参数 `kdim`，难道还能 $d_k \neq d$？不理解。
 
-_**Image 相关任务如目标检测，分割等**_
+**Image 相关任务如目标检测，分割等**
 
 _Image 经过 backbone 得到特征 `features`，其 shape 为 $(B, C, H, W)$，通过一个 `1x1 Conv`，将维度 `C` 调整为模型维度 `d`，然后再 `features.view(B, d, HW).permute(0, 2, 1)`，使得顺序为 `(batch_size, seq_len, feature_dim)`。但是图像任务中，Transformer 结构稍有不同，具体参考论文 [DETR]()，以及我的文章 [detr 解读]()_
 
@@ -99,3 +92,38 @@ Decoder 输入的预处理部分：
 1. `attn_output`：attention 的输出，shape 为 $(B, L, d)$，其中 $d$ 为模型维度。
 2. `attn_output_weights`：attention 权重参数 $\hat A$，shape 为 $(B,L, S)$。
     由于 multi-head，本来 weights shape 应该为 $(B, n,L, S)$，沿着 `dim=1` 求均值。
+
+# 2. 代码
+
+Attention 模块 PyTorch 源码解读。
+<!--more-->
+```python
+torch.nn.MultiheadAttention(embed_dim, num_heads, dropout=0.0, bias=True,
+add_bias_kv=False, add_zero_attn=False, kdim=None, vdim=None, batch_first=False,
+device=None, dtype=None)
+```
+
+参数说明：
+1. `embed_dim`： model dimension，即上面的 $d$。
+2. `num_heads`：多头 attention 中的 head 的数量
+3. `drop_out`：`attn_output_weights` 上的丢弃率。
+
+    `attn_output_weights` shape 为 `(tgt_seq_len, src_seq_len)` 表示各 element 之间的 weight。通常情况，`tgt_seq_len=src_seq_len=seq_len`，参考 [attention](https://jianjiansha.github.io/2022/01/17/transformer/self_attention/) 一文中的矩阵 $A$。 
+
+4. `bias`： 默认为 `True`，表示在输入输出的 `linear` layer（全连接层）上使用 bias。参考 [attention](https://jianjiansha.github.io/2022/01/17/transformer/self_attention/) 一文中的图 2 中右图。
+5. `batch_first`：默认 `False`，表示 `(seq_len, batch_size, embed_dim)`，否则输入 shape 应为 `(batch_size, seq_len, embed_dim)`。
+
+```python
+forward(query, key, value, key_padding_mask=None, need_weights=True, attn_mask=None, average_attn_weights=True)
+```
+
+参数说明（以默认 `batch_first=False` 为例说明）：
+1. `query`：`(L,N,E)`，其中 `L=seq_len, N=batch_size, E=embed_dim`。`L` 是 target sequence length。
+2. `key`: `(S,N,E)`，`S` 表示 source sequence length。
+3. `value`：`(S,N,E)`。考虑单个样本，query 和 key 做 attention，得到 attention weights，这是一个矩阵 `(L, S)`，然后与 value（数据矩阵为 `(S, E)`）相乘得到结果 `(L, E)`。
+
+4. `key_padding_mask`：`(N, S)`，指示 key 中哪些元素是需要忽略的，即被看作是 padding。`key_padding_mask` 中 `True` 值指示相应的 key 元素值将被忽略。
+
+    例如，某个 sequence 中，序列长度为 `S`，第 $i$ 个 `key_padding_mask` 元素值为 `1`，$i < S$，那么得到的 attention 矩阵中第 $i$ 列全为 `0`。
+
+5. `attn_mask`：阻止某些位置上的 attention。shape 为 `(L,S)` 或者 `(N*num_heads, L, S)`。2D mask 会广播到 3D。这个 mask 直接对 query 和 key 的 attention weight 矩阵进行 mask。

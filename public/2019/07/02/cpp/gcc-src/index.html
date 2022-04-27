@@ -1,0 +1,1556 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+    <meta name="keywords" content="gcc-src, SJJ">
+    <meta name="description" content="多阅读 c++ 标准库源码，才能更好的理解 c++ 标准库。以 ubuntu 为例，gcc 版本为 7.3.0，目录 /usr/include/c++/7/ 包含了大多数标准库（头）文件，标准库的大多数的实现逻辑也在这些头文件中，如要获取完">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>gcc-src | SJJ</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+
+   <style>
+    body{
+       background-image: url(https://cdn.jsdelivr.net/gh/Tokisaki-Galaxy/res/site/medias/background.jpg);
+       background-repeat:no-repeat;
+       background-size: 100% 100%;
+       background-attachment:fixed;
+    }
+</style>
+
+
+
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/2.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">gcc-src</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/c/">
+                                <span class="chip bg-color">c++</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-07-02
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    5.2k
+                </div>
+                
+
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>多阅读 c++ 标准库源码，才能更好的理解 c++ 标准库。<br><span id="more"></span><br>以 ubuntu 为例，gcc 版本为 7.3.0，目录 /usr/include/c++/7/ 包含了大多数标准库（头）文件，标准库的大多数的实现逻辑也在这些头文件中，如要获取完整的源码，则可以去</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/gcc-mirror/gcc">gcc-mirror/gcc</a> clone 这个位于 github 的远程仓库</li>
+<li><a target="_blank" rel="noopener" href="http://www.gnu.org/prep/ftp.html">GNU Mirror List</a> 选择一个镜像网址，直接下载 gcc 源码</li>
+</ol>
+<p>C++ 标准模板库包含容器，以及容器相关的算法，涉及到的概念包括容器，算法，迭代器以及分配器等，各自功能从名称可窥见一二。</p>
+<p>我们采用自底向上的方式来分析各类的实现，虽然自顶向下才是阅读这些源码的最自然的方式，不过阅读方式并不影响什么，待熟悉了这些类的各自功能后，反过来梳理一遍正好可以加深印象。</p>
+<h1 id="Allocator"><a href="#Allocator" class="headerlink" title="Allocator"></a>Allocator</h1><p>我们以 <strong>allocator_traits_base 为例开始分析，此类位于 libstdc++-v3/include/bits/alloc_traits.h 头文件中，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">struct __allocator_traits_base
+&#123;
+    template&lt;typename _Tp, typename _Up, typename &#x3D; void&gt;
+    struct __rebind : __replace_first_arg&lt;_Tp, _Up&gt; &#123; &#125;;
+    template&lt;typename _Tp, typename _Up&gt;
+    struct __rebind&lt;_Tp, _Up, __void_t&lt;typename _Tp::template rebind&lt;_Up&gt;::other&gt;&gt;
+    &#123; using type &#x3D; typename _Tp::template rebind&lt;_Up&gt;::other; &#125;;
+
+    &#x2F;&#x2F; 定义一系列 _Tp 内部类型的别名
+protected:
+    template&lt;typename _Tp&gt;
+    using __pointer &#x3D; typename _Tp::pointer;
+    ...
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>类内部定义了模板类 </strong>rebind，对于类 __rebind，分以下几种情况讨论：</p>
+<ol>
+<li>提供三个模板参数，并且第三个模板参数不为 void，此时匹配最泛型模板类，即第一个 __rebind 定义 </li>
+<li>提供三个模板参数并且第三个模板参数为 void，或者仅提供两个模板参数，此时再分两种情况：<ul>
+<li>前两个模板参数满足 _Tp::template rebind<_Up>::other 为有效定义，那么匹配第二个 __rebind 定义</li>
+<li>否则，匹配第一个 __rebind 定义</li>
+</ul>
+</li>
+</ol>
+<p>接着此文件定义了<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;typename _Alloc, typename _Up&gt;
+using __alloc_rebind &#x3D; typename __allocator_traits_base::template __rebind&lt;_Alloc, _Up&gt;::type;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><br>根据前面的分析，只有 _Alloc::template rebind<_Up>::other 这个类型存在时，这个别名才存在，并且就是这个类型的别名，否则的话，根据第一个 <strong>rebind 模板定义，当 _Alloc 是模板类时，</strong>alloc_rebind 为 _Alloc<_Up, ...>::type。</p>
+<p>然后就是 allocator_traits 类，这个特性用于萃取分配器相关的类型，定义如下，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;typename _Alloc&gt;
+struct allocator_traits: _allocator_traits_base
+&#123;
+    typedef _Alloc allocator_type;
+    typedef type _Alloc::value_type value_type;
+
+    using pointer &#x3D; __detected_or_t&lt;value_type*, __pointer, _Alloc&gt;;
+    ...
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>类中 pointer 这个别名指的是 _Alloc::pointer 类型，如果这个类型存在的话，否则就是类型 value_type<em>。当然通常情况下，_Alloc::pointer 其实也就是 value_type</em> 类型。<strong>pointer 来自基类成员类型，是一个模板类。<br>在 std/type_traits 文件中可查看 </strong>detected_or_t 定义，与前文 __rebind 匹配规则类似，不再赘述。我们再继续看 allocator_traits 其他内部类，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;template&lt;typename&gt; class _Func, typename _Tp, typename &#x3D; void&gt;
+struct _Ptr
+&#123;
+    using type &#x3D; typename pointer_traits&lt;pointer&gt;::template rebind&lt;_Tp&gt;;
+&#125;;
+template&lt;template&lt;typename&gt; class _Func, typename _Tp&gt;
+struct _Ptr&lt;_Func, _Tp, __void_t&lt;_Func&lt;_Alloc&gt;&gt;&gt;
+&#123;
+    using type &#x3D; _Func&lt;_Alloc&gt;;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>定义了模板类 _Ptr，具有内部类型 type 为 _Func<_Alloc>，当这个类型存在时，也就是说 _Func 是模板类型，否则 type 就是 <code>pointer_traits&lt;pointer&gt;::template rebind&lt;_Tp&gt;</code>，此时，假设 pointer 为 value_type<em> 类型（参见上文介绍），根据 bits/ptr_traits.h 中的 pointer_traits 定义，<br><pre class="line-numbers language-none"><code class="language-none">template&lt;typename _Tp&gt;
+struct pointer_traits&lt;_Tp*&gt;
+&#123;
+    ...
+    template&lt;typename _Up&gt;
+    using rebind &#x3D; _Up*;
+    ...
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>可知此时 _Ptr::type 为 _Tp</em> 类型。allocator_traits 内部还定义了很多模板类，比如 _Diff，其类型成员 type 表示指针位移类型（一般是有符号长整型），_Size 的类型成员 type 表示数量类型（一般是无符号长整型），对 _Ptr::type, _Diff::type 和 _Size::type 设置类型别名，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 如果 _Alloc::const_pointer 存在，则为 _Alloc::const_pointer，否则为 const value_type*
+using const_pointer &#x3D; typename _Ptr&lt;__c_pointer, const value_type&gt;::type;
+&#x2F;&#x2F; 为 _Alloc::void_pointer 类型，如果这个类型存在的话，否则为 void*
+using void_pointer &#x3D; typename _Ptr&lt;__v_pointer, void&gt;::type;
+&#x2F;&#x2F; 为 _Alloc::difference_type 类型，如果它存在的话，否则为 pointer_traits&lt;pointer&gt;::difference_type，此时一般为（有符号长整型）
+using difference_type &#x3D; typename _Diff&lt;_Alloc, pointer&gt;::type;
+&#x2F;&#x2F; 为 _Alloc::size_type 类型，如果它存在的话，否则为 difference_type 的无符号版本类型
+using size_type &#x3D; typename _Size&lt;_Alloc, difference_type&gt;::type;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>篇幅有限，不一一介绍，后面的讨论中如果遇到，则根据需要再进行展开讨论。</p>
+<p>我们再看一个类 <strong>alloc_traits，位于 ext/alloc_traits.h 中，看看它提供了哪些类型萃取，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;typename _Alloc, typename &#x3D; typename _Alloc::value_type&gt;
+struct __alloc_traits
+    : std::allocator_traits&lt;_Alloc&gt;     &#x2F;&#x2F; 假设 __cplusplus &gt;&#x3D; 201103L，其他情况这里不考虑
+&#123;
+    typedef _Alloc allocator_type;
+    &#x2F;&#x2F; std::allocator_traits 就是上面刚讨论的那个特性类
+    typedef std::allocator_traits&lt;_Alloc&gt;               _Base_type;
+    typedef typename _Base_type::value_type             value_type;
+    &#x2F;&#x2F; _Alloc::pointer or value_type*
+    typedef typename _Base_type::pointer                pointer;
+    typedef typename _Base_type::const_pointer          const_pointer;
+    typedef typename _Base_type::size_type              size_type;
+    typedef typename _Base_type::difference_type        difference_type;
+    typedef value_type&amp;                                 reference;
+    typedef const value_type&amp;                           const_reference;
+    &#x2F;&#x2F; 以上各类型含义已经非常明显易懂了，不再赘述。以下引入一组方法到当前域
+    using _Base_type::allocate;
+    using _Base_type::deallocate;
+    using _Base_type::construct;
+    using _Base_type::destroy;
+    using _Base_type::max_size;
+    ...
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>于是回到 std::allocator_traits 中查看例如 allocate 的定义，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">_GLIBCXX_NODISCARD static pointer       &#x2F;&#x2F; _GLIBCXX_NODISCARD 指示编译器，如果返回结果被抛弃，则编译器发出警告。显然这么做是应该的，否则动态申请的内存，将无法被释放，造成内存泄漏
+allocate(_Alloc&amp; __a, size_type __n)
+&#123; return __a.allocate(__n); &#125;
+
+_GLIBCXX_NODISCARD static pointer
+allocate(_Alloc&amp; __a, size_type __n, const_void_pointer __hint) 
+&#123; return _S_allocate(__a, __n, __hint, 0); &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>上面代码片段中，_Alloc 表示分配器类型，第一个 allocate 模板直接调用分配器 </strong>a 分配 <strong>n 个元素的内存，第二个 allocate 模板增加了一个参数 </strong>hint 指向临近内存位置的指针，分配器会尝试尽可能分配靠近 __hint 的内存块。易知，分配器特性类的 allocate 方法实际上依赖具体分配器的 allocate 方法实现。实际上，不光是 allocate，deallocate, construct, destroy, max_size 也可能依赖于分配器的同名方法实现（当然，如果目标类型 _Tp 有相应方法实现，则依赖于 _Tp 的同名方法实现）。</p>
+<p>由于 std::allocator_traits::construct 的方法参数为，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;typename _Tp, typename... _Args&gt;
+static auto construct(_Alloc&amp; __a, _Tp* __p, _Args&amp;&amp;... __args)
+...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><br>发现参数类型为 _Tp*，这是 _Tp 类型的标准内存指针，在 <strong>gnu_cxx::</strong>alloc_traits 中还实现了使用自定义指针类型作为参数的 construct 方法，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 是否是自定义指针的判断
+template&lt;typename _Ptr&gt;
+using __is_custom_pointer
+&#x2F;&#x2F; 如果 _Ptr 与 pointer 相同，那么 _Ptr 不是指针时 &#x3D;&gt; __is_custom_pointer 为真
+&#x2F;&#x2F; 如果 _Ptr 与 pointer 不同，那么 __is_custom_pointer 为假
+&#x3D; std::__and_&lt;std::is_same&lt;pointer, _Ptr&gt;,
+        std::__not_&lt;std::is_pointer&lt;_Ptr&gt;&gt;&gt;;
+
+&#x2F;&#x2F; 重载非标准指针类型的 构造函数
+template&lt;typename _Ptr, typename... _Args&gt;
+&#x2F;&#x2F; 条件判断，当 __is_custom_pointer&lt;_Ptr&gt; 为真时，enable_if&lt;xx&gt;::type 才存在
+static typename std::enable_if&lt;__is_custom_pointer&lt;_Ptr&gt;::value&gt;::type
+construct(_Alloc&amp; __a, _Ptr __p, _Args&amp;&amp;... __args)
+...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>我们阶段性地总结一下以上分配器特性类，主要提供了与分配器有关的类型萃取，如分配器类型，分配的目标对象类型（包含值类型，const 型，指针型），分配的目标对象数量类型（因为是用于容器/序列的分配，涉及到元素对象的数量），位移类型（常用于序列的迭代器）等。另外还提供了一些方法，比如 rebind，由于模板参数 _Alloc 可由调用者传入，假如传入的 _Alloc 其用于分配的模板对象类型 value_type 与当前分配器特性类 allocator_traits 的 value_type 不一致，那么 rebind 将重新绑定得到与 allocator_traits::value_type 一致的分配器类型 Allocator。</p>
+<p>接下来则是分配器类，注意与分配器特性类区别开来，后者更注重与分配器有关的类型萃取，前者更注重完成分配器的如分配，反分配，对象构造/析构等实际工作。可能是故意分开成两个类，这种设计能提高自由度，当然，这是我个人理解。</p>
+<p>std::allocator 类位于文件 bits/allocator.h 中，包含了分配器模板类定义和偏特化模板类定义，现在理解这些代码应该比较容易了，其中最泛化的模板类继承了 <strong>allocator_base，这个类为 </strong>gnu_cxx::new_allocator 的类型别名，在 new_allocator 中我们可以看到 allocate, deallocate, max_size, construct, destroy 等方法实现。读者可仔细阅读这些源码，这里不再一一分析。</p>
+<h1 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h1><p>开门见山不绕弯子，位于 bit/stl_iterator_base_types.h 中，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 定义一组 Iterator 标记，它们都是空类型，仅仅用于区分不同的迭代器
+&#x2F;&#x2F; 迭代器底层的算法会根据迭代器本身的类型标记来选择最优算法
+input_iterator_tag
+output_iterator_tag
+forward_iterator_tag
+bidirectional_iterator_tag
+random_access_iterator_tag<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>对于一个迭代器，需要指定迭代器自身的类型（上述某 iterator_tag 之一），迭代目标对象的值/指针/引用类型，迭代位移类型等，这正是 std::iterator 的定义，然后还需要一个相关的特性模板 iterator_traits 用于萃取其相关的类型。</p>
+<p>在 bits/stl_iterator.h 中还提供了几个迭代器适配器，其本质也是一个迭代器，只不过是提供某些专有功能的迭代器。我们先阐述上面五种迭代器类型，然后再结合迭代器适配器理解更有心得，</p>
+<ol>
+<li>input 迭代器。看到 input 可以将容器类比标准输入，比如从屏幕读取输入，这里 input 迭代器类似，从容器读取元素，迭代器迭代器，说明是依次向前读取容器内的元素。<br>支持的操作：自增（向前），解引用（右值，取值），判断两个迭代器是否相等（是否迭代到头）</li>
+<li>output 迭代器。与 input 迭代器相反，依次向容器写入元素。<br>支持的操作：自增（向前），解引用（左值，赋值）。</li>
+<li>forward 迭代器。结合了 input 和 output 迭代器，解引用，既可作左值也可作右值。自增指向下一个元素。与 input/output 迭代器不同的是，forward 迭代器支持 multipass 算法。</li>
+<li>bidirectional 迭代器。在 forword 迭代器的基础上增加了自减操作，指向上一个元素。</li>
+<li>random-access 迭代器。在 bidirectional 迭代器基础上增加关系比较，算术运算等。</li>
+</ol>
+<p>也许上面的总结还不能完全理解，没关系，现在结合迭代器适配器的代码来综合理解。</p>
+<h2 id="reverse-iterator"><a href="#reverse-iterator" class="headerlink" title="reverse_iterator"></a>reverse_iterator</h2><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;typename _Iterator&gt;
+class reverse_iterator      &#x2F;&#x2F; 首先是一个迭代器，其次是提供某些特殊功能的迭代器
+: public iterator&lt;typename iterator_traits&lt;_Iterator&gt;::iterator_category,
+                typename iterator_traits&lt;_Iterator&gt;::value_type,
+                typename iterator_traits&lt;_Iterator&gt;::difference_type,
+                typename iterator_traits&lt;_Iterator&gt;::pointer,
+                typename iterator_traits&lt;_Iterator&gt;::reference&gt;
+&#123;
+protected:
+    _Iterator current;  &#x2F;&#x2F; 声明所用迭代器类型的一个变量，反向迭代器正是在此迭代器之上进行构造得到
+public:
+    &#x2F;&#x2F; 构造函数略
+    ...
+    _GLIBCXX17_CONSTEXPR reference
+    operator*() const &#123;
+        _Iterator __tmp &#x3D; current;
+        return *--__tmp;&#x2F;&#x2F; 先自减，然后解引用，返回的是前一个元素值的引用，返回值只能用作右值
+                        &#x2F;&#x2F; 由于是在临时变量临时变量上自减，故当前迭代器所指位置不变
+    &#125;
+
+    _GLIBCXX17_CONSTEXPR reverse_iterator&amp;
+    operator++() &#123;
+        --current;      &#x2F;&#x2F; 反向迭代器表示从右往左，故自增表示正常迭代器的自减
+        return *this;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>记反向迭代器为 r，其内部迭代器为 i，那么 r 的所有操作均转换为 i 上的操作，并由 i 完成，如</p>
+<ol>
+<li>解引用: <em>r = </em>(i-1)</li>
+<li>++r = —i, —r = ++i</li>
+<li>r+n = i-n, r-n = i+n</li>
+</ol>
+<p>还有其他一些操作如关系比较，基本上，r 的操作与 i 的操作相反（除了等于，不等于操作）</p>
+<h2 id="back-insert-iterator"><a href="#back-insert-iterator" class="headerlink" title="back_insert_iterator"></a>back_insert_iterator</h2><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;typename _Container&gt;
+class back_insert_iterator
+:public iterator&lt;output_iterator_tag, void, void, void, void&gt; &#x2F;&#x2F; 指定迭代器标签，其他相关类型则由容器决定
+&#123;
+protected:
+    _Container* container;  &#x2F;&#x2F; 构造此迭代器时，需要传入容器变量，此迭代器用于向这个容器末端插入元素
+public:
+    back_insert_iterator&amp;   &#x2F;&#x2F; 给此迭代器赋值就等于向容器末端插入元素
+    operator&#x3D;(const typename _Container::value_type&amp; __value)
+    &#123;
+        container-&gt;push_back(__value);
+        return *this;
+    &#125;
+    ...
+
+    back_insert_iterator&amp;
+    operator*() &#123; return *this; &#125;       &#x2F;&#x2F; 解引用不是取所指元素的值，因为是 output 迭代器
+    back_insert_iterator&amp;
+    operator++() &#123;return *this; &#125;       &#x2F;&#x2F; 自增也不是指向下一个元素，因为只能向容器末端插入值
+    back_insert_iterator&amp;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>与此类似还有 front_insert_iterator, insert_iterator 分别表示像容器首端插入值和像容器插入值，插入操作的实现均依赖于容器自身的插入操作，你所能做的，就是给这些迭代赋值，除了赋值还是赋值。。。</p>
+<h2 id="normal-iterator"><a href="#normal-iterator" class="headerlink" title="__normal_iterator"></a>__normal_iterator</h2><p>这是一个正常的迭代器模板，有两个模板参数 _Iterator, _Container，内部维持了一个迭代器对象，用于迭代操作，_Container 作用仅仅是用于生成不同的 __normal_iterator 类型，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;typename _Iterator, typename _Container&gt;
+class __normal_iterator
+&#123;
+protected:
+    _Iterator _M_current;   &#x2F;&#x2F; _normal_iterator 的迭代操作实际上由 _M_current 完成
+    ...
+public:
+    &#x2F;&#x2F; 构造函数略
+    ...
+    &#x2F;&#x2F; 迭代器的解引用，自增，自减，指针访问成员，位移等均由 _M_current 完成
+    &#x2F;&#x2F; 两个 __normal_iterator 的关系比较也由对应的两个 _M_current 的关系比较完成
+    &#x2F;&#x2F; 确实是再 normal 不过了
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h2 id="move-iterator"><a href="#move-iterator" class="headerlink" title="move_iterator"></a>move_iterator</h2><p>顾名思义就是提供 move 操作，其内部也有一个迭代器，move_iterator 的解引用就是将其内部解引用得到的值进行 move 从而转为右值引用，这用于某些泛型方法中，move 代替了 copy，提高了效率。<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;typename _Iterator&gt;
+class move_iterator
+&#123;
+protected:
+    _Iterator _M_current;
+    typedef iterator_traits&lt;_Iterator&gt;          __traits_type;  &#x2F;&#x2F; _Iterator 的特性类
+    typedef typename __traits_type::reference   __base_ref;     &#x2F;&#x2F; 萃取 _Iterator 相关的元素引用类型
+public:
+    ...
+    &#x2F;&#x2F; 如果__base_ref 是引用类型，将其转为右值引用，否则保持不变。通常来讲，__base_ref 都是引用类型
+    typedef typename conditional&lt;is_reference&lt;__base_ref&gt;::value,
+        typename remove_reference&lt;__base_ref&gt;::type&amp;&amp;,
+        __base_ref&gt;::type               reference;
+    
+    _GLIBCXX17_CONSTEXPR reference
+    operator*() const
+    &#123; return static_cast&lt;reference&gt;(*_M_current); &#125; &#x2F;&#x2F; 将内部迭代器解引用得到的值转为右值引用
+
+    _GLIBCXX17_CONSTEXPR reference
+    operator[](difference_type __n) const
+    &#123; return std::move(_M_current[__n]); &#125;  &#x2F;&#x2F; 随机访问取值，也转为右值引用
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h1 id="Container"><a href="#Container" class="headerlink" title="Container"></a>Container</h1><h2 id="Vector"><a href="#Vector" class="headerlink" title="Vector"></a>Vector</h2><p>以 vector 为例，代码位于 bits/stl_vector.h 中，首先是基类 _Vector_base，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;typename _Tp, typename _Alloc&gt;
+struct _Vector_base
+&#123;
+    typedef typename __gnu_cxx::__alloc_traits&lt;_Alloc&gt;::template rebind&lt;_Tp&gt;::other _Tp_alloc_type;
+    typedef typename __gnu_cxx::__alloc_traits&lt;_Tp_alloc_type&gt;::pointer pointer;
+    ...
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>模板参数 _Alloc 的 value_type 不一定是 _Tp，所以通过 rebind 得到 value_type 为 _Tp 的 alloctor（即 alloctor<_Tp>），设置其别名为 _Tp_alloc_type，然后设置其关联的 pointer，即 _Tp_alloc_type::pointer，如果它存在的话，否则为 _Tp<em>，然后根据 std::allocator 模板定义不难知道 _Tp_alloc_type::pointer 其实就是 _Tp</em>，所以 _Vector_base::pointer 就是 _Tp*。</p>
+<p>接着 _Vector_base 中又定义了几个内部结构<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">struct _Vector_impl_data
+&#123;
+    pointer _M_start;   &#x2F;&#x2F; 指向 vector 中第一个元素的内存位置
+    pointer _M_finish;  &#x2F;&#x2F; 指向 vector 中 past-the-last-element 的内存位置
+    pointer _M_end_of_storage;  &#x2F;&#x2F; vector 分配 past-the-max-element 内存位置
+
+    &#x2F;&#x2F; 构造函数，拷贝函数，交换数据函数。比较简单，略
+    ...
+&#125;
+
+struct _Vector_impl : public _Tp_alloc_type, public _Vector_impl_data
+&#123;
+    &#x2F;&#x2F; 构造函数，略
+    &#x2F;&#x2F; vector 内存 overflow 检测，需要指定 _GLIBCXX_SANITIZE_VECTOR。参考 AddressSanitizer
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>回到 _Vector_base 中来，_Vector_base 定义了类型别名和一个变量，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;typename _Tp, typename _Alloc&gt;
+struct _Vector_base
+&#123;
+    ...
+public:
+    typedef _Alloc allocator_type;
+    _Vector_impl _M_impl;           &#x2F;&#x2F; 分配器变量
+    ...
+    &#x2F;&#x2F; 构造&#x2F;析构 函数
+
+    pointer _M_allocator(size_t __n) &#123;      &#x2F;&#x2F; 分配 n 个元素的内存，起始位置保存到 pointer 类型变量中
+        typedef __gnu_cxx::__alloc_traits&lt;_Tp_alloc_type&gt; _Tr;
+        &#x2F;&#x2F; 如 __n&#x3D;0，则返回 nullptr，否则使用分配器 _M_impl 分配内存
+        return __n !&#x3D; 0 ? _Tr::allocate(_M_impl, __n) : pointer();
+    &#125;
+
+protected:
+    void _M_create_storage(size_t __n) &#123;    &#x2F;&#x2F; 分配内存，并保存内存起始位置和截止位置
+        this-&gt;_M_impl._M_start &#x3D; this-&gt;_M_allocate(__n);
+        this-&gt;_M_impl._M_finish &#x3D; this-&gt;_M_impl._M_start;
+        this-&gt;_M_impl._M_end_of_storage &#x3D; this-&gt;_M_impl._M_start + __n;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>基类 _Vector_base 中仅仅做了内存分配和记录内存块位置的事情，其他 vector 相关的操作则放在 vector 类中，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; vector 模板参数指明了 vector 关联的元素类型 _Tp，以及 vector 的内存分配器类型 _Alloc，
+&#x2F;&#x2F;  默认 _Alloc 为 std::allocator&lt;_Tp&gt;，显然是于 _Tp 匹配的，
+&#x2F;&#x2F;  若提供的模板参数 _Alloc 与 _Tp 不匹配，那么也由 _Alloc::rebind 获取匹配的 alloctor
+template&lt;typename _Tp, typename _Alloc &#x3D; std::allocator&lt;_Tp&gt;&gt;
+class vector : protected _Vector_base&lt;_Tp, _Alloc&gt;
+&#123;
+    typedef _Vector_base&lt;_Tp, _Alloc&gt;               _Base;
+    typedef typename _Base::_Tp_alloc_type          _Tp_alloc_type;
+    typedef __gnu_cxx::__alloc_traits&lt;_Tp_alloc_type&gt;   _Alloc_traits;
+public:
+    typedef _Tp                             value_type;
+    typedef typename _Base::pointer         pointer;
+    typedef __gnu_cxx::__normal_iterator&lt;pointer, vector&gt;   iterator;
+    typedef std::reverse_iterator&lt;iterator&gt;                 reverse_iterator;
+    ...
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>事实上，指针包含解引用，自增和自减等操作，也可看作是一种特殊的迭代器，所以这里 vector 内部类型 iterator，使用 pointer 作为 <strong>gnu::cxx::</strong>normal_iterator 的模板参数 _Iterator。<br>然后是 vector 的各种构造函数，需要注意到 vector 在实际分配内存后，都会更新 _M_impl._M_finish 使其指向 past-the-last-element 的位置。我们来看一下 vector 获取迭代器的函数，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">iterator
+begin() _GLIBCXX_NOEXCEPT
+&#123; return iterator(this-&gt;_M_impl._M_start); &#125;
+
+iterator
+end() _GLIBCXX_NOEXCEPT
+&#123; return iterator(this-&gt;_M_impl._M_finish); &#125;
+
+reverse_iterator
+rbegin() _GLIBCXX_NOEXCEPT
+&#123; return reverse_iterator(end()); &#125;
+
+reverse_iterator
+rend() _GLIBCXX_NOEXCEPT
+&#123; return reverse_iterator(begin()); &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>可见迭代器的自增自减解引用均转为指针的自增自减解引用操作。</p>
+<p>其他的 vector 操作，resize 表示重置 vector 中有效元素的数量，重置后 new_size &gt; old_size，那么末尾多出来的元素使用默认值填充（如果 resize 提供了指定值，那么使用指定值填充），如果 new_size&lt;=old_size，则重置 _M_impl._M_finish 所指位置（[_M_start, _M_finish) 范围内的元素有效），_M_finish 之后的元素则根据元素类型决定是调用元素的析构函数还是放任不理，注意这一过程中内存占用没有改变。</p>
+<p>来看 vector 的 push_back 函数实现，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">void
+push_back(const value_type&amp; __x)
+&#123;
+    if(this-&gt;_M_impl._M_finish !&#x3D; this-&gt;_M_impl._M_end_of_storage) &#123;
+        &#x2F;&#x2F; 当前分配的内存空间还足以存储新的元素 __x
+        ...
+    &#125; else
+        _M_realloc_insert(end(), __x);  &#x2F;&#x2F; 重新分配内存，并在 _M_finish 位置插入元素 __x，然后
+                                        &#x2F;&#x2F;  将 _M_finish 所指位置向前移动一个元素单位
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>在 bits/vector.tcc 中找到 _M_realloc_insert 的实现，<br><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;typename _Tp, typename _Alloc&gt;
+template&lt;typename ..._Arg&gt;
+void
+vector&lt;_Tp, _Alloc&gt;::_M_realloc_insert(iterator __position, _Args&amp;&amp;... _args)
+&#123;
+    &#x2F;&#x2F; 计算即将重新分配元素数量，这里重新分配的元素数量是原来元素数量的 2 倍，参见 _M_check_len
+    const size_type __len &#x3D; _M_check_len(size_type(1), &quot;vector::_M_realloc_insert&quot;);
+    pointer __old_start &#x3D; this-&gt;_M_impl._M_start;
+    pointer __old_finish &#x3D; this-&gt;_M_impl._M_finish; &#x2F;&#x2F; 原来的起始元素指针和 past-the-last 元素指针
+    const size_type __elems_before &#x3D; __position - begin();&#x2F;&#x2F; 插入位置之前的元素数量
+    pointer __new_start(this-&gt;_M_allocate(__len));   &#x2F;&#x2F; 重新分配内存，使得能容纳 __len 个元素
+    pointer __new_finish(__new_start);  &#x2F;&#x2F; 由于尚未填充元素，故此时 past-the-last 指针与起始指针相等
+    __try
+    &#123;
+        &#x2F;&#x2F; 在指定位置处插入目标对象
+        _Alloc_traits::construct(this-&gt;_M_impl,                     &#x2F;&#x2F; 使用此分配器
+                                 __new_start + __elems_before,      &#x2F;&#x2F; 在指定位置处
+                                 std::forward&lt;_Args&gt;(__args)...);   &#x2F;&#x2F; 根据此参数构造对象
+        &#x2F;&#x2F; 此时 vector 中有了元素，将 __new_finish 先置为 nullptr，等元素全部填充完毕，再更新其值
+        __new_finish &#x3D; pointer();
+
+        if _GLIBCXX17_CONSTEXPR (_S_use_relocate()) &#123;   &#x2F;&#x2F; 如果元素类型支持移动插入
+            &#x2F;&#x2F; 将原来起始位置到插入位置截止，之间的元素重定位到新的起始位置
+            __new_finish &#x3D; _S_relocate(__old_start, __position.base()
+                __new_start, _M_get_Tp_allocator());
+            &#x2F;&#x2F; 此时 __new_finish 所指位置就是新插入的元素，自增 1，移动新插入元素之后，将原来剩余的元素重定位到此位置处
+            ++__new_finish;
+            __new_finish &#x3D; _S_relocate(__position.base(), __old_finish,
+                __new_finish, _M_get_Tp_allocator());   &#x2F;&#x2F; 此时 __new_finish 就是新的 past-of-last 元素位置了
+        &#125;
+        ...
+        &#x2F;&#x2F; 失败处理，略
+        &#x2F;&#x2F; 析构原先内存上的对象，并释放内存，略
+        &#x2F;&#x2F; 更新元素起始和截止位置等，略
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>vector 类中还有很多其他方法，但是到了这一步，相信这些方法的代码实现不难理解了，由于篇幅有限，不对这些方法进行分析。</p>
+<p>本文结束</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2019/07/02/cpp/gcc-src/">https://jianjiansha.github.io/2019/07/02/cpp/gcc-src/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/c/">
+                                    <span class="chip bg-color">c++</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/07/03/obj_det/libra-rcnn/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="libra-rcnn">
+                        
+                        <span class="card-title">libra-rcnn</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            论文 Libra R-CNN: Towards Balanced Learning for Object Detection
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2019-07-03
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/object-detection/">
+                        <span class="chip bg-color">object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/06/28/obj_det/M2Det/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/22.jpg" class="responsive-img" alt="M2Det">
+                        
+                        <span class="card-title">M2Det</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            论文：M2Det: A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-06-28
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/object-detection/">
+                        <span class="chip bg-color">object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2022</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+    <a href="https://www.zhihu.com/people/tsukaookami" class="tooltipped" target="_blank" data-tooltip="关注我的知乎: https://www.zhihu.com/people/tsukaookami" data-position="top" data-delay="50">
+        <i class="fab fa-zhihu1">知</i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+
+</body>
+
+</html>
