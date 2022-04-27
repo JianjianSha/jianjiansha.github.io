@@ -124,12 +124,101 @@ torch.distributed.launch 启动器在命令行分布式执行 python 文件，�
 ```python
 import torch.distributed as dist
 
+def train(train_loader, model, criterion, optimizer, epoch, local_rank, args):
+    # switch to train mode
+    model.train()
+
+    end = time.time()
+    for i, (images, target) in enumerate(train_loader):
+        # measure data loading time
+        data_time.update(time.time() - end)
+
+        images = images.cuda(local_rank, non_blocking=True)
+        target = target.cuda(local_rank, non_blocking=True)
+        # compute output
+        output = model(images)
+        loss = criterion(output, target)
+
+        # measure accuracy and record loss
+        acc1, acc5 = accuracy(output, target, topk=(1, 5))
+
+        torch.distributed.barrier()
+
+        # compute gradient and do SGD step
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+args = parser.parse_args()
+args.nprocs = torch.cuda.device_count()
+
 dist.init_process_group(backend='nccl')
 
-nprocs = torch.cuda.device_count()
-batch_size = batch_size // nprocs
-model.cuda()
-model = torch.nn
+torch.cuda.set_device(args.local_rank)
+model.cuda(args.local_rank)
+
+args.batch_size = args.batch_size // nprocs
+
+model = torch.nn.parallel.DistributedDataParallel(model,
+                                                  device_ids=[local_rank])
+
+# define loss function (criterion) and optimizer
+criterion = nn.CrossEntropyLoss().cuda(local_rank)
+cudnn.benchmark = True
+
+train_dataset = datasets.ImageFolder(
+        traindir,
+        transforms.Compose([
+            transforms.RandomResizedCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize,
+        ]))
+train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
+train_loader = torch.utils.data.DataLoader(train_dataset,
+                                           batch_size=args.batch_size,
+                                           num_workers=2,
+                                           pin_memory=True,
+                                           sampler=train_sampler)
+val_dataset = datasets.ImageFolder(
+    valdir,
+    transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        normalize,
+    ]))
+val_sampler = torch.utils.data.distributed.DistributedSampler(val_dataset)
+val_loader = torch.utils.data.DataLoader(val_dataset,
+                                            batch_size=args.batch_size,
+                                            num_workers=2,
+                                            pin_memory=True,
+                                            sampler=val_sampler)
+
+for epoch in range(args.start_epoch, args.epochs):
+    train_sampler.set_epoch(epoch)
+    val_sampler.set_epoch(epoch)
+
+    # train for one epoch
+    train(train_loader, model, criterion, optimizer, epoch, local_rank, args)
+
+    # evaluate on validation set
+    acc1 = validate(val_loader, model, criterion, local_rank, args)
+
+    # remember best acc@1 and save checkpoint
+    is_best = acc1 > best_acc1
+    best_acc1 = max(acc1, best_acc1)
+
+    if args.local_rank == 0:
+        save_checkpoint(
+            {
+                'epoch': epoch + 1,
+                'arch': args.arch,
+                'state_dict': model.module.state_dict(),
+                'best_acc1': best_acc1,
+            }, is_best)                           
 ```
 
-使用 Distributed Sampler 划分数据集，
+reference：
+
+1. https://github.com/tczhangzhi/pytorch-distributed/tree/master
