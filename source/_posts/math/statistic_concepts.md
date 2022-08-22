@@ -187,3 +187,114 @@ $$\begin{aligned}p(\mu|y=h,N,\alpha,\beta) & \propto p(\mu|\alpha,\beta) p(y=h|\
 
 $$p(\mathbf x|\boldsymbol \theta)=h(\mathbf x) \exp(\boldsymbol \theta^{\top} \boldsymbol \phi(\mathbf x)-A(\boldsymbol \theta))$$
 
+# 3. 全期望和全方差
+
+## 3.1 条件概率
+
+随机变量 $X$ 概率密度为 $f_X$，事件 A 的发生概率为 $P(A)>0$，那么条件概率密度定义为
+
+$$f_{X|A}(x)=\begin{cases} \frac {f(x)}{P(A)} & x \in A \\ 0 & x \notin A\end{cases}$$
+
+注意这里仅涉及一个随机变量（而不是多个随机变量）
+
+**条件期望**
+
+$$E(h(X)|A)=\int_A h(x) f_{X|A}(x) dx = \frac 1 {P(A)} \int_A h(x) f_X(x) dx$$
+
+**条件方差**
+
+$$V(X|A)=E(X^2|A)-E(X|A)^2$$
+
+## 3.2 多随机变量间条件概率
+
+两个随机变量 $X, Y$，联合概率密度为 $f_{X,Y}(x,y)$，条件概率密度为
+
+$$f_{X|Y}(x|y)=\begin{cases} \frac {f_{X,Y}(x,y)} {f_Y(y)} & f_Y(y)>0 \\ 0 & f_Y(y)=0 \end{cases}$$
+
+**条件期望**
+
+$$E(h(X)|Y)=\int_{-\infty}^{\infty} h(x) f_{X|Y}(x|y) dx$$
+
+## 3.3 全期望公式
+
+$$E(X)=E(E[X|Y])$$
+
+证明：
+
+$$\begin{aligned} E(X)&=\int_x x f_X(x) dx
+\\&= \int_x x \int_y f_{X,Y}(x, y) dy dx 
+\\&= \int_x x \int_y f_{Y}(y) \frac {f_{X,Y}(x,y)}{f_Y(y)} dy dx
+\\&= \int_y f_{Y}(y) \int_x x f_{X|Y}(x|y) dx dy
+\\&= \int_y f_{Y}(y) E[X|Y] dy
+\\&= E[E[X|Y]]
+\end{aligned}$$
+
+## 3.4 全方差公式
+
+$$V(X)=E(V[X|Y]) + V(E[X|Y])$$
+
+证明：
+
+根据条件方差
+
+$$V(X|Y)=E(X^2|Y)-E(X|Y)^2$$
+
+两边取期望
+
+$$\begin{aligned}E[V(X|Y)]&=E[E[X^2|Y]] - E[E(X|Y)^2]
+\\ &=E(X^2) - E[E(X|Y)^2]
+\\&=[E(X^2)-E(X)^2] - \{E[E(X|Y)^2]-E(X)^2\}
+\\&=V(X)-\{E[E(X|Y)^2]-E[E(X|Y)]^2\}
+\\&= V(X) - V[E(X|Y)]
+\end{aligned}$$
+证毕。
+
+注意：$E[X|Y]$ 和 $V[X|Y]$ 是在给定变量 $Y$ 的某个值的条件下的 $X$ 的统计量，所以与具体某个 $X$ 值无关，与具体某个 $Y$ 值有关，所以 $E[E(X|Y)]$ 和 $V[E(X|Y)]$ 其实分别是 $E_Y[E(X|Y)]$ 和 $V_Y[E(X|Y)]$ 。
+
+
+# 4. 随机向量的变换
+
+连续型随机向量 $X=(X_1,\ldots, X_n)^{\top}$，令变换 $\mathbf g: \mathbb R^n \rightarrow \mathbb R^n$ 为
+
+$$\mathbf g(\mathbf x)=(g_1(\mathbf x), \ldots, g_n(\mathbf x))^{\top}$$
+
+变换 $Y=\mathbf g(X)$ 的概率密度为
+
+$$f_Y(\mathbf y)=f_X(\mathbf h(\mathbf y))|J_{\mathbf h}(\mathbf y)|$$
+
+其中 $\mathbf h(\mathbf y)  = \mathbf g^{-1}(\mathbf y)$，且
+
+$$J_{\mathbf h}(\mathbf y)=\frac {\partial \mathbf h(\mathbf y)}{\partial \mathbf y}=\det \begin{pmatrix}\frac {\partial}{\partial y_1} h_1(\mathbf y) & \cdots & \frac {\partial}{\partial y_1} h_n(\mathbf y) \\ \vdots & \ddots & \vdots \\ \frac {\partial}{\partial y_n} h_1(\mathbf y) & \cdots & \frac {\partial}{\partial y_n} h_n(\mathbf y)\end{pmatrix}$$
+
+
+**例**：
+
+$A \in \mathbb R^{n \times n}$ 非奇异，随机向量 $X \in \mathbb R^n$，那么 $Y=AX$ 的概率密度为
+
+$$f_Y(\mathbf y) = \frac 1 {|\det A|} f_X(A^{-1}\mathbf y)$$
+
+解：
+
+根据 $\mathbf x=\mathbf h(\mathbf y)=A^{-1} \mathbf y$ 以及上面的变换公式有 
+
+$$f_Y(\mathbf y) = f_X(A^{-1}\mathbf y)|J_{\mathbf h}(\mathbf y)|$$
+
+其中 
+
+$$J_{\mathbf h}(\mathbf y)=\det (\frac {\partial A^{-1} \mathbf y}{\partial \mathbf y})=\det (A^{-1})=(\det A)^{-1}$$
+
+注意
+
+$$\frac {\partial (A^{-1}\mathbf y)_i}{\partial y_j}=\frac {\partial (\sum_k A_{ik}^{-1}  y_k)}{\partial y_j}\stackrel{k=j}=A_{ij}^{-1}$$
+
+于是有 
+
+$$\frac {\partial A^{-1} \mathbf y}{\partial \mathbf y}=A^{-1}$$
+
+**引理**：
+
+如果 $X \sim \mathcal N_n(\mu, V)$，$B \in \mathbb R^{m \times n}$，$\mathbf a \in \mathbb R^m$，那么 $Y=BX+\mathbf a$ 是 m 维高斯分布，
+
+$$E(Y)=B\mu + \mathbf a$$
+
+$$V(Y)=BVB^{\top}$$

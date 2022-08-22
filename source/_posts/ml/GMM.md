@@ -10,7 +10,7 @@ mathjax: true
 
 混合模型是由多个单个模型凸组合而成，例如 $K$ 个简单分布凸组合成分布
 
-$$p(\mathbf x) = \sum_{k=1}^K \pi_k p_k(\mathbf x)$$ (GMM1)
+$$p(\mathbf x) = \sum_{k=1}^K \pi_k p_k(\mathbf x) \tag{1}$$
 
 $$0 \le \pi_k \le 1, \quad \sum_{k=1}^K \pi_k = 1$$
 
@@ -20,7 +20,7 @@ $$0 \le \pi_k \le 1, \quad \sum_{k=1}^K \pi_k = 1$$
 
 K 个高斯分布的线性组合如下，
 
-$$p(\mathbf x|\theta)=\sum_{k=1}^K \pi_k \mathcal N(\mathbf x|\mu_k, \Sigma_k)$$ (GMM2)
+$$p(\mathbf x|\theta)=\sum_{k=1}^K \pi_k \mathcal N(\mathbf x|\mu_k, \Sigma_k) \tag{2}$$
 
 $$0 \le \pi_k \le 1, \quad \sum_{k=1}^K \pi_k = 1$$
 
@@ -32,19 +32,20 @@ $$0 \le \pi_k \le 1, \quad \sum_{k=1}^K \pi_k = 1$$
 
 记数据集为 $\mathcal X = \{\mathbf x_1, \cdots, \mathbf x_N\}$ 。似然函数为
 
-$$p(\mathcal X|\theta)=\prod_{n=1}^N p(\mathbf x_n |\theta)$$ (GMM3)
+$$p(\mathcal X|\theta)=\prod_{n=1}^N p(\mathbf x_n |\theta) \tag{3}$$
 
-$$p(\mathbf x_n|\theta)=\sum_{k=1}^K \pi_k \mathcal N(\mathbf x_n |\mu_k,\Sigma_k)$$ (GMM4)
+$$p(\mathbf x_n|\theta)=\sum_{k=1}^K \pi_k \mathcal N(\mathbf x_n |\mu_k,\Sigma_k) \tag{4}$$
 
 对数似然为
 
-$$\log p(\mathcal X|\theta)=\underbrace {\sum_{n=1}^N \log \sum_{k=1}^K \pi_k \mathcal N(\mathbf x_n |\mu_k,\Sigma_k)}_{=:\mathcal L}$$ (GMM5)
+$$\log p(\mathcal X|\theta)=\underbrace {\sum_{n=1}^N \log \sum_{k=1}^K \pi_k \mathcal N(\mathbf x_n |\mu_k,\Sigma_k)}_{=:\mathcal L} \tag{5}$$
 
 考虑单个高斯分布（即，非高斯混合），那么单个样本的似然函数为
 
 $$\log \mathcal N(\mathbf x|\mu,\Sigma)=-\frac D 2 \log(2\pi)-\frac 1 2 \log \det(\Sigma) - \frac 1 2 (\mathbf x-\mu)^{\top}\Sigma^{-1}(\mathbf x-\mu)$$
 
-此时我们可以求得关于参数 $\mu$ 和 $\Sigma$ 的最大似然估计的解析解。但是 {eq}`GMM5` 中，`log` 无法放入 $\sum_{k=1}^K$ 中，所以无法求得解析解。
+此时我们可以求得关于参数 $\mu$ 和 $\Sigma$ 的最大似然估计的解析解。但是 (5) 中，`log` 位于 $\sum_{k=1}^K$ 外部，使得偏导表达式复杂。
+
 
 我们依然使用求偏导并令偏导为 0 的方法进行求解，
 
@@ -62,9 +63,13 @@ $$\frac {\log p(\mathbf x_n|\theta)} {\partial \theta}=\frac 1 {p(\mathbf x_n |\
 
 定义GMM 中第 $k$ 个高斯分量对第 $n$ 个数组点的 responsibility 为
 
-$$r_{nk}=\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k, \Sigma_k)} {\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_k)}$$ (GMM6)
+$$r_{nk}=\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k, \Sigma_k)} {\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_k)} \tag{6}$$
 
 或者说是第 $n$ 个数据点属于第 $k$ 个高斯分量的概率（数据点由这个高斯分量产生的概率，这个概率不是真实的概率，而是基于最大似然估计）。
+
+$$r_{nk}=p(z_k=1|\mathbf x_n)=\frac {p(\mathbf x_n, z_k=1)}{p(\mathbf x_n)}$$
+
+可见 $r_{nk}$ 实际上是 $\mathbf z$ 的后验概率 $p(\mathbf z|\mathbf x_n)$ 。
 
 $\mathbf r_n :=[r_{n1},\ldots,r_{nK}]^{\top}$ 为一个归一化的概率向量。
 
@@ -76,7 +81,7 @@ $\mathbf r_n :=[r_{n1},\ldots,r_{nK}]^{\top}$ 为一个归一化的概率向量�
 
 均值（期望）参数 $\mu_k$ 的更新为
 
-$$\mu_k^{new}=\frac {\sum_{n=1}^N r_{nk}\mathbf x_n} {\sum_{n=1}^N r_{nk}}$$ (GMM7)
+$$\mu_k^{new}=\frac {\sum_{n=1}^N r_{nk}\mathbf x_n} {\sum_{n=1}^N r_{nk}} \tag{7}$$
 
 证：
 
@@ -88,11 +93,13 @@ $$\begin{aligned} \frac {\partial p(\mathbf x_n |\theta)}{\partial \mu_k}&=\sum_
 于是，数据集的对数似然对 $\mu_k$ 的梯度为
 
 $$\begin{aligned} \frac {\partial \mathcal L} {\partial \mu_k}&=\sum_{n=1}^N \frac {\partial \log p(\mathbf x_n|\theta)}{\partial \mu_k}=\sum_{n=1}^N \frac 1 {p(\mathbf x_n|\theta)} \frac {\partial p(\mathbf x_n|\theta)}{\partial \mu_k}
-\\&=\sum_{n=1}^N (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \underbrace {\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\sum_{j=1}^N \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)}}_{=r_{nk}}
+\\&=\sum_{n=1}^N (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \underbrace {\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)}}_{=r_{nk}}
 \\&=\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1}
 \end{aligned}$$
 
-令上式这个梯度为零，得
+注意上式中间一行的推导中， $r_{nk}$ 这一项中的参数 $\theta$ 使用的是上一轮的值，参数 $\theta=\{(\pi_k, \mu_k, \Sigma_k)|k=1,\ldots, K\}$
+
+ 令上式这个梯度为零，得
 
 $$\sum_{n=1}^N r_{nk} (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1}=\mathbf 0$$
 
@@ -102,8 +109,8 @@ $$\sum_{n=1}^N r_{nk} \mathbf x_n = \sum_{n=1}^N r_{nk} \mu_k \Leftrightarrow \m
 
 其中 $N_k :=\sum_{n=1}^N r_{nk}$ 就是上面我们所说的 responsibilites 矩阵的 第 $k$ 列的和，表示第 $k$ 个高斯分量对所有数据的 responsibilities 之和。
 
-{eq}`GMM7` 可以看作是所有数据在分布 
-$$\mathbf r_k := [r_{1k},\cdots, r_{Nk}]/N_k$$ (GMM8)
+(7) 可以看作是所有数据在分布 
+$$\mathbf r_k := [r_{1k},\cdots, r_{Nk}]/N_k \tag{8}$$
 
 下的期望，
 
@@ -115,31 +122,31 @@ $$\mu_k \leftarrow \mathbb E_{\mathbf r_k} [\mathcal X]$$
 
 协方差矩阵 $\Sigma_k$ 的更新为
 
-$$\Sigma_k^{new} = \frac 1 {N_k} \sum_{n=1}^N r_{nk} (\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}$$ (GMM9)
+$$\Sigma_k^{new} = \frac 1 {N_k} \sum_{n=1}^N r_{nk} (\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top} \tag{9}$$
 
-从形式上看，{eq}`GMM9` 式可以看作是所有数据在分布 {eq}`GMM8` 分布下的二阶中心矩。下面来证明 {eq}`GMM9` 式。
+从形式上看，(9) 式可以看作是所有数据在分布 (8) 分布下的二阶中心矩。下面来证明 (9) 式。
 
 证：
 
 计算数据集的对数似然对 $\Sigma_k$ 的梯度，
 
-$$\frac {\partial \mathcal L}{\partial \Sigma_k}= \sum_{n=1}^N \frac {\partial \log p(\mathbf x_n|\theta)} {\partial \Sigma_k}=\sum_{n=1}^N \frac 1 {p(\mathbf x_n|\theta)} \frac {\partial p(\mathbf x_n|\theta)}{\partial \Sigma_k}$$ (GMM10)
+$$\frac {\partial \mathcal L}{\partial \Sigma_k}= \sum_{n=1}^N \frac {\partial \log p(\mathbf x_n|\theta)} {\partial \Sigma_k}=\sum_{n=1}^N \frac 1 {p(\mathbf x_n|\theta)} \frac {\partial p(\mathbf x_n|\theta)}{\partial \Sigma_k} \tag{10}$$
 
-$p(\mathbf x_n|\theta)$ 由 {eq}`GMM4` 式给出，故只要计算
+$p(\mathbf x_n|\theta)$ 由 (4) 式给出，故只要计算
 
 $$\begin{aligned} \frac {\partial p(\mathbf x_n|\theta)} {\partial \Sigma_k}&=\frac {\partial}{\partial \Sigma_k}\left(\pi_k (2\pi)^{-D/2} \det(\Sigma_k)^{-1/2} \exp (-\frac 1 2 (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} (\mathbf x_n-\mu_k))\right)
-\\&=\pi_k (2\pi)^{-D/2} [{\color{red}\frac {\partial}{\partial \Sigma_k}\det(\Sigma_k)^{-1/2}}\exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k))
+\\&=\pi_k (2\pi)^{-D/2} [\left(\frac {\partial}{\partial \Sigma_k}\det(\Sigma_k)^{-1/2}\right)\exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k))
 \\& \quad +\det(\Sigma_k)^{-1/2} \frac {\partial}{\partial \Sigma_k} \exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k))
 ]
-\end{aligned}$$ (GMM11)
+\end{aligned} \tag{11}$$
 
-红色部分表示一个整体，即求导不包括后面的 $\exp$ 部分。根据矩阵的求导规则可知，
+根据矩阵的求导规则可知，
 
 $$\frac {\partial}{\partial \Sigma_k} \det(\Sigma_k)^{-1/2}=-\frac 1 2 \det(\Sigma_k)^{-1/2} \Sigma_k^{-1}$$
 
 $$\frac {\partial} {\partial \Sigma_k}(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k) = -\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}$$
 
-将上面两式 代入 {eq}`GMM11`式 得
+将上面两式 代入 (11)式 得
 
 $$\begin{aligned} \frac {\partial p(\mathbf x_n|\theta)}{\partial \Sigma_k}&=\pi_k (2\pi)^{-D/2} [-\frac 1 2 \det(\Sigma_k)^{-1/2} \Sigma_k^{-1} \exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k)) 
 \\ & \quad +\frac 1 2 \det(\Sigma_k)^{-1/2} \Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1} \exp(-\frac 1 2 (\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1}(\mathbf x_n-\mu_k))]
@@ -147,7 +154,7 @@ $$\begin{aligned} \frac {\partial p(\mathbf x_n|\theta)}{\partial \Sigma_k}&=\pi
 \\&=\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)\cdot [-\frac 1 2 (\Sigma_k^{-1}-\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1})]
 \end{aligned}$$
 
-将上式和 {eq}`GMM4` 式代入 {eq}`GMM10` 式，得
+将上式和 (4) 式代入 (10) 式，得
 
 $$\begin{aligned}\frac {\partial \mathcal L} {\partial \Sigma_k}&= \sum_{n=1}^N \underbrace {\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)}}_{=r_{nk}} \cdot  [-\frac 1 2 (\Sigma_k^{-1}-\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1})]
 \\&=-\frac 1 2 \sum_{n=1}^N r_{nk} (\Sigma_k^{-1}-\Sigma_k^{-1}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\Sigma_k^{-1})
@@ -162,13 +169,13 @@ $$N_k\Sigma_k^{-1}=\Sigma_k^{-1}\left(\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)(\ma
 
 $$N_k \mathbf I = \left(\sum_{n=1}^N r_{nk}(\mathbf x_n-\mu_k)(\mathbf x_n-\mu_k)^{\top}\right)\Sigma_k^{-1}$$
 
-然后左乘 $\Sigma_k$ 得到 {eq}`GMM9` 。
+然后左乘 $\Sigma_k$ 得到 (9) 。
 
 ## 更新混合权重
 
 混合模型的权重参数 $\pi_k$ 的更新为
 
-$$\pi_k^{new} = \frac {N_k} N$$ (GMM11)
+$$\pi_k^{new} = \frac {N_k} N \tag{12}$$
 
 证：
 
@@ -199,13 +206,18 @@ $$\pi_k^{new} = \frac {N_k} N$$
 
 其中 $N$ 为数据集大小。
 
-# EM
+# EM 算法总结
 
-EM 算法迭代步骤：
+为何要引入 responsibilities？为何要使用 EM 算法求解？
 
-1. 初始化 $\ \pi_k, \mu_k, \Sigma_k$，$k=1,\ldots, K$ 。例如可以初始化为 $\pi_k=1/K$，$\mu_k=\mathbf 0$，$\Sigma_k=\mathbf I$ 。
-2. E-step。 计算每个分量对每个数据 $\mathbf x_n$ 的 responsibility，{eq}`GMM6` 式。
-3. M-step。 更新参数的值。{eq}`GMM7` ，{eq}`GMM9` ， {eq}`GMM11` 式。
+从上面的的偏导的计算中不难发现，令偏导位0 得到一方程组 $\frac {\partial \mathcal L}{\partial \theta}=\mathbf 0$，但是这个方程组无法得到参数的解析解，故而考虑迭代方法一步一步逼近真实解，这就是 EM 算法。为了使得计算得以进行，在迭代的过程中，我们将方程组的一些项（这些项中包含了参数 $\theta$）固定，并使用旧的参数 $\theta^t$ 计算出来（E step），然后求解方程组，得到新的参数数值 $\theta^{t+1}$（M step）。重复迭代过程即可。
+
+
+**EM 算法迭代步骤：**
+
+1. 初始化 $\ \pi_k, \mu_k, \Sigma_k$，$k=1,\ldots, K$ 。例如可以初始化为 $\pi_k=1/K$，$\mu_k \sim \mathcal N(\mathbf 0, \sigma^2 I)$，$\Sigma_k=\mathbf I$ 。
+2. E-step。 计算每个分量对每个数据 $\mathbf x_n$ 的 responsibility，(6) 式。
+3. M-step。 更新参数的值。(7) ，(9) ， (12) 式。
 
 
 # 隐变量视角
@@ -226,27 +238,31 @@ $$p(\mathbf z)=\pi, \quad \sum_{k=1}^K \pi_k=1$$
 
 $$p(\mathbf x|\theta) = \sum_{\mathbf z} p(\mathbf x|\theta, \mathbf z)\cdot p(\mathbf z|\theta)=\sum_{k=1}^K \pi_k \mathcal N(\mathbf x|\mu_k,\Sigma_k)$$
 
+由于 $\mathbf z$ 是 one-hot vector，故一共有 $K$ 种取值。
+
 ## 后验概率分布
 上面所讨论的 responsibility 实际上就是隐变量 $\mathbf z$ 的后验概率，
 
 $$\begin{aligned}p(z_k=1|\mathbf x_n)&=\frac {p(z_k=1)p(\mathbf x_n|z_k=1)}{p(\mathbf x)}
 \\&=\frac {\pi_k \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)}{\sum_{j=1}^K \pi_j \mathcal N(\mathbf x_n|\mu_j,\Sigma_j)}
-\\&=r_nk
+\\&=r_{nk}
 \end{aligned}$$
 
 ## EM 算法回顾
 
-从隐变量视角回顾 EM 算法，发现 E-step 实际上就是计算 $\mathbf z$ 的后验概率 $p(\mathbf z|\mathbf x, \theta^{(t)})$，M-step 是求最大化
+从隐变量视角回顾 EM 算法，发现 **E-step 实际上就是计算 $\mathbf z$ 的后验概率 $p(\mathbf z|\mathbf x, \theta^{(t)})$**，
 
-$$\begin{aligned}Q(\theta|\theta^{(t)})&=\mathbb E_{\mathbf z|\mathbf x, \theta^{(t)}} [\log p(\mathbf x, \mathbf z|\theta)]
-\\&=\int [\log p(\mathbf x, \mathbf z|\theta)] \cdot p(\mathbf z|\mathbf x, \theta^{(t)}) \ d \mathbf z
-\end{aligned}$$ (GMM12)
+**M-step 是求最大化**
+
+$$\begin{aligned}\max_{\theta} \ Q(\theta|\theta^{(t)})&=\mathbb E_{\mathbf z|\mathbf x, \theta^{(t)}} [\log p(\mathbf x| \mathbf z;\theta)]
+\\&=\int [\log p(\mathbf x| \mathbf z;\theta)] \cdot p(\mathbf z|\mathbf x, \theta^{(t)}) \ d \mathbf z
+\end{aligned} \tag{13}$$
 
 的参数 $\theta$ 。
 
 对于离散型隐变量 $\mathbf z$ 而言，上式可写为
 
-$$Q(\theta|\theta^{(t)})=\sum_{\mathbf z} [\log p(\mathbf x, \mathbf z|\theta)] \cdot p(\mathbf z|\mathbf x, \theta^{(t)})$$ (GMM13)
+$$Q(\theta|\theta^{(t)})=\sum_{\mathbf z} [\log p(\mathbf x| \mathbf z;\theta)] \cdot p(\mathbf z|\mathbf x, \theta^{(t)}) \tag{14}$$
 
 
 **证：**
@@ -255,7 +271,7 @@ $$Q(\theta|\theta^{(t)})=\sum_{\mathbf z} [\log p(\mathbf x, \mathbf z|\theta)] 
 
 对 $\mu_k$ 求梯度，
 
-$$\begin{aligned} \frac {\partial Q}{\partial \mu_k}&=\frac {\partial} {\partial \mu_k} \log p(\mathbf x_n, z_k=1|\theta) p(z_k=1|\mathbf x_n, \theta^{(t)})
+$$\begin{aligned} \frac {\partial Q}{\partial \mu_k}&=\frac {\partial} {\partial \mu_k} \log p(\mathbf x_n|z_k=1;\theta) p(z_k=1|\mathbf x_n, \theta^{(t)})
 \\&=\frac {\partial} {\partial \mu_k} \log \mathcal N(\mathbf x_n|\mu_k,\Sigma_k) \cdot r_{nk}
 \\&=\frac 1 {\mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} \frac {\partial \mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} {\partial \mu_k} \cdot r_{nk}
 \\&=\frac 1 {\mathcal N(\mathbf x_n|\mu_k,\Sigma_k)} (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \mathcal N(\mathbf x_n|\mu_k,\Sigma_k) \cdot r_{nk}
@@ -266,9 +282,53 @@ $$\begin{aligned} \frac {\partial Q}{\partial \mu_k}&=\frac {\partial} {\partial
 
 $$\frac {\sum_{n=1}^N \partial Q} {\partial \mu_k}=\sum_{n=1}^N  (\mathbf x_n-\mu_k)^{\top} \Sigma_k^{-1} \cdot r_{nk}$$
 
-这与 {eq}`GMM7` 式的证明中所推导的梯度 $\partial \mathcal L / \partial \mu_k$ 完全一样。
+这与 (7) 式的证明中所推导的梯度 $\partial \mathcal L / \partial \mu_k$ 完全一样，令上式为 $\mathbf 0$ 求得向量 $\mu_k$ 的最优解即 (7) 式。
 
 
-根据后验概率 $p(\mathbf z|\mathbf x, \theta^{(t)})$，那么迭代更新时
+根据后验概率 $p(\mathbf z|\mathbf x, \theta^{(t)})$，那么迭代更新 $\mathbf z$ 的先验分布如下，
 
 $$p(z_k=1)=\sum_{\mathbf x} p(z_k=1,\mathbf x| \theta^{(t)}) = \sum_{\mathbf x} p(\mathbf z|\mathbf x, \theta^{(t)}) p(\mathbf x)=\frac 1 N \sum_{n=1}^N r_{nk}=\frac {N_k} N$$
+
+### 解释
+
+写出样本 $\mathbf x$ 的对数似然，
+
+$$\begin{aligned}\log p(\mathbf x;\theta)&=\log \sum_{\mathbf z} p(\mathbf z;\theta) p(\mathbf x| \mathbf z;\theta)
+\\& \ge \sum_{\mathbf z} p(\mathbf z;\theta) \log p(\mathbf x|\mathbf z;\theta)
+\\&=\mathbb E_{p(\mathbf z;\theta)}[\log p(\mathbf x|\mathbf z;\theta)]
+\end{aligned} \tag{15}$$
+
+根据 Jensen 不等式得到上面推导中的不等关系。
+
+在 $t$ timestep 迭代更新时，已知此时的参数值为 $\theta^t$，
+
+**E step：**
+
+
+当 $p(\mathbf x|\mathbf z;\theta^{t})=c$ 为一常数时，不等式中等号成立，此时 
+
+$$p(\mathbf x; \theta^{t})=\sum_{\mathbf z}p(\mathbf x,\mathbf z;\theta^{t})=\sum_{\mathbf z}c \cdot p(\mathbf z;\theta^{t})=c$$
+
+于是 
+
+$$p(\mathbf z; \theta^{t})=\frac {p(\mathbf z| \mathbf x;\theta^{t}) p(\mathbf x;\theta^{t})}{p(\mathbf x|\mathbf z; \theta^{t})}=p(\mathbf z| \mathbf x;\theta^{t})$$
+
+
+**M step：**
+
+于是，我们根据 $\theta^t$ 计算出 $\mathbf z$ 的后验概率 $p(\mathbf z| \mathbf x;\theta^{t})$，作为 $p(\mathbf z; \theta)$ 的值代入 (15) 式，求
+
+$$\max_{\theta^{t+1}} \ \mathbb E_{p(\mathbf z;\theta^t)}[\log p(\mathbf x|\mathbf z;\theta^{t+1})]$$
+
+上式这个期望就是 (13) 式。
+
+事实上由于此时 $p(\mathbf z; \theta)=p(\mathbf z| \mathbf x;\theta^{t})$，(13) 式等价于 最大化
+
+$$\begin{aligned} \max_{\theta} Q(\theta|\theta^{(t)})&=\max_{\theta} \mathbb E_{\mathbf z|\mathbf x, \theta^{(t)}} [\log p(\mathbf x| \mathbf z;\theta)]
+\\&=\max_{\theta} \int [\log p(\mathbf x,\mathbf z;\theta)-\log p(\mathbf z| \mathbf x;\theta^{t})] \cdot p(\mathbf z|\mathbf x, \theta^{(t)}) \ d \mathbf z
+\\&=\max_{\theta} \mathbb E_{\mathbf z|\mathbf x, \theta^{(t)}} [\log p(\mathbf x, \mathbf z;\theta)]
+\end{aligned}$$
+
+**可行性研究**
+
+再次强调，由于无法计算解析解，所以优化时，分别先后计算 $p(\mathbf z;\theta)$ 和 (15) 式右端期望的最优解。这种迭代方式是可行的，证明参见 [EM 算法](/ml/2021/11/01/em) 2.2 节内容。

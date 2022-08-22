@@ -66,7 +66,7 @@ $$K(\mathbf x, \mathbf x')=\psi^{\top}(\mathbf x) \psi(\mathbf x')$$
 
 我们将线性分类问题转化为如下的更一般的优化问题
 
-$$\min_{\mathbf w} f(\mathbf w^{\top} \psi(\mathbf x_1), \cdots, \mathbf w^{\top} \psi(\mathbf x_m)) + R(\|\mathbf w\|) \tag{1} \label{1}$$
+$$\min_{\mathbf w} f(\mathbf w^{\top} \psi(\mathbf x_1), \cdots, \mathbf w^{\top} \psi(\mathbf x_m)) + R(\|\mathbf w\|) \tag{1}$$
 
 其中 $f:\mathbb R^m \rightarrow \mathbb R$ 是任意函数，$R: \mathbb R_+ \rightarrow \mathbb R$ 是单调递增函数，作为正则惩罚项。
 
@@ -80,7 +80,7 @@ Hard-SVM 中，$R(a)=a^2$，且如果 $\forall i \in [m]$ 均有 $y_i(a_i+b)\ge 
 
 证：
 
-令 $\mathbf w^{\ast}$ 是 $\eqref{1}$ 式的最优解。由于 $\mathbf w^{\ast}$ 位于 Hilbert 空间，必然可以分解为两个向量，其中一个来自 $[\psi(\mathbf x_1), \cdots, \psi(\mathbf x_m)]$ 所张（span）空间的一个向量 $\mathbf w$，另一个向量 $\mathbf u$ 位于与这个所张空间垂直的空间，故可写为
+令 $\mathbf w^{\ast}$ 是 (1) 式的最优解。由于 $\mathbf w^{\ast}$ 位于 Hilbert 空间，必然可以分解为两个向量，其中一个来自 $[\psi(\mathbf x_1), \cdots, \psi(\mathbf x_m)]$ 所张（span）空间的一个向量 $\mathbf w$，另一个向量 $\mathbf u$ 位于与这个所张空间垂直的空间，故可写为
 
 $$\mathbf w^{\ast}=\mathbf w + \mathbf u=\sum_{i=1}^m \alpha_i \psi(\mathbf x_i)+\mathbf u$$
 
@@ -96,16 +96,16 @@ $$\mathbf w^{\top} \psi(\mathbf x_i)=(\mathbf w^{\ast}-\mathbf u)^{\top} \psi(\m
 
 $$f(\mathbf w^{\top} \psi(\mathbf x_1), \cdots, \mathbf w^{\top} \psi(\mathbf x_m))=f(\mathbf w^{\ast \top} \psi(\mathbf x_1), \cdots, \mathbf w^{\ast \top} \psi(\mathbf x_m))$$
 
-记 $\eqref{1}$ 式中的优化目标为 $L(\cdot)$，所以 $L(\mathbf w^{\ast}) \ge L(\mathbf w)$ ，由于 $\mathbf w^{\ast}$ 是最优解，那么 $\mathbf w$ 也是最优解。证毕。
+记 (1) 式中的优化目标为 $L(\cdot)$，所以 $L(\mathbf w^{\ast}) \ge L(\mathbf w)$ ，由于 $\mathbf w^{\ast}$ 是最优解，那么 $\mathbf w$ 也是最优解。证毕。
 
-于是 $\eqref{1}$ 式的最优解具有形式 $\mathbf w =\sum_{i=1}^m \alpha_i \psi(\mathbf x_i)$。由于
+于是 (1) 式的最优解具有形式 $\mathbf w =\sum_{i=1}^m \alpha_i \psi(\mathbf x_i)$。由于
 
 $$\mathbf w^{\top}\psi(\mathbf x_i)=\left(\sum_{j=1}^m \alpha_j \psi(\mathbf x_j)\right)^{\top} \psi(\mathbf x_i)=\sum_{j=1}^m \alpha_j \psi^{\top}(\mathbf x_j)\psi(\mathbf x_i) \tag{2}$$
 
 
 $$\|\mathbf w\|^2=\Vert \sum_{i=1}^m \alpha_i \psi(\mathbf x_i) \Vert^2=\sum_{i=1}^m \sum_{j=1}^m\alpha_i \alpha_j \psi^{\top}(\mathbf x_i)\psi(\mathbf x_j) \tag{3}$$
 
-所以 $\eqref{1}$ 式可改写为
+所以 (1) 式可改写为
 
 $$\min_{\boldsymbol \alpha \in \mathbb R^m} f\left(\sum_{j=1}^m \alpha_j K(\mathbf x_j, \mathbf x_1), \cdots, \sum_{j=1}^m \alpha_j K(\mathbf x_j, \mathbf x_m)\right) + R \left(\sqrt{\sum_{i=1}^m \sum_{j=1}^m\alpha_i \alpha_j K(\mathbf x_i,\mathbf x_j)}\right) \tag{4}$$
 
@@ -132,7 +132,7 @@ $$\mathbf w^{\top}\psi(\mathbf x)=\sum_{j=1}^m \alpha_j K(\mathbf x, \mathbf x_j
 
 上一篇 [SVM](/2021/09/22/ml/svm) 中介绍了 Soft-SVM 的 SGD 学习过程。现在考虑带核 Soft-SVM 的学习。首先给出优化目标
 
-$$\min_{\mathbf w} \left(\frac {\lambda} 2 \|\mathbf w\|^2+\frac 1 m \sum_{i=1}^m \max \{0, 1-y_i \mathbf w^{\top} \psi(\mathbf x_i)\}\right) \tag{5} \label{5}$$
+$$\min_{\mathbf w} \left(\frac {\lambda} 2 \|\mathbf w\|^2+\frac 1 m \sum_{i=1}^m \max \{0, 1-y_i \mathbf w^{\top} \psi(\mathbf x_i)\}\right) \tag{5}$$
 
 仿照  [SVM](/2021/09/22/ml/svm) 中 Soft-SVM 的 SGD 实现中的分析，彼时令 
 
@@ -175,7 +175,7 @@ $$y_i \mathbf w^{\top} \psi(\mathbf x_i)=y_i \left(\sum_{j=1}^m \alpha_j^{(t)} \
 
 <center>带核 Soft-SVM 的 SGD 实现</center>
 
-**目标：** 求解 $\eqref{5}$ 式
+**目标：** 求解 (5) 式
 
 **参数：** 总迭代次数 $T$
 

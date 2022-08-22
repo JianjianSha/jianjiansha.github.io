@@ -15,10 +15,10 @@ NVIDIA cuda 工具包，以前通常需要预先安装：
 2. cuda
 3. cudnn
 
-# NVIDIA driver
+# 1. NVIDIA driver
 曾经安装 NVIDIA 驱动采取的比较复杂的方法，先是 close nouveau，让系统进入命令行，然后安装事先下载好的驱动安装文件 `NVIDIA-Linux-x86_64-xxx.xxx.run`，这里使用比较简单的安装方法，打开 ubuntu 的 Software & Updates，点击 Additional Drivers，选择 `Using NVIDIA driver metapackage from nvidia-driver-xxx` 然后点击 `Apply Changes` 进行驱动安装。
 
-# cuda & cudnn
+# 2. cuda & cudnn
 直接使用 conda 安装 pytorch，安装过程比较简单，执行以下命令即可，
 ```
 conda install pytorch torchvision cudatoolkit=10.0 -c pytorch
@@ -53,7 +53,7 @@ custom_channels:
 conda install pytorch torchvision cudatoolkit=10.0 -c pytorch
 ```
 
-# 安装 tensorflow
+# 3. 安装 tensorflow
 ```
 conda install tensorflow-gpu
 ```
@@ -61,7 +61,7 @@ conda install tensorflow-gpu
 
 这条命令会自动安装合适的 cuda 和 cudnn
 
-## 源码安装
+## 3.1 源码安装
 
 源码安装基本参考[官方文档](https://www.tensorflow.org/install/source#ubuntu)
 
@@ -243,7 +243,7 @@ sudo crontab -e
 ```
 
 
-# PyTorch
+# 4. PyTorch
 下载源码
 ```
 git clone https://github.com/pytorch/pytorch.git
@@ -283,7 +283,7 @@ docker pull pytorch/pytorch:1.7.1-cuda11.0-cudnn8-level
 docker run -p 9527:22 --gpus all -rm -itd --ipc=host -v /home/xx/xx:/home/xx/xx --name pytorch pytorch/pytorch:1.7.1-cuda11.0-cudnn8-level
 ```
 
-# 安装 mmdetection
+# 5. 安装 mmdetection
 以 conda 虚拟环境名称 `base` 为例，其中已经安装了 PyTorch，cudatoolkit 等包，还有一些包如`matplotlib, pillow, opencv` 等图像处理相关的包也需要安装，可以使用
 ```
 conda list
@@ -315,3 +315,51 @@ cd mmdetection
 pip install -r requirements/build.txt
 python setup.py develop
 ```
+
+# 6. JAX
+
+[JAX 文档](https://jax.readthedocs.io/en/latest/)
+
+**pip installation: CPU**
+
+```sh
+pip install --upgrade pip
+pip install --upgrade "jax[cpu]"
+```
+
+**pip installation: GPU(CUDA)**
+
+```sh
+pip install --upgrade pip
+# Installs the wheel compatible with CUDA 11 and cuDNN 8.2 or newer.
+# Note: wheels only available on linux.
+pip install --upgrade "jax[cuda]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+```
+
+注意，windows 下 pip 无法正常安装。
+
+JAX 的 GPU 支持要求：
+
+1. CUDA 11.1 或者更新
+2. 安装 JAX 预编译 wheels 需要的 cuDNN 版本：
+
+    - cuDNN 8.2 或更新
+    - cuDNN 8.0.5 或更新
+
+3. NVIDIA driver 需要是 CUDA 支持的最低版本以上
+
+如果需要指定 JAX 所支持的 CUDA 版本，那么
+
+```sh
+pip install --upgrade pip
+
+# Installs the wheel compatible with Cuda >= 11.4 and cudnn >= 8.2
+pip install "jax[cuda11_cudnn82]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+# Installs the wheel compatible with Cuda >= 11.1 and cudnn >= 8.0.5
+pip install "jax[cuda11_cudnn805]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+```
+
+请参考原文档以获取 JAX 的 CUDA 支持的最新版本！
+
+我本人是将 JAX 安装在与 tensorflow 同一个虚拟环境下，因为使用 JAX 时，图像的加载和预处理等还需要用到 tensorflow 丰富的功能。

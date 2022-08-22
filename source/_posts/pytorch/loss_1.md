@@ -91,7 +91,7 @@ forward 方法的输出结果的 shape 与 input 相同，为 $(N,*)$，如果 `
 
 # BCEWithLogitsLoss
 PyTorch 中这个 layer 合并了 Sigmoid 层和 BCELoss 层，由于 BCELoss 层计算单个样本的 BCE 损失为，
-$$l=y \log x + (1-y) \log (1-x)$$
+$$l=-[y \log x + (1-y) \log (1-x)]$$
 其中 $y \in \{0,1\}$ 表示样本的真实分类，$x\in [0,1]$ 表示样本的预测概率，通常使用 Sigmoid 层来将处于实数域的前一个 layer 输出值压缩到 $[0,1]$ 之间，故为了少写一个 Sigmoid 层，将这两者合并为单个 layer： `BCEWithLogitsLoss`。所以这个 layer 的输入是原始的未归一化的各类别的得分，单个样本的损失为，
 $$l_n=-w_n [y_n \log \sigma(x_n) +(1-y_n) \log (1-\sigma(x_n))]$$
 这里，批样本中每个样本有各自的一个权重因子 $w_n$。

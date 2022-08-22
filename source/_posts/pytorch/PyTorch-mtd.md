@@ -72,16 +72,20 @@ $$\mu=\frac 1 H \sum_{i=1}^H x_i, \quad \sigma^2=\frac 1 H \sum_{i=1}^H (x_i-\mu
 于是 LayerNorm 后的值为
 $$y=\frac {x-\mu} {\sqrt {\sigma^2+\epsilon}} \cdot \gamma + \beta$$
 
-__小结：__ 沿着特征方向进行归一化（特征包含了除 batch 维度外的其他所有维度）
+__小结：__ 
 
+1. 沿着特征方向进行归一化（特征包含了除 batch 维度外的其他所有维度）
+2. 输入 $(B, C, H, W)$，那么将单个样本 $(C, H, W)$ 做归一化
 
 有了前面的归一化介绍，我们知道归一化过程都很类似，区别在于如何计算 $\mu, \sigma$，或者说沿着什么方向进行归一化。
 
 ## InstanceNorm
-对于每个样例的每个 channel 分别计算 $\mu, \sigma$。假设输入为 $(N,C,H,W)$，那么沿着 $(H,W)$ 方向做归一化。
+对于每个样例的每个 channel 分别计算 $\mu, \sigma$。假设输入为 $(B,C,H,W)$，那么沿着 $(H,W)$ 方向做归一化。
 
 ## GroupNorm
 GroupNorm 是选择一组 channels 进行归一化，所以是介于 InstanceNorm（单个channel）和 LayerNorm （全部 channels）之间的。
+
+输入 $(B, C, H, W)$，其中 $C=g \cdot c$，$g$ 为分组数量，那么对 $(c, H, W)$ 做归一化。
 
 # 3. Pool
 池化操作都比较简单易懂，这里介绍几个非常规的池化操作。
@@ -139,10 +143,14 @@ $$P_{i,j}=[a_{i-1}, a_i-1] \times [b_{j-1},b_j-1], \quad i,j \in \{1,...,N_{out}
 # 4. ConvTranspose
 
 ## 输出大小
-转置卷积，通常又称反卷积、逆卷积，然而转置卷积并非卷积的逆过程，并且转置卷积其实也是一种卷积，只不过与卷积相反的是，输出平面的大小通常不是变小而是变大。对于普通卷积，设输入平面边长为 $L_{in}$，输出平面边长为 $L_{out}$，卷积核边长为 $k$，dilation 、stride 和 padding 分别为 $d, p, s$，那么有
+转置卷积，通常又称反卷积、逆卷积，然而转置卷积并非卷积的逆过程，并且转置卷积其实也是一种卷积，只不过与卷积相反的是，输出平面的大小通常不是变小而是变大。对于普通卷积，设输入平面边长 $L_{in}$，输出平面边长为 $L_{out}$，卷积核边长为 $k$，dilation 、stride 和 padding 分别为 $d, p, s$，那么有
 $$L_{out}=\frac {L_{in}-(d(k-1)+1)+2p} s + 1 \tag {4-1}$$
+
+其中 $d(k-1)+1$ 是膨胀之后的 kernel size。
+
 对于转置卷积，令 $L_{in}^{\top}, \ L_{out}^{\top}$ 分别表示输入和输出的边长，于是有
 $$L_{out}^{\top}=s(L_{in}^{\top} - 1) +d(k-1)+1 - 2p \tag{4-2}$$
+
 可见，转置卷积的输入输出边长的关系与普通卷积是反过来的。
 
 ## 转置卷积计算

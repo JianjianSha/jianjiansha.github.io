@@ -76,11 +76,11 @@ $$\Delta(h_{\mathbf w}(\overline {\mathbf x}), \mathbf y)\le\frac 2 {r(r-1)}\sum
 
 记 $[r]$ 的所有排列为 $V$，注意到有关系
 
-$$\pi(\mathbf y')=\arg \max_{\mathbf v \in V} \ \sum_{i=1}^r v_i y_i' \tag{4} \label{4}$$
+$$\pi(\mathbf y')=\arg \max_{\mathbf v \in V} \ \sum_{i=1}^r v_i y_i' \tag{4}$$
 
 根据 $\pi(\mathbf y')$ 的定义， $y_i'$ 越大，其对应在 $\pi(\mathbf y')$ 中的值就越大，将 $v_i$ 看作 $y_i'$ 的权值，由于权值非负，那么较大的数分配较大的权值，加权和自然是最大。
 
-定义 $\Psi(\overline {\mathbf x}, \mathbf v)=\sum_{i=1}^r v_i \mathbf x_i$，那么根据 $\eqref{4}$ 式有
+定义 $\Psi(\overline {\mathbf x}, \mathbf v)=\sum_{i=1}^r v_i \mathbf x_i$，那么根据 (4) 式有
 
 $$\begin{aligned} \pi(h_{\mathbf w}(\overline {\mathbf x}))&=\arg \max_{\mathbf v \in V} \ \sum_{i=1}^r v_i \mathbf w^{\top} \mathbf x_i
 \\&=\arg \max_{\mathbf v \in V} \  \mathbf w^{\top} \left(\sum_{i=1}^r v_i \mathbf x_i \right)
@@ -128,13 +128,13 @@ $$\arg \min_{B \in \mathbb R_+^{r,r}} \sum_{i,j=1}^r A_{ij} B_{ij}$$
 
 $$\begin{aligned} s.t. \quad & \forall i \in [r], \ \sum_{j=1}^r B_{ij}=1
 \\& \forall j \in [r], \ \sum_{i=1}^r B_{ij}=1
-\end{aligned} \tag{5} \label{5}$$
+\end{aligned} \tag{5}$$
 
 
-令 $B$ 为 $\eqref{5}$ 的最优解。$B$ 可以写为
+令 $B$ 为 (5) 式的最优解。$B$ 可以写为
 
 $$\begin{aligned} B=\sum_i \gamma_i C_i
-\\ \gamma_i > 0, \ \sum_i \gamma_i = 1 \end{aligned}\tag{6} \label{6}$$
+\\ \gamma_i > 0, \ \sum_i \gamma_i = 1 \end{aligned}\tag{6}$$
 
 其中 $C_i$ 为置换矩阵，即 $r$ 个 $1$ 分别位于不同行不同列，其余元素为 $0$。这个等到后面再予以证明。
 
@@ -142,9 +142,9 @@ $$\begin{aligned} B=\sum_i \gamma_i C_i
 
 $$\langle A, B\rangle=\langle A, \sum_i \gamma_i C_i\rangle = \sum_i \gamma_i \langle A, C_i\rangle > \sum_i \gamma_i \langle A, B\rangle = \langle A, B\rangle$$
 
-显然矛盾。所以必然 $\exists \ i$，使得 $\langle A, B\rangle = \langle A,C_i\rangle$，由于 $B$ 是最优解，那么自然 $C_i$ 也是最优解，即 $\eqref{5}$ 式最优解为一个置换矩阵。证毕。
+显然矛盾。所以必然 $\exists \ i$，使得 $\langle A, B\rangle = \langle A,C_i\rangle$，由于 $B$ 是最优解，那么自然 $C_i$ 也是最优解，即 (5) 式最优解为一个置换矩阵。证毕。
 
-下面证明 $\eqref{6}$ 式成立。
+下面证明 (6) 式成立。
 
 
 根据 $B=\sum_i \gamma_i C_i$，前面讲到置换 $C_i$ 一共有 $r!$ 个，于是有关系
@@ -163,7 +163,7 @@ $$\sum_{i \in S_{11}} \gamma_i=B_{11}
 
 $$\sum_{k=1}^r B_{1k}=\sum_{k=1}^r \sum_{i \in S_{1k}} \gamma_i =\sum_{i=1}^{r!} \gamma_i=1$$
 
-这证明了 $\eqref{6}$ 式中第二个等式关系。
+这证明了 (6) 式中第二个等式关系。
 
 第 k 组
 
