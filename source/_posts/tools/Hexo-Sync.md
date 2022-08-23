@@ -99,3 +99,25 @@ hexo s
 hexo new -p pytorch/optim_Adadelta "PyTorch.optim.Adadelta"
 ```
 表示新建文章，标题为 `PyTorch.optim.Adadelta`，文章所在文件位于 `source/_posts/pytorch/optim_Adadelta.md`。
+
+
+## 新机器上重新写文章
+
+从 github 上拉取代码，切换到 hexo 分支，写好代码后，本地部署查看效果，
+
+```sh
+hexo clean & hexo g & hexo s
+```
+
+然后同步到远程，
+
+```sh
+hexo d
+```
+
+提交 markdown 源文件，注意是在 hexo 分支下执行，
+```sh
+git add .
+git commit -m "some remarks"
+git push origin hexo
+```

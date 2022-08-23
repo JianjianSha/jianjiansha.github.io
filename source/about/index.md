@@ -1,11 +1,20 @@
 ---
 title: about
 date: 2022-08-22 18:59:28
-toc: false
-layout: false
+# toc: false
+# layout: false
+
+password: resume
+abstract: This page is encrypted.
+message: Please input password
+wrong_pass_message: Oh, this is an invalid password. Check and try again, please.
+wrong_hash_message: Oh, these decrypted content cannot be verified, but you can still have a look.
 ---
 
+
 <script src="https://kit.fontawesome.com/fff3aa0c8a.js" crossorigin="anonymous"></script>
+
+<br/>
 
 <div align='center'>
 <font face="Fontin SmallCaps" size="6">Jianjian Sha</font>
@@ -13,7 +22,7 @@ layout: false
 
 
 <center>
-<font face="LMSans12" size="4"><i class="fa-solid fa-envelope"></i> 501834524@qq.com &emsp; <i class="fa-solid fa-link"></i> <a href='https://jianjiansha.github.io/'>jianjiansha.github.io</a> &emsp; <i class="fa-brands fa-github"></i> <a href='https://github.com/JianjianSha'>JianjianSha</a> &emsp; <i class="fa-solid fa-phone"></i> 13670023001</font>
+<font face="LMSans12" size="4"><i class="fa-solid fa-envelope"></i> 501834524@qq.com &emsp; <i class="fa-solid fa-link"></i> <a href='https://jianjiansha.github.io/'>jianjiansha.github.io</a> &emsp; <i class="fa-brands fa-github"></i> <a href='https://github.com/JianjianSha'>JianjianSha</a> &emsp; <i class="fa-solid fa-phone"></i> 136****3001</font>
 </center>
 
 <br/>
@@ -54,8 +63,9 @@ ___
 <div><font face='TeXGyreTermes' size='4.5'><b>Qianzhan Industry Research Inst.</b> R&D<span style="float:right;">Jan. 2016-present</span></font></div>
 
 - <font face='TeXGyreTermes' size='4'>QiChaMao: an enterprise information quering system.</font>
+- <font face='TeXGyreTermes' size='4'>Web crawling.</font>
 - <font face='TeXGyreTermes' size='4'>Chinese segmentation.</font>
-- <font face='TeXGyreTermes' size='4'>Elasticsearch: customized word segmentation engine.</font>
+- <font face='TeXGyreTermes' size='4'>Elasticsearch: customized word segmentation plug-in.</font>
 - <font face='TeXGyreTermes' size='4'>Object detection: captcha solver.</font>
 - <font face='TeXGyreTermes' size='4'>Unsupervised learning: image generation, generating captchas for downstream tasks.</font>
 
