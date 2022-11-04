@@ -2,6 +2,7 @@
 title: Improved Denoising Diffusion Probabilistic Models
 date: 2022-07-08 11:58:42
 tags: diffusion model
+mathjax: true
 ---
 
 论文：[Improved Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2102.09672)

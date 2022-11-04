@@ -27,6 +27,7 @@ __反向过程：__
 $$p_{\theta}(\mathbf x_{0:T})=p(\mathbf x_T) \prod_{t=1}^T p_{\theta}(\mathbf x_{t-1}|\mathbf x_t), \quad p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)=\mathcal N(\mathbf x_{t-1}; \mu_{\theta}(\mathbf x_t,t), \Sigma_{\theta}(\mathbf x_t, t)) \tag{1}$$
 
 
+$p(\mathbf x_T)$ 使用一个简单的分布如高斯分布。
 
 __前向过程：__
 
@@ -34,11 +35,13 @@ __前向过程：__
 
 $$q(\mathbf x_{1:T}|\mathbf x_0)=\prod_{t=1}^T q(\mathbf x_t|\mathbf x_{t-1}), \quad  q(\mathbf x_t|\mathbf x_{t-1})=\mathcal N(\mathbf x_t;\sqrt{1-\beta_t} \mathbf x_{t-1}, \beta_t I) \tag{2}$$
 
+步数 $T$ 足够大，使得 $\mathbf x_T$ 为高斯噪声。
+
 **方差 $\beta_t$ 既可以通过学习得到，也可以预设为一组固定的值**。
 
 ## 1.1 前向过程
 
-前向过程的一个显著特性是可以得到 $\mathbf x_t$ 的分布解析形式，根据 (2) 式，
+前向过程的一个显著特性是可以得到 $\mathbf x_t$ 的分布的解析形式，根据 (2) 式，
 
 $$q(\mathbf x_1|\mathbf x_0)=\mathcal N(\mathbf x_1;\sqrt {1-\beta_1} \mathbf x_0, \beta_1 I) \tag{3-1}$$
 

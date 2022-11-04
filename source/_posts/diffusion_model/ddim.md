@@ -53,7 +53,7 @@ $$L_{\gamma}(\epsilon_{\theta})=\sum_{t=1}^T \gamma_t \mathbb E_{x_0 \sim q(x_0)
 
 $$q_{\sigma}(x_{1:T}|x_0)=q_{\sigma}(x_T|x_0) \prod_{t=2}^T q_{\sigma}(x_{t-1}|x_t, x_0)$$
 
-其中 $q_{\sigma}(x_T|x_0)=\mathcal N(\sqrt {\overline \alpha_T} x_0, (1-\overline \alpha_T I)$ ，且对 $t>1$ 有
+其中 $q_{\sigma}(x_T|x_0)=\mathcal N(\sqrt {\overline \alpha_T} x_0, (1-\overline \alpha_T) I)$ ，且对 $t>1$ 有
 
 $$q_{\sigma}(x_{t-1}|x_t,x_0)=\mathcal N \left (\sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2} \cdot \frac {x_t-\sqrt {\overline \alpha_t} x_0}{\sqrt {1-\overline \alpha_t}} , \sigma_t^2 I\right) \tag{1}$$
 
@@ -86,7 +86,7 @@ $$\mathbb E[x_{t-1}]=\sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \al
 
 $$\text {Cov}[x_{t-1}]=\sigma_t^2 I+\frac {1-\overline \alpha_{t-1} -\sigma_t^2}{1-\overline \alpha_t}(1-\overline \alpha_t)I=(1-\overline \alpha_{t-1})I$$
 
-故 (3) 式得证，于是满足 (1) 式的分布可以确保（3）式成立。
+故 (3) 式得证，于是满足 (1) 式的分布可以确保（3）式成立。证毕。
 
 根据贝叶斯定理，可以得到前向过程为
 

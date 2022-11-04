@@ -103,6 +103,22 @@ $$\mathcal L(\theta, \phi; \mathbf x)=-D_{KL}(q_{\phi}(\mathbf z|\mathbf x)||p_{
 
 (3-1) 式和 (3) 式是 $ELBO$ 的两种表达形式。
 
+继续研究 $\mathcal L$。
+
+$$\begin{aligned}D_{KL}(q(x,z)||p(x,z))&=\mathbb E_{q(x,z)} \left[\log \frac {q(x,z)}{p(x,z)}\right]
+\\&=\mathbb E_{q(x)}\left[\mathbb E_{q(z|x)} \left[ \log \frac {1}{p(x|z)}+\log \frac {q(z|x)}{p(z)}+ \log q(x)\right]\right]
+\\&=\mathbb E_{q(x)}\left[-\mathbb E_{q(z|x)}[\log p(x|z)]+ D_{KL}(q(z|x)||p(z)) + \log  q(x)\right]
+\\&=\mathbb E_{q(x)} [-\mathcal L(\theta, \phi; x)+ \log q(x)]
+\end{aligned}$$
+
+上式中，$q(x)$ 是 $x$ 的经验分布，即模型的训练集分布，$q(z|x)$ 是推断模型的输出分布。
+
+记 $\mathcal L(\theta,\phi)= \mathbb E_{q(x)} [\mathcal L(\theta,\phi; x)]$，那么上式变为
+
+$$\mathcal L(\theta,\phi) = -D_{KL}(q(x,z)||p(x,z)) + \mathbb E_{q(x)} [\log q(x)] \tag{3-2}$$
+
+(3-2) 式中，$\mathbb E_{q(x)} [\log q(x)]$ 是基于训练集分布的未知常数，$-D_{KL}(q(x,z)||p(x,z)) \le 0$，所以训练目标为最大化 $\mathcal L(\theta,\phi)$，最优解为 $D_{KL}(q(x,z)||p(x,z))=0$，即 $q(x,z)$ 尽可能逼近 $p(x,z)$ 。
+
 由于 $D_{KL}(\cdot) \ge 0$，所以 $\log p_{\theta}(\mathbf x) \ge \mathcal L(\theta, \phi; \mathbf x)$ ，即 **对数似然的下限是 $\mathcal L(\theta, \phi; \mathbf x)$** ，所以我们的 **目标是最大化 $\mathcal L(\theta, \phi; \mathbf x)$ ，从而达到最大化对数似然的目的** 。
 
 但是求目标 $\mathcal L(\theta, \phi; \mathbf x)$  的导数存在问题，因为表达式中含有期望计算 $\mathbb E_{q_{\phi}(\mathbf z|\mathbf x)}[\cdot]$，这使得导数计算不好处理。一种常见的方法是使用 Monte Carlo 梯度估计方法：
@@ -179,7 +195,7 @@ $$\tilde {\mathcal L}(\theta,\phi;\mathbf x)=-D_{KL}(q_{\phi}(\mathbf z|\mathbf 
 
 假设先验为 $p_{\theta}(\mathbf z)=\mathcal N(0,I)$，$\mathbf z$ 向量维度记为 $J$，后验近似 $q_{\phi}(\mathbf z|\mathbf x)$ 为高斯型。
 
-为了表述简洁，直接使用 $q_{\phi}(\mathbf z)$，由于是高斯型分布，记变分期望和变分标准差为 $\mu, \ \sigma$ （在数据点 $\mathbf x$ 的条件下），那么计算以下几个部分：
+为了表述简洁，直接使用 $q_{\phi}(\mathbf z)$ 表示 $q_{\phi}(\mathbf z|\mathbf x)$，由于是高斯型分布，记变分期望和变分标准差为 $\mu, \ \sigma$ （在数据点 $\mathbf x$ 的条件下），那么计算以下几个部分：
 
 $$\begin{aligned}\int q_{\phi}(\mathbf z)\log p_{\theta}(\mathbf z) d\mathbf z&=\int q_{\phi}(\mathbf z) \log \mathcal N(\mathbf z; 0, I) d\mathbf z
 \\&=\int q_{\phi}(\mathbf z) (-\frac J 2 \log 2\pi - \frac 1 2 \mathbf z^{\top} \mathbf z) d\mathbf z

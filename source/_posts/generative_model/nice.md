@@ -2,6 +2,7 @@
 title: 'NICE:非线性独立成分估计'
 date: 2022-08-06 15:14:28
 tags: flow
+mathjax: true
 ---
 
 论文：[NICE: NON-LINEAR INDEPENDENT COMPONENTS ESTIMATION](https://arxiv.org/abs/1410.8516v6)

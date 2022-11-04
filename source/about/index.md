@@ -63,15 +63,22 @@ ___
 <div><font face='TeXGyreTermes' size='4.5'><b>Qianzhan Industry Research Inst.</b> R&D<span style="float:right;">Jan. 2016-present</span></font></div>
 
 - <font face='TeXGyreTermes' size='4'>QiChaMao: an enterprise information quering system.</font>
-- <font face='TeXGyreTermes' size='4'>Web crawling.</font>
-- <font face='TeXGyreTermes' size='4'>Chinese segmentation.</font>
+- <font face='TeXGyreTermes' size='4'>Company relation graph: graph searching, optimal path, and relation inference.</font>
+- <font face='TeXGyreTermes' size='4'>Web crawling: distributed crawling system.</font>
+- <font face='TeXGyreTermes' size='4'>Chinese segmentation: using deep learning (CNN+LSTM+CRF).</font>
+- <font face='TeXGyreTermes' size='4'>Industry classification: Classify enterprises according to industry.</font>
 - <font face='TeXGyreTermes' size='4'>Elasticsearch: customized word segmentation plug-in.</font>
 - <font face='TeXGyreTermes' size='4'>Object detection: captcha solver.</font>
 - <font face='TeXGyreTermes' size='4'>Unsupervised learning: image generation, generating captchas for downstream tasks.</font>
 
 <div><font face='TeXGyreTermes' size='4.5'><b>Zhihu</b></font></div>
 
-- <font face='TeXGyreTermes' size='4'>Constribute many answers and articles, with focus on CV, probability theory and linear algebra.<font>
+- <font face='TeXGyreTermes' size='4'>Constribute many answers, articles and comments, with focus on CV, probability theory and linear algebra.<font>
+
+<div><font face='TeXGyreTermes' size='4.5'><b>Projects</b></font></div>
+
+- <font face='TeXGyreTermes' size='4'>jieba.fsharp<font>
+- <font face='TeXGyreTermes' size='4'>hanlp.csharp<font>
 
 
 <br/>
@@ -80,5 +87,6 @@ ___
 ___
 
 - <font face='TeXGyreTermes' size='4'>Programming Languages: Python > Java/C# > C/C++ > Scala</font>
+- <font face='TeXGyreTermes' size='4'>Math: Probability Theory, Linear Algebra, Linear Programming</font>
 - <font face='TeXGyreTermes' size='4'>DL Framework: PyTorch > Tensorflow > Jax/Chainer</font>
 - <font face='TeXGyreTermes' size='4'>Tools: Linux, Docker, Web Crawling, [No]SQL, Data Searching</font>

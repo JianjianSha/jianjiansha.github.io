@@ -363,3 +363,36 @@ pip install "jax[cuda11_cudnn805]" -f https://storage.googleapis.com/jax-release
 请参考原文档以获取 JAX 的 CUDA 支持的最新版本！
 
 我本人是将 JAX 安装在与 tensorflow 同一个虚拟环境下，因为使用 JAX 时，图像的加载和预处理等还需要用到 tensorflow 丰富的功能。
+
+# 7. 在线 GPU 环境
+
+##  7.1 google colab
+
+https://colab.research.google.com/
+
+## 7.2 kaggle
+
+https://www.kaggle.com/code
+
+## 7.3 天池
+
+https://tianchi.aliyun.com/notebook-ai
+
+## 7.4 百度 AI Studio
+
+https://aistudio.baidu.com/aistudio/projectoverview/public
+
+创建项目 -> 启动环境 -> 进入
+
+进入后可通过左侧 `环境` 选项进行切换环境
+
+## 7.5 其他
+
+九天毕昇 https://jiutian.10086.cn/edu/web#/home
+
+启智 https://www.openi.org.cn/
+
+
+
+
+

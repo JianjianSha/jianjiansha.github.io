@@ -7,7 +7,13 @@ mathjax: true
 
 论文：[Analytic-DPM: An analytic estimate of the optimal reverse variance in diffusion probabilistic models](https://arxiv.org/abs/2201.06503)
 
-# 1. 背景
+# 1. 简介
+
+这篇论文作者得到 DPM 的最佳反向过程方差以及相应的最佳 KL 散度的解析解形式，基于此，提出 Analytic-DPM，提高一个预训练 DPM 的效率，而不用进行额外训练。
+
+
+
+# 2. 背景
 
 本文的 $x_n$ 表示向量。
 
@@ -36,11 +42,11 @@ $$\lambda_n^2 = \frac {\overline \beta_{n-1}}{\overline \beta_n} \beta_n$$
 
 (2) 式可推导出 $q_{\lambda}(x_n|x_0)=\mathcal N(x_n|\sqrt {\overline \alpha_n} x_0, \overline \beta_n I)$，与 $\lambda$ 无关，这表明模型对于不同的 $\lambda$ 不需要重新训练。下文为了表述简单，忽略下标 $\lambda$。
 
-(2) 式的反向过程是一个马尔可夫过程，反向过程为
+(2) 式的反向过程定义为一个马尔可夫过程，反向过程为
 
 $$p(x_{0:N})=p(x_N) \prod_{n=1}^N p(x_{n-1}|x_n), \quad p(x_{n-1}|x_n)=\mathcal N(x_{n-1}|\mu_n(x_n), \sigma_n^2I) \tag{3}$$
 
-根据 [DDPM](/2022/06/27/diffusion_model/ddpm) 分析，令 $p(x_{n-1}|x_n)$ 逼近 $q(x_{n-1}|x_n,x_0)$，后者
+根据 [DDPM](/2022/06/27/diffusion_model/ddpm) 分析，令 $p(x_{n-1}|x_n)$ 逼近 $q(x_{n-1}|x_n,x_0)$，
 
 $$q( x_{n-1}| x_n,  x_0)=\mathcal N( x_{n-1}; \tilde {\mu}_n( x_n,  x_0), \tilde {\beta}_n I) \tag {4}$$
 
@@ -49,7 +55,7 @@ $$q( x_{n-1}| x_n,  x_0)=\mathcal N( x_{n-1}; \tilde {\mu}_n( x_n,  x_0), \tilde
 $$\tilde {\mu}_t(\mathbf x_t, \mathbf x_0)=\frac {\sqrt {\overline \alpha_{t-1}}\beta_t}{1-\overline \alpha_t}\mathbf x_0+\frac {\sqrt {\alpha_t}(1-\overline \alpha_{t-1})}{1-\overline \alpha_t} \mathbf x_t \tag{5}$$
 
 
-根据 [Score-based SDE]() 中的 (9) 式可知，
+根据 [Score-based SDE](diffusion_model/2022/07/26/score_based_SDE) 中的 (9) 式可知（注意 $q_{\lambda}(x_n|x_0)=\mathcal N(x_n|\sqrt {\overline \alpha_n} x_0, \overline \beta_n I)$ 就是前向过程），
 
 $$\mathbf s_{\theta}( x_n,n)=\nabla_{ x} \log q_{\lambda}( x| x_0)|_{ x= x_n}=\frac {\sqrt {\overline \alpha_n}  x_0 - x_n}{\overline \beta_n} \tag{6}$$
 
@@ -57,7 +63,7 @@ $$\mathbf s_{\theta}( x_n,n)=\nabla_{ x} \log q_{\lambda}( x| x_0)|_{ x= x_n}=\f
 
 $$x_0 = \frac 1 {\overline \alpha_n} (\overline \beta_n \mathbf s_{\theta}(x_n, n) + x_n) \tag{7}$$
 
-代入 (5) 式，得 $p(x_{n-1}|x_n)$ 的期望为
+代入 (5) 式或者 (2) 式，得 $p(x_{n-1}|x_n)$ 的期望为
 
 $$\mu_n(x_n)=\tilde \mu_n \left(x_n, \frac 1 {\sqrt {\overline \alpha_n}}(x_n+ {\overline \beta_n} \mathbf s_{\theta}(x_n, n))\right) \tag{8}$$
 
@@ -72,13 +78,13 @@ $$L_{vb}=\mathbb E_q \left[-\log p(x_0|x_1) + \sum_{n=2}^N D_{KL}(q(x_{n-1}|x_0,
 
 
 
-# 2. 反向过程方差
+# 3. 反向过程方差
 
 (9) 式表示的训练目标其实等价于 
 
 $$\min_{(\mu_n, \sigma_n^2)_{n=1}^N}  \ L_{vb} \Leftrightarrow  \min_{(\mu_n, \sigma_n^2)_{n=1}^N}  \ D_{KL} (q(x_{0:N})||p(x_{0:N})) \tag{11}$$
 
-根据 [DDPM](/2022/06/27/diffusion_model/ddpm)
+根据 [DDPM](/2022/06/27/diffusion_model/ddpm) 中的 (9) 式，
 
 $$\begin{aligned}L_{vb}&=\mathbb E_q[-\log \frac {p(\mathbf x_{0:N})}{q(\mathbf x_{1:N}|\mathbf x_0)}]
 \\&=\mathbb E_q[-\log \frac {p(\mathbf x_{0:N}) q(\mathbf x_0)}{q(\mathbf x_{0:N})}]\\&=D_{KL}(q_{0:N}||p(\mathbf x_{0:N}))+H(q(\mathbf x_0))

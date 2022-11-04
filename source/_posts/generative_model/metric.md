@@ -2,6 +2,7 @@
 title: 生成模型的衡量指标
 date: 2022-08-12 15:33:50
 tags: generative model
+mathjax: true
 ---
 
 # 1. IS

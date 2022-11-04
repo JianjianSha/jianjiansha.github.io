@@ -26,7 +26,7 @@ $$p_{\sigma}(\tilde {\mathbf x}|\mathbf x)=\mathcal N(\tilde {\mathbf x};\mathbf
 
 $$p_{\sigma}(\tilde {\mathbf x})=\int p_{data}(\mathbf x) p_{\sigma}(\tilde {\mathbf x}|\mathbf x) d\mathbf x \tag{2}$$
 
-考虑一系列的扰动噪声幅度 $\sigma_{min}=\sigma_1 < \ldots < \sigma_N = \sigma_{max}$ 。$\sigma_{min}$ 必须足够小使得 $p_{\sigma_{min}}(\mathbf x) \approx p_{data}(\mathbf x)$ 。根据 [NCSN](/2022/07/22/diffusion_model/NCSN) 分析，由于数据位于低维度 manifolds，且多 mode 之间是数据低密度区域，会引起很多问题，所以**先选择最大的噪声扰动，然后逐步降低噪声幅度**。
+考虑一系列的扰动噪声水平 $\sigma_{min}=\sigma_1 < \ldots < \sigma_N = \sigma_{max}$ 。$\sigma_{min}$ 必须足够小使得 $p_{\sigma_{min}}(\mathbf x) \approx p_{data}(\mathbf x)$ 。根据 [NCSN](/2022/07/22/diffusion_model/NCSN) 分析，由于数据位于低维度 manifolds，且多 mode 之间是数据低密度区域，会引起很多问题，所以**先选择最大的噪声扰动，然后逐步降低噪声幅度**。
 
 （SMLD 论文中使用的网络框架作者称为 NCSN。）
 
@@ -58,7 +58,7 @@ $$p_{\alpha_i}(\mathbf x_i|\mathbf x_0)=\mathcal N(\mathbf x_i; \sqrt {\alpha_i}
 
 与 SMLD 相似，采用 denoising score matching，那么目标函数为
 
-$$\theta^{\star}=\arg\min_{\theta} \sum_{i=1}^N (1-\alpha_i)\mathbb E_{p_{data}(\mathbf x)} \mathbb E_{p_{\alpha_i}(\tilde {\mathbf x}|\mathbf x)} [\|\mathbf s_{\theta}(\tilde {\mathbf x},i)-\nabla_{\tilde {\mathbf x}} \log p_{\alpha_i}(\tilde {\mathbf x}|\mathbf x)\|_2^2] \tag{7}$$
+$$\theta^{\star}=\arg\min_{\theta} \sum_{i=1}^N (1-\alpha_i)\mathbb E_{p_{data}(\mathbf x)} \mathbb E_{p_{\alpha_i}(\tilde {\mathbf x}|\mathbf x)} [\|\mathbf s_{\theta}(\tilde {\mathbf x},i)-\nabla_{\tilde {\mathbf x}} \log p_{\alpha_i}(\tilde {\mathbf x}|\mathbf x_0)\|_2^2] \tag{7}$$
 
 (7) 式中取 $\mathbf x=\mathbf x_0$。
 
@@ -72,6 +72,8 @@ $$\tilde {\mu}_i(\mathbf x_i, \mathbf x_0)=\frac {\sqrt {\alpha_{i-1}}\beta_i}{1
 
 $$\mathbf s_{\theta}(\mathbf x_i,i)=\nabla_{\mathbf x} \log p_{\alpha_i}(\mathbf x|\mathbf x_0)|_{\mathbf x=\mathbf x_i}=\frac {\sqrt {\alpha_i} \mathbf x_0 -\mathbf x_i}{1-\alpha_i} \tag{9}$$
 
+(9) 式最后一个等号根据 (6) 式推导而得。
+
 (9) 式代入 (8) 式得 
 
 $$\mu_{\theta}(\mathbf x_i)=\frac 1 {\sqrt {1-\beta_i}} (\mathbf x_i+\beta_i \mathbf s_{\theta}(\mathbf x_i, i)) \tag{10}$$
@@ -80,7 +82,7 @@ $$\mu_{\theta}(\mathbf x_i)=\frac 1 {\sqrt {1-\beta_i}} (\mathbf x_i+\beta_i \ma
 
 $$p_{\theta}(\mathbf x_{i-1}|\mathbf x_i)=\mathcal N(\mathbf x_{i-1}; \frac 1 {\sqrt {1-\beta_i}} (\mathbf x_i+\beta_i \mathbf s_{\theta}(\mathbf x_i, i)), \beta_iI) \tag{11}$$
 
-其中方差直接使用 $\beta_i$ 。
+其中方差直接使用 $\beta_i$ ，这与 DDPM 中一样。
 
 解出 (7) 式得到最优解 $\mathbf s_{\theta^{\star}}(\mathbf x,i)$，然后生成过程为从 $\mathbf x_N \sim \mathcal N(\mathbf 0, I)$ 开始，依据 (11) 式进行采样，
 

@@ -5,3 +5,5 @@ tags: object detection
 mathjax: true
 ---
 
+论文：[Path Aggregation Network for Instance Segmentation](https://arxiv.org/abs/1803.01524)
+

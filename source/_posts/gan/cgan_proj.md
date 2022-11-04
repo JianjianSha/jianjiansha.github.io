@@ -2,6 +2,7 @@
 title: CGANs with Projection Discriminator
 date: 2022-08-18 16:20:05
 tags: GAN
+mathjax: true
 ---
 
 论文：[CGANs with Projection Discriminator](https://arxiv.org/abs/1802.05637)

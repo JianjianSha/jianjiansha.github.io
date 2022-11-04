@@ -104,9 +104,29 @@ gpus = [0, 1, ,2, 3]
 torch.cuda.set_device('cuda:{}'.format(gpus[0]))
 model.cuda()
 model = nn.DataParallel(model, deivce_ids=gpus, output_device=gpus[0])
+predictions = model(inputs)     # forward pass on multi-GPUs
+loss = loss_function(predictions, labels)   # compute loss function
+loss.mean().backward()      # Average GPU-losses + backward pass
+optimizer.step()
+predictions = model(inputs) # Forward pass with new parameters
 ```
 
-当然，也可以不指定 `device_ids`，同时 `model.cuda()` 中不带参数，此时使用所有的 GPU 并行训练。
+当然，也可以不指定 `device_ids`，同时 `model.cuda()` 中不带参数，此时使用所有的 GPU 并行训练。或者通过环境变量设置训练所用 GPUs，
+```python
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
+model = model.cuda()    # 先加载到第一个 GPU 上
+model = nn.DataParallel(model)
+
+inputs = inputs.cuda()
+labels = labels.cuda()
+```
+
+![](/images/pytorch/train_parallel_1.png)
+
+<center>图 1. DataParallel 前向和后向传播示意图</center>
+
+注意到图 1 Forward 过程的第 4 步（图 1 右上角），将所有并行计算的结果合并到 GPU-1 上，对于分类任务，这不成问题，因为输出 size 较小，如果使用一个较大的 batch size 来训练一个语言模型，那么 GPU-1 内存压力较大。
+
 
 ## 3.2 torch.distributed
 
@@ -222,3 +242,13 @@ for epoch in range(args.start_epoch, args.epochs):
 reference：
 
 1. https://github.com/tczhangzhi/pytorch-distributed/tree/master
+
+# 4. 原理
+
+```python
+x = torch.arange(1, 4)
+y = x ** 2
+z = torch.sum(y)
+z.backward()
+
+```
