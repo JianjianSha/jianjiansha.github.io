@@ -5,12 +5,6 @@ tags: 3d object detection
 mathjax: true
 ---
 
-数据下载：
-
-[KITTI raw data](https://www.cvlibs.net/datasets/kitti/raw_data.php)
-
-[KITTI 3d object](https://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d)
-
 
 
 # 1 几种坐标系
@@ -25,7 +19,7 @@ mathjax: true
 
 ### 1.1 世界坐标系转相机坐标系
 
-$$\begin{bmatrix}x_c \\ y_c \\ z_c \\ 1\end{bmatrix}= \begin{bmatrix} \mathbf R & \mathbf t \\ \mathbf 0 & 1 \end{bmatrix} \begin{bmatrix} x_w \\ y_w \\ z_w \\ 1 \end{bmatrix} \tag{1}$$
+$$\begin{bmatrix}x_c \\\\ y_c \\\\ z_c \\\\ 1\end{bmatrix}= \begin{bmatrix} \mathbf R & \mathbf t \\\\ \mathbf 0 & 1 \end{bmatrix} \begin{bmatrix} x_w \\\\ y_w \\\\ z_w \\\\ 1 \end{bmatrix} \tag{1}$$
 
 世界坐标系与相机坐标系之间的转换，可以将其中物体视作刚性物体，那么转换只有旋转和平移两种操作，上式中 $\mathbf R$ 是旋转矩阵，$\mathbf t$ 是平移矩阵。
 
@@ -37,7 +31,7 @@ $(x_2, y_2, z_2) = (x_1+t_x, y_1+t_y, z_1+t_z)$
 
 使用矩阵表示为
 
-$$\begin{bmatrix} x_2 \\ y_2 \\ z_2 \\ 1 \end{bmatrix} = \mathbf t \begin{bmatrix} x_1 \\ y_1 \\ z_1 \\ 1\end{bmatrix}= \begin{bmatrix}  1 & 0 & 0 & t_x \\ 0 & 1 & 0 & t_y \\ 0 & 0 & 1 & t_z\\ 0 & 0 & 0 & 1\end{bmatrix}\begin{bmatrix} x_1 \\ y_1 \\ z_1 \\ 1\end{bmatrix} \tag{2}$$
+$$\begin{bmatrix} x_2 \\\\ y_2 \\\\ z_2 \\\\ 1 \end{bmatrix} = \mathbf t \begin{bmatrix} x_1 \\\\ y_1 \\\\ z_1 \\\\ 1\end{bmatrix}= \begin{bmatrix}  1 & 0 & 0 & t_x \\\\ 0 & 1 & 0 & t_y \\\\ 0 & 0 & 1 & t_z\\\\ 0 & 0 & 0 & 1\end{bmatrix}\begin{bmatrix} x_1 \\\\ y_1 \\\\ z_1 \\\\ 1\end{bmatrix} \tag{2}$$
 
 ### 1.1.2 旋转
 
@@ -50,7 +44,7 @@ $$\begin{bmatrix} x_2 \\ y_2 \\ z_2 \\ 1 \end{bmatrix} = \mathbf t \begin{bmatri
 
 向量 $\overrightarrow  {OA}= (x_1, y_1)$ 逆时针旋转 $\theta$ 角度后为 $\overrightarrow {OB}=(x_2, y_2)$，易知
 
-$$\overrightarrow {OA}=\overrightarrow {OA}_x + \overrightarrow {OB}_y$$
+$$\overrightarrow {OA}=\overrightarrow {OA}_x + \overrightarrow {OA}_y$$
 
 $\overrightarrow {OA}_x=(x_1, 0)$ 旋转后为 $(x_1 \cos \theta, x_1 \sin \theta)$，$\overrightarrow {OA}_y=(0, y_1)$ 旋转后为 $(-y_1 \sin \theta, y_1 \cos \theta)$，所以
 
@@ -58,15 +52,15 @@ $$(x_2, y_2) = (x_1 \cos \theta, x_1 \sin \theta)+ (-y_1 \sin \theta, y_1 \cos \
 
 写成矩阵形式为
 
-$$\begin{bmatrix} x_2 \\ y_2 \end{bmatrix} = \begin{bmatrix}\cos \theta  & -\sin \theta \\ \sin \theta & \cos \theta \end{bmatrix}\begin{bmatrix} x \\ y \end{bmatrix} \tag {3}$$
+$$\begin{bmatrix} x_2 \\\\ y_2 \end{bmatrix} = \begin{bmatrix}\cos \theta  & -\sin \theta \\\\ \sin \theta & \cos \theta \end{bmatrix}\begin{bmatrix} x \\\\ y \end{bmatrix} \tag {3}$$
 
 **三维空间中的旋转**
 
-记旋转矩阵为 $\mathbf R$，将三维向量分别投影到 X-Y, Y-Z, X-Z 平面上，记 $\mathbf R$ 在 XY 平面上旋转角度为 $\theta_z$，在 YZ 平面上旋转角度为 $\theta_x$，在 XY 平面上旋转角度为 $\theta_y$ （三个角度均指逆时针旋转角度），那么 $\mathbf R$ 可由三个角度 $(\theta_x, \theta_y, \theta_z)$ 表征，对应的三个旋转为 $(\mathbf R_x, \mathbf R_y, \mathbf R_z)$。
+记旋转矩阵为 $\mathbf R$，将三维向量分别投影到 X-Y, Y-Z, X-Z 平面上，记 $\mathbf R$ 在 XY 平面上旋转角度为 $\theta_z$，在 YZ 平面上旋转角度为 $\theta_x$，在 XZ 平面上旋转角度为 $\theta_y$ （三个角度均指逆时针旋转角度），那么 $\mathbf R$ 可由三个角度 $(\theta_x, \theta_y, \theta_z)$ 表征，对应的三个旋转为 $(\mathbf R_x, \mathbf R_y, \mathbf R_z)$。
 
 根据前面二维平面的旋转公式 (3) 易知，
 
-$$\mathbf R_z = \begin{bmatrix} \cos \theta_z & -\sin \theta_z & 0 \\ \sin \theta_z & \cos \theta_z & 0 \\ 0 & 0 & 1\end{bmatrix}, \ \mathbf R_y = \begin{bmatrix} \cos \theta_y & 0& \sin \theta_y  \\ 0 & 1 & 0 \\ -\sin \theta_y &0& \cos \theta_y\end{bmatrix}, \ \mathbf R_x = \begin{bmatrix} 1 & 0 & 0 \\ 0 & \cos \theta_x &-\sin \theta_x  \\ 0& \sin \theta_x & \cos \theta_x\end{bmatrix}$$
+$$\mathbf R_z = \begin{bmatrix} \cos \theta_z & -\sin \theta_z & 0 \\\\ \sin \theta_z & \cos \theta_z & 0 \\\\ 0 & 0 & 1\end{bmatrix}, \ \mathbf R_y = \begin{bmatrix} \cos \theta_y & 0& \sin \theta_y  \\\\ 0 & 1 & 0 \\\\ -\sin \theta_y &0& \cos \theta_y\end{bmatrix}, \ \mathbf R_x = \begin{bmatrix} 1 & 0 & 0 \\\\ 0 & \cos \theta_x &-\sin \theta_x  \\\\ 0& \sin \theta_x & \cos \theta_x\end{bmatrix}$$
 
 且有关系
 
@@ -81,8 +75,8 @@ $$\mathbf T = [\mathbf R | \mathbf t] \tag{5}$$
 为社么可以用分块矩阵表示呢？因为先后两个变换可以用矩形相乘表示，
 
 $$\begin{aligned}\mathbf T &= \mathbf {t R}
-\\&= \begin{bmatrix} 1 & 0 & 0 & t_x \\ 0 & 1 & 0 & t_y \\ 0 & 0 & 1 & t_z \\ 0 & 0 & 0 &1\end{bmatrix}\begin{bmatrix} r_1 & r_2 & r_3 & 0 \\  r_4 & r_5 & r_6 & 0 \\  r_7 & r_8 & r_9 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix}
-\\ &= \begin{bmatrix} r_1 & r_2 & r_3 & t_x \\  r_4 & r_5 & r_6 & t_y \\  r_7 & r_8 & r_9 & t_z \\ 0 & 0 & 0 & 1 \end{bmatrix}=\begin{bmatrix} \mathbf R & \mathbf t \\ \mathbf 0_{1 \times 3} & 1\end{bmatrix}
+\\\\&= \begin{bmatrix} 1 & 0 & 0 & t_x \\\\ 0 & 1 & 0 & t_y \\\\ 0 & 0 & 1 & t_z \\\\ 0 & 0 & 0 &1\end{bmatrix}\begin{bmatrix} r_1 & r_2 & r_3 & 0 \\\\  r_4 & r_5 & r_6 & 0 \\\\  r_7 & r_8 & r_9 & 0 \\\\ 0 & 0 & 0 & 1 \end{bmatrix}
+\\\\ &= \begin{bmatrix} r_1 & r_2 & r_3 & t_x \\\\  r_4 & r_5 & r_6 & t_y \\\\  r_7 & r_8 & r_9 & t_z \\\\ 0 & 0 & 0 & 1 \end{bmatrix}=\begin{bmatrix} \mathbf R & \mathbf t \\\\ \mathbf 0_{1 \times 3} & 1\end{bmatrix}
 \end{aligned} \tag{6}$$
 
 使用齐次坐标 $[x, y, z, 1]^{\top}$ 就使用 (6) 式的变换矩阵，而 $[x, y, z]^{\top}$ 坐标则使用 (5) 式变换矩阵。
@@ -91,7 +85,7 @@ $$\begin{aligned}\mathbf T &= \mathbf {t R}
 
 从世界坐标系到相机坐标系的刚体变换矩阵 $\mathbf T$ 也称为 **相机外参**（camera extrinsics）
 
-$$\begin{bmatrix} X_c \\ Y_c \\ Z_c \\ 1\end{bmatrix}= \mathbf T \begin{bmatrix}X_w \\ Y_w \\ Z_w \\ 1 \end{bmatrix}$$
+$$\begin{bmatrix} X_c \\\\ Y_c \\\\ Z_c \\\\ 1\end{bmatrix}= \mathbf T \begin{bmatrix}X_w \\\\ Y_w \\\\ Z_w \\\\ 1 \end{bmatrix}$$
 
 ## 1.2 相机坐标系到图像坐标系
 
@@ -111,11 +105,11 @@ $$\begin{bmatrix} X_c \\ Y_c \\ Z_c \\ 1\end{bmatrix}= \mathbf T \begin{bmatrix}
 
 根据三角形的相似性可知
 
-$$\begin{cases} x_p = f \frac {x_c}{z_c} \\ y_p = f \frac {y_c}{z_c} \end{cases}$$
+$$\begin{cases} x_p = f \frac {x_c}{z_c} \\\\ y_p = f \frac {y_c}{z_c} \end{cases}$$
 
 矩阵变换形式为
 
-$$z_c \begin{bmatrix} x_p \\ y_p \\ 1 \end{bmatrix} = \begin{bmatrix} f & 0 & 0 & 0 \\ 0 & f & 0 & 0 \\ 0 & 0 & 1 & 0 \end{bmatrix} \begin{bmatrix} x_c \\ y_c \\ z_c \\ 1 \end{bmatrix} =[\mathbf K | \mathbf 0]  \begin{bmatrix} x_c \\ y_c \\ z_c \\ 1 \end{bmatrix} \tag{7}$$
+$$z_c \begin{bmatrix} x_p \\\\ y_p \\\\ 1 \end{bmatrix} = \begin{bmatrix} f & 0 & 0 & 0 \\\\ 0 & f & 0 & 0 \\\\ 0 & 0 & 1 & 0 \end{bmatrix} \begin{bmatrix} x_c \\\\ y_c \\ z_c \\\\ 1 \end{bmatrix} =[\mathbf K | \mathbf 0]  \begin{bmatrix} x_c \\\\ y_c \\ z_c \\\\ 1 \end{bmatrix} \tag{7}$$
 
 $f$ 是相机焦距。
 
@@ -129,7 +123,7 @@ $f$ 是相机焦距。
 
 图像坐标系转为像素坐标系：
 
-$$\begin{bmatrix}u \\ v \\  1\end{bmatrix}= \begin{bmatrix} 1/dx & 0 & u_0 \\  0 & 1/dy & v_0 \\ 0&0&1 \end{bmatrix} \begin{bmatrix} x_p \\ y_p \\ 1 \end{bmatrix}\tag{8}$$
+$$\begin{bmatrix}u \\\\ v \\\\  1\end{bmatrix}= \begin{bmatrix} 1/dx & 0 & u_0 \\\\  0 & 1/dy & v_0 \\\\ 0&0&1 \end{bmatrix} \begin{bmatrix} x_p \\\\ y_p \\\\ 1 \end{bmatrix}\tag{8}$$
 
 dx,dy 表示相邻像素之间的物理距离（例如单位长度为 mm），实际上 CCD 相机上每个像素对应一个感光点。
 
@@ -141,14 +135,20 @@ dx,dy 表示相邻像素之间的物理距离（例如单位长度为 mm），�
 
 综合以上，从世界坐标系到像素坐标系的变换为
 
-$$\begin{aligned}z_c\begin{bmatrix}u \\ v \\  1\end{bmatrix}&=\begin{bmatrix} 1/dx & 0 & u_0 \\  0 & 1/dy & v_0 \\ 0&0&1 \end{bmatrix}\begin{bmatrix} f & 0 & 0 & 0 \\ 0 & f & 0 & 0 \\ 0 & 0 & 1 & 0 \end{bmatrix}\begin{bmatrix} \mathbf R & \mathbf t \\ \mathbf 0_{1\times 3} & 1\end{bmatrix}\begin{bmatrix}x_w \\ y_w \\ z_w \\ 1\end{bmatrix}
-\\&=\begin{bmatrix} f_x & 0 & u_0 & 0 \\  0 & f_y & v_0 & 0 \\ 0&0&1 &0\end{bmatrix}\begin{bmatrix} \mathbf R & \mathbf t \\ \mathbf 0_{1\times 3} & 1\end{bmatrix}\begin{bmatrix}x_w \\ y_w \\ z_w \\ 1\end{bmatrix}
+$$\begin{aligned}z_c\begin{bmatrix}u \\\\ v \\\\  1\end{bmatrix}&=\begin{bmatrix} 1/dx & 0 & u_0 \\\\  0 & 1/dy & v_0 \\\\ 0&0&1 \end{bmatrix}\begin{bmatrix} f & 0 & 0 & 0 \\\\ 0 & f & 0 & 0 \\\\ 0 & 0 & 1 & 0 \end{bmatrix}\begin{bmatrix} \mathbf R & \mathbf t \\\\ \mathbf 0_{1\times 3} & 1\end{bmatrix}\begin{bmatrix}x_w \\\\ y_w \\\\ z_w \\\\ 1\end{bmatrix}
+\\&=\begin{bmatrix} f_x & 0 & u_0 & 0 \\\\  0 & f_y & v_0 & 0 \\\\ 0&0&1 &0\end{bmatrix}\begin{bmatrix} \mathbf R & \mathbf t \\\\ \mathbf 0_{1\times 3} & 1\end{bmatrix}\begin{bmatrix}x_w \\\\ y_w \\ z_w \\\\ 1\end{bmatrix}
 \end{aligned} \tag{9}$$
 
-$\begin{bmatrix} f_x & 0 & u_0 & 0 \\  0 & f_y & v_0 & 0 \\ 0&0&1 &0\end{bmatrix}$ 为 **相机内参**（camera intrinsics）。 $\begin{bmatrix} \mathbf R & \mathbf t \\ \mathbf 0_{1\times 3} & 1\end{bmatrix}$ 为相机外参。相机标定就是为了求解这两个矩阵的参数。
+$\begin{bmatrix} f_x & 0 & u_0 & 0 \\\\  0 & f_y & v_0 & 0 \\\\ 0&0&1 &0\end{bmatrix}$ 为 **相机内参**（camera intrinsics）。 $\begin{bmatrix} \mathbf R & \mathbf t \\\\ \mathbf 0_{1\times 3} & 1\end{bmatrix}$ 为相机外参。相机标定就是为了求解这两个矩阵的参数。
 
 
-# 2. KITTI 数据集
+# 2. 3D 目标检测
+
+数据下载：
+
+[KITTI raw data](https://www.cvlibs.net/datasets/kitti/raw_data.php)
+
+[KITTI 3d object](https://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d)
 
 几种坐标系图示
 
@@ -233,7 +233,7 @@ def get_lidar(filepath):
 
 需要注意的是，Pi 除了相机内参（投影变换），还包含了一个平移操作，表示第 `i` 个相机到 `0` 号相机摄像头的距离偏移，这是因为投影变换是同一个相机的相机坐标转图像（像素）坐标，而这里是 A 相机的相机坐标转 B 相机的图像（像素）坐标，所以需要组合两个先后顺序操作：1. A 相机到 B 相机的相机坐标系平移操作 $T_{AB}$；2. 相机的投影操作 $K$。用矩阵表示为
 
-$$\mathbf P_i=\begin{bmatrix} f_x & 0 & u_0 & -f_x b_x \\ 0 & f_y & v_0 & -f_y b_y \\ 0 & 0 & 1 & -b_z \end{bmatrix} \tag{10}$$
+$$\mathbf P_i=\begin{bmatrix} f_x & 0 & u_0 & -f_x b_x \\\\ 0 & f_y & v_0 & -f_y b_y \\\\ 0 & 0 & 1 & -b_z \end{bmatrix} \tag{10}$$
 
 其中 $b_x, \ b_y, \ b_z$ 分别表示表示第 `i` 个相机到 `0` 号相机摄像头的 x，y，z 方向的距离偏移。由于四个相机均相同，故四个相机的 $f_x, f_y, u_0, v_0$  均分别相等（即相机内参矩阵均相等），只是四个相机的安装位置不同，所以需要用 $b_x, b_y, b_z$ 表示。
 
@@ -241,20 +241,20 @@ $$\mathbf P_i=\begin{bmatrix} f_x & 0 & u_0 & -f_x b_x \\ 0 & f_y & v_0 & -f_y b
 
 例如 A 表示 0 号机，B 表示 2 号机，A 的（修正后）相机坐标系中某点 P 的坐标记为 $[x_a, y_a, z_a]^{\top}$， B 到 A （B 相对 A）的摄像头距离为 $T_{AB}=[b_x, b_y, b_z]^{\top}$，那么 P 平移到 B 相机坐标系中坐标为 
 
-$$\begin{aligned} \begin{bmatrix}x_b\\ y_b\\ z_b\end{bmatrix}  &= \begin{bmatrix}x_a\\ y_a\\ z_a\end{bmatrix}-T_{AB}  \qquad (\vec {BP}=\vec {AP}- \vec {AB})
-\\&= \begin{bmatrix}x_a-b_x\\ y_a-b_y\\ z_a-b_z\end{bmatrix}
+$$\begin{aligned} \begin{bmatrix}x_b\\\\ y_b\\\\ z_b\end{bmatrix}  &= \begin{bmatrix}x_a\\\\ y_a\\\\ z_a\end{bmatrix}-T_{AB}  \qquad (\vec {BP}=\vec {AP}- \vec {AB})
+\\\\&= \begin{bmatrix}x_a-b_x\\\\ y_a-b_y\\\\ z_a-b_z\end{bmatrix}
 \end{aligned}$$
 
 B 的相机坐标系转为 B 的图像（像素）坐标系的投影变换，参考 (9) 式可知，为
 
-$$\begin{aligned} z_a \begin{bmatrix} u_b \\ v_b \\ 1 \end{bmatrix}&=\begin{bmatrix} f_x & 0 & u_0 & 0 \\ 0 & f_y & v_0 & 0 \\ 0 & 0 & 1 & 0\end{bmatrix}\begin{bmatrix}x_b\\ y_b\\ z_a\\1\end{bmatrix}
-\\&=\begin{bmatrix} f_x & 0 & u_0 & 0 \\ 0 & f_y & v_0 & 0 \\ 0 & 0 & 1 & 0\end{bmatrix}\begin{bmatrix}x_a-b_x\\ y_a-b_y\\ z_a\\1\end{bmatrix}
-\\&=\begin{bmatrix} f_x & 0 & u_0 & -f_x b_x \\ 0 & f_y & v_0 & -f_y b_y \\ 0& 0&1 & 0\end{bmatrix}\begin{bmatrix}x_a\\ y_a\\ z_a\\1\end{bmatrix}
+$$\begin{aligned} z_a \begin{bmatrix} u_b \\\\ v_b \\\\ 1 \end{bmatrix}&=\begin{bmatrix} f_x & 0 & u_0 & 0 \\\\ 0 & f_y & v_0 & 0 \\\\ 0 & 0 & 1 & 0\end{bmatrix}\begin{bmatrix}x_b\\\\ y_b\\\\ z_a\\\\1\end{bmatrix}
+\\\\&=\begin{bmatrix} f_x & 0 & u_0 & 0 \\\\ 0 & f_y & v_0 & 0 \\\\ 0 & 0 & 1 & 0\end{bmatrix}\begin{bmatrix}x_a-b_x\\\\ y_a-b_y\\\\ z_a\\\\1\end{bmatrix}
+\\\\&=\begin{bmatrix} f_x & 0 & u_0 & -f_x b_x \\\\ 0 & f_y & v_0 & -f_y b_y \\\\ 0& 0&1 & 0\end{bmatrix}\begin{bmatrix}x_a\\\\ y_a\\\\ z_a\\\\1\end{bmatrix}
 \end{aligned} \tag{11}$$
 
 上式就是从 A 相机坐标变换到 B 图像（像素）坐标的变换过程，注意深度值使用的是 A 相机中的 Z 轴值 $z_a$。将上式中的变换矩阵写成 $\mathbf P_i$ ，那么上式等式关系可写为
 
-$$\begin{bmatrix} z_au_b \\ z_av_b \\ z_b \end{bmatrix}=\mathbf P_i \begin{bmatrix}x_a\\ y_a\\ z_a\\1\end{bmatrix} \tag{12}$$
+$$\begin{bmatrix} z_au_b \\\\ z_av_b \\\\ z_b \end{bmatrix}=\mathbf P_i \begin{bmatrix}x_a\\\\ y_a\\\\ z_a\\\\1\end{bmatrix} \tag{12}$$
 
 下文的标定类方法 `rect_to_img` 中，就是使用上式先得到具有 `z_a` 缩放因子的 B 相机的图像像素坐标，然后除以 `z_a` 得到最终 B 的图像像素坐标 $u_b, v_b$，并通过 $z_b - (-b_z)=z_a$ 得到 A 相机坐标系中点的深度值。具体参见下文的代码注释。
 
@@ -272,7 +272,7 @@ $$y_a=(v_b-v_0)z_a /f_y + b_y \tag{14}$$
 
 R0_rect： 0号相机的修正矩阵， size 为 $R^{3 \times 3}$，将 **第 0 相机的相机坐标系** 中的点变换为 **第 0 相机的 rectified 坐标系** 中，由于相机的不正，所以需要对相机坐标系中的各点进行修正。实际计算中常常扩展为
 
-$\begin{bmatrix} \mathbf R_{rect}^0 & \mathbf 0_{3 \times 1} \\ \mathbf 0_{1\times 3} & 1\end{bmatrix}$。
+$\begin{bmatrix} \mathbf R_{rect}^0 & \mathbf 0_{3 \times 1} \\\\ \mathbf 0_{1\times 3} & 1\end{bmatrix}$。
 
 Tr_velo_to_cam 是雷达到相机的旋转平移矩阵，参见上面 (6) 式。
 
@@ -528,7 +528,7 @@ DontCare -1 -1 -10 559.62 175.83 575.40 183.15 -1 -1 -1 -1000 -1000 -1000 -10
 ![](images/obj_det/3d/dataset_kitti_9.png)
 <center>图 9. 来源：kitti 官网</center>
 
-![](images/obj_det/3d/dataset_kitti_9.png)
+![](images/obj_det/3d/dataset_kitti_10.png)
 <center>图 10. 来源：kitti 官网</center>
 
 ![](images/obj_det/3d/point_rcnn_4.png)
@@ -567,6 +567,50 @@ class Object3d:
         self.level_str = None
         self.level = self.get_obj_level()   # 3d 目标检测的难易程度。物体越高，截断越小，遮挡越小，那么检测越容易
 ```
+
+## 2.5 road plane
+
+有时候训练集中还包含道路平面的 label 文件，位于目录 `KITTI/object/training/planes` 下，这个文件夹包含 ego vehicle 的 ground planes，每个相机拍摄图片，均有一个相应的 ground plane 文件，例如 `000000.txt`，内容为
+
+```sh
+# Matrix
+WIDTH 4
+HEIGHT 1
+-7.051729e-03 -9.997791e-01 -1.980151e-02 1.680367e+00 
+```
+
+其中 `WIDTH 4` 和 `HEIGHT 1` 表示是 gt 是 $1 \times 4$ 的矩阵，矩阵为
+
+$$[-7.051729e-03,\ -9.997791e-01,\ -1.980151e-02, \ 1.680367e+00]$$
+
+前三个数表示 plane 的法向量，这是根据车辆的 IMU 的数据 （roll，pitch， yaw）计算出来的，且法向量总是接近 $[0, \ -1, \ 0]$，这表示 plane 几乎平整（法向量沿 Y 轴负方向，即竖直向上）。第四个数是相机相对 ground plane 的高度。
+
+1. 所有相机高度: 1.65m
+2. velodyne 激光扫描器高度: 1.73m
+3. GPS/IMU 高度: 0.93m
+
+# 3. 车道线检测
+
+数据集：[Road/Lane Detection](https://www.cvlibs.net/datasets/kitti/eval_road.php)
+
+road & lane estimation benchmark 包含 289 的训练图片和 290 个测试图片。道路场景包含 3 种分类：
+1. uu - urban unmarked (98/100) （98 training / 100 testing）
+2. um - urban marked (95/96)
+3. umm - urban multiple marked lanes (96/94)
+4. urban - 以上三种的合集
+
+如下图，
+
+![](/images/obj_det/3d/dataset_kitti_11.jpg)
+
+ground truth 由人工标注，有两种道路地形：
+
+1. road - 道路区域，即，所有的 lanes（所有车道）
+2. lane - ego-lane，即，当前 ego vehicle 所行驶的车道（仅在 um 分类下的图片中存在）
+
+ground truth 仅在训练集中提供。
+
+
 
 # Ref
 

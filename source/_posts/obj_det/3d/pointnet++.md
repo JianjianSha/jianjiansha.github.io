@@ -93,7 +93,7 @@ Ball query 寻找距离 query point 的某个半径以内的所有点（实际�
 
 此 layer 的输入是 $N'$ 个 local region 中的点，输入 size 为 $N' \times K \times (d+C)$。每个 local region 经 PointNet 输出相应的 feature vector，vector 长度为 $C'$，整个输出 size 为 $N' \times (d+C')$。
 
-local region 中的点坐标被转换为相对于这个 region 中心点的坐标：$x_i^{(j)}=x_i^{(j)} - \hat x^{(j)}$，其中 $j=1,\ldots, d$ 且 $i=1,\ldots, K$，$\hat x$ 是中心点。这起到归一化的作用，且转换后不同 region 的点坐标同等对待，不存在某个region 的点坐标完全大于另一个 region 的点坐标。
+local region 中的点坐标被转换为相对于这个 region 中心点的坐标：$x_i^{(j)} = x_i^{(j)} - \hat x^{(j)}$，其中 $j=1,\ldots, d$ 且 $i=1,\ldots, K$，$\hat x$ 是中心点。这起到归一化的作用，且转换后不同 region 的点坐标同等对待，不存在某个region 的点坐标完全大于另一个 region 的点坐标。
 
 ## 2.3 非均匀采样密度下的健壮特征学习
 
@@ -132,7 +132,7 @@ set abstraction 中使用了下采样，然而在 set 分割任务（例如语�
 
 使用哪种插值方法？对于某个不在 $N_l$ 中的点，使用 k 近邻进行插值，权重为距离的倒数，如 (2) 式计算，令 $f$ 表示 $N_l$ 个点特征，$f$ 的 size 为 $N_l \times C$（未考虑坐标，因为各点坐标使用自己原来的坐标，不需要传播），
 
-$$f^{(j)}(x) = \frac {\sum_{i=1}^k w_i(x) f_i^{(j)}}{\sum_{i=1}^k w_i(x)}, \quad w_i(x) = \frac 1 {d(x, x_i)^p} \tag{2}$$
+$$f^{(j)} (x) = \frac {\sum_{i=1}^k w_i(x) f_i^{(j)} } {\sum_{i=1}^k w_i(x)}, \quad w_i(x) = \frac 1 {d(x, x_i)^p} \tag{2}$$
 
 其中 $j=1,\ldots, C$ 是特征向量中元素 index，$i=1,\ldots, N_l$ 是 region 的中心点 index 。默认取 $p=2, k=3$ 。
 
@@ -261,7 +261,7 @@ def forward(self, xyz, points):
     '''
     xyz = xyz.permute(0, 2, 1)      # (B, N, C)
     if points:
-        points = points.permute(0, 2, 1)
+        points = points.permute(0, 2, 1)    # (B, N, D)
     
     B, N, C = xyz.shape
     S = self.npoint                 # 中心点数量
@@ -275,12 +275,12 @@ def forward(self, xyz, points):
         grouped_xyz = index_point(xyz, group_idx)   # 各邻域点的坐标，  (B, S, K, 3)
         grouped_xyz -= new_xyz.view(B, S, 1, C)     # 各邻域点的相对坐标
         if points is not None:  
-            grouped_points = index_points(points, group_idx)
-            grouped_points = torch.cat([grouped_points, grouped_xyz], dim=-1)
+            grouped_points = index_points(points, group_idx)    # (B, S, K, D)
+            grouped_points = torch.cat([grouped_points, grouped_xyz], dim=-1)   # (B, S, K, D+3)
         else:
-            grouped_points = grouped_xyz
+            grouped_points = grouped_xyz                                        # (B, S, K, 3)
         
-        grouped_points = grouped_points.permute(0, 3, 2, 1)     # (B, 3, K, S)
+        grouped_points = grouped_points.permute(0, 3, 2, 1)     # (B, 3/D+3, K, S)
         for j in range(len(self.conv_blocks)):
             conv = self.conv_blocks[i][j]       # conv2d
             bn = self.bn_blocks[i][j]           # batchnorm2d

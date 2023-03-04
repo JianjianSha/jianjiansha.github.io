@@ -230,6 +230,11 @@ dataset = dset.CelebA(root=root, download=True,
 print(dataset)
 ```
 
+
+## 1.4 COCO
+
+
+
 # 2. Search
 
 ## 2.1 MS MARCO
