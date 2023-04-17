@@ -47,6 +47,16 @@ summary: DispatchKeySet 知识点
     constexpr DispatchKeySet(uint64_t repr) : repr_(repr) {}
     ```
 
+
+`repr_` 各个 bit 含义：
+
+```shell
+# 从左往右，表示 bit 从高到低。 最低 bit index 从 0 开始计数，
+# 那么 enable functionality_key 所在 bit： 1 << (num_backend + functionality_key - 1)
+# 55                      54                    15    14        13          12              1     0
+EndOfFunctionalityKeys, PythonDispatcher, ..., FPGA, Dense, PrivateUse3, PrivateUse2, ..., CUDA, CPU
+```
+
 ## 1.2 类方法
 
 1. 
@@ -76,20 +86,24 @@ summary: DispatchKeySet 知识点
     DispatchKeySet(Dense) 和 DispatchKeySet(CPU) 的 `repr_` 值不同，后者大1，但是两者的 `getDispatchTableIndexForDispatchKeySet` 返回值相同，这表示两者都将被 dispatch 到 table 同一 index 处（backend 均为 CPU）。
 
 
-    |DispatchKeySet最高functionality_key 和最高 backend 的组合|最高 functionality key offset|最高 backend 位置|dispatchTableIndex|
+    |DispatchKeySet最高functionality_key 和最高 backend 的组合|最高 functionality key offset/value|最高 backend 位置|dispatchTableIndex|
     |--|--|--|--|
-    Undefined |0|0|0+0|
-    Dense|1|0|1+0|
-    Dense+CPU | 1 | 0（index从0开始计数）|1+0
-    Dense+CUDA | 1|1|1+1| 
-    Dense+PrivateUser3|1|13|1+13|
-    FPGA|2+1*13（前面有Dense）|0（backend的mask=0，故FPGA的 backend bit=1也没用）|2+1 * 13
-    Quantized|2+1*13+1|0|2+1 * 13+1+0|
-    Quantized+CPU|2+1*13+1|0|2+1 * 13+1+0|
-    Quantized+PrivateUser3|2+1*13+1|13|2+1 * 13+1+13|
-    CustomRNGKeyId|2+2*13+1+1（前面有Dense, Quantized）| 0|2+2 * 13+1+1|
+    Undefined |0/0|0|0+0|
+    Dense|1/1|0|1+0|
+    Dense+CPU | 1/1 | 0（index从0开始计数）|1+0
+    Dense+CUDA | 1/1|1|1+1| 
+    Dense+PrivateUser3|1/1|13|1+13|
+    FPGA|1+14（前面有Dense）/2|0（backend的mask=0，故设置 FPGA 最低的 14 个 backend bit=1也没用）|1+14
+    ORT|2+14/3|0| 2+14
+    Vulkan|3+14/4|0|3+14
+    Metal|4+14/5|0|4+14
+    Quantized|5+14/6|0|5+14|
+    Quantized+CPU|5+14/6|0|5+14|
+    Quantized+PrivateUser3|5+14/6|13|5+14+13|
+    CustomRNGKeyId|5+2*14（前面有Dense, Quantized）/7| 0|5+2 *14|
     ...|
-
+    |AutogradFunctionality+CPU|24+4*13（前面有 4 个特殊Functionality_Key）/24|0|24+4 * 13|
+    ...|
     <center>表 1.</center>
 
 ```c++

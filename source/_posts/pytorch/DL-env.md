@@ -283,6 +283,50 @@ docker pull pytorch/pytorch:1.7.1-cuda11.0-cudnn8-level
 docker run -p 9527:22 --gpus all -rm -itd --ipc=host -v /home/xx/xx:/home/xx/xx --name pytorch pytorch/pytorch:1.7.1-cuda11.0-cudnn8-level
 ```
 
+## 4.1 安装 caffe2
+
+安装 pytorch 时默认是不安装 caffe2 的，如要安装 caffe2，执行下述指令（linux）
+```sh
+BUILD_CAFFE2=1
+python setup.py develop
+```
+
+## 4.2 安装问题
+
+问题 1：**internal compiler error: Segmentation fault**
+
+可能是内存不够，降低线程数量，
+
+```sh
+MAX_JOB=2 # 电脑性能越好，值可以越大。如果 2 也不行，就设置为 1
+python setup.py develop
+```
+
+问题 2：**最大打开文件的句柄数量不够**
+
+执行以下指令查看最大打开文件的句柄数量，通常是 1024
+
+```sh
+ulimit -a
+```
+
+pytorch 项目编译过程中，会有较大数量的文件，所以修改这个数值，打开 /etc/security/limits.conf 文件，加入如下两行
+
+```sh
+*                hard    nofile          65535
+*                soft    nofile          65535
+```
+
+重启系统后再次执行 `ulimit -a` 查看。
+
+有时候重启系统，仍然未能修改成功，此时需要重新登录，
+
+```sh
+su <username>
+<输入 password>
+```
+
+
 # 5. 安装 mmdetection
 以 conda 虚拟环境名称 `base` 为例，其中已经安装了 PyTorch，cudatoolkit 等包，还有一些包如`matplotlib, pillow, opencv` 等图像处理相关的包也需要安装，可以使用
 ```

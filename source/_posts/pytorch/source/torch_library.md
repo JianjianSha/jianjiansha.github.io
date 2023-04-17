@@ -608,6 +608,7 @@ at::Tensor wrapper_memory_format_empty(c10::SymIntArrayRef size, c10::optional<a
 `wrapper_memory_format_empty` 的 schema 与前面注册 Def 的保持一致，在应用 `TORCH_FN` 之后就不是一个普通的函数了，而是一个将函数包装成 c++ 类，此时 `m.impl` 方法中创建 CppFunction 对象的构造函数也变成
 
 ```c++
+// 位于 torch/library.h
 template <typename FuncPtr>
 explicit CppFunction(
     FuncPtr f,
@@ -628,6 +629,7 @@ explicit CppFunction(
 回到 `wrapper_memory_format_empty` 函数中来，这个函数调用 `at::native::empty_cpu`，其定义如下
 
 ```c++
+// 位于
 Tensor empty_cpu(IntArrayRef size, c10::optional<ScalarType> dtype_opt, c10::optional<Layout> layout_opt,
                  c10::optional<Device> device_opt, c10::optional<bool> pin_memory_opt, c10::optional<c10::MemoryFormat> memory_format_opt) {
   return at::detail::empty_cpu(size, dtype_opt, layout_opt, device_opt, pin_memory_opt, memory_format_opt);
@@ -664,6 +666,7 @@ TensorBase empty_cpu(IntArrayRef size, ScalarType dtype, bool pin_memory,
 第一个 `empty_cpu` 方法中，将各参数由 `optional<T>` 转为 T 类型，如果 `optional<T>` 没有值，那么使用 T 的默认值。第二个 `empty_cpu` 方法实现则是调用 `empty_generic` 方法，
 
 ```c++
+// 位于 aten/src/ATen/EmptyTensor.cpp
 TensorBase empty_generic(
     IntArrayRef size,
     c10::Allocator* allocator,
@@ -985,4 +988,4 @@ Dispatcher::call 做了以下三件事：
     
     这个 kernel 执行时，先根据 dtype，layout 和 device 计算好 DispatchKey，本例中为 DispatchKey::CPU，然后 redispatch 到 DispatchKey::CPU 的 kernel（for DispatchKey::CPU），最后调用这个 kernel（for DispatchKey::CPU）
 
-整个创建一个指定 size 的 empty Tensor 过程已经介绍完毕，不过 Tensor 是一个 c++ 类对象，还需要使用  `THPVariable_NewWithVar` 方法将其封装为一个 PyObject 对象，这里是 `torch._C._TensorBase` 对象，这就完成了 torch.Tensor 的基类的构造，而从然完成 torch.Tensor 的构造。
+整个创建一个指定 size 的 empty Tensor 过程已经介绍完毕，不过 Tensor 是一个 c++ 类对象，还需要使用  `THPVariable_NewWithVar` 方法将其封装为一个 PyObject 对象，这里是 `torch._C._TensorBase` 对象，这就完成了 torch.Tensor 的基类的构造，从而完成 torch.Tensor 的构造。
