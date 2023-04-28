@@ -66,7 +66,7 @@ $$\theta^{\star}=\arg\min_{\theta} \sum_{i=1}^N (1-\alpha_i)\mathbb E_{p_{data}(
 
 根据 [DDPM](/2022/06/27/diffusion_model/ddpm) 中 (12) 式，这里再写出来如下，
 
-$$\tilde {\mu}_i(\mathbf x_i, \mathbf x_0)=\frac {\sqrt {\alpha_{i-1}}\beta_i}{1- \alpha_i}\mathbf x_0+\frac {\sqrt {\alpha_i}(1-\overline \alpha_{i-1})}{1- \alpha_i} \mathbf x_i \tag{8}$$
+$$\tilde {\mu} _ i(\mathbf x_i, \mathbf x_0)=\frac {\sqrt {\alpha_{i-1}}\beta_i}{1- \alpha_i}\mathbf x_0+\frac {\sqrt {\alpha_i}(1-\overline \alpha_{i-1})}{1- \alpha_i} \mathbf x_i \tag{8}$$
 
 根据 (7) 式，训练完毕后应有
 
@@ -98,7 +98,7 @@ $$\mathbf x_{i-1}=\frac 1 {\sqrt {1-\beta_i}} (\mathbf x_i+\beta_i \mathbf s_{\t
 
 $$d\mathbf x = \mathbf f(\mathbf x, t) dt + g(t) d\mathbf w \tag{13}$$
 
-其中 $d\mathbf w =W_{t+\Delta t}-W_t \sim \mathcal N(0, \Delta t)$ 是标准布朗运动。关于 SDE 更多的知识可参考 [这里](/2022/07/25/math/SDE) 。
+其中 $d\mathbf w =W_{t+\Delta t}-W_t \sim \mathcal N(0, \Delta t)$ 是标准布朗运动。$\mathbf f(\cdot, t): \mathbb R^d \rightarrow \mathbb R^d$ 是 $\mathbf x$ 的漂移系数，而 $g(\cdot): \mathbb R \rightarrow \mathbb R$ 是 $\mathbf x$ 的扩散系数。 关于 SDE 更多的知识可参考 [这里](/2022/07/25/math/SDE) 。
 
 记 $\mathbf x(t)$ 的分布为 $p_t(\mathbf x)$，从 $\mathbf x(s)$ 到 $\mathbf x(t)$ 的转移记为 $p_{st}(\mathbf x(t)|\mathbf x(s))$，其中 $0 \le s < t \le T$ 。
 
@@ -118,27 +118,43 @@ $$\theta^{\star}=\arg \min_{\theta} \mathbb E_t \{\lambda(t) \mathbb E_{p_0} \ma
 
 这里，$\lambda: [0,T] \rightarrow \mathbb R_{>0}$ 是一个权重函数，$t$ 是连续型在 $[0,T]$ 上均匀采样。当数据量足够以及模型容量足够大，那么可以求得 (15) 式的最优解记为 $\mathbf s_{\theta^{\star}}(\mathbf x,t) \approx \nabla_{\mathbf x} \log p_t$，对几乎所有的 $\mathbf x$ 和 $t$ 均成立。
 
+根据 [NCSN](/2022/07/22/diffusion_model/NCSN) 中的 (7.1) 式，通常取
+
+$$\lambda \propto 1 / \mathbb E[||\nabla_{\mathbf x(t)} \log p _ {0t} (\mathbf x(t) | \mathbf x (0))||^2]$$
 
 ## 2.4 例子
 
 前面分析的通过 (15) 式训练模型，但是其中 $p_{0t}$ 是什么形式，以及通过 (14) 式进行采样，(14) 式中的 $\mathbf f(\mathbf x,t)$ 和 $g(t)$ 又分别是什么。 这一节通过具体的例子进行讲解。
 
+$p_{0t} = p _ {0t}(\mathbf x _ t|\mathbf x _ 0)$，描述了加噪后的数据分布，由 (13) 式决定。
+
 ### 2.4.1 VE
 variance exploding （SMLD）
 
-马尔可夫链转移关系为
+使用 N 个噪声 scale，每个扰动核为如下的马尔可夫链转移，
 
 $$\mathbf x_i = \mathbf x_{i-1} + \sqrt {\sigma_i^2 - \sigma_{i-1}^2}\mathbf z_{i-1}, \quad i=1,\ldots,N \tag{16}$$
 
-其中 $\mathbf z_{i-1} \sim \mathcal N(\mathbf 0, I)$，$\mathbf x_0 \sim p_{data}$。$\sigma_{min} = \sigma_1 < \sigma_2 < \cdots < \sigma_N=\sigma_{max}$ 。从 (16) 式可计算 $\mathbb E[\mathbf x_i]=\mathbf x_0$，$\mathbb V[\mathbf x_i] = \sigma_i I$ （将 $\mathbf x_0$ 看作常量），于是
+其中 $\mathbf z_{i-1} \sim \mathcal N(\mathbf 0, I)$，$\mathbf x_0 \sim p_{data}$。$\sigma_{min} = \sigma_1 < \sigma_2 < \cdots < \sigma_N=\sigma_{max}$ 。
 
-$$\mathbf x_i |\mathbf x_0 \sim \mathcal N(\mathbf x_0, (\sigma_i^2-\sigma_0^2)I) \tag{17}$$
+**解释为什么是 (16) 的形式**：
 
-当 $N \rightarrow \infty$ ，马尔科夫链 $\{\mathbf x_i\}_{i=1}^N$ 变成连续型随机过程 $\{\mathbf x(t)\}_{t=0}^1$，将原来的 $i$ 变为 $t=i/N$ 即可，$\sigma_i$ 和 $\mathbf z_i$ 类似地变为 $\sigma(t)$ 和 $\mathbf z(t)$，那么 (16) 式为
+在 SMLD 中，$\mathbf x_i$ 是在原数据 $\mathbf x_0$ 上加噪扰动而得，即 $\mathbf x _ i - \mathbf x _ 0 \sim \mathcal N(\mathbf 0, \sigma _i^2 I)$，类似地有 $\mathbf x _ {i-1} - \mathbf x _ 0 \sim \mathcal N(\mathbf 0, \sigma _i^2 I)$，由于 $(\mathbf x _ i - \mathbf x _ 0)$ 与 $(\mathbf x _ {i-1} - \mathbf x _ 0)$ 独立（因为给定 $\mathbf x_0$ 时 $\mathbf x _ i$ 与 $\mathbf x _ {i-1}$ 条件独立），根据高斯分布的性质有
+
+$$\mathbf x _ i - \mathbf x _ {i-1} \sim \mathcal N(\mathbf 0, (\sigma _ i ^ 2 - \sigma _ {i-1} ^ 2))$$
+
+得到 (16) 式。
+
+
+为了统一表示，记 $\sigma _ 0 = 0$，于是
+
+$$\mathbf x_i |\mathbf x_0 \sim \mathcal N(\mathbf x_0, (\sigma_i ^2 - \sigma_0^2)I) \tag{17}$$
+
+当 $N \rightarrow \infty$ ，马尔科夫链 $\\{\mathbf x_i\\} _ {i=1}^N$ 变成连续型随机过程 $\\{\mathbf x(t)\\} _ {t=0}^1$，将原来的 $i$ 变为 $t=i/N$ 即可，$\sigma _i$ 和 $\mathbf z _ i$ 类似地变为 $\sigma(t)$ 和 $\mathbf z(t)$，那么 (16) 式为
 
 $$\mathbf x(t+\Delta t)=\mathbf x(t) + \sqrt {\sigma^2(t+\Delta t)-\sigma^2(t)}\mathbf z(t) = \mathbf x(t) + \sqrt {\frac {\Delta[\sigma^2(t)]}{\Delta t}\Delta t} \cdot \mathbf z(t)$$
 
-由于 $\mathbf z(t) \sim \mathcal N(\mathbf 0,I)$，那么 $\sqrt {\Delta t} \mathbf z(t) \sim \mathcal N(0, \Delta t\cdot I)$，即布朗运动的增量随机变量 $d\mathbf w$，结合上式可得
+由于 $\mathbf z(t) \sim \mathcal N(\mathbf 0,I)$，那么 $\sqrt {\Delta t} \mathbf z(t) \sim \mathcal N(0, \Delta t\cdot I)$，此即布朗运动的增量随机变量 $d\mathbf w$，结合上式可得
 
 $$d\mathbf x = \sqrt {\frac {d[\sigma^2(t)]}{dt}}d\mathbf w \tag{18}$$
 
@@ -146,7 +162,14 @@ $$d\mathbf x = \sqrt {\frac {d[\sigma^2(t)]}{dt}}d\mathbf w \tag{18}$$
 
 $$\mathbf f(\mathbf x,t)=\mathbf 0, \quad g(t)=\sqrt {\frac {d[\sigma^2(t)]}{dt}} \tag{19}$$
 
-于是我们知道了 $p_{0i}(\mathbf x_i|\mathbf x_0)$ 为 (17) 式，$\mathbf f(\mathbf x, t)$ 和 $g(t)$ 为 (19) 式，可以据此来训练模型并采样。
+(18) 时微分方程的初始条件为 $t=0$ 时， $\mathbf x(0)$ 为真实数据。
+
+于是我们知道了 $p_{0i}(\mathbf x_i|\mathbf x_0)$ 为 (17) 式，$\mathbf f(\mathbf x, t)$ 和 $g(t)$ 为 (19) 式，那么通过类比可知
+
+$$p_{0t}(\mathbf x(t)|\mathbf x(0))=\mathcal N(\mathbf x(0), [\sigma ^ 2(t) - \sigma ^ 2(0)]I)$$
+
+其中，$\sigma ^2 (t)$ 是预设的一个函数，例如某个线性递增函数，且 $t=0, \ t=1$ 两个端点值也预先给定。
+
 ### 2.4.2 VP
 
 variance preserving（DDPM）
@@ -159,19 +182,21 @@ $$\mathbf x_i =\sqrt {1-\beta_i} \mathbf x_{i-1} + \sqrt {\beta_i} \mathbf z_{i-
 
 令 $\overline \beta_i = N \beta_i$，那么 (20) 式变为
 
-$$\mathbf x_i =\sqrt {1-\frac {\overline \beta_i}{N}} \mathbf x_{i-1} + \sqrt {\frac {\beta_i} N} \mathbf z_{i-1}$$
+$$\mathbf x_i =\sqrt {1-\frac {\overline \beta_i}{N}} \mathbf x_{i-1} + \sqrt {\frac {\overline \beta_i} N} \mathbf z_{i-1}$$
 
 当 $N \rightarrow \infty$ 时，令 $\beta(\frac i N)=\overline \beta_i$，注意这里的 $\beta(\frac i N)$ 与原来的 $\beta_i$ 不相等，关系为 $\beta(\frac i N)=N \beta_i$，根据 $\Delta t=\frac 1 N$，那么 $\beta_i=\beta(\frac i N) / N=\beta(\frac i N) \Delta t$。令 $\mathbf x(\frac i N)=\mathbf x_i$，$\mathbf z(\frac i N)=\mathbf z_i$，这两个变量的变换与 VE 中相同。
 
-于是 (20) 式变为
+$t\in \\{0, \frac 1 N, \ldots, \frac {N-1} N \\}$，
+
+令 $t \leftarrow i-1, \ t+\Delta t \leftarrow i$，于是 (20) 式变为
 
 
 $$\begin{aligned}\mathbf x(t+\Delta t)&=\sqrt {1-\beta(t+\Delta t) \Delta t} \cdot \mathbf x(t)+\sqrt {\beta (t+\Delta t)\Delta t} \cdot \mathbf z(t)
-\\ & \approx \mathbf x(t) - \frac 1 2 \beta(t+\Delta t)\Delta t \ \mathbf x(t) + \sqrt {\beta(t+\Delta t)\Delta t} \ \mathbf z(t)
-\\& \approx \mathbf x(t) - \frac 1 2 \beta(t)\Delta t \ \mathbf x(t) + \sqrt {\beta(t)\Delta t} \ \mathbf z(t)
+\\\\ & \approx \mathbf x(t) - \frac 1 2 \beta(t+\Delta t)\Delta t \ \mathbf x(t) + \sqrt {\beta(t+\Delta t)\Delta t} \ \mathbf z(t)
+\\\\ & \approx \mathbf x(t) - \frac 1 2 \beta(t)\Delta t \ \mathbf x(t) + \sqrt {\beta(t)\Delta t} \ \mathbf z(t)
 \end{aligned} \tag{21}$$
 
-上式推导对 $\sqrt {1-\beta(t+\Delta t)\Delta t}$ 进行了泰勒一阶展开，根据上式推导结果可知
+上式推导对 $\sqrt {1-\beta(t+\Delta t)\Delta t}$ 进行了泰勒一阶展开，并且当 $\Delta t \ll 1$ 时 (21) 式中的约等关系是合理的， 根据上式推导结果可知
 
 $$d\mathbf x = -\frac  1 2 \beta(t) \mathbf x \ dt + \sqrt {\beta(t)} \ d\mathbf w \tag{22}$$
 
@@ -181,11 +206,22 @@ $$\mathbf f(\mathbf x, t)=-\frac 1 2 \beta(t) \mathbf x, \quad g(t) =\sqrt {\bet
 
 其中 $\beta(t)=N \beta_{t\cdot N}$ 。
 
+
+**比较**：
+
+1. SMLD 中，当 $t \rightarrow \infty$ 时，方差 $\sigma _ t ^2$ 将会爆炸，这是因为 $\sigma _ i ^ 2 - \sigma _ {i-1}^2 > 0$ 始终成立，求和时，如果级数不收敛，则 $\sigma _ t ^2 \rightarrow \infty$
+
+2. DDPM 中，当 $t \rightarrow \infty$ 方差为 $1-\overline \alpha_t \rightarrow 1$
+
 接下来计算 $p(\mathbf x_i|\mathbf x_0)$。在原 DDPM 论文中，$q(\mathbf x_i |\mathbf x_0)$ 由 (6) 式给出。然而这里将 $\beta_i$ 修改为 $\beta(t)$，其含义已经发生变化，所以现在是依据 (22) 式而非 (20) 式来描述马尔可夫链转移，故 $q(\mathbf x_i |\mathbf x_0)$ 不能使用 (6) 式，我们重新推导。
 
-对 (21) 式两边取期望，
+根据随机变量 $Z=X+Y$，其中 $X, \ Y$ 独立，那么有 $E[Z]=E[X]+E[Y]$ 的知识，对 (21) 式两边取期望，
 
 $$\mathbf e(t+\Delta t)=\mathbf e(t)  - \frac 1 2 \beta(t) \Delta t  \mathbf e(t)+\mathbf 0 \tag{24}$$
+
+上式中，$\mathbf e(t) \stackrel{\Delta}= \mathbb E _ {\mathbf x(t)}[\mathbf x(t)]$, $\mathbb E _ {\mathbf z(t)}[\mathbf z(t)] = \mathbf 0$，$\mathbf e(t+\Delta t) \stackrel{\Delta}= \mathbb E _ {\mathbf x(t+\Delta t)} [\mathbf x(t+\Delta t)]$。
+
+
 
 变换得
 
@@ -210,45 +246,45 @@ $$d \Sigma(t)= \beta(t) (I - \Sigma(t)) dt \tag{29}$$
 
 积分得
 
-$$\Sigma(t)=Ce^{\int_0^t -\beta(s) ds} + I \tag{30}$$
+$$\Sigma(t)=Ce ^ {\int_0 ^ t -\beta(s) ds} + I \tag{30}$$
 
 根据初值条件 $\Sigma(t)=\Sigma_0$，知 $C=\Sigma_0 -I$，于是
 
-$$\Sigma(t)=(\Sigma_0 -I)e^{\int_0^t -\beta(s) ds} + I \tag{31}$$
+$$\Sigma(t)=(\Sigma_0 -I) e ^ {\int _ 0 ^ t -\beta(s) ds} + I \tag{31}$$
 
 于是条件分布为
 
-$$\mathbf x_t| \mathbf x_0 \sim  \mathcal N\left(\mathbf e_0  e^{-\frac 1 2 \int_0^t \beta(t)ds}, (\Sigma_0 -I)e^{\int_0^t -\beta(s) ds} + I\right) \tag{32}$$
+$$\mathbf x_t| \mathbf x_0 \sim  \mathcal N\left(\mathbf e_0  e ^ {-\frac 1 2 \int _ 0 ^ t \beta(t)ds}, (\Sigma_0 -I) e ^ {\int _ 0 ^ t -\beta(s) ds} + I\right) \tag{32}$$
 
 如果 $\mathbf x_0$ 已知，那么 $\mathbf e_0 =\mathbf x_0$，且 $\Sigma_0=\mathbf 0$，(32) 式变为
 
-$$\mathbf x_t| \mathbf x_0 \sim  \mathcal N\left(\mathbf x_0  e^{-\frac 1 2 \int_0^t \beta(t)ds},  -Ie^{\int_0^t -\beta(s) ds} + I\right) \tag{33}$$
+$$\mathbf x_t| \mathbf x_0 \sim  \mathcal N\left(\mathbf x_0  e ^ {-\frac 1 2 \int _ 0 ^ t \beta(t)ds},  -I e ^ {\int _ 0 ^ t -\beta(s) ds} + I\right) \tag{33}$$
 
 ### 2.4.3 sub-VP
 
 受 VP SDE 启发，作者提出了一个新的 SDE，称为 sub-VP SDE，如下
 
-$$d\mathbf x = -\frac 1 2 \beta(t) \mathbf x \ dt + \sqrt {\beta(t)(1-e^{-2\int_0^t \beta(s)ds})} d\mathbf w \tag{34}$$
+$$d\mathbf x = -\frac 1 2 \beta(t) \mathbf x \ dt + \sqrt {\beta(t)(1-e ^{-2\int_0^t \beta(s)ds})} d\mathbf w \tag{34}$$
 
 与 DDPM VP 一样，$\mathbf x(t)$ 的期望满足 (25) 式，于是期望为 (27) 式。
 
 协方差根据 (28) (29) 式进行调整，得
 
-$$d\Sigma(t) =\beta(t) (I - I e^{-2\int_0^t \beta(s)ds} - \Sigma(t)) dt$$
+$$d\Sigma(t) =\beta(t) (I - I e ^{-2\int_0^t \beta(s)ds} - \Sigma(t)) dt$$
 
 积分得 
 
-$$\Sigma(t)=Ce^{\int_0^t -\beta(s) ds} + I + I e^{-2\int_0^t \beta(s)ds}$$
+$$\Sigma(t)=Ce^{\int_0^t -\beta(s) ds} + I + I e ^{-2\int_0^t \beta(s)ds}$$
 
 根据初值条件 $\Sigma(t)=\Sigma_0$，于是 $\Sigma_0=C+I+I$，于是
 
-$$\Sigma(t)=(\Sigma_0-2I)e^{\int_0^t -\beta(s) ds} + I + I e^{-2\int_0^t \beta(s)ds}\tag{35}$$
+$$\Sigma(t)=(\Sigma_0-2I)e^{\int_0^t -\beta(s) ds} + I + I e ^{-2\int_0^t \beta(s)ds}\tag{35}$$
 
 **性质：**
 
 1. 当 $\Sigma_{VP}(0)=\Sigma_{sub-VP}(0)$ 时，
 
-    $$\Sigma_{VP}(t)-\Sigma_{sub-VP}(t)=I(e^{\int_0^t -\beta(s) ds}-e^{-2\int_0^t \beta(s)ds}) \succ 0 \cdot I$$
+    $$\Sigma_{VP}(t)-\Sigma_{sub-VP}(t)=I(e ^{\int_0^t -\beta(s) ds}-e ^{-2\int_0^t \beta(s)ds}) \succ 0 \cdot I$$
 
     这表明，使用 sub-VP SDE，$\mathbf x_t |\mathbf x_0$ 分布的方差更小。
 

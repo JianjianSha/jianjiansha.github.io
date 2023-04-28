@@ -88,15 +88,15 @@ $$\int_0^T c dW(t, \omega)=cW(T, \omega)$$
 $g(t,\omega)=W(t, \omega)$，故
 
 $$\begin{aligned} \int_0^T W(t,\omega)dW(t,\omega)&=\lim_{N \rightarrow \infty} \sum_{i=1}^N W(t_{i-1},\omega)(W(t_i,\omega)-W(t_{i-1},\omega))
-\\&=\lim_{N\rightarrow \infty} [\frac 1 2 \sum_{i=1}^N (W^2(t_i,\omega)-W^2(t_{i-1},\omega)) - \frac 1 2 \sum_{i=1}^N (W(t_i,\omega)-W(t_{i-1},\omega))^2]
-\\&=-\frac 1 2 \lim_{N\rightarrow \infty} \sum_{i=1}^N (W(t_i,\omega)-W(t_{i-1},\omega))^2 + \frac  1 2 W^2(T, \omega)
+\\\\ &=\lim_{N\rightarrow \infty} [\frac 1 2 \sum_{i=1}^N (W^2(t_i,\omega)-W ^ 2(t_{i-1},\omega)) - \frac 1 2 \sum_{i=1}^N (W(t_i,\omega)-W(t _ {i-1},\omega))^2]
+\\\\ &=-\frac 1 2 \lim_{N\rightarrow \infty} \sum_{i=1}^N (W(t_i,\omega)-W(t _ {i-1},\omega))^2 + \frac  1 2 W^2(T, \omega)
 \end{aligned} \tag{12}$$
 
 现在关注 (12) 推导右侧的第一项（求极限项）的统计量，
 
 $$\begin{aligned}E[\lim_{N\rightarrow \infty} \sum_{i=1}^N (W(t_i,\omega)-W(t_{i-1},\omega))^2] &=\lim_{N \rightarrow \infty} \sum_{i=1}^N E[(W(t_i,\omega)-W(t_{i-1},\omega))^2]
-\\ &= \lim_{N \rightarrow \infty} \sum_{i=1}^N (t_i - t_{i-1})\
-\\ &= T
+\\\\ &= \lim_{N \rightarrow \infty} \sum_{i=1}^N (t_i - t_{i-1})\
+\\\\ &= T
 \end{aligned}$$
 
 
@@ -107,15 +107,15 @@ $$W(t_i,\omega) - W(t_{i-1},\omega) \sim \mathcal N(0, t_i-t_{i-1})$$
 故 $E[(W(t_i,\omega) - W(t_{i-1},\omega))^2]=t_i-t_{i-1}$
 
 $$\begin{aligned}V[\lim_{N\rightarrow \infty} \sum_{i=1}^N (W(t_i,\omega)-W(t_{i-1},\omega))^2]&=\lim_{N \rightarrow \infty} \sum_{i=1}^N V[(W(t_i,\omega)-W(t_{i-1},\omega))^2]
-\\&=2 \lim_{N \rightarrow \infty} \sum_{i=1}^N (t_i - t_{i-1})^2
-\\ &\le 2\max_i (t_i -t_{i-1}) \lim_{N \rightarrow \infty} \sum_{i=1}^N (t_i - t_{i-1})
-\\ &= 2\max_i (t_i - t_{i-1}) \cdot T
-\\ &=0
+\\\\&=2 \lim_{N \rightarrow \infty} \sum_{i=1}^N (t_i - t_{i-1})^2
+\\\\ &\le 2\max_i (t_i -t_{i-1}) \lim_{N \rightarrow \infty} \sum_{i=1}^N (t_i - t_{i-1})
+\\\\ &= 2\max_i (t_i - t_{i-1}) \cdot T
+\\\\ &=0
 \end{aligned} \tag{13}$$
 
 上式推导中第二个等式是根据 
 
-$$V[X^2]=E[X^4] - E^2[X^2]=3(t_i-t_{i-1})^2 - (t_i-t_{i-1})^2=2(t_i - t_{i-1})^2$$
+$$V[X ^ 2]=E[X ^ 4] - E ^ 2[X ^ 2]=3(t_i-t_{i-1})^2 - (t_i-t_{i-1}) ^2=2(t_i - t_{i-1}) ^2$$
 
 最后一个等式是因为 $\max_i (t_i - t_{i-1}) \rightarrow 0$ 。
 
@@ -139,7 +139,7 @@ $$E[\int_0^T g(t,\omega) dW(t, \omega)] = 0 \tag{16}$$
 证明：
 
 $$E[\int_0^T g(t,\omega)dW(t,\omega)] = E[\lim_{N \rightarrow \infty} \sum_{i=1}^N g(t_{i-1},\omega)(W(t_i,\omega)-W(t_{i-1},\omega))]
-\\=\lim_{N \rightarrow \infty} \sum_{i=1}^N E[g(t_{i-1},\omega)]E[(W(t_i,\omega)-W(t_{i-1},\omega))]=0$$
+\\\\ =\lim_{N \rightarrow \infty} \sum_{i=1}^N E[g(t_{i-1},\omega)]E[(W(t_i,\omega)-W(t_{i-1},\omega))]=0$$
 
 第二个等式是因为 $g(t,\omega)$ 与 $W(t, \omega)$ 相互独立。
 
@@ -154,11 +154,11 @@ $$V[\int_0^T g(t,\omega)dW(t,\omega)] = \int_0^T E[g^2(t,\omega)]dt \tag{17}$$
 证明：
 
 $$\begin{aligned}V[\int_0^T g(t,\omega)dW(t,\omega)]&=E[(\int_0^T g(t,\omega)dW(t,\omega))^2]
-\\&=E[(\lim_{N \rightarrow \infty} \sum_{i=1}^N g(t_{i-1},\omega)(W(t_i,\omega)-W(t_{i-1},\omega)))^2]
-\\&=\lim_{N\rightarrow \infty} \sum_{i=1}^N \sum_{j=1}^N E[g(t_{i-1},\omega)g(t_{j-1},\omega)(W(t_i,\omega)-W(t_{i-1},\omega))(W(t_j,\omega)-W(t_{j-1},\omega))]
-\\&=\lim_{N\rightarrow \infty} \sum_{i=1}^N  E[g^2(t_{i-1}, \omega)]E[(W(t_i,\omega)-W(t_{i-1},\omega))^2]
-\\&= \lim_{N\rightarrow \infty} \sum_{i=1}^N  E[g^2(t_{i-1}, \omega)](t_i-t_{i-1})
-\\&=\int_0^T E[g^2(t,\omega)] dt
+\\\\ &=E[(\lim_{N \rightarrow \infty} \sum_{i=1}^N g(t_{i-1},\omega)(W(t_i,\omega)-W(t_{i-1},\omega)))^2]
+\\\\ &=\lim_{N\rightarrow \infty} \sum_{i=1}^N \sum_{j=1}^N E[g(t_{i-1},\omega)g(t_{j-1},\omega)(W(t_i,\omega)-W(t_{i-1},\omega))(W(t_j,\omega)-W(t_{j-1},\omega))]
+\\\\ &=\lim_{N\rightarrow \infty} \sum_{i=1}^N  E[g^2(t_{i-1}, \omega)] E[(W(t_i,\omega)-W(t_{i-1},\omega))^2]
+\\\\ &= \lim_{N\rightarrow \infty} \sum_{i=1}^N  E[ g^2(t_{i-1}, \omega) ] (t_i-t_{i-1})
+\\\\ &=\int_0^T E[g^2(t,\omega)] dt
 \end{aligned} \tag{18}$$
 
 上式推导中，第一个等号是因为根据 (16)，目标积分的期望为 0。第四个等号是因为 $g(t_i,\omega)$，$g(t_j,\omega)$，$W(t_i,\omega)-W(t_{i-1},\omega)$，$W(t_j,\omega)-W(t_{j-1},\omega)$ 均相互独立（$i \ne j$）。
@@ -197,8 +197,8 @@ $$dY(t)=\phi_t(t,X)dt + \frac 1 2 \phi_{tt}(t,X)dt^2+\phi_x(t,X)dX(t) + \frac 1 
 将 (20) 式代入 (23) 式得
 
 $$\begin{aligned}dY(t)=& \phi_t(t,X)dt+\phi_x(t,X)[f(t,X(t))dt + g(t,X(t))dW(t)]
-\\&+\frac 1 2 \phi_{tt}(t,X) dt^2 + \frac 1 2 \phi_{xx}(t,X)(f^2(t,X(t))dt^2+g^2(t,X(t))dW^2(t)
-    \\ &+ 2f(t,X(t))g(t,X(t))dtdW(t)) + h.o.t.\end{aligned}\tag{24}$$
+\\\\ &+\frac 1 2 \phi_{tt}(t,X) dt^2 + \frac 1 2 \phi_{xx}(t,X)(f ^ 2(t,X(t))dt ^ 2+g ^ 2(t,X(t))dW ^ 2(t)
+    \\\\ &+ 2f(t,X(t))g(t,X(t))dtdW(t)) + h.o.t.\end{aligned}\tag{24}$$
 
 高阶微分项 $(dt,dW)$ 快速趋于 0，$dt^2 \rightarrow 0$ 以及 $dtdW(t) \rightarrow 0$。根据零初值标准布朗运动的规则有 $W(t) \sim \mathcal N(0,t)$ ，所以 $E[W^2]=t$，故
 

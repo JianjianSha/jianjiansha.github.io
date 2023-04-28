@@ -3,6 +3,7 @@ title: Denoising Diffusion Implicit Models
 date: 2022-07-21 09:26:16
 tags: diffusion model
 mathjax: true
+summary: DDIM-非马尔可夫转移过程
 ---
 
 论文：[Denoising Diffusion Implicit Models](https://arxiv.org/abs/2010.02502)
@@ -39,7 +40,23 @@ $$p_{\theta}(x_{0:T})=p_{\theta}(x_T) \prod_{t=1}^T p_{\theta}(x_{t-1}|x_t)$$
 
 $$\max_{\theta} \mathbb E_{q(x_0)}[\log p_{\theta}(x_0)] \le \max_{\theta} \mathbb E_{q(x_{0:T})} [\log p_{\theta}(x_{0:T})-\log q(x_{1:T}|x_0)]$$
 
-根据推导，上式等价于对下式求最小，
+<details>
+<summary>推导上述不等式的过程</summary>
+
+为了简洁，省略 $p$ 的下标 $\theta$，
+
+$$\begin{aligned} \mathbb E_{q(x_0)}[\log p(x_0)] &= \mathbb E_{q(x_{0:T})}[\log p(x_0)]
+\\\\ &= \mathbb E_{q(x_{0:T})}[\log p(x_0) + \log p(x_{1:T}|x_0) - \log p(x_{1:T}|x_0)]
+\\\\ &= \mathbb E_{q(x_{0:T})}[\log p(x_{0:T}) - \log q(x_{1:T}|x_0) + \log q(x_{1:T}|x_0) - \log p(x_{1:T}|x_0)]
+\\\\ &= \mathbb E_{q(x_{0:T})}[\log p(x_{0:T}) - \log q(x_{1:T}|x_0)] + D_{KL}(q(x_{1:T}|x_0) || p(x_{1:T}|x_0))
+\\\\ & \le \mathbb E_{q(x_{0:T})}[\log p(x_{0:T}) - \log q(x_{1:T}|x_0)]
+\end{aligned}$$
+
+最后一步推导是因为 KL 散度 $D_{kl}(P||Q) \ge 0$，且 $P=Q$ 时等号成立。
+
+</details>
+
+根据推导（推导过程见 [DDPM](2022/06/27/diffusion_model/ddpm) 一文），上式等价于对下式求最小，
 
 $$L_{\gamma}(\epsilon_{\theta})=\sum_{t=1}^T \gamma_t \mathbb E_{x_0 \sim q(x_0), \epsilon_t \sim \mathcal N(0,I)} [\|\epsilon_{\theta}^{(t)}(x_t) -\epsilon_t\|_2^2]$$
 
@@ -49,25 +66,29 @@ $$L_{\gamma}(\epsilon_{\theta})=\sum_{t=1}^T \gamma_t \mathbb E_{x_0 \sim q(x_0)
 
 ## 2.1 非马尔可夫前向过程
 
-考虑隐变量联合分布
+考虑如下形式的隐变量联合分布
 
 $$q_{\sigma}(x_{1:T}|x_0)=q_{\sigma}(x_T|x_0) \prod_{t=2}^T q_{\sigma}(x_{t-1}|x_t, x_0)$$
 
-其中 $q_{\sigma}(x_T|x_0)=\mathcal N(\sqrt {\overline \alpha_T} x_0, (1-\overline \alpha_T) I)$ ，且对 $t>1$ 有
+上式使用 $q_ {\sigma} (x_ {t-1}|x_t, x_0)$ 代替马尔可夫过程 $q_(x_t|x_{t-1})$，故上式不是一个马尔可夫过程。上式中令 $q_{\sigma}(x_T|x_0)=\mathcal N(\sqrt {\overline \alpha_T} x_0, (1-\overline \alpha_T) I)$ ，这样做使得最终变量的分布与 DDPM 中相同。
+
+对 $t>1$ 有
 
 $$q_{\sigma}(x_{t-1}|x_t,x_0)=\mathcal N \left (\sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2} \cdot \frac {x_t-\sqrt {\overline \alpha_t} x_0}{\sqrt {1-\overline \alpha_t}} , \sigma_t^2 I\right) \tag{1}$$
 
-$\sigma_t$ 用于控制前向过程中的随机性强度，当 $\sigma_t \rightarrow 0$，那么只要观察到 $x_0, \ x_t$，那么 $x_{t-1}$ 就被固定。
+$\sigma_t$ 用于控制前向过程中的随机性强度，当 $\sigma_t \rightarrow 0$ 时，(1) 式高斯分布在期望处变得很陡，变成一个脉冲，那么只要观察到 $x_0, \ x_t$，那么 $x_{t-1}$ 就被固定（在期望处）。$\sigma_t$ 值的选择在下文算法一栏中有介绍。
 
-选择 (1) 式是为了确保满足 $q_{\sigma}(x_t|x_0)=\mathcal N(\sqrt {\overline \alpha_t} x_0, (1-\overline \alpha_t)I), \ t=1,\ldots, T$，证明如下：
+选择 (1) 式是为了确保满足 $q_{\sigma}(x_t|x_0)=\mathcal N(\sqrt {\overline \alpha_t} x_0, (1-\overline \alpha_t)I), \ t=1,\ldots, T$，
+
+证明：
 
 根据归纳法证明。假设有
 
-$$q_{\sigma}(x_t|x_0)=\mathcal N(\sqrt {\overline \alpha_t}x_0, \sqrt {1-\overline \alpha_t}I) \tag{2}$$
+$$q_{\sigma}(x_t|x_0)=\mathcal N(\sqrt {\overline \alpha_t}x_0, (1-\overline \alpha_t)I) \tag{2}$$
 
 初始条件为 $t=T$ 时，上式成立，那么如果能证明如下 (3) 式成立，那么结论得证。
 
-$$q_{\sigma}(x_{t-1}|x_0)=\mathcal N(\sqrt {\overline \alpha_{t-1}}x_0, \sqrt {1-\overline \alpha_{t-1}}I) \tag{3}$$
+$$q_{\sigma}(x_{t-1}|x_0)=\mathcal N(\sqrt {\overline \alpha_{t-1}}x_0, (1-\overline \alpha_{t-1})I) \tag{3}$$
 
 
 首先，计算边缘分布
@@ -78,15 +99,43 @@ $$q_{\sigma}(x_{t-1}|x_0)=\int_{x_t} q_{\sigma}(x_t|x_0) q_{\sigma}(x_{t-1}|x_t,
 
 以及我们的假设条件
 
-$$q_{\sigma}(x_t|x_0)=\mathcal N(\sqrt {\overline \alpha_t}x_0, \sqrt {1-\overline \alpha_t}I)$$
+$$q_{\sigma}(x_ {t-1}|x_0)=\mathcal N(\sqrt {\overline \alpha_t}x_0, (1-\overline \alpha_t)I)$$
 
-将上式和 (1) 式代入边缘分布，得
+将上式和 (1) 式代入边缘分布，可计算出结果。
 
-$$\mathbb E[x_{t-1}]=\sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2} \cdot \frac {\sqrt {\overline \alpha_t}x_0-\sqrt {\overline \alpha_t} x_0}{\sqrt {1-\overline \alpha_t}}=\sqrt {\overline \alpha_{t-1}} x_0$$
+对于两个随机向量 $\mathbf x_1, \mathbf x_2$，记联合概率密度分布的参数如下，
 
-$$\text {Cov}[x_{t-1}]=\sigma_t^2 I+\frac {1-\overline \alpha_{t-1} -\sigma_t^2}{1-\overline \alpha_t}(1-\overline \alpha_t)I=(1-\overline \alpha_{t-1})I$$
+$$\mu = (\mu_1, \mu_2)$$
+
+$$\Sigma=\begin{bmatrix} \sigma_1^2 & \rho \sigma_1 \sigma_2 \\\\ \rho \sigma_1 \sigma_2 & \sigma_2^2 \end{bmatrix}$$
+
+那么条件分布为（这部分知识可参考相关教材），
+
+$$p(x_1|x_2) = \mathcal N(\mu_1 + \rho \sigma_1 / \sigma_2 (x_2 - \mu_2), (1 - \rho^2) \sigma_1 ^2)$$
+
+$$p(x_2|x_1) = \mathcal N(\mu_2 + \rho \sigma_2 / \sigma_1(x_1 - \mu_1), (1 - \rho^2) \sigma_2^2)$$
+
+根据条件分布公式，令 $x_1, \ x_2$ 分别表示 $x_{t-1}, \ x_t$，可得
+
+$$\mathbb E[x_{t-1}|x_0]=\mathbb E[x_{t-1}|x_t,x_0]\vert _ {x_1=\sqrt{\overline \alpha _ t}x_0} =\sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2} \cdot \frac {\sqrt {\overline \alpha_t}x_0-\sqrt {\overline \alpha_t} x_0}{\sqrt {1-\overline \alpha_t}}=\sqrt {\overline \alpha_{t-1}} x_0$$
+
+
+比较条件分布的期望表达式以及 (1) 式的期望表达式，可知 
+
+$$\rho^2 \mathbb V_{t-1}/\mathbb V_t = (1-\overline \alpha_{t-1} -\sigma_t^2)/(1-\overline \alpha_t)$$
+
+代入 $\mathbb V_t = (1-\overline \alpha_t)$ 到上式中，化简后可得
+
+$$\mathbb V_{t-1}= \sigma_t^ 2/(1-\rho^2)= \sigma_t^2 / (1-\frac {1-\overline \alpha_{t-1} -\sigma_t^2}{\mathbb V_{t-1}})$$
+
+解上式得，
+
+$$\text{Cov} = \mathbb V_{t-1}I=(1-\overline \alpha_{t-1})I$$
 
 故 (3) 式得证，于是满足 (1) 式的分布可以确保（3）式成立。证毕。
+
+结论：**DDIM与DDPM 在每个 time step 上得到的加噪数据的分布其实是相同的，只是每个 time step 转移的过程不同，DDPM 是马尔可夫过程，DDIM 是非马尔可夫过程。**
+
 
 根据贝叶斯定理，可以得到前向过程为
 
@@ -102,7 +151,11 @@ $$q_{\sigma}(x_t|x_{t-1}, x_0)= \frac {q_{\sigma}(x_{t-1}|x_t,x_0) q_{\sigma}(x_
 
 定义一个可训练的生成过程 $p_{\theta}(x_{0:T})$，其中 $p_{\theta}^{(t)}(x_{t-1}|x_t)$ 利用 $q_{\sigma}(x_{t-1}|x_t, x_0)$。
 
-训练阶段，给定一个样本 $x_0 \sim q(x_0)$，以及一个随机变量 $\epsilon_t \sim \mathcal N(0,I)$，根据 (2) 式可以得到 $x_t$，那么模型 $\epsilon_{\theta}^{(t)}(x_t)$ 用于预测 $\epsilon_t$，损失函数为 $L_{\gamma}(\epsilon_{\theta})$ 。
+训练阶段，给定一个样本 $x_0 \sim q(x_0)$，以及一个随机变量 $\epsilon_t \sim \mathcal N(0,I)$，根据 (2) 式可以得到
+
+$$x_t=\sqrt {\overline \alpha_t} x_0 +\sqrt {1-\overline \alpha_t} \epsilon_t$$
+
+那么模型输出 $\epsilon_{\theta}^{(t)}(x_t)$ 用于预测 $\epsilon_t$，损失函数为 $L_{\gamma}(\epsilon_{\theta})$ 。
 
 生成过程（反向过程）中，给定一个带噪观测数据 $x_t$，根据 (2) 式进行变换得到 $x_0$ 的预测，为
 
@@ -110,37 +163,81 @@ $$f_{\theta}^{(t)}(x_t) = (x_t - \sqrt {1-\overline \alpha_t} \cdot \epsilon_{\t
 
 得到 $x_0$ 的预测后，根据 (1) 式，可以得到 $x_{t-1}$，需要注意 $t=1$ 是特殊情况不使用 (1) 式，反向过程总结如下，
 
-$$p_{\theta}^{(t)}(x_{t-1}|x_t) = \begin{cases} \mathcal N(f_{\theta}^{(1)}(x_1), \sigma_1^2 I) & t=1 \\ q_{\sigma}(x_{t-1}|x_t, f_{\theta}^{(t)}(x_t)) & \text{o.w.}\end{cases} \tag{5}$$
+$$p_{\theta}^{(t)}(x_{t-1}|x_t) = \begin{cases} \mathcal N(f_{\theta}^{(1)}(x_1), \sigma_1^2 I) & t=1 \\\\ q_{\sigma}(x_{t-1}|x_t, f_{\theta}^{(t)}(x_t)) & \text{o.w.}\end{cases} \tag{5}$$
 
 上式第二种 case 就是 (1) 式，只是其中可观测数据 $x_0$ 使用 $f_{\theta}^{(t)}(x_t)$ 代替。
-上式第一种 case 就是以 $f_{\theta}^{(1)}(x_1)$ 为中心的高斯分布，毕竟 $f_{\theta}^{(1)}(x_1)$ 就是基于 $x_1$ 对 $x_0$ 的预测，方差 $\sigma_1^2I$ 与 (1) 式保持一致。
+上式第一种 case 就是以 $f_{\theta}^{(1)}(x_1)$ 为中心的高斯分布，毕竟 $f_{\theta}^{(1)}(x_1)$ 就是基于 $x_1$ 对 $x_0$ 的预测，方差 $\sigma_1^2I$ 与 (1) 式保持一致，如果仍用第二种形式，那就变成了 $q_{\sigma} (x _ 0|x _1, f _ {\theta}^{(1)}(x_1))$，这个表达式本身是基于 $x_1$ 预测 $x_0$ 的分布，而其用到的条件变量 $f _ {\theta}^{(1)}(x _1)$ 也是基于 $x_1$ 预测 $x_0$ 的值，引起冲突。
 
-第 `1` 节内容也提到过，优化目标函数为最小化下式
+第 `1` 节内容也提到过，优化目标函数为最小化下式：
 
 $$J_{\sigma}(\epsilon_{\theta})=\mathbb E_{q_{\sigma}(x_{0:T})}[\log q_{\sigma}(x_{1:T}|x_0) - \log p_{\theta}(x_{0:T})]
-\\=\mathbb E_{q_{\sigma}(x_{0:T})}[\log q_{\sigma}(x_T|x_0)+\sum_{t=2}^T \log q_{\sigma}(x_{t-1}|x_t,x_0)-\sum_{t=1}^T \log p_{\theta}^{(t)}(x_{t-1}|x_t)-\log p_{\theta}(x_T)]$$
+\\\\ =\mathbb E_{q_{\sigma}(x_{0:T})}[\log q_{\sigma}(x_T|x_0)+\sum_{t=2}^T \log q_{\sigma}(x_{t-1}|x_t,x_0)-\sum_{t=1}^T \log p_{\theta}^{(t)}(x_{t-1}|x_t)-\log p_{\theta}(x_T)]$$
 
-从上式看出似乎对于不同的 $\sigma$ 值，都会训练出不同的模型，实际上对于某确定的 $\gamma$ 值，$J_{\sigma}$ 均等价于 $J_{\gamma}$ 。根据定理 1 可证。
+这与 DDPM 中相同，因为目标函数均为 $\mathbb E_{q(x_0)} [-\log p_{\theta}(x_0)]$，DDIM 与 DDPM 的区别在于状态转移过程不同（是否是马尔可夫过程），而推导 $\mathbb E_{q(x_0)} [-\log p_{\theta}(x_0)]$ 过程中不涉及到具体的状态转移过程。
 
-**定理 1** 对于任意 $\sigma > 0$，存在 $\gamma \in \mathbb R_{\ge 0}^T$ 以及 $C \in \mathbb R$，使得 $J_{\sigma} = J_{\gamma} + C$
+仿照 DDPM，上式目标函数也可以分为 $L_T$、$L_{1:T-1}$ 和 $L_0$，其中 $L_T$ 包含了 $q_{\sigma}(x_T|x_0)$ 和 $p(x_T)=\mathcal N(x_T;\mathbf 0, I)$，这两个分布均与模型参数 $\theta$ 无关，可看作常量。
 
-# 3. 泛化生成过程的采样
+### 2.2.1 $L_{1:T-1}$
+
+$L_{t-1}$ 的表达式为
+
+$$L_{t-1}=\mathbb E_q \left[-\log \frac {p_{\theta}(x_{t-1}|x _ t)}{q_{\sigma}(x _ {t-1}|x _ t,x _ 0)} \right]$$
+
+再次强调这些表达式的形式均与 DDPM 中相同，区别是两者的 $q(x_{t-1}|x _ t, x _ 0)$ 的表达式不同。经过与 DDPM 中相同的推导，
+
+$$L_{t-1} = \mathbb E_{q(x_0, x _ t)} \left [ \frac 1 {2 \mathbb V_t} ||\tilde \mu_t(x_t, x_0) - \mu_{\theta}(x_t, t)||^2 \right] + C$$
+
+根据 (1) 式，可知
+
+$$\tilde \mu_t(x_t, x_0) = \sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2} \cdot \frac {x_t-\sqrt {\overline \alpha_t} x_0}{\sqrt {1-\overline \alpha_t}}$$
+
+$\mu_{\theta}(x_t, t)$ 是反向过程 $p_{\theta}(x_{t-1}|x_t)$ 分布的期望，我们应该尽量让 $p_{\theta}(x_{t-1}|x_t)$ 逼近 $q_{\sigma}(x_{t-1}|x_t, x _ 0)$，这样才能使得 $L_{t-1}$ 尽可能小。再根据重参数技巧，
+
+$$\mu_{\theta}(x_t, t) = \sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2} \cdot \frac {x_t-\sqrt {\overline \alpha_t} f_{\theta}^{(t)}(x_t)}{\sqrt {1-\overline \alpha_t}}$$
+
+于是 
+
+$$\tilde \mu_t(x_t, x_0) - \mu_{\theta}(x_t, t) = \frac { \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2}}{\sqrt {1-\overline \alpha_t}} \cdot \sqrt { \overline \alpha_t} \cdot ( f_{\theta}^{(t)}(x_t)-x_0)$$
+
+根据 (4) 式，可知 $\sqrt {\overline \alpha_t} \cdot ( f_{\theta}^{(t)}(x_t)-x_0)= \sqrt {1-\overline \alpha _ t} (\epsilon_{\theta}^{(t)}- \epsilon_t)$，于是上式转化为，
+
+$$\tilde \mu_t(x_t, x_0) - \mu_{\theta}(x_t, t) =\sqrt {1-\overline \alpha_{t-1} -\sigma_t^2}  (\epsilon_{\theta}^{(t)}- \epsilon_t)$$
+
+故仍然可以等价于求下式最小值，
+
+$$L_{simple}^{(t-1)}(\theta) = \gamma \mathbb E_{t,x_0,\epsilon, \sigma^2} \left[||\epsilon_{\theta}^{(t)}- \epsilon_t||^2 \right]$$
+
+上式中，$\gamma$ 是权重因子。
+
+从上式看出对于不同的 $\sigma$ 值，实际上都会训练出相同的模型，即，$\theta$ 参数相同，而得到的目标函数的差值是与 $\theta$ 无关的值，实际上对于某确定的 $\alpha$ 值，$J_{\sigma}$ 均等价于 $J_{\alpha}$ ，所谓等价是指模型参数 $\theta$ 保持不变 。
+
+**定理 1** 对于任意 $\sigma > 0$，存在 $\alpha \in \mathbb R_{\ge 0}^T$ 以及 $C \in \mathbb R$，使得 $J_{\sigma} = J_{\alpha} + C$
+
+### 2.2.2 模型训练
+
+训练过程与 DDPM 的训练相同。
+
+# 3. 通用生成过程的采样
 
 ## 3.1 DDIM
 
 根据 (1) (4) (5) 式，可知从 $x_t$ 生成 $x_{t-1}$ 为
 
-$$x_{t-1}=\sqrt {\overline \alpha_{t-1}} \left(\frac {x_t-\sqrt {1-\overline \alpha_t} \epsilon_{\theta}^{(t)}(x_t)}{\sqrt {\overline \alpha_t}}\right)+\sqrt {1-\overline \alpha_{t-1} - \sigma_t^2}\cdot \epsilon_{\theta}^{(t)}(x_t) + \sigma_t \epsilon_t \tag{6}$$
+$$x_{t-1}=\sqrt {\overline \alpha_{t-1}} \left(\frac {x_t-\sqrt {1-\overline \alpha_t} \epsilon_{\theta}^{(t)}(x_t)}{\sqrt {\overline \alpha_t}}\right)+\sqrt {1-\overline \alpha_{t-1} - \sigma_t^2}\cdot \epsilon_{\theta}^{(t)}(x_t) + \sigma_t \epsilon_t' \tag{6}$$
 
-其中 $\epsilon_t \sim \mathcal N(0, 1)$ 是反向过程中的随机噪声。注意 $t=1$ 时应该使用 (5) 式的第一个 case，得到
+其中 $\epsilon_t' \sim \mathcal N(0, 1)$ 是反向过程中的随机噪声。注意使用上标 `'` 标注用于区别前向过程中的噪声 $\epsilon_t$，$\epsilon_t$ 表示 $x_t=\sqrt {\overline \alpha_t} x_0 +\sqrt {1-\overline \alpha_t} \epsilon_t$，而 $\epsilon_{\theta}^{(t)}(x_t)$ 就是模拟逼近 $\epsilon_t$ 。
 
-$$x_0=\frac {x_1 - \sqrt {1-\overline \alpha_1} \cdot \epsilon_{\theta}^{(1)}(x_1)} {\sqrt {\overline \alpha_1}} + \sigma_1 \epsilon_1$$
+注意 $t=1$ 时应该使用 (5) 式的第一个 case，得到
 
-不同的 $\sigma$ 值会导致生成结果不同，当然模型输出 $\epsilon_{\theta}$ 是相同的，所以不需要重新训练模型。当 
+$$x_0=\frac {x_1 - \sqrt {1-\overline \alpha_1} \cdot \epsilon_{\theta}^{(1)}(x_1)} {\sqrt {\overline \alpha_1}} + \sigma_1 \epsilon_1'$$
+
+不同的 $\sigma$ 值会导致生成结果不同，当然模型输出 $\epsilon_{\theta}$ 是相同的，所以不需要重新训练模型。一种特殊情况是，当 
 
 $$\sigma_t = \sqrt {\frac {1-\overline \alpha_{t-1}}{1-\overline \alpha_t}} \sqrt {1-\frac {\overline \alpha_t}{\overline \alpha_{t-1}}} \tag{7}$$
 
 时，前向过程变成马尔可夫过程，生成过程则变成 DDPM。
+
+证明如下：
 
 根据贝叶斯定理，可以得到前向过程为
 
@@ -149,7 +246,7 @@ $$q_{\sigma}(x_t|x_{t-1}, x_0)= \frac {q_{\sigma}(x_{t-1}|x_t,x_0) q_{\sigma}(x_
 将 (1) (2) (3) 式代入 (8) 式，
 
 $$q_{\sigma}(x_t|x_{t-1}, x_0) \propto \exp \{-\frac 1 {2\sigma_t^2} \|x_{t-1} - (\sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2} \cdot \frac {x_t-\sqrt {\overline \alpha_t} x_0}{\sqrt {1-\overline \alpha_t}})\|^2
-\\ - \frac 1 {2(1-\overline \alpha_t)}\|x_t-\sqrt {\overline \alpha_t}x_0\|^2 + \frac 1 {2(1-\overline \alpha_{t-1})}\|x_{t-1} - \sqrt {\overline \alpha_{t-1}}x_0\|^2\} \tag{9}$$
+\\\\ - \frac 1 {2(1-\overline \alpha_t)}\|x_t-\sqrt {\overline \alpha_t}x_0\|^2 + \frac 1 {2(1-\overline \alpha_{t-1})}\|x_{t-1} - \sqrt {\overline \alpha_{t-1}}x_0\|^2\} \tag{9}$$
 
 
 根据第 `1` 节内容，有 $\alpha_t=1-\beta_t$，$\overline \alpha_t = \prod_{s=1}^t \alpha_s$，再根据 (7) 式有
@@ -172,7 +269,7 @@ $$-\frac 1 {\sigma_t^2} \frac {\overline \alpha_{t-1}}{(1-\overline \alpha_t)^2}
 
 生成过程通常被认为是对反向过程的近似，故前向过程有 $T$ steps，那么生成过程也是 $T$ steps。
 
-降噪目标函数 $L_{\mathbf 1}$ （即 $\gamma= \mathbf 1$）在 $q_{\sigma}(x_t|x_0)$ 固定（固定为 (2) 式）的情况下不依赖于具体的前向过程，故考虑 steps 小于 $T$ 的前向过程。
+降噪目标函数 $L_{\mathbf 1}$ （即损失项权重因子 $\gamma= \mathbf 1$）在 $q_{\sigma}(x_t|x_0)$ 固定（固定为 (2) 式）的情况下不依赖于具体的前向过程，故考虑 steps 小于 $T$ 的前向过程。
 
 加速情况下，推断过程（即前向过程）为
 
@@ -200,7 +297,7 @@ $$q_{\sigma,\tau}(x_{\tau_i}|x_0) = \mathcal N(\sqrt {\overline \alpha_{\tau_i}}
 
 步骤：
 
-根据规则（如 linear）生成子序列 $\tau_1,\ldots, \tau_S$，确保 $\tau_S=N$
+根据规则（如 linear，等间隔）生成子序列 $\tau_1,\ldots, \tau_S$，确保 $\tau_S=N$
 
 采样 $x_N \sim \mathcal N(\mathbf 0, I)$
 
@@ -208,13 +305,13 @@ $$q_{\sigma,\tau}(x_{\tau_i}|x_0) = \mathcal N(\sqrt {\overline \alpha_{\tau_i}}
 
 &emsp; $x_0'=(x_{\tau_t} - \sqrt {1-\overline \alpha_{\tau_t}} \cdot \epsilon_{\theta}^{(\tau_t)}(x_{\tau_t}))/\sqrt {\overline \alpha_{\tau_t}}$
 
-&emsp; $\mu_{\theta}(\tau_{t-1})=\begin{cases}\frac {\sqrt {\overline \alpha_{\tau_{t-1}}}(1-\overline \alpha_{\tau_t}/\overline \alpha_{\tau_{t-1}})}{1-\overline \alpha_{\tau_t}} x_0'+\frac {\sqrt {\overline \alpha_{\tau_t}/ \overline \alpha_{\tau_{t-1}}}(1-\overline \alpha_{t-1})}{1-\overline \alpha_{\tau_t}}  x_{\tau_t} & DDPM \\ \sqrt {\overline \alpha_{\tau_{t-1}}} x_0' + \sqrt {1-\overline \alpha_{\tau_{t-1}} - \sigma_{\tau_t}^2} \frac {x_{\tau_t}-\sqrt {\overline \alpha_{\tau_t}}x_0'}{\sqrt {1-\overline \alpha_{\tau_t}}} & DDIM\end{cases}$
+&emsp; $\mu_{\theta}(\tau_{t-1})=\begin{cases}\frac {\sqrt {\overline \alpha_{\tau_{t-1}}}(1-\overline \alpha_{\tau_t}/\overline \alpha_{\tau_{t-1}})}{1-\overline \alpha_{\tau_t}} x_0'+\frac {\sqrt {\overline \alpha_{\tau_t}/ \overline \alpha_{\tau_{t-1}}}(1-\overline \alpha_{t-1})}{1-\overline \alpha_{\tau_t}}  x_{\tau_t} & DDPM \\\\ \sqrt {\overline \alpha_{\tau_{t-1}}} x_0' + \sqrt {1-\overline \alpha_{\tau_{t-1}} - \sigma_{\tau_t}^2} \frac {x_{\tau_t}-\sqrt {\overline \alpha_{\tau_t}}x_0'}{\sqrt {1-\overline \alpha_{\tau_t}}} & DDIM\end{cases}$
 
 &emsp; **if** $t>1$
 
 &emsp; &emsp; 采样 $z \sim \mathcal N(\mathbf 0, I)$
 
-&emsp; &emsp; $\sigma_{\tau_t}=\begin{cases} \sqrt {1-\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}} & DDPM \\ \eta\sqrt {\frac {1-\overline \alpha_{\tau_{t-1}}}{1-\overline \alpha_{\tau_t}}}\cdot \sqrt {1-\frac {\overline \alpha_{\tau_t}}{\overline \alpha_{\tau_{t-1}}}} & DDIM \end{cases}$
+&emsp; &emsp; $\sigma_{\tau_t}=\begin{cases} \sqrt {1-\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}} & DDPM（具体看下方解释） \\\\ \eta\sqrt {\frac {1-\overline \alpha_{\tau_{t-1}}}{1-\overline \alpha_{\tau_t}}}\cdot \sqrt {1-\frac {\overline \alpha_{\tau_t}}{\overline \alpha_{\tau_{t-1}}}} & DDIM（具体看下方解释） \end{cases}$
 
 &emsp; &emsp; $x_{\tau_{t-1}}=\mu_{\theta}(\tau_{t-1})+ \sigma_{\tau_t} z$
 
@@ -227,17 +324,23 @@ $$q_{\sigma,\tau}(x_{\tau_i}|x_0) = \mathcal N(\sqrt {\overline \alpha_{\tau_i}}
 <font color="red">注意：</font> 
 
 1. 以上算法中，不能直接使用 $\alpha_{\tau_t}$ 和 $\beta_{\tau_t}$，而是要根据 $\alpha_t = \overline \alpha_t / \overline \alpha_{t-1}$
-使用 $\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}$ 来代替 $\alpha_{\tau_t}$，同样地使用 $1-\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}$ 代替 $\beta_{\tau_t}$。
+使用 $\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}$ 来代替 $\alpha_{\tau_t}$，同样地使用 $1-\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}$ 代替 $\beta_{\tau_t}$。需要搞清楚的是，通常
+
+    $$\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}} \ne \alpha_{\tau_t}=\overline \alpha_{\tau_t} / \overline \alpha_{\tau_t -1}$$
+
+    这是因为 $\tau_{t-1} \ne \tau_t -1$ 。
+
+2. DDPM 中 $\mu_{\theta}(\tau_{t-1})$ 其实就是 [DDPM](2022/06/27/diffusion_model/ddpm) 一文中的 (12) 式，但是要将 $\alpha_{\tau_t}$ 替换为 $\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}$，将 $\beta_{\tau_t}$ 替换为 $1-\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}$ 。
 
 2. $\sigma_{\tau_t}(\eta)=\eta\sqrt {\frac {1-\overline \alpha_{\tau_{t-1}}}{1-\overline \alpha_{\tau_t}}}\cdot \sqrt {1-\frac {\overline \alpha_{\tau_t}}{\overline \alpha_{\tau_{t-1}}}}$
 
-    当 $\eta=1$ 时，DDIM 转变为 DDPM，当 $\eta=0$ 时转变为  deterministic DDIM。作者在 cifar10 数据集上还使用了 $\hat \sigma_{\tau_t}=\sqrt {1-\frac {\overline \alpha_{\tau_t}}{\overline \alpha_{\tau_{t-1}}}} > \sigma_{\tau_t}(1)$
+    当 $\eta=1$ 时，DDIM 转变为 DDPM，当 $\eta=0$ 时转变为  deterministic DDIM。作者在 cifar10 数据集上还使用了 $\hat \sigma_{\tau_t}=\sqrt {1-\frac {\overline \alpha_{\tau_t}}{\overline \alpha_{\tau_{t-1}}}} > \sigma_{\tau_t}(\eta=1)$
 
 3. 上面算法中，DDPM 的反向过程中的噪声方差 $\sigma_{\tau_t}^2=1-\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}$，对应于 $\sigma_t^2=\beta_t$，实际上 DDPM 还有另一个方差选择 $\sigma_t^2=\tilde \beta_t$，对应于反向过程中噪声方差的上下限，如果选择下限，那么 $\sigma_{\tau_t}=\sqrt {\frac {1-\overline \alpha_{\tau_{t-1}}}{1-\overline \alpha_{\tau_t}}}\cdot \sqrt {1-\frac {\overline \alpha_{\tau_t}}{\overline \alpha_{\tau_{t-1}}}}$
 
 生成过程定义为
 
-$$p_{\theta}(x_{0:T})=\underbrace {p_{\theta}(x_T) \prod_{i=1}^S p_{\theta}^{(\tau_i)}(x_{\tau_{i-1}}|x_{\tau_i})}_{\text{use to produce samples}} \times \prod_{t \in \overline \tau} p_{\theta}^{(t)}(x_0|x_t) \tag{14}$$
+$$p_{\theta}(x_{0:T})=\underbrace {p_ {\theta}(x_T) \prod_{i=1}^S p_{\theta}^{(\tau_i)}(x_{\tau_{i-1}}|x_{\tau_i})}_ {\text{use to produce samples}} \times \prod_{t \in \overline \tau} p_ {\theta}^{(t)}(x_0|x_t) \tag{14}$$
 
 其中
 
@@ -258,11 +361,11 @@ $$\sigma_{\tau_i}(\eta)=\eta \sqrt {(1-\overline \alpha_{\tau_{i-1}})/(1-\overli
 
 其中 $\eta \in \mathbb R_{\ge 0}$ 用于控制。当 $\eta=1$ 时，如 (7) 式所示，模型退化为 DDPM，如果 $\eta=0$，那么模型为确定 DDIM（随机性消失）。
 
-作者也考虑了 $\sigma > \sigma(1)$ 情况，方差取值为 
+作者也考虑了 $\sigma > \sigma(\eta=1)$ 情况，方差取值为 
 
 $$\hat \sigma_{\tau_i} = \sqrt {1-\overline \alpha_{\tau_i}/\overline \alpha_{\tau_{i-1}}} \tag{16}$$
 
-由于 $1-\overline \alpha_{\tau_{i-1}} < 1- \overline \alpha_{\tau_i}$ ，故 $\hat \sigma_{\tau_i} > \sigma_{\tau_i}(1)$ 。
+由于 $1-\overline \alpha_{\tau_{i-1}} < 1- \overline \alpha_{\tau_i}$ ，故 $\hat \sigma_{\tau_i} > \sigma_{\tau_i}(\eta=1)$ 。
 
 
 # 5. ODE
@@ -275,13 +378,13 @@ $$\frac {x_{t-1}}{\sqrt {\overline \alpha_{t-1}}}=\frac {x_t} {\sqrt {\overline 
 
 $$\sigma(t)=\sqrt {\frac {1-\overline \alpha_t}{\overline \alpha_t}} \tag{18}$$
 
-注意，这里的 $\sigma(t)$ 与前面的噪声标准差 $\sigma_t$ 是两个不同的概念，本节，我们考虑的是噪声标准差 $\sigma_t=0$ 的情况。
+注意，这里的 $\sigma(t)$ 与前面 (1) 式中标准差 $\sigma_t$ 是两个不同的概念，本节 $\sigma(t)$ 仅仅是一个符号，由 (18) 式定义。
 
 于是 (17) 式变为
 
 $$\overline x(t-\Delta t)=\overline x(t) + (\sigma(t-\Delta t)-\sigma(t)) \cdot \epsilon_{\theta}\left(\frac {\overline x(t)}{\sqrt {\sigma^2(t)+1}}, t\right)$$
 
-令 $\Delta \rightarrow 0$ ，于是上式变为
+令 $\Delta t \rightarrow 0$ ，于是上式变为
 
 $$\frac {d\overline x(t)}{dt}=\frac {d \sigma(t)}{dt} \cdot \epsilon_{\theta} \left(\frac {\overline x(t)}{\sqrt {\sigma^2(t)+1}}, t \right) \tag{19}$$
 
@@ -291,14 +394,19 @@ $$\frac {d\overline x(t)}{dt}=\frac {d \sigma(t)}{dt} \cdot \epsilon_{\theta} \l
 
 $$\beta_t=\frac {t-1} {T-1} (\beta_T-\beta_1) + \beta_1 \approx \frac {t\beta_T}{T}\tag{20}$$
 
-上式对 $t \in [0, T]$ 范围内的所有实数均有效。根据已知条件 $x(T) \sim \mathcal N(\mathbf 0,I)$ 以及根据 (20) 式可以计算出 $\overline \alpha(t), \ \sigma(t)$ 的函数， 计算 $\overline x(0)$，从而得到 $x(0)$ 。解 (19) 式就是解常微分方程。
+上式对 $t \in [0, T]$ 范围内的所有实数均有效。根据已知条件 $x(T) \sim \mathcal N(\mathbf 0,I)$ 以及根据 (20) 式可以计算出 $\overline \alpha(t), \ \sigma(t)$ 的值， 计算 $\overline x(0)$，从而得到 $x(0)$ 。解 (19) 式就是解常微分方程。
 
 计算 $\overline \alpha(t)$ 过程如下：
 
 $$\log \overline \alpha(t)=\sum_{i=1}^t \log \alpha_i=\sum_{i=1}^t \log (1-\beta_i)\approx \sum_{i=1}^t \log (1-\frac {0.02i}T) 
-\\ \approx -\sum_{i=1}^t \frac {0.02i}T=-\frac {0.01t(t+1)}T \approx - \frac {10t^2}{T^2}$$
+\\ \approx -\sum_{i=1}^t \frac {0.02i}T=-\frac {0.01t(t+1)}T \approx - \frac {10t ^ 2}{T^ 2}$$
 
 于是
 
-$$\overline \alpha(t)=e^{-10t^2/T^2}$$
+$$\overline \alpha(t)=e^ {-10t ^ 2/T^2}$$
+
+再根据 (18) 式得到
+
+$$\sigma(t) = e ^ {5 t^2 / T ^ 2} \sqrt {1-e^{-10t ^ 2/T ^ 2}}$$
+
 

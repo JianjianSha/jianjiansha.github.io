@@ -24,9 +24,9 @@ $$q_M(x_{1:N}|x_0)=\prod_{n=1}^N q_M(x_n|x_{n-1}), \quad q_M(x_n|x_{n-1})=\mathc
 其中 $\beta_n \in (0, 1)$ 是 step $n$ 中噪声方差，且 $\alpha_n=1-\beta_n$。[DDIM](/2022/07/21/diffusion_model/ddim) 中介绍了一种更为一般化的非马尔可夫过程，$\lambda_{1:N}\in \mathbb R_{\ge 0}^N$ 表示反向过程的噪声方差，这里为了方便简要列出非马尔可夫过程，不用再翻看 DDIM 论文，
 
 $$q_{\lambda}(x_{1:N}|x_0)=q_{\lambda} (x_N|x_0) \prod_{n=2}^N q_{\lambda}(x_{n-1}|x_n, x_0)
-\\ q_{\lambda}(x_N|x_0)=\mathcal N(x_N|\sqrt {\overline \alpha_N} x_0, \overline \beta_N I)
-\\ q_{\lambda}(x_{n-1}|x_n,x_0)=\mathcal N(x_{n-1}|\tilde \mu_n(x_n, x_0), \lambda_n^2 I)
-\\ \tilde \mu_n(x_n,x_0)=\sqrt {\overline \alpha_{n-1}} x_0 + \sqrt {\overline \beta_{n-1}-\lambda_n^2} \cdot \frac {x_n - \sqrt {\overline \alpha_n}x_0}{\sqrt {\overline \beta_n}} \tag{2}$$
+\\\\ q_{\lambda}(x_N|x_0)=\mathcal N(x_N|\sqrt {\overline \alpha_N} x_0, \overline \beta_N I)
+\\\\ q_{\lambda}(x_{n-1}|x_n,x_0)=\mathcal N(x_{n-1}|\tilde \mu_n(x_n, x_0), \lambda_n^2 I)
+\\\\ \tilde \mu_n(x_n,x_0)=\sqrt {\overline \alpha_{n-1}} x_0 + \sqrt {\overline \beta_{n-1}-\lambda_n^2} \cdot \frac {x_n - \sqrt {\overline \alpha_n}x_0}{\sqrt {\overline \beta_n}} \tag{2}$$
 
 其中 $\overline \alpha_n = \prod_{i=1}^n \alpha_i, \ \overline \beta_n = 1-\overline \alpha_n$。
 
@@ -52,7 +52,7 @@ $$q( x_{n-1}| x_n,  x_0)=\mathcal N( x_{n-1}; \tilde {\mu}_n( x_n,  x_0), \tilde
 
 其中期望经过贝叶斯定理计算为
 
-$$\tilde {\mu}_t(\mathbf x_t, \mathbf x_0)=\frac {\sqrt {\overline \alpha_{t-1}}\beta_t}{1-\overline \alpha_t}\mathbf x_0+\frac {\sqrt {\alpha_t}(1-\overline \alpha_{t-1})}{1-\overline \alpha_t} \mathbf x_t \tag{5}$$
+$$\tilde {\mu} _t(\mathbf x_t, \mathbf x_0)=\frac {\sqrt {\overline \alpha_{t-1}}\beta_t}{1-\overline \alpha_t}\mathbf x_0+\frac {\sqrt {\alpha_t}(1-\overline \alpha_{t-1})}{1-\overline \alpha_t} \mathbf x_t \tag{5}$$
 
 
 根据 [Score-based SDE](diffusion_model/2022/07/26/score_based_SDE) 中的 (9) 式可知（注意 $q_{\lambda}(x_n|x_0)=\mathcal N(x_n|\sqrt {\overline \alpha_n} x_0, \overline \beta_n I)$ 就是前向过程），
@@ -82,7 +82,7 @@ $$L_{vb}=\mathbb E_q \left[-\log p(x_0|x_1) + \sum_{n=2}^N D_{KL}(q(x_{n-1}|x_0,
 
 (9) 式表示的训练目标其实等价于 
 
-$$\min_{(\mu_n, \sigma_n^2)_{n=1}^N}  \ L_{vb} \Leftrightarrow  \min_{(\mu_n, \sigma_n^2)_{n=1}^N}  \ D_{KL} (q(x_{0:N})||p(x_{0:N})) \tag{11}$$
+$$\min_{(\mu_n, \sigma_n^2)_{n=1}^N}  \ L_{vb} \Leftrightarrow  \min_{(\mu_n, \sigma_n ^2) _{n=1}^N}  \ D_{KL} (q(x_{0:N})||p(x_{0:N})) \tag{11}$$
 
 根据 [DDPM](/2022/06/27/diffusion_model/ddpm) 中的 (9) 式，
 
@@ -94,7 +94,7 @@ $$\begin{aligned}L_{vb}&=\mathbb E_q[-\log \frac {p(\mathbf x_{0:N})}{q(\mathbf 
 
 (11) 式的最优解为
 
-$$\mu_n^{\star}(x_n) = \tilde {\mu}_n \left(x_n,\frac 1 {\sqrt {\overline \alpha_n}}(x_n+ {\overline \beta_n} \nabla_{x_n} \log q_n(x_n))\right) \tag{12}$$
+$$\mu_n^{\star}(x_n) = \tilde {\mu} _n \left(x_n,\frac 1 {\sqrt {\overline \alpha_n}}(x_n+ {\overline \beta_n} \nabla_{x_n} \log q_n(x_n))\right) \tag{12}$$
 
 $$\sigma_n^{\star 2}=\lambda_n^2 + \left( \sqrt {\frac {\overline \beta_n}{\alpha_n}} - \sqrt {\overline \beta_{n-1}-\lambda_n^2} \right)^2 \left(1-\overline \beta_n \mathbb E_{q_n(x_n)} \frac {\|\nabla_{x_n} \log q_n(x_n)\|^2}{d} \right) \tag{13}$$
 

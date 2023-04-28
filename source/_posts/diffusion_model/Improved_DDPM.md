@@ -26,7 +26,7 @@ $$q( x_{t-1}| x_t,  x_0)=\mathcal N( x_{t-1}; \tilde {\mu}_t( x_t,  x_0), \tilde
 
 其中 
 
-$$\tilde {\mu}_t( x_t,  x_0)=\frac {\sqrt {\overline \alpha_{t-1}}\beta_t}{1-\overline \alpha_t} x_0+\frac {\sqrt {\alpha_t}(1-\overline \alpha_{t-1})}{1-\overline \alpha_t}  x_t, \quad \tilde \beta_t = \frac {1-\overline \alpha_{t-1}}{1-\overline \alpha_t} \beta_t \tag{3}$$
+$$\tilde {\mu} _t( x_t,  x_0) = \frac {\sqrt {\overline \alpha_{t-1}}\beta_t}{1-\overline \alpha_t} x_0 + \frac {\sqrt {\alpha_t}(1-\overline \alpha_{t-1})}{1-\overline \alpha_t}  x_t, \quad \tilde \beta_t = \frac {1-\overline \alpha_{t-1}}{1-\overline \alpha_t} \beta_t \tag{3}$$
 
 显然 $\tilde u_t( x_t,  x_0)$ 的值依赖于 $ x_0$，这在反向过程中是未知的。使用神经网络来近似，
 
@@ -37,9 +37,9 @@ $$p_{\theta}( x_{t-1}| x_t)=\mathcal N(x_{t-1}; \mu_{\theta}(x_t,t),\Sigma_{\the
 训练目标是最小化 $\mathbb E_{q(x_0)}[-\log p(x_0)]$，变换后得到
 
 $$\begin{aligned}L_{vlb}&=L_0+L_1+\cdots +L_T
-\\ L_0&=-\log p_{\theta}(x_0|x_1)
-\\ L_{t-1}&= D_{KL}(q(x_{t-1}|x_t, x_0)||p_{\theta}(x_{t-1}|x_t))
-\\ L_T &= D_{KL}(q(x_T|x_0)||p(x_T))
+\\\\ L_0&=-\log p_{\theta}(x_0|x_1)
+\\\\ L_{t-1}&= D_{KL}(q(x_{t-1}|x_t, x_0)||p_{\theta}(x_{t-1}|x_t))
+\\\\ L_T &= D_{KL}(q(x_T|x_0)||p(x_T))
 \end{aligned} \tag{4}$$
 
 

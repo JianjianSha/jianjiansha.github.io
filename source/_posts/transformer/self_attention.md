@@ -38,7 +38,7 @@ $$\begin{aligned}\mathbf h_{t+1}&= \mathcal L(\mathbf x_{t+1}, \mathbf h_t)
     $$\alpha_{ij}=\mathbf q_i \cdot \mathbf k_i / \sqrt d, \quad i,j=1,\ldots, T$$
     向量内积需要乘以因子 $1/\sqrt d$，因为如果 `d` 太大，内积分布的方差就很大，那么执行第 `4` 步的 softmax 之后，会位于 softmax 的梯度较小的区域，影响反向传播。
 4. 对 $\alpha_{i1}, \ldots, \alpha_{iT}$ 做 softmax 进行归一化，
-    $$\hat {\alpha}_{ij} = \exp(\alpha_{ij})/\sum_l \exp(\alpha_{il})$$
+    $$\hat {\alpha} _{ij} = \exp(\alpha _{ij})/\sum_l \exp(\alpha_{il})$$
     记矩阵 $A \in \mathbb R^{T \times T}$，表示上述的 attention 矩阵，对每一行做 softmax，
     ```python
     # A is the attention matrix, A_{ij} means attention between
@@ -57,9 +57,9 @@ $$\begin{aligned}\mathbf h_{t+1}&= \mathcal L(\mathbf x_{t+1}, \mathbf h_t)
 2. embedding vector 维度为 $n$，参数矩阵 $W \in \mathbb R^{n \times l}$，得到所有 embedding 序列 $I \in \mathbb R^{T \times n}$：$I=X\cdot W^{\top}$
 3. 三个参数矩阵 $W_q,W_k,W_v \in \mathbb R^{d\times n}$， 得到 query，key，value 序列 $Q, K, V \in \mathbb R^{T \times d}$，
     $$Q=I W_q^{\top}, \quad K=I W_k^{\top}, \quad V=IW_v^{\top}$$
-4. attention op，得到 attention 矩阵 $A \in \mathbb R^{T \times T}$：$A=Q K^{\top}/\sqrt d$
+4. attention op，得到 attention 矩阵 $A \in \mathbb R ^{T \times T}$：$A=Q K ^{\top}/\sqrt d$
 5. 归一化 attention：$\hat A_{ij} =\exp( A_{ij})/ \sum_l \exp(A_{il})$。第 `i` 行 $\hat A_{i,:}$ 作为 time step `i` 的 weights。
-6. 输出矩阵 <font color='magenta'>$O \in \mathbb R^{T \times d}$</font>，$O=\hat A V$
+6. 输出矩阵 <font color='magenta'>  $O \in \mathbb R^{T \times d}$ </font>，$O=\hat A V$
 
 ## 2.3 Multi-head Self-attention
 `2.1` 节的内容可以看作是 single-head self-attention，重复横向堆叠多个相同的 **scaled dot-product attention** 可以得到 multi-head self-attention，具体过程如下：
@@ -72,7 +72,8 @@ $$\begin{aligned}\mathbf h_{t+1}&= \mathcal L(\mathbf x_{t+1}, \mathbf h_t)
 3. 每个 head 单独执行 scaled dot-product attention 即，对每个 head $i=1,\cdots,h$
     $$A_i=Q_i K_i^{\top} / \sqrt {d_k} \in \mathbb R^{T \times T} \\ \hat A_i=\text{softmax} (A_i) \\ O_i =\hat A_i V_i \in \mathbb R^{T \times d_v}$$
 4. 将每个 head 的输出沿着 `axis=1` 方向 concatenate（类似于`torch.hstack`），再乘以个输出参数矩阵 $\color{magenta} W^O \in \mathbb R^{hd_v \times d}$，
-    $$O=\text {Concat}(O_1,\cdots, O_h) \in \mathbb R^{T \times hd_v} \\ O:= O W^O \in \color{magenta} \mathbb R^{T \times d}$$
+
+    $$O=\text {Concat}(O_1,\cdots, O_h) \in \mathbb R^{T \times hd_v} \\\\ O:= O W^O \in \color{magenta} \mathbb R^{T \times d}$$
 
 ![](/images/transformer/self_attention_1.png)
 图 2. 左：scaled dot-product attention; 右：multi-head self-attention
@@ -290,9 +291,9 @@ $$FFN(x)=\max(0, xW_1+b_1)W_2 + b_2$$
 ## 3.4 Position Encoding
 通过前面对 attention 的介绍可知，各 time step 的输入其实是位置无关的，因为每个 time step 输入的 attention 操作都是全局进行的，即 `i` 位置的输入 $\mathbf x_i$，其 attention 记为 $\mathbf o_i$，如果换到 `j` 位置，其 attention 结果记为 $\mathbf o_j$，显然有 $\mathbf o_i = \mathbf o_j$。例如 “A打B” 和 “B打A”，前者 A 是打人，后者 A 是被打，但是 attention 输出却一样，所以不合理。考虑位置信息后，就可以解决这个问题。
 
-使用 one-hot vector 来表示位置信息，例如第 `i` time step 输入 $\mathbf x_i$，其位置信息的 one-hot vector 为 $\mathbf p_i = [\underbrace{0,\cdots, 0}_{i-1}, 1, \underbrace {0, \cdots, 0}_{L-i}]$，其中 $L$ 是 max sequence length，即数据集（或一个 minibatch 中）所有 sentences 中最长的 sentence 长度（words 数量），或者根据具体任务和经验手动设置一个较大的数，数据集中长度大于 $L$ 的 sentence 都会被截断使得长度为 $L$，例如 $L=100$。于是叠加位置信息后的最终的 embedding 为
+使用 one-hot vector 来表示位置信息，例如第 `i` time step 输入 $\mathbf x_i$，其位置信息的 one-hot vector 为 $\mathbf p_i = [\underbrace{0,\cdots, 0} _{i-1}, 1, \underbrace {0, \cdots, 0} _{L-i}]$，其中 $L$ 是 max sequence length，即数据集（或一个 minibatch 中）所有 sentences 中最长的 sentence 长度（words 数量），或者根据具体任务和经验手动设置一个较大的数，数据集中长度大于 $L$ 的 sentence 都会被截断使得长度为 $L$，例如 $L=100$。于是叠加位置信息后的最终的 embedding 为
 
-$$\begin{bmatrix}W^I & W^P\end{bmatrix}\begin{bmatrix}\mathbf x_i \\ \mathbf p_i\end{bmatrix}=\mathbf o_i + \mathbf e_i$$
+$$\begin{bmatrix}W^I & W^P\end{bmatrix}\begin{bmatrix}\mathbf x_i \\\\ \mathbf p_i\end{bmatrix}=\mathbf o_i + \mathbf e_i$$
 
 即，输入的 embedding 与位置信息的 embedding 相加。论文中提到，对于 $\mathbf o_i$ 需要进行 scale，相当于对这两种 embedding 赋予不同的权重，$\lambda \cdot\mathbf o_i + \mathbf e_i$，通常取 $\lambda = \sqrt d$。
 
@@ -324,12 +325,13 @@ for i in range(batch_size):
 # pos: (batch_size, seq_len)
 pos = torch.arange(0, seq_len).unsqueeze(0).repeat(batch_size, 1)
 
-tok_embedding(src)*scale + pos_embedding(pos)
+# scale=lambda, tok_embedding(src)=o, pos_embedding(pos)=e
+tok_embedding(src)*scale + pos_embedding(pos) 
 ```
 
 公式计算 position embedding
 $$PE(pos, 2i)=\sin (pos/10000^{2i/d})
-\\PE(pos, 2i+1)=\cos(pos/10000^{2i/d})$$
+\\\\ PE(pos, 2i+1)=\cos(pos/10000^{2i/d})$$
 其中 $pos$ 表示 sequence 中 word 的位置，范围为 `[0,seq_len-1]`，$2i$ 和 $2i+1$ 表示 position embedding vector 中的 index，由于 position embedding 维度为 $d$，故
 $i \le \lfloor d/2 \rfloor$
 ```python

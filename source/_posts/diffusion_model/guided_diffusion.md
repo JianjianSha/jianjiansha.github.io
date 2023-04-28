@@ -3,6 +3,7 @@ title: guided-diffusion
 date: 2022-09-30 14:02:23
 tags: diffusion model
 mathjax: true
+img:
 summury: 支持基于标签的图像生成
 ---
 
@@ -43,7 +44,7 @@ $$\log p_{\theta}(x_t|x_{t+1})=-\frac 1 2 (x_t -\mu)^{\top}\Sigma (x_t-\mu) + C 
 
 对于分类器预测概率对数，可以假设其具有比 $\Sigma^{-1}$ 小的曲率（即 $\log p(y|x_t)$ 曲线变化更缓慢，或者说方差较大），这个假设是合理的，因为 $\|\Sigma\| \rightarrow 0$，于是使用 Taylor 展开，
 
-$$\begin{aligned}\log p_{\phi}(y|x_t) & \approx \log p_{\phi}(y|x_t)|_{x_t=\mu} + (x_t-\mu)\nabla_{x_t} \log p_{\phi}(y|x_t)|_{x_t=\mu}
+$$\begin{aligned}\log p_{\phi}(y|x_t) & \approx \log p_{\phi}(y|x_t)| _{x_t=\mu} + (x_t-\mu)\nabla_{x_t} \log p_{\phi}(y|x_t)| _{x_t=\mu}
 \\ &=(x_t-\mu) g + C_1
 \end{aligned} \tag{5}$$
 
@@ -51,8 +52,8 @@ $$\begin{aligned}\log p_{\phi}(y|x_t) & \approx \log p_{\phi}(y|x_t)|_{x_t=\mu} 
 结合上面两式，可知
 
 $$\begin{aligned} \log (p_{\theta}(x_t|x_{t+1})p_{\phi}(y|x_t)) & \approx -\frac 1 2 (x_t-\mu)^{\top} \Sigma^{-1}(x_t-\mu) + (x_t-\mu) g + C_2 
-\\ &= -\frac 1 2 (x_t -\mu -\Sigma g)^{\top} \Sigma^{-1} (x_t -\mu -\Sigma g) + C_3
-\\ &= \log p(z) + C_4 
+\\\\ &= -\frac 1 2 (x_t -\mu -\Sigma g)^{\top} \Sigma^{-1} (x_t -\mu -\Sigma g) + C_3
+\\\\ &= \log p(z) + C_4 
 \end{aligned} \tag{6}$$
 
 其中 $z \sim \mathcal N(\mu + \Sigma g , \Sigma)$ 。
@@ -64,7 +65,7 @@ $$\mu = \frac 1 {\sqrt {\alpha_t}} \left(x_t - \frac {\beta_t}{\sqrt {1-\overlin
 且 $\Sigma$ 我们选取固定的 $\beta_t$，并且 (6) 式 中对 $\Sigma g$ 项增加一个因子 $s=\frac 1 {\sqrt {\alpha_t}} > 1$，那么
 
 $$\begin{aligned}\mu+ s\Sigma g &= \frac 1 {\sqrt {\alpha_t}} \left(x_t - \frac {\beta_t}{\sqrt {1-\overline \alpha_t}} \epsilon_{\theta}(x_t)\right) + \frac 1 {\sqrt {\alpha_t}}\beta_t \cdot g
-\\ &=\frac 1 {\sqrt {\alpha_t}} \left(x_t -\frac {\beta_t}{\sqrt {1-\overline \alpha_t}}[\epsilon_{\theta}(x_t) - \sqrt {1-\overline \alpha_t} \cdot g]\right)
+\\\\ &=\frac 1 {\sqrt {\alpha_t}} \left(x_t -\frac {\beta_t}{\sqrt {1-\overline \alpha_t}}[\epsilon_{\theta}(x_t) - \sqrt {1-\overline \alpha_t} \cdot g]\right)
 \end{aligned}$$
 
 令
@@ -103,7 +104,7 @@ $$\nabla_{x_t}  \log p_{\theta}(x_t) = - \frac {x_t - \sqrt {\overline \alpha_t}
 
 $$\begin{aligned} \nabla_{x_t} \log (p_{\theta}(x_t) p_{\phi}(y|x_t)) &= \nabla_{x_t} \log p_{\theta}(x_t) + \nabla_{x_t} \log p_{\phi}(y|x_t) 
 
-\\&=-\frac 1 {\sqrt {1-\overline \alpha_t}} \epsilon_{\theta}(x_t)+\nabla_{x_t} \log p_{\phi}(y|x_t)
+\\\\ &=-\frac 1 {\sqrt {1-\overline \alpha_t}} \epsilon_{\theta}(x_t)+\nabla_{x_t} \log p_{\phi}(y|x_t)
 \end{aligned}$$
 
 作 (8) 式变换得到 $\hat \epsilon(x_t)$ ，于是 

@@ -21,3 +21,6 @@ tags: CNN
 ![](/images/diffusion_model/unet_5.png)
 
 
+又画了一个 unet 如下，
+
+![](/images/diffusion_model/unet_6.png)
