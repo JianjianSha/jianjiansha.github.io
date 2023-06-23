@@ -10,9 +10,9 @@ mathjax: true
 ## 1.1 单变量熵
 
 $$\begin{aligned}H(x)&=-\int p(x) \log p(x) dx
-\\&=-\mathbb E \left[\log [(2\pi \sigma^2)^{-1/2} \exp(-\frac 1 {2\sigma^2}(x-\mu)^2)]\right]
-\\&=\frac 1 2 \log (2\pi \sigma^2) + \frac 1 {2\sigma^2} \mathbb E[(x-\mu)^2]
-\\&=\frac 1 2 \log (2\pi \sigma^2) + \frac 1 2
+\\\\&=-\mathbb E \left[\log [(2\pi \sigma ^ 2) ^ {-1/2} \exp(-\frac 1 {2\sigma^2}(x-\mu) ^ 2)]\right]
+\\\\&=\frac 1 2 \log (2\pi \sigma ^ 2) + \frac 1 {2\sigma ^ 2} \mathbb E[(x-\mu) ^ 2]
+\\\\&=\frac 1 2 \log (2\pi \sigma ^ 2) + \frac 1 2
 \end{aligned} \tag{1}$$
 
 (1) 式推导的最后一步用到了 **二阶中心矩是方差** 这一事实。
@@ -22,19 +22,19 @@ $$\begin{aligned}H(x)&=-\int p(x) \log p(x) dx
 分布 $\mathbf x \sim \mathcal N_D(\mu, \Sigma)$
 
 $$\begin{aligned}H(\mathbf x)&=-\int p(\mathbf x) \log p(\mathbf x) d \mathbf x
-\\&=-\mathbb E \left[\log [(2\pi)^{-D/2} |\Sigma|^{-1/2} \exp(-\frac 1 2 (\mathbf x-\mu)^{\top}\Sigma^{-1}(\mathbf x-\mu))]\right]
-\\&=\frac D 2 \log (2\pi) + \frac 1 2 \log |\Sigma|+\frac 1 2 \mathbb E[(\mathbf x-\mu)^{\top}\Sigma^{-1}(\mathbf x-\mu)]
-\\&= \frac D 2(1+\log (2\pi)) + \frac 1 2 \log |\Sigma|
+\\\\&=-\mathbb E \left[\log [(2\pi) ^ {-D/2} |\Sigma|^{-1/2} \exp(-\frac 1 2 (\mathbf x-\mu) ^ {\top}\Sigma^{-1}(\mathbf x-\mu))]\right]
+\\\\&=\frac D 2 \log (2\pi) + \frac 1 2 \log |\Sigma|+\frac 1 2 \mathbb E[(\mathbf x-\mu) ^ {\top}\Sigma ^ {-1}(\mathbf x-\mu)]
+\\\\&= \frac D 2(1+\log (2\pi)) + \frac 1 2 \log |\Sigma|
 \end{aligned} \tag{2}$$
 
 (2) 式推导的最后一步是因为
 
-$$\begin{aligned}\mathbb E[(\mathbf x-\mu)^{\top}\Sigma^{-1}(\mathbf x-\mu)]&=\mathbb E[tr((\mathbf x-\mu)^{\top}\Sigma^{-1}(\mathbf x-\mu))]
-\\&=\mathbb E[tr(\Sigma^{-1}(\mathbf x-\mu)(\mathbf x-\mu)^{\top})]
-\\&=tr(\Sigma^{-1} \mathbb E[(\mathbf x - \mu)(\mathbf x - \mu)^{\top}])
-\\&=tr(\Sigma^{-1} \Sigma)
-\\&=tr(I_D)
-\\&=D
+$$\begin{aligned}\mathbb E[(\mathbf x-\mu) ^ {\top}\Sigma^{-1}(\mathbf x-\mu)]&=\mathbb E[tr((\mathbf x-\mu) ^ {\top}\Sigma^{-1}(\mathbf x-\mu))]
+\\\\&=\mathbb E[tr(\Sigma^{-1}(\mathbf x-\mu)(\mathbf x-\mu) ^ {\top})]
+\\\\&=tr(\Sigma ^ {-1} \mathbb E[(\mathbf x - \mu)(\mathbf x - \mu) ^ {\top}])
+\\\\&=tr(\Sigma ^ {-1} \Sigma)
+\\\\&=tr(I_D)
+\\\\&=D
 \end{aligned} \tag{3}$$
 
 (3) 式推导

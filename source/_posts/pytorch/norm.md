@@ -2,6 +2,7 @@
 title: pytorch 中的各种 norm 总结
 date: 2023-04-19 09:57:01
 tags: PyTorch
+mathjax: true
 summary: 总结 pytorch 的所有 norm
 ---
 

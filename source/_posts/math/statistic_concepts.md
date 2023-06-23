@@ -41,10 +41,11 @@ $$\mathbb V[X]=\mathbb E[XX^{\top}]-\mathbb E[X] \mathbb E[X]^{\top}$$
 2. $\mathbb V[X\pm Y]=\mathbb V[X]+\mathbb V[Y] \pm \text{Cov}[X,Y]\pm \text{Cov}[Y,X]$
 3. $X,Y$ 不相关 $\Leftrightarrow \text{Cov}[X,Y]=\mathbf 0$
 4. $X,Y$ 独立 $\Rightarrow \text{Cov}[X,Y]=\mathbf 0$，反之不一定
-5. $$\text{Cov}[X+Y,Z]=E[(X+Y)Z^{\top}]-E[X+Y]E[Z]^{\top}
-\\=E[XZ^{\top}]+E[YZ^{\top}]-E[X]E[Z]^{\top}-E[Y]E[Z]^{\top}
-\\=\text{Cov}[X,Z]+\text{Cov}[Y,Z]$$
-6. $\text{Cov}[A, X]=E[AX^{\top}]-E[A]E[X]^{\top}=AE[X]^{\top}-AE[X]^{\top}=\mathbf 0_{D\times E}$
+5. 协方差矩阵分配律
+
+    $$\begin{aligned}\text{Cov}[X+Y,Z] &=E[(X+Y)Z ^ {\top}]-E[X+Y]E[Z] ^ {\top} \\\\ &=E[XZ ^ {\top}]+E[YZ ^ {\top}]-E[X]E[Z] ^ {\top}-E[Y]E[Z] ^ {\top} \\\\ &=\text{Cov}[X,Z]+\text{Cov}[Y,Z] \end{aligned}$$
+
+6. $\text{Cov}[A, X]=E[AX ^ {\top}]-E[A]E[X] ^ {\top}=AE[X] ^ {\top}-AE[X] ^ {\top}=\mathbf 0 _ {D\times E}$
 
     其中 $A \in \mathbb R^D$，为常向量，$X \in \mathbb R^E$ 为随机向量。
 

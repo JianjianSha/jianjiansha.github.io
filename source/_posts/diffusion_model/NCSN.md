@@ -95,8 +95,11 @@ $$\begin{aligned}\mathbb E_{\tilde {\mathbf x}, \mathbf x} [\mathbf s_{\theta}(\
 \\\\ &=\mathbb E_{\tilde {\mathbf x}} [\mathbf s_{\theta}(\tilde {\mathbf x})]
 \end{aligned} \tag{3.2}$$
 
-联立 (3), (3.1) 和 (3.2) 式可知
-(3) 式的最优解满足： $\mathbf s_{\theta^{\star}}(\mathbf x)=\nabla_{\mathbf x} \log q_{\sigma}(\mathbf x)$ 几乎可以确定是成立的（依概率相等）。
+联立 (3), (3.1) 和 (3.2) 式可知 
+
+$$\mathbb E_{\tilde {\mathbf x}} [\mathbf s_{\theta}(\tilde {\mathbf x})] \stackrel{3.2}=\mathbb E_{\tilde {\mathbf x}, \mathbf x} [\mathbf s_{\theta}(\tilde {\mathbf x})] \stackrel{3}=\mathbb E_{\tilde {\mathbf x},\mathbf x} [\nabla_{\tilde {\mathbf x}} \log q_{\sigma}(\tilde {\mathbf x}|\mathbf x)]\stackrel{3.1}=\mathbb E_{\tilde {\mathbf x}}[\nabla_{\tilde {\mathbf x}} \log q_{\sigma}(\tilde {\mathbf x})]$$
+
+即 (3) 式的最优解满足： $\mathbf s_{\theta^{\star}}(\tilde {\mathbf x})=\nabla_{\mathbf x} \log q_{\sigma}(\tilde {\mathbf x})$ 几乎可以确定是成立的（依概率相等）。
 
 这里，我们需要扰动必须足够小（$\sigma$ 足够小），此时才有 $\mathbf s_{\theta^{\star}}(\mathbf x) = \nabla_{\mathbf x} \log q_{\sigma} (\mathbf x)\approx  \nabla_{\mathbf x} \log p_{data} (\mathbf x)$，因为 $q_{\sigma} (\tilde {\mathbf x}) := \int q_{\sigma}(\tilde {\mathbf x}|\mathbf x) p_{data}(\mathbf x) d\mathbf x$ ，在 $\sigma$ 足够小时有 $q_{\sigma} (\mathbf x) \approx p_{data}(\mathbf x)$。特别地，当 $\sigma \rightarrow 0$ 时，$q_{\sigma}(\tilde {\mathbf x}|\mathbf x)$ 变成狄拉克分布，满足 $q_{\sigma}(\tilde {\mathbf x}=\mathbf x|\mathbf x)=1$，此时 $q_{\sigma} (\tilde {\mathbf x}) = \int q_{\sigma}(\tilde {\mathbf x}|\mathbf x) p_{data}(\mathbf x) d\mathbf x=p_{data}(\tilde {\mathbf x})$。
 
@@ -199,7 +202,7 @@ $$\mathcal L(\theta; \\{\sigma_i\\} _ {i=1}^L)=\frac 1 L \sum_{i=1} ^L \lambda(\
 
 其中 $\lambda(\sigma_i)$ 是系数函数。如果模型 $\mathbf s_{\theta}(\mathbf x,\sigma)$ 的容量够大，那么 (6) 式最优解满足 $\mathbf s_{\theta^{\star}}(\mathbf x,\sigma)=\nabla_{\mathbf x} \log q_{\sigma_i}(\mathbf x), \forall i \in \{1,\ldots,L\}$ 。
 
-理想情况下，我们希望所有的 $\lambda(\sigma_i) l(\theta; \sigma_i)$ 的量级相当。根据经验，模型训练到最优时，近似关系 $\|\mathbf s_{\theta}(\mathbf x,\sigma)\|_2 \propto 1/\sigma$，故 $l(\theta;\sigma) \propto 1/\sigma^2$，所以可以选择 
+理想情况下，我们希望所有的 $\lambda(\sigma_i) l(\theta; \sigma_i)$ 的量级相当。根据经验，模型训练到最优时有近似关系 $\|\mathbf s_{\theta}(\mathbf x,\sigma)\|_2 \propto 1/\sigma$，故 $l(\theta;\sigma) \propto 1/\sigma^2$，所以可以选择 
 
 $$\lambda(\sigma)=\sigma^2 \tag{7}$$
 
@@ -231,7 +234,7 @@ $$\lambda \propto 1/\mathbb E_{\tilde {\mathbf x}, \mathbf x} \left[||\frac {\ti
 ---
 **算法 1 退火 Langevin dynamics**
 输入： $\\{\sigma_i \\}_{i=1}^L$ 是递减序列， Langevin dynamics 迭代的 step 值 $\epsilon$，以及 step 数量 $T$
-初始化：$\tilde {\mathbf x}_0 \sim \pi(\tilde {\mathbf x})$  来自先验分布，例如 $\mathcal N(\mathbf 0, I)$
+初始化：$\tilde {\mathbf x}_0 \sim \pi(\tilde {\mathbf x})$  来自先验分布，例如均匀分布 $\mathcal U(0, 1)$
 
 **for** $i=1,\ldots, L$ **do**
 
