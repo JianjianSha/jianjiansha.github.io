@@ -23,7 +23,7 @@ $$p_X(x)=p_H(f(x)) |\det \frac {\partial f(x)} {\partial x}| \tag{3}$$
 
 其中 $\frac {\partial f(x)}{\partial x}$ 是 Jacobian 矩阵。如果我们能找到一个变换 $f(x)$，使得 Jacobian 矩阵的行列式容易计算出来，且逆变换 $f^{-1}$ 也容易得到，那么我们就可以按如下方式采样来自 $p_X(x)$ 中的样本：
 
-$$h \sim p_H(h) \\ x=f^{-1}(h) \tag{4}$$
+$$h \sim p_H(h) \\\\ x=f^{-1}(h) \tag{4}$$
 
 故关键点是：
 
@@ -35,11 +35,11 @@ $$h \sim p_H(h) \\ x=f^{-1}(h) \tag{4}$$
 
 将数据 $x$ 分割为两部分 $(x_1, x_2)$，然后作如下变换：
 
-$$\begin{aligned} y_1&=x_1 \\ y_2&=x_2+m(x_1) \end{aligned}\tag{5}$$
+$$\begin{aligned} y_1&=x_1 \\\\ y_2&=x_2+m(x_1) \end{aligned}\tag{5}$$
 
 其中 $m$ 是由神经网络构成的一个复杂的变换函数。这个变换 $y=f(x)$ 的逆变换很容易求得，
 
-$$\begin{aligned} x_1&=y_1 \\ x_2&=y_2-m(y_1) \end{aligned} \tag{6}$$
+$$\begin{aligned} x_1&=y_1 \\\\ x_2&=y_2-m(y_1) \end{aligned} \tag{6}$$
 
 Jacobian 矩阵为 
 
@@ -73,15 +73,15 @@ $$\log p_X(x) = \sum_{d=1}^D \log p_{H_d}(f_d(x)) + \log (|\det (\frac {\partial
 
 数据 $x \in \mathbb R^D$，$I_1, I_2$ 是对序列 $[1,2,\ldots, D]$ 的一个分割，其中 $I_1$ 长度为 $d=|I_1|$，函数 $m$ 是作用于 $\mathbb R^d$ 上的一个函数，定义
 
-$$\begin{aligned} y_{I_1} &= x_{I_1} \\ y_{I_2} &= g(x_{I_2}; m(x_{I_1}) \end{aligned} \tag{10}$$
+$$\begin{aligned} y_{I_1} &= x_{I_1} \\\\ y_{I_2} &= g(x_{I_2}; m(x_{I_1}) \end{aligned} \tag{10}$$
 
 其中函数 $g$ 在给定第二个参数时，对第一个参数可逆。此时 Jacobian 矩阵为
 
-$$\frac {\partial y}{\partial x}= \begin{bmatrix}I_d & 0 \\ \frac {\partial y_{I_2}}{\partial x_{I_1}} & \frac {\partial y_{I_2}}{\partial x_{I_2}} \end{bmatrix} $$
+$$\frac {\partial y}{\partial x}= \begin{bmatrix}I_d & 0 \\\\ \frac {\partial y_{I_2}}{\partial x_{I_1}} & \frac {\partial y_{I_2}}{\partial x_{I_2}} \end{bmatrix} $$
 
 其中 $I_d$ 为 d 阶单位矩阵，于是 $\det \frac {\partial y}{\partial x}=\det \frac {\partial y_{I_2}} {\partial x_{I_2}}$，且逆变换为
 
-$$\begin{aligned} x_{I_1} &= y_{I_1} \\ x_{I_2} &= g^{-1} (y_{I_2}; m(y_{I_1})) \end{aligned}\tag{11}$$
+$$\begin{aligned} x_{I_1} &= y_{I_1} \\\\ x_{I_2} &= g^{-1} (y_{I_2}; m(y_{I_1})) \end{aligned}\tag{11}$$
 
 称上述变换为一个 coupling layer，其中 耦合函数为 $m$ 。
 
@@ -111,7 +111,7 @@ $$y_{I_1}^{(2)}=y_{I_1}^{(1)}+m^{(2)}(y_{I_2}^{(1)}), \quad y_{I_2}^{(2)}=y_{I_2
 
 显然，上面这两个 layers 的变换将输入的两部分 （输入分为 d 维和 D-d 维两部分）进行了交换。我们看第二个 layer 的变换，其逆变换容易求得，再看其 Jacobian 矩阵为
 
-$$\frac {\partial y^{(2)}}{\partial y^{(1)}}= \begin{bmatrix}I_d & \frac {\partial y_{I_2}}{\partial x_{I_2}} \\ 0 & I_{D-d}  \end{bmatrix} $$
+$$\frac {\partial y^{(2)}}{\partial y^{(1)}}= \begin{bmatrix}I_d & \frac {\partial y_{I_2}}{\partial x_{I_2}} \\\\ 0 & I_{D-d}  \end{bmatrix} $$
 
 易知，Jacobian 矩阵行列式依然为 `1`。
 

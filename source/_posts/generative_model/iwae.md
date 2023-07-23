@@ -1,7 +1,9 @@
 ---
 title: Importance Weighted Autoencoders
 date: 2022-08-23 17:22:57
-tags: vae
+tags: 
+    - vae
+    - generative model
 mathjax: true
 ---
 
@@ -15,19 +17,19 @@ VAE 对后验概率 $p_{\theta}(z|x)$（以及它的变分近似 $q(z|x)$）做�
 
 VAE 中生成过程（解码）为
 
-$$p(x|\theta)=\sum_{h^1, \ldots, h^L} p(h^L|\theta)p(h^{L-1}|h^L,\theta) \cdots p(x|h^1,\theta) \tag{1}$$
+$$p(x|\theta)=\sum_{h^1, \ldots, h^L} p(h^L|\theta)p(h ^ {L-1}|h ^ L,\theta) \cdots p(x|h ^ 1,\theta) \tag{1}$$
 
 其中 $\theta$ 表示网络参数，$h^1,\ldots, h^L$ 表示中间层变量或隐变量。定义 $h^0 \stackrel{\Delta}= x$ 。$p(h^l|h^{l+1})$ 表示一个复杂的非线性变换。
 
 识别（推断/编码）网络类似的表示为，
 
-$$q(h|x)=q(h^1|x)q(h^2|h^1)\cdots q(h^L|h^{L-1}) \tag{2}$$
+$$q(h|x)=q(h ^ 1|x)q(h ^ 2|h ^ 1)\cdots q(h ^ L|h ^ {L-1}) \tag{2}$$
 
 定义 $h \stackrel{\Delta}= h^L$。先验概率固定为一个简单的分布，如 $h \sim \mathcal N(0, I)$ 。
 
-条件分布 $p(h^l|h^{l+1})$ 和 $q(h^l|h^{l-1})$ 均为协方差为对阵矩阵的高斯分布，对角线元素和期望向量均由网络计算得到。
+条件分布 $p(h ^ l|h ^ {l+1})$ 和 $q(h^l|h^{l-1})$ 均为协方差为对阵矩阵的高斯分布，对角线元素和期望向量均由网络计算得到。
 
-对于实数观测值（$x$），$p(x|h^1)$ 也可以定义为与 $p(h^l|h^{l+1})$ 类似的高斯分布；对于二分类观测值（$x$），$p(x|h^1)$  定义为伯努利分布，其期望值由网络计算得到。
+对于实数观测值（$x$），$p(x|h ^ 1)$ 也可以定义为与 $p(h ^ l|h ^ {l+1})$ 类似的高斯分布；对于二分类观测值（$x$），$p(x|h ^ 1)$  定义为伯努利分布，其期望值由网络计算得到。
 
 **VAE 的目标函数是最大化 ELBO $\mathcal L(x)$**，
 
@@ -52,26 +54,26 @@ $$\mathcal L(x) = \log p(x) - D_{KL}(q(h|x)||p(h|x)) \tag{4}$$
 根据定义进行推导，
 
 $$\begin{aligned}\mathcal L(x) &=\mathbb E_{q(h|x)} \left[\log \frac {p(x,h)}{q(h|x)}\right] 
-\\&= \mathbb E_{q(h|x)} \left[\log \frac {p(h|x)}{q(h|x)} + \log p(x)\right] 
-\\&= \mathbb E_{q(h|x)} [\log p(x)] - D_{KL}(q(h|x)||p(h|x))
-\\&= \log p(x) - D_{KL}(q(h|x)||p(h|x))
+\\\\ &= \mathbb E_{q(h|x)} \left[\log \frac {p(h|x)}{q(h|x)} + \log p(x)\right] 
+\\\\ &= \mathbb E_{q(h|x)} [\log p(x)] - D_{KL}(q(h|x)||p(h|x))
+\\\\ &= \log p(x) - D_{KL}(q(h|x)||p(h|x))
 \end{aligned}$$
 
 给定一个 $x$，其概率密度为 $\log p(x)$，那么对条件分布 $q(h|x)$ 而言，$x$ 和 $\log p(x)$ 均可视作常量，那么 $\mathbb E_{q(h|x)} [\log p(x)] = \log p(x)$ 。证毕。
 
 
-本文的识别（编码）网络中，$q(h^l|h^{l-1}, \theta)$ 形式为 $\mathcal N(h^l|\mu(h^{l-1},\theta), \Sigma(h^{l-1}, \theta))$，期望和协方差矩阵是前一个 layer 的输出 $h^{l-1}$ 和网络参数 $\theta$ 的函数。
+本文的识别（编码）网络中，$q(h ^ l|h ^ {l-1}, \theta)$ 形式为 $\mathcal N(h ^ l|\mu(h ^ {l-1},\theta), \Sigma(h ^ {l-1}, \theta))$，期望和协方差矩阵是前一个 layer 的输出 $h^{l-1}$ 和网络参数 $\theta$ 的函数。
 
-根据重参数技巧，$\epsilon^l \sim \mathcal N(0,I)$，可以得到后一个 layer 的输出为
+根据重参数技巧，$\epsilon ^ l \sim \mathcal N(0,I)$，可以得到后一个 layer 的输出为
 
-$$h^l(\epsilon^l, h^{l-1}, \theta)=\Sigma(h^{l-1}, \theta)^{1/2} \epsilon^l + \mu(h^{l-1}, \theta) \tag{5}$$
+$$h^l(\epsilon ^ l, h ^ {l-1}, \theta)=\Sigma(h ^ {l-1}, \theta) ^ {1/2} \epsilon ^ l + \mu(h ^ {l-1}, \theta) \tag{5}$$
 
-计算每个 $h^l$ 时，均使用重参数技巧采样一个辅助随机变量 $\epsilon^l$，那么最终的编码值 $h(\epsilon, x, \theta)$ 根据 (5) 是递归得到，这里 $\epsilon=(\epsilon^1,\ldots, \epsilon^L)$ 。
+计算每个 $h ^ l$ 时，均使用重参数技巧采样一个辅助随机变量 $\epsilon ^ l$，那么最终的编码值 $h(\epsilon, x, \theta)$ 根据 (5) 是递归得到，这里 $\epsilon=(\epsilon ^ 1,\ldots, \epsilon ^ L)$ 。
 
 那么 ELBO 的梯度可计算为
 
 $$\begin{aligned}\nabla_{\theta} \mathbb E_{q(h|x,\theta)} \left [\log \frac {p(x,h|\theta)}{q(h|x,\theta)} \right]&= \nabla_{\theta} \mathbb E_{\epsilon \sim \mathcal N^L(0, I)} \left [\log \frac {p(x,h(\epsilon,x, \theta)|\theta)}{q(h(\epsilon, x,\theta)|x, \theta)}\right]
-\\&=\mathbb E_{\epsilon \sim \mathcal N^L(0, I)} \left[\nabla_{\theta} \log \frac {p(x,h(\epsilon,x, \theta)|\theta)}{q(h(\epsilon, x,\theta)|x, \theta)}\right]
+\\\\ &=\mathbb E_{\epsilon \sim \mathcal N^L(0, I)} \left[\nabla_{\theta} \log \frac {p(x,h(\epsilon,x, \theta)|\theta)}{q(h(\epsilon, x,\theta)|x, \theta)}\right]
 \end{aligned} \tag{6}$$
 
 # 2. IWAE
@@ -105,8 +107,8 @@ $$\log p(x) \ge \mathcal L_{k+1} \ge \mathcal L_k \tag{9}$$
 使用 (7) 式计算 $\mathcal L_k$ 。与 VAE 一样，使用重参数技巧，
 
 $$\begin{aligned}\nabla_{\theta} \mathcal L_k(x)&=\nabla_{\theta} \mathbb E_{h_1,\ldots, h_k} \left[\log \frac 1 k \sum_{i=1}^k w_i \right]
-\\&=\mathbb E_{\epsilon_1,\ldots, \epsilon_k} \left [\nabla_{\theta} \log \frac 1 k \sum_{i=1}^k w(x, h(x,\epsilon_i,\theta), \theta)\right]
-\\&=\mathbb E_{\epsilon_1,\ldots, \epsilon_k} \left [\sum_{i=1}^k \tilde w_i \nabla_{\theta} \log w(x, h(x,\epsilon_i,\theta), \theta)\right]
+\\\\ &=\mathbb E_{\epsilon_1,\ldots, \epsilon_k} \left [\nabla_{\theta} \log \frac 1 k \sum_{i=1}^k w(x, h(x,\epsilon_i,\theta), \theta)\right]
+\\\\ &=\mathbb E_{\epsilon_1,\ldots, \epsilon_k} \left [\sum_{i=1}^k \tilde w_i \nabla_{\theta} \log w(x, h(x,\epsilon_i,\theta), \theta)\right]
 \end{aligned} \tag{10}$$
 
 

@@ -11,8 +11,8 @@ mathjax: true
 # 基本形式
 优化问题可以写成如下形式：
 
-$$\min \ \mathbf {cx}=z\\
-s.t. \ A \mathbf {x=b} \\
+$$\min \ \mathbf {cx}=z\\\\
+s.t. \ A \mathbf {x=b} \\\\
 \quad \mathbf x \ge \mathbf 0$$
 
 

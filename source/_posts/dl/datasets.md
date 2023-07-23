@@ -233,10 +233,97 @@ print(dataset)
 
 ## 1.4 COCO
 
+## 1.5 DIV2K
+
+[官网](https://data.vision.ee.ethz.ch/cvl/DIV2K/)
+
+DIV2K 数据集有1000张高清图(2K分辨率)，其中800张作为训练，100张作为验证，100张作为测试。用于图像超分辨率任务
+
+高清图为：`0001.png, 0002.png, ..., 1000.png`
+
+downscaling images:
+
+- `YYYYx2.png` downscaling factor `2`
+- `YYYYx3.png` downscaling factor `3`
+- `YYYYx4.png` downscaling factor `4`
+
+downscaling 方法： 
+
+1. bicubic
+2. unknown
+
+**# 目录文件结构**
+
+```sh
+DIV2K/
+  |-- DIV2K_train_HR/   # 0001.png, 0002.png, ..., 0800.png  HR images
+  |-- DIV2K_train_LR_bicubic/
+        |-- X2/         # 0001x2.png, ..., 0800x2.png LR images
+        |-- X3/         # 0001x3.png, ..., 0800x3.png LR images
+        |-- X4/         # 0001x4.png, ..., 0800x4.png LR images
+  |-- DIV2K_train_LR_unknown/
+        |-- X2/         # 0001x2.png, ..., 0800x2.png LR images
+        |-- X3/         # 0001x3.png, ..., 0800x3.png LR images
+        |-- X4/         # 0001x4.png, ..., 0800x4.png LR images
+  |-- DIV2K_valid_HR/   # 0801.png, ..., 0900.png HR
+  |-- DIV2K_valid_LR_bicubic/
+        |-- X2/         # 0801x2.png, ..., 0900x2.png LR images
+        |-- X3/         # 0801x3.png, ..., 0900x3.png LR images
+        |-- X4/         # 0801x4.png, ..., 0900x4.png LR images
+  |-- DIV2K_valid_LR_unknown/
+        |-- X2/         # 0801x2.png, ..., 0900x2.png LR images
+        |-- X3/         # 0801x3.png, ..., 0900x3.png LR images
+        |-- X4/         # 0801x4.png, ..., 0900x4.png LR images
+  |-- DIV2K_test_HR/   # 0901.png, ..., 1000.png HR
+  |-- DIV2K_test_LR_bicubic/
+        |-- X2/         # 0901x2.png, ..., 1000x2.png LR images
+        |-- X3/         # 0801x3.png, ..., 1000x3.png LR images
+        |-- X4/         # 0801x4.png, ..., 1000x4.png LR images
+  |-- DIV2K_test_LR_unknown/
+        |-- X2/         # 0901x2.png, ..., 1000x2.png LR images
+        |-- X3/         # 0801x3.png, ..., 1000x3.png LR images
+        |-- X4/         # 0801x4.png, ..., 1000x4.png LR images
+```
 
 
-# 2. Search
+# 2. MultiModal
 
-## 2.1 MS MARCO
+## 2.1 Flickr30k
+
+[网站](https://datasets.activeloop.ai/docs/ml/datasets/flickr30k-dataset/)
+
+**简介**
+
+Flickr30k 数据集是基于句子的图像描述任务中的一个有名的 benchmark，数据集包含了 31,783 个图像，每个图像有若干个描述句子，图像全部是关于人的日常活动或事件。
+
+[下载](https://opendatalab.org.cn/Flickr_Image/download)
+
+**使用**
+
+一种方法是下载后使用 python 加载，另一种方法是使用第三方库，这里以 Deep Lake open-source 为例说明。
+
+```python
+import deeplake
+ds = deeplake.load('hub://activateloop/flickr30k')
+```
+
+上述加载的 Flickr30k 数据集对象结构：
+
+- images: 表示图像数据的 tensor
+- texts: 表示对应 text 的 tensor
+- comment_nos: 表示 comments 数量的 tensor
+
+```python
+# PyTorch 中使用
+dataloader = ds.pytorch(num_workers=0, batch_size=4, shuffle=False)
+# TensorFlow 中使用
+dataloader = ds.tensorflow()
+```
+
+
+
+# 9. Search
+
+## 9.1 MS MARCO
 
 https://microsoft.github.io/msmarco/

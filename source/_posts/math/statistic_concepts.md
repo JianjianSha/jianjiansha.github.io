@@ -80,14 +80,14 @@ $$p(x)=\alpha p_1(x) + (1-\alpha) p_2(x), \quad \alpha \in [0, 1]$$
 
 $$\mathbb E[X]=\alpha \mu_1 + (1-\alpha)\mu_2$$
 另外，
-$$\begin{aligned} \mathbb E[X^2]&=\int x^2 p(x)dx
-\\&=\int \alpha x^2 p_1(x)+(1-\alpha)x^2 p_2(x) dx
-\\&=\alpha \mathbb E_1[X^2] + (1-\alpha) \mathbb E_2[X^2]
-\\&=\alpha(\mu_1^2+\sigma_1^2) + (1-\alpha)(\mu_2^2+\sigma_2^2)
+$$\begin{aligned} \mathbb E[X ^ 2]&=\int x ^ 2 p(x)dx
+\\\\ &=\int \alpha x ^ 2 p_1(x)+(1-\alpha)x ^ 2 p_2(x) dx
+\\\\ &=\alpha \mathbb E_1[X ^ 2] + (1-\alpha) \mathbb E_2[X ^ 2]
+\\\\ &=\alpha(\mu_1 ^ 2+\sigma_1 ^ 2) + (1-\alpha)(\mu_2 ^ 2+\sigma_2 ^ 2)
 \end{aligned}$$
 于是方差为
 
-$$\mathbb V[X]=\mathbb E[X^2]-\mathbb E^2[X]=\alpha(\mu_1^2+\sigma_1^2) + (1-\alpha)(\mu_2^2+\sigma_2^2)-[\alpha \mu_1 + (1-\alpha)\mu_2]^2$$
+$$\mathbb V[X]=\mathbb E[X ^ 2]-\mathbb E^2 [X]=\alpha(\mu_1^2 +\sigma_1 ^ 2) + (1-\alpha)(\mu_2 ^ 2+\sigma_2 ^ 2)-[\alpha \mu_1 + (1-\alpha)\mu_2] ^ 2$$
 
 **多维高斯分布**
 
@@ -115,7 +115,7 @@ $$p(\mathbf x)=\int p(\mathbf x,\mathbf y) d\mathbf y=\mathcal N(\mathbf x|\bold
 
 **Bernoulli 分布**
 
-$$p(x|\mu)=\mu^x(1-\mu)^{1-x}$$
+$$p(x|\mu)=\mu^x (1-\mu)^ {1-x}$$
 $$\mathbb E[X]=\mu$$
 $$\mathbb V[X]=\mu(1-\mu)$$
 
@@ -162,9 +162,9 @@ $$p(\mu|\alpha, \beta)=\frac {\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}
 现在执行 $N$ 次抛硬币试验，正面向上的次数为可观测量 $y$，且观测到 $y=h$，那么 $\mu$ 的后验概率为，
 
 $$\begin{aligned}p(\mu|y=h,N,\alpha,\beta) & \propto p(\mu|\alpha,\beta) p(y=h|\mu)
-\\& \propto \mu^h(1-\mu)^{N-h}\mu^{\alpha-1} (1-\mu)^{\beta-1}
-\\ &= \mu^{h+\alpha-1} (1-\mu)^{N-h+\beta-1}
-\\& \propto \text{Beta}(h+\alpha, N-h+\beta)
+\\\\ & \propto \mu^ h(1-\mu)^ {N-h}\mu^ {\alpha-1} (1-\mu)^ {\beta-1}
+\\\\ &= \mu^ {h+\alpha-1} (1-\mu)^ {N-h+\beta-1}
+\\\\ & \propto \text{Beta}(h+\alpha, N-h+\beta)
 \end{aligned}$$
 即，后验与先验分布类型相同，均为 Beta 分布。
 
@@ -204,7 +204,7 @@ $$E(h(X)|A)=\int_A h(x) f_{X|A}(x) dx = \frac 1 {P(A)} \int_A h(x) f_X(x) dx$$
 
 **条件方差**
 
-$$V(X|A)=E(X^2|A)-E(X|A)^2$$
+$$V(X|A)=E(X^2 |A)-E(X|A)^2$$
 
 ## 3.2 多随机变量间条件概率
 
@@ -223,11 +223,11 @@ $$E(X)=E(E[X|Y])$$
 证明：
 
 $$\begin{aligned} E(X)&=\int_x x f_X(x) dx
-\\&= \int_x x \int_y f_{X,Y}(x, y) dy dx 
-\\&= \int_x x \int_y f_{Y}(y) \frac {f_{X,Y}(x,y)}{f_Y(y)} dy dx
-\\&= \int_y f_{Y}(y) \int_x x f_{X|Y}(x|y) dx dy
-\\&= \int_y f_{Y}(y) E[X|Y] dy
-\\&= E[E[X|Y]]
+\\\\ &= \int_x x \int_y f_{X,Y}(x, y) dy dx 
+\\\\ &= \int_x x \int_y f_{Y}(y) \frac {f_{X,Y}(x,y)}{f_Y(y)} dy dx
+\\\\ &= \int_y f_{Y}(y) \int_x x f_{X|Y}(x|y) dx dy
+\\\\ &= \int_y f_{Y}(y) E[X|Y] dy
+\\\\ &= E[E[X|Y]]
 \end{aligned}$$
 
 ## 3.4 全方差公式
@@ -238,15 +238,15 @@ $$V(X)=E(V[X|Y]) + V(E[X|Y])$$
 
 根据条件方差
 
-$$V(X|Y)=E(X^2|Y)-E(X|Y)^2$$
+$$V(X|Y)=E(X^2 |Y)-E(X|Y)^2$$
 
 两边取期望
 
-$$\begin{aligned}E[V(X|Y)]&=E[E[X^2|Y]] - E[E(X|Y)^2]
-\\ &=E(X^2) - E[E(X|Y)^2]
-\\&=[E(X^2)-E(X)^2] - \{E[E(X|Y)^2]-E(X)^2\}
-\\&=V(X)-\{E[E(X|Y)^2]-E[E(X|Y)]^2\}
-\\&= V(X) - V[E(X|Y)]
+$$\begin{aligned}E[V(X|Y)]&=E[E[X^2 |Y]] - E[E(X|Y)^2 ]
+\\\\ &=E(X^2 ) - E[E(X|Y)^2 ]
+\\\\ &=[E(X^2 )-E(X)^2 ] - \lbrace E[E(X|Y)^2 ]-E(X)^2 \rbrace
+\\\\ &=V(X)-\{E[E(X|Y)^2 ]-E[E(X|Y)]^2 \}
+\\\\ &= V(X) - V[E(X|Y)]
 \end{aligned}$$
 证毕。
 
@@ -286,7 +286,7 @@ $$J_{\mathbf h}(\mathbf y)=\det (\frac {\partial A^{-1} \mathbf y}{\partial \mat
 
 注意
 
-$$\frac {\partial (A^{-1}\mathbf y)_i}{\partial y_j}=\frac {\partial (\sum_k A_{ik}^{-1}  y_k)}{\partial y_j}\stackrel{k=j}=A_{ij}^{-1}$$
+$$\frac {\partial (A^{-1}\mathbf y) _ i }{\partial y _ j }=\frac {\partial (\sum_k A _ {ik} ^ {-1}  y_k )}{\partial y_j }\stackrel{k=j}=A_ {ij}^{-1}$$
 
 于是有 
 

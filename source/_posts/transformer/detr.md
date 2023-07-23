@@ -74,11 +74,15 @@ self.body = IntermediateLayerGetter(backbone, return_layers=return_layers)
 
 机器翻译任务中，对短句子的末尾进行填充 `<pad_tok>`，然后再创建 `src_mask`，其中 `<pad_tok>` 对应 `mask=1`，这里对 image 采取类似的预处理，（代码 2）
 ```python
+# code snippet 2
+# 将 list 中每个图像数据紧靠左上角填充（左上角为图像坐标系 O 点）
 def nested_tensor_from_tensor_list(tensor_list):
     # tensor_list: a list of tensors. each tensor represents an image data
     # each tensor has a shape of (C, H, W)
+    # max_size: [Cmax,Hmax,Wmax]。 tensor list中，最大 channel，最大 H，最大 W
     max_size = _max_by_axis([list(img.shape) for img in tensor_list])
     # 得到一个最大的 size，可以容纳 mini-batch 中所有的 images
+    # [batch_size, Cmax, Hmax, Wmax]，其实 Cmax=3，因为所有图像通道均为 3
     batch_shape = [len(tensor_list)] + max_size
     b, c, h, w = batch_shape
     dtype = tensor_list[0].dtype
@@ -96,12 +100,13 @@ def nested_tensor_from_tensor_list(tensor_list):
 
 经过 backbone 之后，image 转变成 features，其 spatial size 缩小了 $32$ 倍，故 mask 也需要等比例缩小 $32$ 倍，（代码 3）
 ```python
+# code snippet 3
 # class BackboneBase(nn.Module)
 def forward(self, tensor_list: NestedTensor):
     xs = self.body(tensor_list.tensors) # (batch_size, C=2048, H, W)
     # xs: backbone 的输出 features
     out = {}
-    # 检测任务 xs -> {'0':res0}
+    # 检测任务 xs -> {'0':res}
     # 分割任务 xs -> {'0':res0, '1':res1, '2':res2, '3':res3}
     for name, x in xs.items():  # 对应上面 return_layers 的输出，name 为 编号
         m = tensor_list.mask
@@ -114,6 +119,25 @@ def forward(self, tensor_list: NestedTensor):
     return out
 ```
 
+代码 3 中关于检测任务和分割任务的 backbone 的输出不同，检测只需要最后的特征，而分割需要中间层特征和最后的特征，如下所示
+
+```
++-------------+    +---------+    +---------+    +---------+    +---------+
+|conv1+bn    -|--->| stage2 -|-+->| stage3 -|-+->| stage4 -|-+->| stage5 -|-+->
+|+relu+maxpool|    |         | |  |         | |  |         | |  |         | |
++-------------+    +---------+ |  +---------+ |  +---------+ |  +---------+ |
+                               v              v              v              v
+(object detection)                                                         res
+(segmentation)                res0           res1           res2           res3
+
+res0: (B, 256, H0//4, W0//4)
+res1: (B, 512, H0//8, W0//8)
+res2: (B,1024, H0//16, W0//16)
+res3: (B, 2048, H0//32, W0//32)
+(H0, W0) 是网络的 input size
+```
+
+
 **Transformer encoder**
 
 1. 使用一个 `1x1 conv` 对 CNN backbone 的输出 features 进行降维，从维度 $C$ 降到 $d=256$，得到 features 为 $z_0 \in \mathbb R^{d \times H \times W}$
@@ -124,17 +148,18 @@ def forward(self, tensor_list: NestedTensor):
 **position encoding**
 
 $$PE(pos_x, 2i)=\sin(pos_x / 10000^{2i/128})
-\\PE(pos_x, 2i+1)=\cos(pos_x/10000^{2i/128})
-\\PE(pos_y, 2i)=\sin(pos_y/10000^{2i/128})
-\\PE(pos_y, 2i+1)=\cos(pos_y/10000^{2i/128})$$
+\\\\ PE(pos_x, 2i+1)=\cos(pos_x/10000^{2i/128})
+\\\\ PE(pos_y, 2i)=\sin(pos_y/10000^{2i/128})
+\\\\ PE(pos_y, 2i+1)=\cos(pos_y/10000^{2i/128})$$
 
-考虑了二维 spatial 位置上 x 轴 与 y 轴的位置编码，$i \in [0, d//4)$，每个空间位置 `pos` 处，位置 encoding 向量维度为 $d=256$，前 `128` 维表示 `pos_y` 位置编码，后 `128` 维表示 `pos_x` 位置编码，记 `pos` 坐标为 $(x, y)$，那么此处位置 encoding 为 
+考虑了二维 spatial 位置上 x 轴 与 y 轴的位置编码，$i \in [0, d//4)$，每个空间位置 `pos` 处，位置 encoding 向量维度为 $d=256$，前 `128` 维表示 `pos_y` 位置编码，sin 和 cos 间隔，后 `128` 维表示 `pos_x` 位置编码，sin 和 cos 间隔，记 `pos` 坐标为 $(x, y)$，那么此处位置 encoding 为 
 ```
-[PE(x, 0), PE(x,1), PE(x,2),PE(x,3), ..., PE(x,126),PE(x,127),PE(y,0),PE(y,1), ... ,PE(y,126),PE(y,127)]
+[PE(y,0), PE(y,1), PE(y,2),PE(y,3), ..., PE(y,126),PE(y,127),PE(x,0),PE(x,1), ... ,PE(x,126),PE(x,127)]
 ```
-（代码 4）
+pixel 像素坐标为 (x, y)，其中 $x \in [1,W], \ y \in [1,H]$，如果需要归一化到 $[0, 2\pi]$ 之间，使用 $2\pi x / W, \ 2\pi y / H$ 。
 
 ```python
+# code snippet 4
 # class PositionEmbeddingSine(nn.Module):
 # 获取 position embedding
 def forward(self, tensor_list: NestedTensor):
@@ -144,6 +169,7 @@ def forward(self, tensor_list: NestedTensor):
     # x: (B, C, H, W)
     # mask: (B, H, W), where `1` elements represent padding pixels
     not_mask = ~mask
+
     # position of y-axis, (B, H, W)
     # for one image features: [[1,1,...], 
     #                          [2,2,...],...]
@@ -153,24 +179,24 @@ def forward(self, tensor_list: NestedTensor):
     # for one image feature: [[1,2,3,...],
     #                         [1,2,3,...],...]
     x_embed = not_mask.cumsum(2, dtype=torch.float32)
-    if self.normalize:   # True, normalize position to [0, 1]
+    if self.normalize:   # True, normalize position to [0, 1]*2*pi
         eps = 1e-6
-        # normalize the y-position
+        # normalize the y-position。y_embed[:,-1,:] 是 H axis 最大值，相除使用 H axis 范围(0,1]
         y_embed = y_embed / (y_embed[:,-1:,:] + eps) * self.scale   # scale: 2*math.pi
+        # x_embed 与 y_embed 类似处理，使得值范围 (0, 2*pi]
         x_embed = x_embed / (x_embed[:,:,-1:] + eps) * self.scale
     # self.temperature: 10000
     # self.num_pos_feats = d//2 = 256/2=128
     dim_t = torch.arange(self.num_pos_feats, dtype=torch.float32, device=x.device)
     # dim_t // 2: 0, 0, 1, 1, 2, 2, ... , 63, 63
     # 2 * (dim_t // 2): 0, 0, 2, 2, 4, 4, ... , 126, 126
-    # dim_t:= ...,  10000^{2i/128}
+    # dim_t: 一维向量，size=128,  10000^{2i/128} ,  i = 0,1,...,63
     dim_t = self.temperature ** (2 * (dim_t //2) / self.num_pos_features)
-    # dim_t: (128,)
     # pos_x / 10000^{2i/128}
     # PE(pos_x, (2i, 2i+1)), PE(pos_y, (2i, 2i+1))
     pos_x = x_embed[:,:,:,None] / dim_t     # (B, H, W, 128)
     pos_y = y_embed[:,:,:,None] / dim_t     # (B, H, W, 128)
-    # cross: [(B,H,W,64),(B,H,W,64)] => (B,H,W,64,2) => (B,H,W,128)
+    # cross: sin和cos间隔，[(B,H,W,64),(B,H,W,64)] => (B,H,W,64,2) => (B,H,W,128)
     #   [sin, cos, sin, cos, sin, ...]
     pos_x = torch.stack((pos_x[:,:,:,0::2].sin(), pos_x[:,:,:,1::2].cos()), dim=4).flatten(3)
     pos_y = torch.stack((pos_y[:,:,:,0::2].sin(), pos_y[:,:,:,1::2].cos()),
@@ -181,8 +207,10 @@ def forward(self, tensor_list: NestedTensor):
 ```
 
 backbone 输出包含两部分，
-1. image 数据经过 backbone 输出的 features
+1. image 数据经过 ResNet 输出的 features
 2. position embedding，与第 `1` 步中的 features 具有相同的 spatial size
+
+    分割任务有 4 个不同 spatial size 的特征，每个特征均执行一次 position embedding（除最后一个特征的 PE，其他 PE 并没有用到）
 
 代码如下：
 ```python
@@ -191,7 +219,9 @@ class Joiner(nn.Sequential):
         super().__init__(backbone, position_embedding)
     
     def forward(self, tensor_list: NestedTensor):
-        xs = self[0](tensor_list)   # {'0': NestTensor0}
+        # self[0] 指的 ResNet
+        xs = self[0](tensor_list)   # 检测任务 -> {'0': NestTensor0}
+                                # 分割任务 -> {'0': NT0, '1': NT1, '2': NT2, '3': NT3}
         out: List[NestedTensor] = []
         pos = []
         for name, x in xs.items():
@@ -200,8 +230,9 @@ class Joiner(nn.Sequential):
     return out, pos
 ```
 
-整个 features 的位置编码 shape 为 $(d, H, W)$ （未考虑 batch_size 这一维度），而 features 的 shape 为 `(512,H,W)` 或者 `(2048,H,W)` (参考各ResNet的输出 channel)，故Backbone 的输出 features 经过 `1x1 Conv` 降维后特征 shape 为 $(d, H, W)$，两者执行 element-wise 相加，然后 flatten spatial，得到 $d \times HW$ 的特征，作为 encoder 的输入。（代码 5）
+整个 features 的位置编码 shape 为 $(d, H, W)$ （未考虑 batch_size 这一维度），而 features 的 shape 为 `(512,H,W)` 或者 `(2048,H,W)` (参考各ResNet的输出 channel)，故Backbone 的输出 features 经过 `1x1 Conv` 降维后特征 shape 为 $(d, H, W)$，两者执行 element-wise 相加，然后 flatten spatial，得到 $d \times HW$ 的特征，作为 encoder 的输入。
 ```python
+# code snippet 5
 # class DETR(nn.Module):
 # decrease channels from 2048 to 256
 input_proj = nn.Conv2d(backbone.num_channels, hidden_dim, kernel_size=1)
@@ -212,7 +243,9 @@ input_proj = nn.Conv2d(backbone.num_channels, hidden_dim, kernel_size=1)
 features, pos = self.backbone(samples)
 src, mask = features[-1].decompose()
 # param: src is the output of backbone, its shape (B, 2048, H, W)
+# return: src (B, 256, H, W)
 src = input_proj(src)
+hs = self.transformer(src, mask, self.query_embed.weight, pos[-1])[0]
 ```
 
 
@@ -237,8 +270,8 @@ src = input_proj(src)
 
 Encoder 的代码：（代码 6）
 ```python
+# code snippet 6
 # class TransformerEncoder(nn.Module):
-
 def forward(self, src, mask=None, src_key_padding_mask=None, pos=None):
     # src: `1x1 Conv` 输出特征 （reshape 之后） （HW, B, d)
     # src_key_padding_mask: (HW, B, d)，backbone 输出的 mask，由于batch 内各 
@@ -259,12 +292,13 @@ def forward(self, src, mask=None, src_key_padding_mask=None, pos=None):
 **Encoder layer (block) 小结：**
 
 1. features 与 position embedding 相加，作为 `query` 和 `key`，features 作为 `value`
-2. 计算 mh self-attn 的输出，然后与输入相加，然后计算 layer_norm
-3. FFN 的输出再与 FFN 的输入相加，然后计算 layer_norm。
+2. 计算 multi-head self-attn 的输出，然后与输入相加（残差结构，identity connection），然后计算 layer_norm
+3. FFN 的输出再与 FFN 的输入相加，然后计算 layer_norm（沿 C,H,W 归一化，与 BatchNorm 不同）。
 4. Encoder layer 的输入输出 shape 均为 $(HW, B, d)$。
 
 Encoder layer 代码：（代码 7）
 ```python
+# code snippet 7
 def forward_post(self, src, src_mask, src_key_padding_mask, pos):
     # src: input embedding      (HW, B, d)
     # pos: position embedding   (HW, B, d)
@@ -279,7 +313,7 @@ def forward_post(self, src, src_mask, src_key_padding_mask, pos):
     src2 = self.linear2(self.dropout(self.activation(self.linear1(src))))
     src = src + src2
     src = self.norm2(src)
-    return src
+    return src  # (HW, B, d)
 ```
 
 
@@ -287,26 +321,26 @@ def forward_post(self, src, src_mask, src_key_padding_mask, pos):
 
 1. decoder 采用标准结构，但是是并行解码得到 $N$ 个预测 objects，非自回归。
 
-    $N$ 是手动给出的，且需要大于单个 image 中的 object 数量，通常 $N \neq HW$。注意需要与图 3 Encoder 中的 block 数量 N 区分开来，这是两个不同的变量。
+    $N$ 是手动给出的，且需要大于单个 image 中的 object 数量，通常 $N \neq HW$（预先设置例如 `N=100`）。注意需要与图 3 Encoder 中的 block 数量 N 区分开来，这是两个不同的变量。
 
 2. decoder 结构如图 3 所示，输入称为 object queries，这是 N 个 positional embedding（向量，维度为 $d$），是可学习的 positional embedding。
 
-    （代码 8）
     ```python
+    # code snippet 8
     N  =  100       # 默认为 100，大于单个 image 中可能的 object 数量
     # hidden_dim = 256，就是前面 Encoder 中的参数 `d` 
     # Embedding.weight 根据标准正态分布进行初始化
     query_embed = nn.Embedding(N, hidden_dim)
 
-    # src: output of `backbone + 1x1 Conv`
-    # mask: set mask=1 for all padding pixels in mini-batch
-    # query_emb: N x d, object queries
+    # src: output of `backbone + 1x1 Conv`  (B,d, H, W)
+    # mask: set mask=1 for all padding pixels in mini-batch  (B, H, W)
+    # query_emb: N x d, object queries，N=100 是预设的目标数据
     # pos: position embeddings of all return_layers
     #   pos[-1] -> PE of the last return_layer, (B, d, H, W)
-    transformer(src, mask, query_emb, pos[-1])
+    transformer(src, mask, query_emb.weights, pos[-1])
     ```
 
-    图 3 关于 Decoder 的输入标注会有些误导，其实 Decoder 还有一个输入，是与 object queries 相同 shape 的全 0 tensor，如下代码中的 `tgt`。
+    图 3 关于 Decoder 的输入标注会有些误导，其实 Decoder 还有一个输入，是与 object queries 相同 shape 的全 0 tensor，如下代码中的 `tgt`，因为还没见到 encoder 的输出（或者说没有见到 transformer 输入），故初值为全 0 tensor，
 
     Transformer （Encoder+Decoder）代码实现：（代码 9）
     ```python
@@ -319,7 +353,7 @@ def forward_post(self, src, src_mask, src_key_padding_mask, pos):
         b, c, h, w = src
         # (B, 256, H, W) -> (B, 256, HW) -> (HW, B, 256)
         src = src.flatten(2).permute(2, 0, 1)
-        pos_embed = pos_embed.flatten(2),permute(2, 0, 1)
+        pos_embed = pos_embed.flatten(2),permute(2, 0, 1)   # (HW, B, 256)
         # (N, 256) -> (N, B, 256)
         # query_embed 是手动设置的 N 个目标的 object_queries
         query_embed = query_embed.unsqueeze(1).repeat(1, b, 1)
@@ -337,7 +371,7 @@ def forward_post(self, src, src_mask, src_key_padding_mask, pos):
         # memory: (HW, B, 256) -> (B, 256, HW) -> (B, C, H, W)
         return hs.transpose(1, 2), memory.permute(1, 2, 0).view(b, c, h, w)
     ```
-3. Decoder 的第一个 mh self-attn 的 `query` 和 `key` 均为 `tgt` 与 object queries 相加，
+3. Decoder 的第一个 mh self-attn 的 `query` 和 `key` 均为 `tgt` 与 object queries 相加，query embedding 相当于 pos embedding，
 
     Decoder layer 的代码：（代码 10）
     ```python
@@ -355,13 +389,16 @@ def forward_post(self, src, src_mask, src_key_padding_mask, pos):
         # pos: encoder 中的 position embedding，(HW, B, d)
         q = k = self.with_pos_embed(tgt, query_pos)     # target 输入，Q, K 需要叠加 query embedding
         # 调用第一个 mh self-attn，参数 tgt_mask, tgt_key_padding_mask 均为 None，即不做 mask
+        # 第一个 multi-head self-attn 因为没有用到 encoder 输出的特征，自然不需要 mask
         tgt2 = self.self_attn(q, k, value=tgt, attn_mask=tgt_mask, key_padding_mask=tgt_key_padding_mask)[0]
         tgt = tgt + self.dropout1(tgt2)     # redisual 结构
         tgt = self.norm1(tgt)
 
         # 调用第二个 mh self-attn，first mh self-attn 的输出作为 query，encoder 的最终输出作为 key 和 value，
         # query 和 key 分别使用 query_embedding 和 position embedding 叠加，value 保持不变
-        # memory_mask：为 None，计算出 attention 之后不需要做 mask；
+        # memory_mask：为 None，计算出 attention 之后不需要做 mask；这跟 encoder 不同，因为 
+        #               encoder 的输入是经过填充的，所以对于填充的位置的 attention，需要置 0
+        #               decoder 是固定好 N 个位置的目标，N 个位置的 attention 都需要。
         # memory_key_padding_mask：与 encoder 中 src mask 相同，(B, HW)，由于 images 大小各不相同，存在 padding，故需要 mask
         tgt2 = self.multihead_attn(query=self.with_pos_embed(tgt, query_pos), key=self.with_pos_embed(memory, pos),
                                    value=memory, attn_mask=memory_mask, key_padding_mask=memory_key_padding_mask)[0]
@@ -409,6 +446,8 @@ def forward_post(self, src, src_mask, src_key_padding_mask, pos):
 
 decoder 的输出 shape 为 $(M, B, N, d)$，其中 $M$ 为 decoder layer 循环次数，$B$ 为 `batch_size`，`d=256` 表示模型维度，$N$ 表示单个 image 中预测的 object 数量。
 
+最后将 decoder 的输出分别经过 cls head 和 box head，预测分类得分和坐标，
+
 1. decoder 的输出经一个线性变换，使得维度从 `d` 变为 `C+1`，这里 `C` 表示 fg 分类数量，`1` 表示 bg 。（代码 12）
     ```python
     class_embed = nn.Linear(hidden_dim, num_classes+1)
@@ -446,30 +485,30 @@ decoder 的输出 shape 为 $(M, B, N, d)$，其中 $M$ 为 decoder layer 循环
 1. $N$ 为某固定不变的值，表示对单个 image，预测 box 的数量。设置 $N$ 的值使得较大于一般意义上单个 image 中 object 数量。论文中设置 $N=100$
 2. 如果 gt box 数量不足 $N$，用 no-object进行填充，使得数量为 $N$。
 3. 填充的表示 no-object 的 gt boxes，其分类 index 为 `0`，表示背景 bg，坐标无所谓，因为坐标回归 loss 中只对正例预测 box 的坐标计算损失
-4. __`2~3` 是论文中原话，代码中并没有使用 no-object 进行填充使得 gt box 数量为 $N=100$__。参考 下方关于 `HungarianMatcher` 的代码
+4. __`2~3` 是论文中原话，代码中并没有使用 no-object 进行填充使得 gt box 数量为 `N=100`__。参考 下方关于 `HungarianMatcher` 的代码
 
 ### 2.2.1 Hungarian 损失
 
 在预测 box 集合和 gt box 集合上的二分匹配（bipartite matching）loss 为，
 
-$$\hat {\sigma} = \arg \min_{\sigma \in \mathcal G_N} \Sigma_i^N \mathcal L_{match}(y_i, \hat y_{\sigma(i)})$$
+$$\hat {\sigma} = \arg \min_{\sigma \in \mathcal G _ N } \Sigma _ i ^ N \mathcal L _ {match}(y _ i, \hat y _ {\sigma(i)})$$
 
-其中 $\sigma$ 表示 `1~N` 个自然数集合 $[N]$ 的一个 permutation（排列），$\sigma(i)$ 表示这个排列中第 $i$ 个数。$\mathcal G_N$ 表示 $[N]$ 的所有排列的集合。$\mathcal L_{match}(y_i, \hat y_{\sigma(i)})$ 表示 $y_i$ 和 $\hat y_{\sigma(i)}$ 的匹配 loss，这个 loss 包含了分类预测 loss 和 box 位置大小预测
+其中 $\sigma$ 表示 `1~N` 个自然数集合 $[N]$ 的一个 permutation（排列），$\sigma(i)$ 表示这个排列中第 $i$ 个数。$\mathcal G _ N$ 表示 $[N]$ 的所有排列的集合。$\mathcal L _ {match}(y _ i, \hat y _ {\sigma(i)})$ 表示 $y _ i$ 和 $\hat y _ {\sigma(i)}$ 的匹配 loss，这个 loss 包含了分类预测 loss 和 box 位置大小预测
 
-记 gt box 为 $y_i=(c_i, b_i)$，其中 $c_i$ 表示分类 label index（约定 `0` 为 bg index），$b_i \in [0,1]^4$ 表示 box 的 center 坐标和 height，width（相对于 image size 进行了归一化）。单个 matching pair 的损失包含两部分：分类损失和坐标损失
+记 gt box 为 $y _ i=(c _ i, b _ i)$，其中 $c _ i$ 表示分类 label index（约定 `0` 为 bg index），$b_i \in [0,1] ^ 4$ 表示 box 的 center 坐标和 height，width（相对于 image size 进行了归一化）。单个 matching pair 的损失包含两部分：分类损失和坐标损失
 
-$$\mathcal L_{match}(y_i, \hat y_{\sigma(i)})=-\hat p_{\sigma(i)}(c_i)+ \mathbb I_{c_i \neq 0} \cdot \mathcal L_{box}(b_i, \hat b_{\sigma(i)})$$
+$$\mathcal L _ {match}(y _ i, \hat y _ {\sigma(i)})=-\hat p _ {\sigma(i)}(c _ i)+ \mathbb I _ {c _ i \neq 0} \cdot \mathcal L _ {box}(b _ i, \hat b _ {\sigma(i)})$$
 
 **注：这里没有使用 NLL 损失，而是直接使用概率的负数作为损失**
 
-对于单个 image，输出的预测分类概率应该类似于一个矩阵 $P \in [0, 1]^{N \times (C+1)}$，其中 $N=100$ 为单个 image 中预测 box 的数量，$C$ 为分类数量，$C+1$ 则包含了 bg。
+对于单个 image，输出的预测分类概率应该类似于一个矩阵 $P \in [0, 1] ^ {N \times (C+1)}$，其中 $N=100$ 为单个 image 中预测 box 的数量，$C$ 为分类数量，$C+1$ 则包含了 bg。
 
-第 `i` 个 gt box $y_i=(c_i, b_i)$ 与之匹配的预测 box 下标为 $\sigma(i)$，那么其对应到 $c_i$ 这个分类的预测概率为 $\hat p_{\sigma(i)}(c_i)=P_{\sigma(i),c_i}$
+第 `i` 个 gt box $y_i=(c_i, b_i)$ 与之匹配的预测 box 下标为 $\sigma(i)$，那么其对应到 $c_i$ 这个分类的预测概率为 $\hat p _ {\sigma(i)}(c _ i)=P _ {\sigma(i),c _ i}$
 
 
 定义 Hungarian loss 表示单个 image 中所有 matching pairs 的损失，
 
-$$\mathcal L_{Hungarian}(y, \hat y)=\sum_{i=1}^N \left[-\log \hat p_{\hat \sigma(i)}(c_i) + \mathbb I_{c_i \neq 0} \cdot \mathcal L_{box}(b_i, \hat b_{\hat \sigma(i)})\right] \tag{1}$$
+$$\mathcal L _ {Hungarian}(y, \hat y)=\sum _ {i=1} ^ N \left[-\log \hat p _ {\hat \sigma(i)}(c _ i) + \mathbb I _ {c _ i \neq 0} \cdot \mathcal L _ {box}(b _ i, \hat b _ {\hat \sigma(i)})\right] \tag{1}$$
 
 说明：
 
@@ -485,9 +524,9 @@ GIOU 损失参考 [这篇文章](/2019/06/13/GIoU)。
 
 于是 
 
-$$\mathcal L_{box}(b_i, \hat b_i)=\lambda_{iou} \mathcal L_{iou}(b_i, \hat b_{\sigma(i)})+\lambda_{L_1}||b_i - \hat b_{\sigma(i)}||_1$$
+$$\mathcal L _ {box}(b _ i, \hat b _ i)=\lambda_{iou} \mathcal L _ {iou}(b _ i, \hat b _ {\sigma(i)})+\lambda_{L _ 1}||b _ i - \hat b _ {\sigma(i)}|| _ 1$$
 
-上式中使用了两个平衡因子 $\lambda_{iou}, \ \lambda_{L_i}$，代码中 $\lambda_{iou}=2, \ \lambda_{L_1}=5$，实际上分类损失也有平衡因子，只不过 $\lambda_{cls}=1$。
+上式中使用了两个平衡因子 $\lambda _ {iou}, \ \lambda _ {L_i}$，代码中 $\lambda _ {iou}=2, \ \lambda _ {L _ 1}=5$，实际上分类损失也有平衡因子，只不过 $\lambda _ {cls}=1$。
 
 ### 2.2.2 Hungarian 代码
 
@@ -564,28 +603,28 @@ __分类损失：__
 
 单个 image 的分类预测损失：
 
-$$L_{cls}=-\frac 1 N \sum_{i=1}^N w_i \log \hat p_{\hat \sigma(i)}(c_i)$$
+$$L _ {cls}=-\frac 1 N \sum_{i=1} ^ N w_i \log \hat p _ {\hat \sigma(i)}(c _ i)$$
 
 其中权重
 
-$$w_i=\begin{cases} 1 & 0\le c_i <C(\text{fg}) \\ 0.1 & c_i=C(\text{bg})\end{cases}$$
+$$w _ i=\begin{cases} 1 & 0\le c _ i <C(\text{fg}) \\ 0.1 & c _ i=C(\text{bg})\end{cases}$$
 
 __L1 坐标损失：__
 
 mini-batch 的 L1 坐标损失，
 
-$$L_{L_1}=\frac 1 {\sum_i M_i}\sum_i \sum_{j=1}^{M_i} \sum_{c \in \{x,y,w,h\}} ||\hat b_{j,c}-b_{j,c}||$$
+$$L _ {L _ 1}=\frac 1 {\sum _ i M _ i}\sum _ i \sum _ {j=1} ^ {M _ i} \sum _ {c \in \{x,y,w,h\}} ||\hat b _ {j,c}-b _ {j,c}||$$
 
 其中 $i$ 表示 mini-batch 中第 `i` 个 image， $M_i$ 是 `i-th` image 中 targets 数量。$b_{j,c}$ 表示第 `j` 个 target 的某个坐标 (`cx,cy,w,h`)，$\hat b_{j,c}$ 表示与第 `j` 个 target 匹配的预测 box 的某个坐标。
 
 __GIoU:__
 
-$$L_{iou}=\frac 1 {\sum_i M_i} \sum_{j=1}^{M_i} GIoU(\hat b_j, b_j)$$
+$$L _ {iou}=\frac 1 {\sum _ i M _ i} \sum _ {j=1} ^ {M_i} GIoU(\hat b _ j, b _ j)$$
 
 
 目标损失：
 
-$$L=\lambda_{cls}L_{cls}+\lambda_{L_1}L_{L_1}+\lambda_{iou}L_{iou}$$
+$$L=\lambda _ {cls}L _ {cls}+\lambda _ {L _ 1}L _ {L _ 1}+\lambda _ {iou}L _ {iou}$$
 
 
 
@@ -782,9 +821,6 @@ Encoder 结构如图 3 所示，为了方便查看，这里在下方再贴出来
 
 重复 $N=6$ 次 Encoder block 后输出 `output`，其 shape 为 `(HW, B, d)` 。
 
-![](/images/transformer/DETR3.png)
-
-<center>图 3. Encoder 和 Decoder 结构图</center>
 
 ### 3.1.4 Decoder
 
@@ -840,3 +876,266 @@ __FFN：__
 ## 3.3 Prediction
 
 见上面 `2.3` 节。
+
+# 4. Segmentation
+
+在 decoder 输出之后增加一个 mask head，实现分割功能。对于全景分割，则需要将 thing 和 stuff（除目标之外的东西，如天空、草地、建筑等）统一看待，对它们所在的区域（region）均需要进行检测。COCO 全景数据包含 80 个目标分类和 53 个 stuff 分类。
+
+![](/images/transformer/DETR4.png)
+<center>图 4. 全景分割的 mask head</center>
+
+分割任务的实现思路：
+
+1. 使用前面 DETR 在目标检测集上训练
+
+2. 冻结 DETR 的参数，然后增加一个 mask head，在分割数据集上训练这个 mask head
+
+具体而言，
+
+1. 在 decoder 之后继续使用 multi-head self-attention，，如图 4 左起第一个 attention，其 Q 为 decoder 的输出，K 为 encoder 的输出（参考图 3 decoder 的第二个 attention），计算 $QK^{\top}$ 得到 attention 作为输出（没有 value），shape 为 `(B, N, 8, H, W)`，其中 N=100，8 是 multi-heads 数量。
+
+2. 使用 FPN 网络，输入是 backbone 经过一个 conv 适配后的输出以及第 `1` 步得到的 attention：
+
+    - 前者 shape 为 `(B, d, H, W)`，增加一个维度后为 `(B, 1, d, H, W)`，repeat 为 `(B, N, d, H, W)`，最后 flatten 为 `(BN, d, H, W)`
+    - 后者 shape 为 `(B, N, 8, H, W)`，flatten 为 `(BN, 8, H, W)`，
+    - 两者 concatenate，得到 `(BN, d+8, H, W)`
+    - 然后经过 FPN ，得到输出 `pred_masks`，其 shape 为 `(BN, 1, 8H, 8W)`，review 为 `(B, N, 8H, 8W)`
+
+    整个过程如图 5 所示，
+
+    ![](/images/transformer/DETR5.png)
+    <center>图 5. FPN-style 的 mask head</center>
+
+## 4.1 代码
+
+```python
+class DETRsegm(nn.Module):
+    def __init__(self, detr, freeze_detr=False):
+        super().__init__()
+        self.detr = detr    # 目标检测任务的 DETR
+        if freeze_detr:
+            for p in self.parameters():
+                p.requires_grad_(False)
+        
+        # transformer 模型 dim，例如 256
+        # multi-head self-attn 的 head 数量
+        hidden_dim, nheads = detr.transformer.d_model, detr.transformer.nhead
+        self.bbox_attention = MHAttentionMap(hidden_dim, hidden_dim, nheads, dropout=0.0)
+        self.mask_head = MaskHeadSmallConv(hidden_dim + nheads, [1024, 512, 256], hidden_dim)
+    
+    def forward(self, samples):
+        if isinstance(samples, (list, torch.Tensor)):
+            samples = nested_tensor_from_tensor_list(samples)   # size 不同的图像填充
+        # 对于分割任务，backbone 返回 4 个 layer 的输出特征
+        # 4 个 PE，PE 与 feature 一一对应
+        features, pos = self.detr.backbone(samples)
+        bs = features[-1].shape[0]  # B, batch_size
+        # src: (B, 2048, H, W), mask: (B, H, W)
+        src, mask = features[-1].decompose()    # 最后一个特征 H0/32,W0/32
+        src_proj = self.detr.input_proj(src)    # 维度适配，(B, d, H, W)
+        # 最小 size 的特征输入到 transformer
+        # hs: decoder 输出（经过 review）(M, B, N, d)，其中 N=100，query_emb 数量
+        # memory: encoder 输出（经过 reshape）(B, d, H, W)
+        hs, memory = self.detr.transformer(src_proj, mask, self.detr.query_embed.weight, pos[-1])
+
+        # M 是 decoder attention block 的数量，所有 attention block 的输出
+        outputs_class = self.detr.class_embed(hs)   # cls head 输出 (M, B, N, C+1)
+        outputs_coord = self.detr.bbox_embed(hs).sigmoid()  # (M, B, N, 4)
+        # 记录最后一个 decoder atten block 对应的 cls 和 box 输出
+        out = {'pred_logits': outputs_class[-1], 'pred_boxes': outputs_coord[-1]}
+        if self.detr.aux_loss:
+            # 保存其他 decoder atten block 对应的 cls 和 box 输出
+            output['aux_outputs'] = self.detr._set_aux_loss(outputs_class, outputs_coord)
+        
+        # 在这之前，执行逻辑与目标检测的 DETR 完全一样
+        # 在这之后，开始 mask head 前向传播
+
+        # 输入为最后一个 decoder atten block 的输出，encoder 输出，输入图像 mask
+        #                           (B, N, d),   (B, d, H, W),  (B, H, W)
+        # bbox_mask: (B, 1, 1, H, W)
+        bbox_mask = self.bbox_attention(hs[-1], memory, mask=mask)
+
+        # features 中各 feature 的 shape 为 
+        # (B, 256, H0//4, W0//4)
+        # (B, 512, H0//8, W0//8)
+        # (B,1024, H0//16, W0//16)
+        # (B, 2048, H0//32, W0//32)
+        # (H0, W0) 是网络的 input size
+        # seg_masks: (BN, 1, H0//4, W0//4)。二分类，非归一化得分
+        seg_masks = self.mask_head(src_proj, bbox_mask, [features[2].tensors, features[1].tensors, features[0].tensors])
+        # seg_masks: (B, N, H0//4, W0//4)
+        outputs_seg_masks = seg_masks.view(bs, self.detr.num_queries, seg_masks.shape[-2], seg_masks.shape[-1])
+        out['pred_masks'] = outputs_seg_masks
+        return out
+```
+
+
+**# Dataset**
+
+数据集代码，这里我们主要看 target 的构造，因为 image 输入与检测任务一样，target 中包含 mask 的数据。
+
+anno 文件中，记录了每个目标/stuff 的多边形区域，每个目标/stuff 可能会有多个多边形区域，这是因为目标/stuff 被其他东西遮挡。
+
+```python
+# 
+class ConvertCocoPolysToMask(object):
+    def __call__(self, image, target):
+        '''
+        一个图像中可能有多个 目标/stuff，每个 目标/stuff 可能有多个多边形
+        image: 单个图像
+        target: dict 类型
+
+        返回：dict 类型
+        '''
+        w, h = image.size
+
+        image_id = target['image_id']   # 图像 id
+        image_id = torch.tensor([image_id]) # 转为 tensor
+
+        # anno 是一个 list[dict] 对象，每个 dict 记录一个目标/stuff 的标注数据
+        anno = target['annotations']
+
+        # 筛选那些不是 拥挤的目标/stuff（太难，使用了反而影响学习效果）
+        anno = [obj for obj in anno if 'iscrowd' not in obj or obj['iscrowd'] == 0]
+
+        # 所有 目标/stuff 的 bbox。一个目标/stuff 仅有一个 bbox
+        boxes = [obj['bbox'] for obj in anno]
+
+        # (N, 4)    其中 N 为当前图像中的 目标/stuff 数量
+        boxes = torch.as_tensor(boxes, dtype=torch.float32).reshape(-1, 4)
+        boxes[:, 2:] += boxes[:, :2]    # (x,y,w,h) -> (x1,y1,x2,y2)
+        boxes[:, 0::2].clamp_(min=0, max=w)
+        boxes[:, 1::2].clamp_(min=0, max=h)
+
+        classes = [obj['category_id'] for obj in anno]  # 所有 目标/stuff 的分类
+        classes = torch.tensor(classes, dtype=torch.int64)  # (N, )
+
+        if self.return_masks:   # 这里是分割任务，所以为 True
+            # list[list[float]]，内层的 list[float] 表示一个多边形
+            segmentations = [obj['segmentation'] for obj in anno]
+            # masks: (N, h, w) ，这里 N 表示当前图像中 目标/stuff 数量
+            # 每个 目标/stuff 均使用与图像 size 相等的 binary map 表示 mask
+            masks = convert_coco_poly_to_mask(segmentations, h, w)
+        
+        # x2 > x1, y2 > y1
+        keep = (boxes[:, 3] > boxes[:, 1]) & (boxes[:, 2] > boxes[:, 0])
+        boxes = boxes[keep]         # (n, 4)
+        classes = classes[keep]     # (n, )
+
+        target = {'boxes': boxes, 'labels': classes}
+        if self.return_masks:
+            masks = masks[keep]     # (n, h, w)
+            target['masks'] = masks
+        ...
+        return image, target
+```
+
+分析了 model 和 dataset 的代码，然后我们再看训练代码（其中关键的部分），
+
+```python
+def train_one_epoch(model, criterion, data_loader, optimizer, device
+    epoch, max_norm):
+    ...
+
+    for samples, targets in metric_logger.log_every(data_loader, print_freq, header):
+        ...
+        # targets: list[dict]，每个 dict 表示一个图像 target，参考 ConvertCocoPolysToMask 输出
+
+        # outputs 是一个 dict，包含：
+        # pred_logits: (B, N, C+1)  # 最后一个 attn block 经 cls head 的输出
+        # pred_boxes: (B, N, 4)     # 最后一个 attn block 经 box head 的输出
+        # pred_masks: (B, N, H0//4, W0//4)
+        # aux_outputs: 其余 attn blocks 经 cls 和 box head 输出的loss
+        #               [{'pred_logits': xxx, 'pred_boxes': xxx}]
+        outputs = model(samples)
+        loss_dict = criterion(outputs, targets) # 计算各种损失
+        weight_dict = criterion.weight_dict     # 每种损失的权重不同
+        losses = sum(loss_dict[k] * weight_dict[k] for k in loss_dict.keys() if k in weight_dict)
+
+        optimizer.zero_grad()
+        losses.backward()
+        if max_norm > 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
+        optimizer.step()
+        ...
+```
+
+**# 损失**
+
+
+mask loss 使用两个损失：1. Focal loss；2. DICE loss
+
+1. flocal loss
+
+    $$L = -\alpha _ t (1-x _ t) ^ {\gamma} \log x _ t$$
+
+    其中 $x _ t= \begin{cases} x & y=1 \\\\ 1-x & y=0 \end{cases}$
+
+2. DICE loss
+
+    $$L = 1-  \frac {2 \sum _ i ^ N p _ i g _ i}{\sum _ i ^ N p _ i + \sum _ i ^ N g _ i}$$
+
+
+其他损失包括分类和坐标损失，与检测任务一样，这里不再细说。
+
+计算损失的代码如下，
+
+```python
+class SetCriterion(nn.Module):
+    ...
+    def forward(self, outputs, targets):
+        outputs_without_aux = {k: v for k, v in outputs.items() if k != 'aux_outputs'}
+        # indices: [(tensor, tensor)]，匈牙利匹配结果
+        # 一共 B 个二元素 tuple，tuple[0] 表示匹配的预测box 下标，tuple[1] 表示gt box 下标
+        indices = self.matcher(outputs_without_aux, targets)
+
+        # 这个 batch 内所有图像中的 box 数量之和
+        num_boxes = sum(len(t['labels']) for t in targets)
+        num_boxes = torch.as_tensor([num_boxes], dtype=torch.float, ...)
+        nux_boxes = torch.clamp(num_boxes / get_world_size(), min=1).item()
+
+        losses = {}
+        for loss in self.losses:    # labels, boxes, cardinality, masks
+            losses.update(self.get_loss(loss, outputs, targets, indices, num_boxes))
+        
+        # 使用 aux_outputs ，decoder 其他  attn blocks 的输出经过 cls head
+        # 和 box head 的分类预测和坐标预测，计算相关损失
+        ...
+
+        return losses
+    
+    def loss_masks(self, outputs, targets, indices, num_boxes):
+        # 根据匈牙利算法匹配的结果中提取匹配的预测 box id
+        # src_idx: (batch_idx, src_box_idx)，两个元素均为 1-D tensor
+        src_idx = self._get_src_permutation_idx(indices)
+        # tgt_idx: (batch_idx, tgt_box_idx)，匹配的 gt box id
+        tgt_idx = self._get_tgt_permutation_idx(indices)
+
+        src_masks = outputs['pred_masks']   # (B, N=100, H0//4, W0//4)
+        # 筛选出匹配的预测 box。这里 m 表示 batch 中所有匹配的 box pair 的数量
+        src_masks = src_masks[src_idx]  # (m, H0//4, W0//4)
+        masks = [t['masks'] for t in targets]   # [(n, H0, W0)]
+        # masks 是 batch 中所有图像的 box mask，由于每个图像中 box 数量不等
+        # 所以使用具有最多 box 数量 n1，即 target_masks: (B, n1, H0, W0)
+        target_masks, valid = nested_tensor_from_tensor_list(masks).decompose()
+        target_masks = target_masks.to(src_masks)
+        # 筛选出匹配的 gt box
+        target_masks = target_masks[tgt_idx]    # (m, H0, W0)
+
+        # 插值。二维 spatial size (H0//4, W0//4) 放大到 (H0, W0)
+        # 输入必须是 4-d tensor，所以 src_mask 从 (m, H0//4, W0//4) 
+        # 转为 (m, 1, H0//4, W0//4)，然后插值上采样，得到 (m, 1, H0, W0)
+        src_masks = interpolate(src_masks[:, None], 
+                                size=target_masks.shape[-2:],
+                                mode='bilinear', 
+                                align_corners=False) # (m, 1, H0, W0)
+        src_masks = src_masks[:, 0].flatten(1)  # (m, H0*W0)
+        target_masks = target_masks.flatten(1)  # (m, H0*W0)
+        target_masks = target_masks.view(src_masks.shape)
+        # src_masks 表示非归一化预测得分
+        # target_masks，binary map： 0/1
+        losses = {
+            'loss_mask': sigmoid_focal_loss(src_masks, target_masks, num_boxes),
+            'loss_dice': dice_loss(src_masks, target_masks, num_boxes)
+        }
+```

@@ -202,9 +202,17 @@ $$\mathcal L(\theta; \\{\sigma_i\\} _ {i=1}^L)=\frac 1 L \sum_{i=1} ^L \lambda(\
 
 其中 $\lambda(\sigma_i)$ 是系数函数。如果模型 $\mathbf s_{\theta}(\mathbf x,\sigma)$ 的容量够大，那么 (6) 式最优解满足 $\mathbf s_{\theta^{\star}}(\mathbf x,\sigma)=\nabla_{\mathbf x} \log q_{\sigma_i}(\mathbf x), \forall i \in \{1,\ldots,L\}$ 。
 
-理想情况下，我们希望所有的 $\lambda(\sigma_i) l(\theta; \sigma_i)$ 的量级相当。根据经验，模型训练到最优时有近似关系 $\|\mathbf s_{\theta}(\mathbf x,\sigma)\|_2 \propto 1/\sigma$，故 $l(\theta;\sigma) \propto 1/\sigma^2$，所以可以选择 
+理想情况下，我们希望所有的 $\lambda(\sigma_i) l(\theta; \sigma_i)$ 的量级相当。根据经验，模型训练到最优时有近似关系 $||\mathbf s_{\theta}(\mathbf x,\sigma)||_2 \propto 1/\sigma$，故 $l(\theta;\sigma) \propto 1/\sigma^2$，所以可以选择 
 
 $$\lambda(\sigma)=\sigma^2 \tag{7}$$
+
+为何说 $||\mathbf s ^ {\star} _ {\theta} (\mathbf x , \sigma )|| _ 2 \propto 1/ \sigma$ ？
+
+我理解的是从求期望的角度理解。训练到理想情况下，$\mathbf s _ {\theta} ^{\star}$ 就是得分函数，所以 $\sigma \mathbf s _ {\theta}  ^{\star}=(\mathbf x - \tilde {\mathbf x})/\sigma \sim \mathcal N(\mathbf 0, I)$，于是 $||\sigma \mathbf s _ {\theta} ^{\star} || \sim \mathcal X$ 分布（注意不是 $\mathcal X ^ 2$ 卡方分布），其期望为
+
+$$E[||\sigma \mathbf s _ {\theta} ^{\star}||] = \sqrt 2 \frac {\Gamma((d+1)/2)}{\Gamma(d/2)}$$
+
+其中 $d$ 是数据 $\mathbf x$ 的维度，是一个固定已知值，故上式右端是一常数，所以 $E[||\mathbf s ^{\star}||] \propto 1/ \sigma$ 。
 
 因为 
 
@@ -212,16 +220,9 @@ $$\lambda(\sigma) l(\theta;\sigma)=\sigma^2 l(\theta;\sigma)=\frac 1 2 \mathbb E
 
 因为 $\tilde {\mathbf x}$ 是在 $\mathbf x$ 上添加高斯噪声，所以 $\frac {\tilde {\mathbf x} - \mathbf x}{\sigma} \sim \mathcal N(0, I)$，另外 $||\sigma \mathbf s_{\theta}(\mathbf x,\sigma)|| \propto 1$，所以 $\lambda(\sigma) l(\theta; \sigma)$ 不依赖于 $\sigma$ 。
 
-事实上，由于
+$$\mathbb E_{\tilde {\mathbf x}, \mathbf x} \left[||\frac {\tilde {\mathbf x} - \mathbf x}{\sigma ^ 2}||^2 \right]=\frac 1 {\sigma ^ 2} \mathbb E [(\tilde {\mathbf x} - \mathbf x) ^ {\top } \frac 1 {\sigma ^ 2} I (\tilde {\mathbf x} - \mathbf x)]=\frac d {\sigma ^ 2}$$
 
-$$\begin{aligned} \mathbb E_{\tilde {\mathbf x}, \mathbf x} \left[||\frac {\tilde {\mathbf x} - \mathbf x}{\sigma ^ 2}||^2 \right]
-&=\frac 1 {\sigma ^ 4}\mathbb E _ {\mathbf x} \mathbb E _ {\tilde {\mathbf x}|\mathbf x}[||\tilde {\mathbf x} - \mathbf x||^2]
-\\\\ &= \frac 1 {\sigma ^ 4} \mathbb E _ {\mathbf x} (\mathbb E _ {\tilde {\mathbf x} | \mathbf x} ^ 2 [\tilde {\mathbf x} - \mathbf x] - \mathbb C _ {\tilde {\mathbf x} | \mathbf x}[\tilde {\mathbf x} - \mathbf x])
-\\\\ &=\frac 1 {\sigma ^ 4} \mathbb E _ {\mathbf x} [\sigma ^ 2]
-\\\\ &= \frac 1 {\sigma ^ 2}
-\end{aligned}$$
-
-上式推导第三个等号是因为 $\tilde {\mathbf x} - \mathbf x \sim \mathcal N(\mathbf 0, I)$。
+上式最后一步的推导利用了 [高斯分布的性质](/2022/06/29/math/gaussian) 一文中的 (3) 式。
 
 根据上式，以及 (7) 式通常写成 $\lambda \propto \sigma^2$ （在本文中取等号，但是更一般地都是取正比号），可知 
 
@@ -268,7 +269,7 @@ $$\mathbb E[||\frac {\alpha_i \mathbf s_{\theta}(\mathbf x, \sigma_i)} {2\sqrt {
 
 最后一步变换是由于 $\sigma_i \mathbf s_{\theta}(\mathbf s, \sigma_i) \propto 1$ 。
 
-为了证实退火 Langevin dynamics 的效率，作者使用了 2.2 小节中的 2 模式高斯混合 $p_{data}(\mathbf x) = \frac 1 5 \mathcal N((-5,-5), I) + \frac 4 5 \mathcal N((5,5), I)$ 作为例子，$\\{ \sigma_i \\}_{i=1}^L$ 序列选择几何数列，其中 $L=10, \ \sigma_1 = 10, \sigma _ {10}=0.1$，使用真实数据的得分函数，得到图 3 (c) 的采样结果。
+为了证实退火 Langevin dynamics 的效率，作者使用了 2.2 小节中的 2 模式高斯混合 $p_{data}(\mathbf x) = \frac 1 5 \mathcal N((-5,-5), I) + \frac 4 5 \mathcal N((5,5), I)$ 作为例子，$\\{ \sigma_i \\}_{i=1}^L$ 序列选择几何数列，其中 $L=10, \ \sigma_1 = 10, \sigma _ {10}=0.1$，使用真实数据的得分函数，得到图 `3 (c)` 的采样结果。
 
 
 # 4. 实验

@@ -2,6 +2,7 @@
 title: 3D 目标检测中的一些计算
 date: 2022-11-21 11:28:56
 tags: 3d object detection
+mathjax: true
 ---
 
 # 1. IoU
@@ -53,7 +54,7 @@ $$x_1 = x_c - l / 2, \quad y_1 = y_c - w / 2 \tag{6}$$
 
 也就是说， $(x_1, y_1)$ 所基于的坐标系仍与 box 的边 平行，只是坐标系原点不在 box 中心，此时（以 box 中心为坐标原点的） (5) 式变为
 
-$$\begin{bmatrix} \hat x_1 \\ \hat y_1 \end{bmatrix}=\begin{bmatrix} \cos \theta & -\sin \theta \\ \sin \theta & \cos \theta \end{bmatrix}\begin{bmatrix} x_1-y_c \\ y_1-y_c\end{bmatrix}+ \begin{bmatrix} x_c \\ y_c \end{bmatrix} \tag{7}$$
+$$\begin{bmatrix} \hat x_1 \\\\ \hat y_1 \end{bmatrix}=\begin{bmatrix} \cos \theta & -\sin \theta \\\\ \sin \theta & \cos \theta \end{bmatrix}\begin{bmatrix} x_1-y_c \\\\ y_1-y_c\end{bmatrix}+ \begin{bmatrix} x_c \\\\ y_c \end{bmatrix} \tag{7}$$
 
 代码实现：
 

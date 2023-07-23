@@ -63,3 +63,33 @@ $$FL=-y(1-x)^{\gamma} \log(x) -(1-y)x^{\gamma} \log(1-x)$$
 
 类似地，可以对 Focal loss 进行 $\alpha$ 均衡以处理类别不均衡的问题，此时 Focal loss 变体为
 $$FL=-\alpha_t (1-x_t)^{\gamma} \log (x_t)$$
+
+
+## DICE loss
+
+DICE 系数为
+
+$$D = \frac {2 \sum _ i ^ N p _ i g _ i}{\sum _ i ^ N p _ i + \sum _ i ^ N g _ i}$$
+
+其中 $P$ 为预测归一化得分，$G$ 为 gt binary value（0 或 1）。我们的目标是最大化 DICE 系数。
+
+DICE 系数是与优化 F1 score 直接相关的。准确率为
+
+$$P = TP/(TP + FP)$$
+
+召回率为
+
+$$R = TP/(TP + FN)$$
+
+F1 score 为
+
+$$F1 = \frac {2P*R}{(P+R)}= \frac {2 TP}{(TP+FP)+(TP+FN)}$$
+
+这与 DICE 系数完全一致。
+
+实际计算中，为了防止 $D$ 分母为 0，往往分子分母均加 1 。
+
+DICE loss 为
+
+$$L = 1 - D$$
+

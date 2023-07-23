@@ -57,7 +57,7 @@ $$\begin{aligned}y_{1:d}&=x_{1:d}
 
 那么 (5) 式变换的 Jacobian 矩阵为
 
-$$\frac {\partial y}{\partial x}=\begin{bmatrix} \mathbb I_d & 0 \\ \frac {\partial y_{d+1:D}}{\partial x_{1:d}} & \text{diag} (\exp [s(x_{1:d})]) \end{bmatrix} \tag{6}$$
+$$\frac {\partial y}{\partial x}=\begin{bmatrix} \mathbb I_d & 0 \\\\ \frac {\partial y_{d+1:D}}{\partial x_{1:d}} & \text{diag} (\exp [s(x_{1:d})]) \end{bmatrix} \tag{6}$$
 
 (6) 式的行列式为 $\exp \sum_{j=1}^{D-d} s(x_{1:d})_j$ ，可见计算非常简单，于是 $s, t$ 可以使用任意复杂的深度神经网络。
 
@@ -66,7 +66,7 @@ $$\frac {\partial y}{\partial x}=\begin{bmatrix} \mathbb I_d & 0 \\ \frac {\part
 (5) 式的逆变换为
 
 $$\begin{aligned}x_{1:d} &= y_{1:d}
-\\ x_{d+1:D} &= (y_{d+1:D}-t(y_{1:d})) \odot \exp(-s(y_{1:d}))
+\\\\ x_{d+1:D} &= (y_{d+1:D}-t(y_{1:d})) \odot \exp(-s(y_{1:d}))
 \end{aligned} \tag{7}$$
 
 所以，生成样本时，用的依然是模型的前向传播过程。
@@ -114,9 +114,9 @@ $$y=b \odot x + (1-b) \odot (x \odot \exp (s(b\odot x)) + t(b \odot x)) \tag{8}$
 D 维向量在所有耦合层中传播将是非常复杂冗余的，使得计算和内存消耗巨大，且训练参数量和很大。为此，作者将一半的维度分解，例如 $L$ 个网络层，那么传播过程为
 
 $$\begin{aligned} h^{(0)} &= x
-\\ (z^{(i+1)}, h^{(i+1)}) &= f^{(i+1)}(h^{(i)}), \ i=0,1,\ldots, L-2
-\\ z^{(L)} &= f^{(L)}(h^{(L-1)})
-\\ z &=(z^{(1)}, \ldots, z^{(L)})
+\\\\ (z^{(i+1)}, h^{(i+1)}) &= f^{(i+1)}(h^{(i)}), \ i=0,1,\ldots, L-2
+\\\\ z^{(L)} &= f^{(L)}(h^{(L-1)})
+\\\\ z &=(z^{(1)}, \ldots, z^{(L)})
 \end{aligned} \tag{9}$$
 
 过程如图 3 所示

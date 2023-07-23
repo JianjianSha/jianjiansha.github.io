@@ -128,6 +128,36 @@ $$\lambda \propto 1 / \mathbb E[||\nabla_{\mathbf x(t)} \log p _ {0t} (\mathbf x
 
 这样每个时刻的误差期望值大小相当。
 
+计算损失 (15) 式时，$\mathbf s _ {\theta}(\mathbf x (t),t)$ 就是模型输出，而得分函数这个 target 也很好计算，对于 DDPM，$p _ t(\mathbf x _ t|\mathbf x _ 0)=\mathcal N(\sqrt{\overline \alpha _ t} \mathbf x _ 0, (1-\overline \alpha _ t) I)$，于是得分函数为 $\nabla _ {\mathbf x _ t} \log p _ t (\mathbf x _ t|\mathbf x _ 0) = -(x _ t - \sqrt {\overline \alpha _ t} \mathbf x _ 0) / (1-\overline \alpha _ t)$，求这个梯度在模型输入数据 $\mathbf x _ t$ 处的值，模型输入为 $\mathbf x _ t = \sqrt {\overline \alpha _ t} \mathbf x _ 0+\sqrt {1-\overline \alpha _ t} \mathbf z$，代入梯度计算式得 $-\mathbf z/\sqrt {1-\overline \alpha _ t}$ ，所以 loss 计算代码为（下方 not likelihood_weighting 分支），
+
+```python
+# VESDE - SMLD
+score = score_fn(perturbed_dat, t)  # 模型输出的得分估计：s(xt, t)
+
+if not likelihood_weighting:    # 不使用似然权重，那么就是上述 lambda = \sigma ^ 2
+    losses = torch.square(score * std[:,None,None,None] + z)
+    losses = reduce_op(losses.reshape(losses.shape[0], -1), dim=-1)
+else:
+    losses = torch.square(score + z / std[:,None,None,None])
+    # weighted
+    g2 = sde.sde(torch.zeros_like(batch), t)[1] ** 2    # g(t)^2
+    losses = reduce_op(losses.reshape(losses.shape[0], -1), dim=-1) * g2
+```
+
+上述代码中，第一个分支，计算
+
+$$\lambda(t) \cdot \left[\mathbf s _ {\theta} - \left(-\frac {\mathbf z} {\sqrt {1-\overline \alpha _ t}}\right)\right] ^ {\top} \left[\mathbf s _ {\theta} - \left(-\frac {\mathbf z} {\sqrt {1-\overline \alpha _ t}}\right)\right]=(\sigma \mathbf s _ {\theta} +\mathbf z) ^ {\top} (\sigma \mathbf s _ {\theta} +\mathbf z)$$
+
+其中 $\lambda(t) = \sigma _ t ^ 2 = 1-\overline \alpha _ t$ 。
+
+然后将 losses 从 `(B, 3, H, W)` reshape 为 `(B, 3 * H * W)`，然后 reduce （求和，因为计算 vector norm 平方就是求平方和）为 `(B,)`。
+
+第二个计算分支，首先计算 unweighted loss，
+
+$$\left[\mathbf s _ {\theta} - \left(-\frac {\mathbf z} {\sqrt {1-\overline \alpha _ t}}\right)\right] ^ {\top} \left[\mathbf s _ {\theta} - \left(-\frac {\mathbf z} {\sqrt {1-\overline \alpha _ t}}\right)\right]$$
+
+然后乘以权重，这里权重使用 [Maximum Likelihood Training of Score-Based Diffusion Models](https://arxiv.org/abs/2101.09258) 中的方法，从代码上看，就是 SDE 中扩散系数的平方 $g(t) ^ 2$ 。
+
 ## 2.4 例子
 
 前面分析的通过 (15) 式训练模型，但是其中 $p_{0t}$ 是什么形式，以及通过 (14) 式进行采样，(14) 式中的 $\mathbf f(\mathbf x,t)$ 和 $g(t)$ 又分别是什么。 这一节通过具体的例子进行讲解。
@@ -771,6 +801,14 @@ $$\nabla _ {\mathbf x} \log p _ t (\mathbf x|\mathbf y) = \nabla _ {\mathbf x} p
 前面所讨论的采样方法均可应用于条件型反向 SDE 的样本生成。
 
 ### I.1 分类条件的采样
+
+我们不仅可以从 $p _ 0$ 分布中采样，还可以从 $p _ 0(\mathbf x (0)|\mathbf y)$ 中采样，条件是 $p _ t (\mathbf y|\mathbf x (t))$ 已知。给定前向 SDE 如上文 (13) 式所示，要从 $p _ t (\mathbf x (t)|y)$ 中采样，需要先从 $p _ T (\mathbf x (T)|\mathbf y)$ 开始，然后求解以下条件型反向 SDE，
+
+$$d \mathbf x = \\{\mathbf f(\mathbf x, t) - g(t) ^ 2 [\nabla _ {\mathbf x} \log p _ t(\mathbf x) + \nabla _ {\mathbf x} \log p _ t (\mathbf y|\mathbf x)] \\} dt + g(t) d \overline {\mathbf w} \tag{I3}$$
+
+以上 (I3) 式根据 (I1) 和 (I2) 式简化而得。(I3) 式中，$\nabla _ {\mathbf x} \log p _ t (\mathbf x)$ 可以使用模型的得分 $\mathbf s _ {\theta}(\mathbf x (t), t)$ 来估计，而 $\nabla _ {\mathbf x} \log p _ t (\mathbf y|\mathbf x)$ 则可以训练一个分类器，分类器输入则是添加了噪声的数据 $\mathbf x(t)$，计算分类器输出对输入的梯度即可。
+
+将 (I3) 式与 (14) 式比较，发现 class-conditional 采样与之前的区别在于: $\nabla _ {\mathbf x} \log p _ t(\mathbf x) \rightarrow \nabla _ {\mathbf x} \log p _ t(\mathbf x) + \nabla _ {\mathbf x} \log p _ t (\mathbf y|\mathbf x)$。
 
 $\mathbf y$ 表示分类 label。
 

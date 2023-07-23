@@ -37,8 +37,8 @@ $G$ 表示生成器 Generator，$x$ 表示生成图像，$y$ 表示图像某标�
 解释：
 
 $$\begin{aligned}E_{x \in p} D_{KL}(p(y|x)||p(y))&=E_{x\in p} E_{p(y|x)}\log p(y|x)-\log p(y)
-\\&=E_{p(x,y)} \log p(y|x) - E_{p(x,y)}\log p(y)
-\\&=H(y)-H(y|x)
+\\\\ &=E_{p(x,y)} \log p(y|x) - E_{p(x,y)}\log p(y)
+\\\\ &=H(y)-H(y|x)
 \end{aligned} \tag{3}$$
 
 条件熵越小，标签分布的熵越大，那么 (3) 式越大，也就是 IS 值越大，根据前面的总结的两点内容可知，**IS 越大越好** 。
@@ -74,7 +74,7 @@ $$\text{FID}(x,g)=\|\mu_x-\mu_g\|_2^2 + Tr(\Sigma_x+\Sigma_g-2(\Sigma_x\Sigma_g)
 $\|\mu_x-\mu_g\|_2^2$ 越小，说明特征均值越接近，说明图像质量较高。
 
 $$\begin{aligned}Tr(\Sigma_x+\Sigma_g-2(\Sigma_x\Sigma_g)^{1/2})&=Tr(\Lambda_x +\Lambda_g - 2(\Lambda_x\Lambda_g)^{1/2})
-\\ &=\sum_{i=1}^n (\sqrt {\lambda_{xi}}-\sqrt {\lambda_{gi}})^2
+\\\\ &=\sum_{i=1}^n (\sqrt {\lambda_{xi}}-\sqrt {\lambda_{gi}})^2
 \end{aligned}$$
 
 故 $Tr(\Sigma_x+\Sigma_g-2(\Sigma_x\Sigma_g)^{1/2})$ 越小，说明在 n 个维度上，真实图像数据的方差和生成图像数据的方差均接近，方差接近表示熵接近，多样性接近。

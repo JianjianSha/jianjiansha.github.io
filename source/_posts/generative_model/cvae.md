@@ -1,7 +1,9 @@
 ---
 title: Conditional VAE
 date: 2022-08-23 11:49:57
-tags: generative_model
+tags: 
+    - generative model
+    - vae
 mathjax: true
 ---
 
@@ -82,7 +84,7 @@ $$-ELBO=D_{KL}(q_{\phi}(\mathbf z|\mathbf x)||p_{\theta}(\mathbf z)) - \frac 1 L
 其中 
 
 $$\begin{aligned}D_{KL}(q_{\phi}(\mathbf z|\mathbf x)||p_{\theta}(\mathbf z))&=-\int q_{\phi}(\mathbf z)[\log p_{\theta}(\mathbf z)-\log q_{\phi}(\mathbf x)] d\mathbf z
-\\&=-\frac 1 2 \sum_{j=1}^J (1+ \log \sigma_j^2 - \mu_j^2 -\sigma_j^2)
+\\\\ &=-\frac 1 2 \sum_{j=1}^J (1+ \log \sigma_j^2 - \mu_j^2 -\sigma_j^2)
 \end{aligned}$$
 
 $\frac 1 L \sum_{l=1}^L \log p_{\theta}(\mathbf x|\mathbf z^{(l)})$ 表示试验 L 次，即先后采样 L 个 $\mathbf z$ 值，每个 $\mathbf z$ 经 decoder 得到 $\mu \in \mathbb R^D$ （对于 mnist，D=784），求 $\mathbf x$ 对 $\mathbf z$ 的条件似然——对数条件概率，

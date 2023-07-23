@@ -714,3 +714,102 @@ def pc_colorizer(model, gray_scale_img):
     return inverse_scaler(x_mean if denoise else x)
 ```
 
+### 1.3.3 根据标签生成图像
+
+**# 计算分类器输出对输入的梯度**
+
+（以下代码源自 [score_sde](https://github.com/yang-song/score_sde.git)）
+
+```python
+# 分类器前向传播，得到非归一化得分
+def get_logit_fn(classifier, classifier_params):
+    def preprocess(data):   # 分类器输入数据归一化
+        image_mean = jnp.asarray([[[0.49139968, 0.48215841, 0.44653091]]])
+        image_std  = jnp.asarray([[[0.24703223, 0.24348513, 0.26158784]]])
+        return (data - image_mean[None, ...]) / image_std[None, ...]
+    
+    def logit_fn(data, ve_noise_scale):
+        '''
+        data: 输入数据
+        ve_noise_scale: VE SDE 的 timesteps
+        '''
+        data = preprocess(data)     # 输入数据归一化
+        logits = classifier.apply({'params': classifier_params}, data, ve_noise_scale, train=False, mutable=False)
+        return logits
+
+def get_classifier_grad_fn(logit_fn):
+    def grad_fn(data, ve_noise_scale, labels):
+        '''
+        data: (B, 3, H, W)
+        labels: (B,)
+        '''
+        def prob_fn(data):
+            logits = logit_fn(data, ve_noise_scale) # 分类器前向传播，得到非归一化得分，(B, C)
+            # log p_t(y|x)   先计算得到所有分类的概率对数 (B, C) -> 然后根据标签条件，提取对应标签的 log p，(B,)
+            # 然后求和，得到一个标量。为何要求和？因为计算 标量对向量 的梯度，即：log p 对 x 的梯度，见下方详细说明
+            prob = jax.nn.log_softmax(logits, axis=-1)[jnp.arange(labels.shape[0]), labels].sum()
+            return prob
+        return jax.grad(prob_fn)(data)  # shape 为 (B, 3, H, W)
+    return grad_fn
+```
+
+分析以上代码：
+
+根据 [score_based_SDE](/2022/07/26/diffusion_model/score_based_SDE) 一文中的 (I3) 式，需要计算分类器输出概率对数 对 输入数据的梯度 $\nabla _ {\mathbf x} \log p _ t(\mathbf y| \mathbf x)$，这里分类器的输入除了数据 $\mathbf x$，还有 timesteps $t$。上述代码中输入数据是一个 mini batch，记 batch size 为 $B$，那么输出 `prob` 为
+
+$$P=\sum _ {i=1} ^ B \log p _ t(y _ i|\mathbf x _ i)$$
+
+利用深度学习框架自带的求梯度功能，计算梯度则为，例如对 mini batch 中第 `i` 个输入数据 $\mathbf x _ i$ 的梯度为
+
+$$\nabla _ {\mathbf x _ i} P = \nabla _ {\mathbf x _ i} \log p _ t (y _ i|\mathbf x _ i)$$
+
+**# 条件采样函数**
+
+```python
+def conditional_corrector_update_fn(rng, state, x, t, labels):
+    # 计算模型输出，即模型的得分估计 s_{\theta} -> \nabla_x log p_t(x)
+    score_fn = mutils.get_score_fn(sde, score_model, state.params_ema, state.model_state, train=False,
+                                   continuous=continuous)
+    def total_grad_fn(x, t):
+        ve_noise_scale = sde.marginal_prob(x, t)[1]
+        # \nabla_x \log p_t(x) + \nabla_x \log p_t(y|x)
+        # 参见下方 corrector 更新过程中的方括号部分 [...]
+        return score_fn(x, t) + classifier_grad_fn(x, ve_noise_scale, labels)
+    if corrector is None:
+        corrector_obj = NoneCorrector(sde, total_grad_fn, snr, n_steps)
+    else:
+        corrector_obj = corrector(sde, total_grad_fn, snr, n_steps)
+    return corrector_obj.update_fn(rng, x, t)
+
+def pc_conditional_sampler(rng, score_state, labels):
+    rng, step_rng = random.split(rng)
+    x = sde.prior_sampling(step_rng, shape)     # 反向过程的 xT ~ N(0, sigma_max*I)
+    timesteps = jnp.linspace(sde.T, eps, sde.N) # timesteps 等间隔从 1 到 0 （反向过程）
+
+    def loop_body(i, val):
+        # 当前 timestep，的输入样本 x，以及输入分布的期望 mu
+        rng, x, x_mean = val
+        t = timesteps[i]
+        vec_t = jnp.ones(shape[0]) * t
+        rng, step_rng = random.split(rng)
+        x, x_mean = conditional_corrector_update_fn(step_rng, score_state, x, vec_t, labels)
+        rng, step_rng = random.split(rng)
+        x, x_mean = conditional_predictor_update_fn(step_rng, score_state, x, vec_t, labels)
+        return rng, x, x_mean
+    
+    _, x, x_mean = jax.lax.fori_loop(0, sde.N, loop_body, (rng, x, x))
+    return inverse_scaler(x_mean if denoise else x)
+```
+
+以上代码简单易读。反向过程与 [score_based_SDE](/2022/07/26/diffusion_model/score_based_SDE) 中的算法 1 一致（这里以 VE SDE 为例说明）。
+
+对于 corrector，更新过程为
+
+**for** $j=1,\ldots,M$ **do**
+
+&emsp;&emsp;$\mathbf z \sim \mathcal N(\mathbf 0, I)$
+
+&emsp;&emsp;$\mathbf x _ i \leftarrow \mathbf x _ i + \epsilon _ i [\mathbf s _ {\theta} ^ {\star} (\mathbf x _ i)+ \nabla _ {\mathbf x _ i} \log p _ t(y_i|\mathbf x _ i)] + \sqrt {2\epsilon _ i} \mathbf z$
+
+
+上述过程中 $M$ 就是代码中的 `n_steps` 变量。

@@ -15,7 +15,7 @@ mathjax: true
 <!-- more -->
 
 假设有 M 单位的资源要分配给 N 个用户，记 C(k,d) 表示分配 d 单位资源给用户 k 时的损失，分配决策按阶段进行，即第一阶段分配 $d_1$ 单位资源给用户 1，第二阶段分配 $d_2$ 单位资源给用户 2，依次进行，定义状态 (k,m) 为阶段 k 时剩余 m 单位资源，阶段 k 分配之前的资源量为 m，阶段 k 的分配损失为 C(k,d)，下一阶段状态为 (k+1,m-d)，于是根据 [Dynamic Programming (1)](2019/08/07/DP1) 中式 (1.19) 可知 DPFE 为
-$$f(k,m)=\min_{d \in \{0,...,m\}} \{C(k,d)+f(k+1,m-d)\} \quad (2.1)$$
+$$f(k,m)=\min_{d \in \\{0,...,m\\}} \{C(k,d)+f(k+1,m-d)\} \quad (2.1)$$
 目标是求 f(1,M)，基本条件为 f(N+1,m)=0，其中 $m \ge 0$，这表示资源可以不用全部瓜分完。
 
 现在假设有 M=4，N=3，且
@@ -124,21 +124,27 @@ for p in range(0,N):
 ```
 从上面代码片段可见，与矩阵乘法（注释部分）完全一个模样，而我们的目的是为了计算 $F^{(N-1)}$，中间的其他 $F^{(k)}$ 矩阵如无必要，可以不用计算出来，比如下面，
 $$\begin{aligned} F^{(1)}&=W \circ F^{(0)}=W
-\\\\ F^{(2)}&=W \circ F^{(1)}=W^2
-\\\\ F^{(3)}&=W \circ F^{(2)}=W^3
+\\\\ F^{(2)}&=W \circ F ^ {(1)}=W ^ 2
+\\\\ F^{(3)}&=W \circ F ^ {(2)}=W ^ 3
 \\\\ &\vdots
-\\\\ F^{(N-1)}&=W \circ F^{(N-2)}=W^{(N-1)} \end{aligned} \quad(2.6)$$
+\\\\ F^{(N-1)}&=W \circ F ^ {(N-2)}=W ^ {(N-1)} \end{aligned} \quad(2.6)$$
 
 $\circ$ 表示某种运算符，比如矩阵乘法或者这里的最小值计算，我们改为如下序列计算，
 $$\begin{aligned} F^{(1)}&=W
-\\\\ F^{(2)}&=W^2=W \circ W
-\\\\ F^{(4)}&=W^4=W^2 \circ W^2
+\\\\ F ^ {(2)}&=W ^ 2=W \circ W
+\\\\ F ^ {(4)}&=W ^ 4=W ^ 2 \circ W ^ 2
 \\\\ &\vdots
-\\\\ F^{2^{\lceil log(N-1) \rceil}}&=W^{2^{\lceil log(N-1) \rceil}} =W^{2^{\lceil log(N-1) \rceil-1}} \circ W^{2^{\lceil log(N-1) \rceil-1}} \end{aligned} \quad(2.7)$$
-注意上面 $2^{\lceil log(N-1) \rceil}$ 中的向上取整 $\lceil \cdot \rceil$ 很重要，这保证了 $2^{\lceil log(N-1) \rceil} \ge N-1$，从而 $F^{2^{\lceil log(N-1) \rceil}} \le F^{(N-1)}$ （element-wise comparison）。
+\\\\ F^{2 ^ {\lceil log(N-1) \rceil}}&=W ^ {2^{\lceil log(N-1) \rceil}} =W ^ {2^{\lceil log(N-1) \rceil-1}} \circ W ^ {2 ^ {\lceil log(N-1) \rceil-1}} \end{aligned} \quad(2.7)$$
+注意上面 $2^{\lceil log(N-1) \rceil}$ 中的向上取整 $\lceil \cdot \rceil$ 很重要，这保证了 $2 ^ {\lceil log(N-1) \rceil} \ge N-1$，从而 $F ^ {2 ^ {\lceil log(N-1) \rceil}} \le F^{(N-1)}$ （element-wise comparison）。
 
 因为结合顺序无关紧要，才使得我们可以从式 (2.6) 可以改写为式 (2.7)，例如
-$$F^{(4)}=W \circ F^{(3)}=W \circ (W \circ F^{(2)})=\cdots =W \circ(W \circ (W \circ W)) \stackrel{*}=(W \circ W) \circ (W \circ W)=W^2 \circ W^2$$
+$$\begin{aligned}F^{(4)} &=W \circ F^{(3)}
+\\\\ &=W \circ (W \circ F^{(2)})
+\\\\ &=\cdots 
+\\\\ &=W \circ(W \circ (W \circ W)) 
+\\\\ &\stackrel{*}=(W \circ W) \circ (W \circ W)
+\\\\ &=W^2 \circ W^2
+\end{aligned}$$
 将 $\circ$ 替换为 $\min$，即 $\min (W, \min(W, \min(W,W)))=\min(\min(W,W), \min(W,W))$，注意这里的 $\min$ 不是 element-wise operator，就跟矩阵乘法不是矩阵点乘一样。当然，以上内容只是帮助理解，不是式 (2.6) 可以变换为式 (2.7) 的严格证明。
 
 好了，有了式 (2.7) 就可以更快的计算出 $F^{(M)}, M \ge N-1$，由于 $F^{(k)}$ 单调减，并收敛于 $F^{(N-1)}$，于是 $F^{(M)}$ 就是全局最短路径长度矩阵。

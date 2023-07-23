@@ -17,7 +17,7 @@ mathjax: true
 
 二项分布，即独立重复 $n$ 次伯努利分布，那么 
 
-$$p(n_1;n,\mu)=\begin{pmatrix} n \\ n_0n_1\end{pmatrix} \mu^{n_1}(1-\mu)^{n_0}$$
+$$p(n_1;n,\mu)=\begin{pmatrix} n \\\\ n _ 0 n _ 1\end{pmatrix} \mu^{n _ 1}(1-\mu) ^ {n_0}$$
 
 ## 1.2 Beta 分布
 
@@ -25,8 +25,8 @@ $$Beta(\mu;a,b)=\frac {\Gamma(a+b)}{\Gamma(a)\Gamma(b)} \mu^{a-1} (1-\mu)^{b-1}$
 
 $\mu$ 的后验分布为
 
-$$\begin{aligned} p(\mu|X)&=\frac {p(X|\mu)p(\mu;a,b)}{\int p(X|\mu)p(\mu;a,b)d\mu}\\&=\frac {\mu^{n_1+a-1}(1-\mu)^{n_0+b-1}}{\int \mu^{n_1+a-1}(1-\mu)^{n_0+b-1} d\mu}
-\\&=Beta(\mu;a+n_1,b+n_0)
+$$\begin{aligned} p(\mu|X)&=\frac {p(X|\mu)p(\mu;a,b)}{\int p(X|\mu)p(\mu;a,b)d\mu}\\\\ &=\frac {\mu ^ {n_1+a-1}(1-\mu)^{n_0+b-1}}{\int \mu^{n_1+a-1}(1-\mu) ^ {n_0+b-1} d\mu}
+\\\\ &=Beta(\mu;a+n_1,b+n_0)
 \end{aligned}$$
 
 
@@ -42,7 +42,7 @@ $$p(\mathbf x|\boldsymbol \theta) = \prod_{k=1}^K \theta_k^{x_k}$$
 
 记随机变量 $X=(X_1,\ldots, X_K)$ 表示 n 次试验后每种结果出现的次数，那么概率
 
-$$P(X_1=n_1,\ldots, X_K=n_K)=\begin{pmatrix}n \\ n_1\cdots n_K\end{pmatrix}\prod_{k=1}^K \theta_k^{n_k}$$
+$$P(X_1=n_1,\ldots, X_K=n_K)=\begin{pmatrix}n \\\\ n_1\cdots n_K\end{pmatrix}\prod_{k=1}^K \theta_k^{n_k}$$
 
 1. 类别分布 $\mathbf x \sim Cat(\boldsymbol \theta)$
 2. 多项分布 $X \sim Mult(n, \boldsymbol \theta)$
@@ -66,8 +66,8 @@ $$\int p(\boldsymbol \theta;\boldsymbol \alpha) d \boldsymbol \theta=1 \Rightarr
 
 $\boldsymbol \theta$ 的后验概率为
 
-$$\begin{aligned}p(\boldsymbol \theta|X)&=\frac {p(X|\boldsymbol \theta) p(\boldsymbol \theta;\boldsymbol \alpha)}{\int p(X,\boldsymbol \theta) d\boldsymbol \theta}\\& =\frac {\begin{pmatrix}n \\ n_1\cdots n_K \end{pmatrix} \prod_{k=1}^K \theta_k^{n_k} \theta_k^{\alpha_k-1} / B(\boldsymbol \alpha)}{\int \begin{pmatrix}n \\ n_1\cdots n_K \end{pmatrix} \prod_{k=1}^K \theta_k^{n_k} \theta_k^{\alpha_k-1} / B(\boldsymbol \alpha) d\boldsymbol \theta}\\&=\frac {\prod \theta_k^{n_k+\alpha-1}}{\int \prod \theta_k^{n_k+\alpha_k-1}d \boldsymbol \theta}\\&=\frac 1 {B(\mathbf n+\boldsymbol \alpha)} \prod_{k=1}^K \theta_k^{n_k+\alpha_k-1}
-\\&=Dir(\boldsymbol \theta|\mathbf n + \boldsymbol \alpha)
+$$\begin{aligned}p(\boldsymbol \theta|X)&=\frac {p(X|\boldsymbol \theta) p(\boldsymbol \theta;\boldsymbol \alpha)}{\int p(X,\boldsymbol \theta) d\boldsymbol \theta}\\\\& =\frac {\begin{pmatrix}n \\\\ n_1\cdots n_K \end{pmatrix} \prod_{k=1}^K \theta_k^{n_k} \theta_k^{\alpha_k-1} / B(\boldsymbol \alpha)}{\int \begin{pmatrix}n \\\\ n_1\cdots n_K \end{pmatrix} \prod_{k=1}^K \theta_k^{n_k} \theta_k^{\alpha_k-1} / B(\boldsymbol \alpha) d\boldsymbol \theta}\\\\&=\frac {\prod \theta_k^{n_k+\alpha-1}}{\int \prod \theta_k^{n_k+\alpha_k-1}d \boldsymbol \theta}\\\\&=\frac 1 {B(\mathbf n+\boldsymbol \alpha)} \prod_{k=1}^K \theta_k^{n_k+\alpha_k-1}
+\\\\&=Dir(\boldsymbol \theta|\mathbf n + \boldsymbol \alpha)
 \end{aligned}$$
 
 # 3 高斯分布
@@ -86,24 +86,24 @@ $$\Sigma=\begin{bmatrix} \sigma_1^2 & \rho \sigma_1 \sigma_2 \\ \rho \sigma_1 \s
 
 那么条件分布
 
-$$p(x_1|x_2)=\mathcal N(\mu_1+\rho \sigma_1/\sigma_2 (x_2-\mu_2), (1-\rho^2)\sigma_1^2)
-\\p(x_2|x_1)=\mathcal N(\mu_2+\rho \sigma_2/\sigma_1(x_1-\mu_1), (1-\rho^2)\sigma_2^2)$$
+$$p(x_1|x_2)=\mathcal N(\mu_1+\rho \sigma_1/\sigma_2 (x_2-\mu_2), (1-\rho^2 )\sigma_1^2 )
+\\\\ p(x_2|x_1)=\mathcal N(\mu_2+\rho \sigma_2/\sigma_1(x_1-\mu_1), (1-\rho^2 )\sigma_2^2 )$$
 
 ## 3.1 期望的共轭先验
 
 $\mu$ 共轭先验使用高斯分布，
 
-$$p(\mu;\mu_0,\sigma_0)=\frac 1 {\sqrt{2\pi}\sigma_0} \exp \{-\frac 1 {2 \sigma_0^2}(\mu-\mu_0)^2\}$$
+$$p(\mu;\mu_0,\sigma_0)=\frac 1 {\sqrt{2\pi}\sigma_0} \exp \{-\frac 1 {2 \sigma_0^2 }(\mu-\mu_0)^2 \}$$
 
 那么后验概率为
 
-$$\begin{aligned}p(\mu|x)&=\frac {p(x|\mu)p(\mu;\mu_0,\sigma_0^2)}{p(x)}
-\\&\propto \exp\{-\frac 1 {2\sigma^2}(x^2-2x\mu+ \mu^2)-\frac 1 {2 \sigma_0^2}(\mu^2-2\mu_0\mu - \mu_0^2)\}
-\\&=\exp\{-\frac 1 {2 \sigma^2\sigma_0^2}[(\sigma^2+\sigma_0^2)\mu^2 - 2(x\sigma_0^2+\mu_0\sigma^2)\mu + const]\}\end{aligned}$$
+$$\begin{aligned}p(\mu|x)&=\frac {p(x|\mu)p(\mu;\mu_0,\sigma_ 0 ^ 2 )}{p(x)}
+\\\\ &\propto \exp\{-\frac 1 {2\sigma ^ 2 }(x^ 2 -2x \mu+ \mu^ 2 )-\frac 1 {2 \sigma_ 0 ^ 2}(\mu^ 2 -2\mu_ 0 \mu - \mu_ 0 ^ 2 )\}
+\\\\ &=\exp\{-\frac 1 {2 \sigma^ 2 \sigma_0 ^ 2 }[(\sigma ^ 2 +\sigma_0 ^2 )\mu ^ 2 - 2(x\sigma_ 0 ^ 2 +\mu _ 0 \sigma ^ 2 )\mu + const]\}\end{aligned}$$
 
 易知 $p(\mu|x)$ 也服从高斯分布，且有
 
-$$E(\mu|x)=\frac {x\sigma_0^2+\mu_0\sigma^2}{\sigma^2+\sigma_0^2}, \quad Var(\mu|x)=\frac {\sigma^2\sigma_0^2}{\sigma^2+\sigma_0^2}$$
+$$E(\mu|x)=\frac {x\sigma_0^2 +\mu_0\sigma^2 }{\sigma^2 +\sigma_0^2 }, \quad Var(\mu|x)=\frac {\sigma^2 \sigma_0 ^2 }{\sigma^2 +\sigma_0 ^2 }$$
 
 ## 3.2 协方差矩阵的共轭先验
 
@@ -150,9 +150,9 @@ $$\mu_1=\left(\frac {\mu_0}{V_0}+\frac {\sum_i x_i}{V}\right) V_1, \quad V_1=\fr
 证明：
 
 $$\begin{aligned}p(\mu|\mathbf x)&=\frac {p(\mathbf x|\mu)p(\mu)}{p(\mathbf x)}
-\\&\propto \exp\{-\frac 1 {2V}\sum_i(\mu-x_i)^2-\frac 1 {2V_0}(\mu-\mu_0)^2\}
-\\& \propto \exp \{-\frac 1 {2VV_0} \left ((nV_0+V)\mu^2 - 2 (V_0\sum_i x_i+\mu_0 V) \mu\right) \}
-\\&=\exp \{- \frac {nV_0+V}{2VV_0}\left[\mu^2-2 \frac {VV_0}{nV_0+V}\left(\frac {\mu_0}{V_0}+\frac {\sum_i x_i}{V}\right) \mu\right]\}
+\\\\&\propto \exp\{-\frac 1 {2V}\sum_i(\mu-x_i)^2-\frac 1 {2V_0}(\mu-\mu_0)^2\}
+\\\\& \propto \exp \{-\frac 1 {2VV_0} \left ((nV_0+V)\mu^2 - 2 (V_0\sum_i x_i+\mu_0 V) \mu\right) \}
+\\\\&=\exp \{- \frac {nV_0+V}{2VV_0}\left[\mu^2-2 \frac {VV_0}{nV_0+V}\left(\frac {\mu_0}{V_0}+\frac {\sum_i x_i}{V}\right) \mu\right]\}
 \end{aligned}$$
 
 得证。
@@ -163,7 +163,7 @@ $$\begin{aligned}p(\mu|\mathbf x)&=\frac {p(\mathbf x|\mu)p(\mu)}{p(\mathbf x)}
 
 于是后验分布为 $V|\mathbf x \sim Scaled-Inv-\mathcal X^2(v_1, s_1^2)$，满足
 
-$$v_1=v_0+n, \quad s_1^2=v_0s_0^2+ns^2$$
+$$v_1=v_0+n, \quad s_ 1 ^ 2=v _ 0  s _ 0 ^ 2+ns ^ 2$$
 
 其中 
 
@@ -172,8 +172,8 @@ $$s^2=\frac 1 n \sum_{i=1}^n (x_i - \mu)^2$$
 证明：
 
 $$\begin{aligned}p(V|\mathbf x)&=\frac {p(\mathbf x|V)p(V)}{p(\mathbf x)}
-\\& \propto \frac 1 {V^{n/2}} \exp\{-\frac 1 {2V} \sum_i (x_i-\mu)^2\} \frac {(v_0s_0^2)^{v_0/2} e^{-v_0s_0^2/(2V)}}{\Gamma(v_0/2) V^{v_0/2+1}}
-\\&= \frac {(v_0s_0^2)^{v_0/2}}{\Gamma(v_0/2) V^{(v_0+n)/2+1}} \exp \{-\frac 1 {2V}(v_0s_0^2+ns^2)\}
+\\\\& \propto \frac 1 {V^{n/2}} \exp\{-\frac 1 {2V} \sum_i (x_i-\mu) ^ 2\} \frac {(v _ 0 s _ 0 ^ 2)^ {v_0/2} e^ {-v_0s_0 ^ 2/(2V)}}{\Gamma(v _ 0/2) V ^ {v_0/2+1}}
+\\\\&= \frac {(v _ 0s _ 0 ^ 2)^{v _ 0/2}}{\Gamma(v_0/2) V ^ {(v_0+n)/2+1}} \exp \{-\frac 1 {2V}(v _ 0 s _ 0 ^ 2+ns ^ 2)\}
 \end{aligned}$$
 
 根据后验分布  $V|\mathbf x \sim Scaled-Inv-\mathcal X^2(v_1, s_1^2)$，其 pdf 形式为
@@ -182,7 +182,7 @@ $$p(V|\mathbf x; v_1, s_1^2) \propto \frac 1 {V^{v_1/2+1}} \exp \{-\frac 1 {2V} 
 
 上们两式比对，可知
 
-$$v_1=v_0+n, \quad s_1^2=\frac {v_0s_0^2+ns^2}{v_0+n}$$
+$$v_1=v_0+n, \quad s_1 ^ 2=\frac {v_0s_0 ^ 2 +ns ^ 2}{v _ 0+n}$$
 
 注意这里的变量含义：
 
@@ -237,7 +237,7 @@ $$\mu,\phi|\mathbf x \sim NormGamma(\mu_1, n_1, v_1, s_1^2)$$
 满足关系
 
 $$\mu_1=\frac {n_0\mu_0+n \overline x}{n_0+n}, \quad n_1=n_0+n, \quad v_1=v_0+n
-\\ s_1^2=\frac 1 {v_1}\left[(n-1)s^2+v_0 s_0^2 +\frac {nn_0} {n_1}(\overline x-\mu_0)^2\right]$$
+\\\\ s_1^2=\frac 1 {v_1}\left[(n-1)s^2+v_0 s_0^2 +\frac {nn_0} {n_1}(\overline x-\mu_0)^2\right]$$
 
 其中 $\overline x=\sum_i x_i/n$，$s^2=\sum_i($
 
@@ -248,28 +248,28 @@ $$\mu_1=\frac {n_0\mu_0+n \overline x}{n_0+n}, \quad n_1=n_0+n, \quad v_1=v_0+n
 $$s^2=\frac 1 {n-1}\sum_i^n (x_i-\overline x)^2=\frac 1 {n-1} (\sum_i x_i^2 - 2 \overline x \sum_i x_i + n \overline x^2)=\frac 1 {n-1}(\sum_i x_i^2 - n \overline x^2)$$
 
 $$\begin{aligned}\exp[-\frac {\phi} 2 \sum_i(x_i-\mu)^2]&=\exp[-\frac {\phi} 2 (\sum_i x_i^2 + n\mu^2 - 2n\overline x \mu+n\overline x^2-n \overline x^2)]
-\\&=\exp \{-\frac {\phi} 2 [\sum_i x_i^2-n\overline x^2+n(\mu-\overline x)^2]\}
-\\&=\exp \{-\frac {\phi} 2 [(n-1)s^2+n(\mu-\overline x)^2]\}
+\\\\ &=\exp \{-\frac {\phi} 2 [\sum_i x_i^2-n\overline x^2+n(\mu-\overline x)^2]\}
+\\\\ &=\exp \{-\frac {\phi} 2 [(n-1)s^2+n(\mu-\overline x)^2]\}
 \end{aligned}$$
 
 2. 
 $$\begin{aligned}&p(\mu,\phi|\mathbf x)\propto p(\mathbf x|\mu,\phi) p(\mu,\phi)
-\\\propto & \phi^{n/2} \exp[-\frac {\phi} 2 \sum_i(x_i-\mu)^2] \phi^{v_0/2-1} \exp \{-v_0s_0^2 \phi/2\} (n_0\phi)^{1/2} \exp[-\frac {n_0\phi} 2 (\mu-\mu_0)^2]
-\\=& \exp[-\frac {\phi} 2 \sum_i(x_i-\mu)^2] \phi^{(v_0+n)/2-1} \exp \{-v_0s_0^2 \phi/2\} (n_0\phi)^{1/2} \exp[-\frac {n_0\phi} 2 (\mu-\mu_0)^2]
-\\= & \phi^{(v_0+n)/2-1} \exp \{-\frac {\phi} 2(v_0s_0^2+(n-1)s^2)\}(n_0\phi)^{1/2} \exp[-\frac {n_0\phi} 2 (\mu-\mu_0)^2-\frac {n\phi}2(\mu-\overline x)^2]
+\\\\ \propto & \phi^{n/2} \exp[-\frac {\phi} 2 \sum_i(x_i-\mu) ^ 2] \phi^{v_0/2-1} \exp \{-v _ 0 s _ 0 ^ 2 \phi/2\} (n_0\phi) ^ {1/2} \exp[-\frac {n_0\phi} 2 (\mu-\mu_0)^2]
+\\\\=& \exp[-\frac {\phi} 2 \sum_i(x_i-\mu) ^ 2] \phi ^ {(v_0+n)/2-1} \exp \{-v_0s_0 ^ 2 \phi/2\} (n_0\phi) ^ {1/2} \exp[-\frac {n_0\phi} 2 (\mu-\mu_0) ^ 2]
+\\\\= & \phi ^ {(v_0+n)/2-1} \exp \{-\frac {\phi} 2(v_0s_0 ^ 2+(n-1)s ^ 2)\}(n_0\phi) ^ {1/2} \exp[-\frac {n_0\phi} 2 (\mu-\mu_0) ^ 2-\frac {n\phi}2(\mu-\overline x) ^ 2]
 \end{aligned}$$
 
 
 $$-\frac {n_0\phi} 2 (\mu-\mu_0)^2-\frac {n\phi}2(\mu-\overline x)^2=-\frac {n_0 \phi}2(\mu^2-2\mu_0 \mu+\mu_0^2)-\frac {n \phi} 2 (\mu^2-2\overline x \mu + \overline x^2)
-\\=-\frac {(n_0+n)\phi} 2( \mu -  \frac {n_0\mu_0+n\overline x}{n_0+n})^2  + \frac {(n_0\mu_0+n\overline x)^2}{2(n_0+n)}\phi-\frac {\phi} 2 (n_0\mu_0^2+n\overline x^2)
-\\=-\frac {(n_0+n)\phi} 2( \mu -  \frac {n_0\mu_0+n\overline x}{n_0+n})^2  -\frac {n_0n\phi} {2(n_0+n)} (\overline x - \mu_0)^2$$
+\\\\=-\frac {(n_0+n)\phi} 2( \mu -  \frac {n_0\mu_0+n\overline x}{n_0+n})^2  + \frac {(n_0\mu_0+n\overline x)^2}{2(n_0+n)}\phi-\frac {\phi} 2 (n_0\mu_0^2+n\overline x^2)
+\\\\=-\frac {(n_0+n)\phi} 2( \mu -  \frac {n_0\mu_0+n\overline x}{n_0+n})^2  -\frac {n_0n\phi} {2(n_0+n)} (\overline x - \mu_0)^2$$
 
 于是
 
 $$p(\mu,\phi|\mathbf x)\propto p(\mathbf x|\mu,\phi) p(\mu,\phi)\propto 
-\\ \phi^{(v_0+n)/2-1} \exp \{-\frac {\phi} 2(v_0s_0^2+(n-1)s^2+\frac {n_0n}{n_0+n}(\overline x-\mu_0)^2)\}
-\\ \cdot (n_0/(n_0+n))^{1/2} [(n_0+n)\phi]^{1/2}
- \exp[-\frac {(n_0+n)\phi} 2( \mu -  \frac {n_0\mu_0+n\overline x}{n_0+n})^2]$$
+\\\\ \phi^{(v_0+n)/2-1} \exp \{-\frac {\phi} 2(v_0 s _ 0 ^ 2+(n-1)s ^ 2+\frac {n_0n}{n_0+n}(\overline x-\mu_0) ^ 2)\}
+\\\\ \cdot (n_0/(n_0+n)) ^ {1/2} [(n_0+n)\phi]^{1/2}
+ \exp[-\frac {(n_0+n)\phi} 2( \mu -  \frac {n_0\mu_0+n\overline x}{n_0+n}) ^ 2]$$
 
 后验分布可写成如下形式
 
@@ -279,7 +279,7 @@ $$p(\mu,\phi)=p(\phi) p(\mu|\phi)$$
 
 $$v_1=v_0+n$$
 
-$$s_1^2=[v_0s_0^2+(n-1)s^2+\frac {n_0n}{n_0+n}(\overline x-\mu_0)^2]/v_1$$
+$$s_1^2=[v_0s_0 ^ 2+(n-1)s ^ 2+\frac {n_0n}{n_0+n}(\overline x-\mu_0) ^ 2]/v_1$$
 
 再看 $p(\mu|\phi)$ ，这是一个高斯分布 $\mathcal N(\mu_1, 1/n_1\phi)$，对比可知，
 $$n_1=n_0+n, \quad \mu_1=\frac {n_0\mu_0+n\overline x}{n_1}$$
@@ -317,10 +317,10 @@ $$\mu|\phi \sim \mathcal N(\mu_0, 1/(n_0 \phi), \quad \phi \sim Gamma(v_0/2, v_0
 于是可计算
 
 $$n_1=n_0+n=20+40=60
-\\\mu_1=\frac {n_0\mu_0+n \overline x}{n_0+n}=\frac {20\cdot 40+40\cdot 48}{60}=52
-\\ v_1=v_0+n=19+40=59
-\\ s_1^2=\frac 1 {v_1}[v_0s_0^2+(n-1)s^2+\frac {n_0n}{n_0+n}(\overline x-\mu_0)^2]=
-\\ \frac 1 {59}[19\cdot 100+(40-1)\cdot 150+ \frac {20 \cdot 40}{60}(58-40)^2]=204.6$$
+\\\\ \mu_1=\frac {n_0\mu_0+n \overline x}{n_0+n}=\frac {20\cdot 40+40\cdot 48}{60}=52
+\\\\ v_1=v_0+n=19+40=59
+\\\\ s_1 ^ 2=\frac 1 {v_1}[v_0s_0 ^ 2+(n-1)s ^ 2+\frac {n_0n}{n_0+n}(\overline x-\mu_0) ^ 2]=
+\\\\ \frac 1 {59}[19\cdot 100+(40-1)\cdot 150+ \frac {20 \cdot 40}{60}(58-40) ^ 2]=204.6$$
 
 # Ref
 

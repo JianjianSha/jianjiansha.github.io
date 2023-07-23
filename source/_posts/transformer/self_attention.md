@@ -38,7 +38,7 @@ $$\begin{aligned}\mathbf h_{t+1}&= \mathcal L(\mathbf x_{t+1}, \mathbf h_t)
     $$\alpha_{ij}=\mathbf q_i \cdot \mathbf k_i / \sqrt d, \quad i,j=1,\ldots, T$$
     向量内积需要乘以因子 $1/\sqrt d$，因为如果 `d` 太大，内积分布的方差就很大，那么执行第 `4` 步的 softmax 之后，会位于 softmax 的梯度较小的区域，影响反向传播。
 4. 对 $\alpha_{i1}, \ldots, \alpha_{iT}$ 做 softmax 进行归一化，
-    $$\hat {\alpha} _{ij} = \exp(\alpha _{ij})/\sum_l \exp(\alpha_{il})$$
+    $$\hat {\alpha} _ {ij} = \exp(\alpha _ {ij})/\sum _ l \exp(\alpha_{il})$$
     记矩阵 $A \in \mathbb R^{T \times T}$，表示上述的 attention 矩阵，对每一行做 softmax，
     ```python
     # A is the attention matrix, A_{ij} means attention between
@@ -50,7 +50,7 @@ $$\begin{aligned}\mathbf h_{t+1}&= \mathcal L(\mathbf x_{t+1}, \mathbf h_t)
 
 **上面在每一步中的计算中，所有 time step 都可以同时计算，于是可以实现并行计算。**
 
-<font color='magenta'>$\mathbf o_i \in \mathbb R^d \ , \ i=1,\ldots, T$</font>
+$\color{magenta} {\mathbf o_i \in \mathbb R^d \ , \ i=1,\ldots, T}$
 
 ## 2.2 矩阵表示
 1. 输入矩阵 $X \in \mathbb R^{T \times l}$，每一行表示一个 time step 的输入向量
@@ -59,12 +59,12 @@ $$\begin{aligned}\mathbf h_{t+1}&= \mathcal L(\mathbf x_{t+1}, \mathbf h_t)
     $$Q=I W_q^{\top}, \quad K=I W_k^{\top}, \quad V=IW_v^{\top}$$
 4. attention op，得到 attention 矩阵 $A \in \mathbb R ^{T \times T}$：$A=Q K ^{\top}/\sqrt d$
 5. 归一化 attention：$\hat A_{ij} =\exp( A_{ij})/ \sum_l \exp(A_{il})$。第 `i` 行 $\hat A_{i,:}$ 作为 time step `i` 的 weights。
-6. 输出矩阵 <font color='magenta'>  $O \in \mathbb R^{T \times d}$ </font>，$O=\hat A V$
+6. 输出矩阵 $\color{magenta} {O \in \mathbb R^{T \times d}}$，$O=\hat A V$
 
 ## 2.3 Multi-head Self-attention
 `2.1` 节的内容可以看作是 single-head self-attention，重复横向堆叠多个相同的 **scaled dot-product attention** 可以得到 multi-head self-attention，具体过程如下：
 1. 按 `2.1` 节中得到 $Q, K, V$ 三个矩阵（即输入的 embedding 经三个权重参数线性变换得到 $Q,K,V$ 三个矩阵，这三个权重参数分别为 $W_q,W_k,W_v \in \mathbb R^{d\times n}$）。
-2. 记 heads 的数量为 <font color='red'> $h$ </font>，对于第 $i \in [h]$ 个 head，使用三个参数矩阵 $W_i^Q \in \mathbb R^{d \times d_k}, \quad W_i^K \in \mathbb R^{d \times d_k}, \quad W_i^V \in \mathbb R^{d \times d_v}$，分别将 $Q,K,V$ 映射为新的矩阵 <font color='magenta'>$Q_i \in \mathbb R^{T \times d_k}, \quad K_i \in \mathbb R^{T \times d_k}, \quad V_i \in \mathbb R^{T \times d_v}$</font>，注意这里 $\mathbf q_i, \ \mathbf k_i$ 维度相同均为 $d_k$，因为这两个向量需要做内积，
+2. 记 heads 的数量为 <font color='red'> $h$ </font>，对于第 $i \in [h]$ 个 head，使用三个参数矩阵 $W_i^Q \in \mathbb R^{d \times d_k}, \quad W_i^K \in \mathbb R^{d \times d_k}, \quad W_i^V \in \mathbb R^{d \times d_v}$，分别将 $Q,K,V$ 映射为新的矩阵  $\color{magenta} {Q_i \in \mathbb R^{T \times d_k}, \quad K_i \in \mathbb R^{T \times d_k}, \quad V_i \in \mathbb R^{T \times d_v}}$，注意这里 $\mathbf q_i, \ \mathbf k_i$ 维度相同均为 $d_k$，因为这两个向量需要做内积，
 
     $$Q_i = Q W_i^Q, \quad K_i = K W_i^K, \quad V_i=V W_i^V, \quad i=1,\cdots, h$$
 
@@ -73,7 +73,7 @@ $$\begin{aligned}\mathbf h_{t+1}&= \mathcal L(\mathbf x_{t+1}, \mathbf h_t)
     $$A_i=Q_i K_i^{\top} / \sqrt {d_k} \in \mathbb R^{T \times T} \\ \hat A_i=\text{softmax} (A_i) \\ O_i =\hat A_i V_i \in \mathbb R^{T \times d_v}$$
 4. 将每个 head 的输出沿着 `axis=1` 方向 concatenate（类似于`torch.hstack`），再乘以个输出参数矩阵 $\color{magenta} W^O \in \mathbb R^{hd_v \times d}$，
 
-    $$O=\text {Concat}(O_1,\cdots, O_h) \in \mathbb R^{T \times hd_v} \\\\ O:= O W^O \in \color{magenta} \mathbb R^{T \times d}$$
+    $$O=\text {Concat} (O_1,\cdots, O_h) \in \mathbb R^{T \times hd_v} \\\\ O:= O W^O \in \color{magenta} {\mathbb R^{T \times d}}$$
 
 ![](/images/transformer/self_attention_1.png)
 图 2. 左：scaled dot-product attention; 右：multi-head self-attention
@@ -90,7 +90,7 @@ $\text{Transformer}:\mathbb R^{T \times n} \rightarrow \mathbb R^{T \times d}$�
 实际操作中，可以将这 `h` 个 head 中的参数 concatenate 起来，然后一起执行矩阵操作，
 
 $$W^Q=\begin{bmatrix} W_1^Q & \cdots & W_h^Q \end{bmatrix} \ \in \mathbb R^{d \times d}$$
-$$Q' = QW^Q=\begin{bmatrix}QW_1^Q & \cdots & QW_h^h \end{bmatrix} \ \in \mathbb R^{T \times d}$$
+$$Q' = QW ^ Q=\begin{bmatrix}QW_1 ^ Q & \cdots & QW_h ^ h \end{bmatrix} \ \in \mathbb R ^ {T \times d}$$
 
 注：embedding dimension 与 model dimension 相同，即 $n=d$。
 ```python
