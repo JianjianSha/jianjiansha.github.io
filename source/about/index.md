@@ -23,8 +23,8 @@ date: 2022-08-22 18:59:28
 
 <font face='Fontin SmallCaps' size="5"><i class="fa-solid fa-graduation-cap"></i> 教育</font>
 
-<hr>
-<!-- <hr style="border-top: 2px solid; width: 100%;"> this script is used for creating pdf -->
+<!-- <hr> -->
+<hr style="border-top: 2px solid; width: 100%;">
 
 <div><font face='TeXGyreTermes' size='4.5'><b>华中科技大学 (HUST)</b><span style="float:right;">2005-2009</span></font> </div>
 
@@ -39,8 +39,8 @@ date: 2022-08-22 18:59:28
 
 <font face='Fontin SmallCaps' size="5"><i class="fa-solid fa-user-group"></i> 经历</font>
 
-<hr>
-<!-- <hr style="border-top: 2px solid; width: 100%;"> this script is used for creating pdf -->
+<!-- <hr> -->
+<hr style="border-top: 2px solid; width: 100%;">
 
 
 <div><font face='TeXGyreTermes' size='4.5'><b>上海瑞示电子科技有限公司</b> 软件研发<span style="float:right;">2014-2016</span></font></div>
@@ -52,7 +52,7 @@ date: 2022-08-22 18:59:28
 
 </font>
 
-<div><font face='TeXGyreTermes' size='4.5'><b>前瞻产业研究院</b> R&D<span style="float:right;">2016-2023</span></font></div>
+<div><font face='TeXGyreTermes' size='4.5'><b>前瞻产业研究院</b> 软件研发<span style="float:right;">2016-2023</span></font></div>
 
 - <font face='TeXGyreTermes' size='4'>企查猫：企业信息查询系统</font>
 - <font face='TeXGyreTermes' size='4'>企业图谱：图搜索，最优路径和关系推断</font>
@@ -72,8 +72,8 @@ date: 2022-08-22 18:59:28
 
 <font face='Fontin SmallCaps' size="5"><i class="fa-solid fa-gears"></i> 技能</font>
 
-<hr>
-<!-- <hr style="border-top: 2px solid; width: 100%;"> this script is used for creating pdf -->
+<!-- <hr> -->
+<hr style="border-top: 2px solid; width: 100%;">
 
 - <font face='TeXGyreTermes' size='4'>编程语言：Python > Java/C# > C/C++ > Scala</font>
 - <font face='TeXGyreTermes' size='4'>数学：概率论、线性代数等</font>
