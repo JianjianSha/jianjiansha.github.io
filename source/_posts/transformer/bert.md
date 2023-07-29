@@ -1,7 +1,9 @@
 ---
 title: BERT
 date: 2022-03-31 10:51:09
-tags: transformer
+tags: 
+    - transformer
+    - NLP
 mathjax: true
 ---
 # 1. 简介
@@ -52,7 +54,7 @@ BERT 的输入序列可以是单个句子，也可以是句子对（两个句子
 
 三种 embedding 的维度均为 $H$，相加得到最终的 embedding 表示（维度仍为 $H$）。如图 2 所示，
 
-![](/images/transformers/BERT2.png)
+![](/images/transformer/BERT2.png)
 
 图 2.
 
@@ -73,8 +75,8 @@ BERT 有两个阶段：预训练和精调。
 ## 2.1 Masked LM
 
 标准的条件语言模型只能进行从左到右或者从右到左地训练，数学模型为
-$$p(x_i|x_1,...,x_{i-1}) \\
-p(x_i|x_{i+1},...,x_T)$$
+$$p(x_i|x_1,...,x_{i-1}) 
+\\\\ p(x_i|x_{i+1},...,x_T)$$
 
 双向条件的训练的数学模型为
 $$p(x_i|x_1,...,x_T)$$
