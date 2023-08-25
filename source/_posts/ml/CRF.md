@@ -19,7 +19,7 @@ categories: 机器学习
 
 $$p(\mathbf y)=\frac 1 Z \prod_{a=1}^A \Psi_a(\mathbf y_a) \tag{1}$$
 
-其中，$a$ 是最大团的 index， $\Psi$ 是势函数，任意非负的函数均可，即 $\Psi_a(\mathbf y_a) \ge 0$。$A$ 表示最大团的数量 $A\le D$。$Z$ 用于归一化，且 **<font color="magenta">与 $\mathbf y$ 的取值无关</font>**，
+其中，$a$ 是最大团的 index， $\Psi$ 是势函数，任意非负的函数均可，即 $\Psi_a(\mathbf y_a) \ge 0$。$A$ 表示最大团的数量 $A\le D$。$Z$ 用于归一化，且与 $\color{magenta} {\mathbf y}$ 的取值无关，
 
 $$Z=\sum_{\mathbf y'} \prod_{a=1}^A \Psi_a(\mathbf y_a')$$
 

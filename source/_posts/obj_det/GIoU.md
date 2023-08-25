@@ -40,7 +40,7 @@ __目标检测准确性测量：__ IoU作为评估指标在目标检测任务中
 __bbox表示和损失：__ 2D目标检测中，bbox参数非常重要。最近的文献提出多种不同bbox表示和损失：
 1. YOLO v1
    
-   YOLO v1 直接回归 bbox 参数$(x_c,y_c,w,h)$，坐标损失使用平方差。计算损失时，为了降低目标scale对(w,h)损失项的影响，将这一损失项由$(w-\hat w)^2+(h-\hat h)^2$ 改为 $(\sqrt w - \sqrt {\hat w})^2+(\sqrt h - \sqrt {\hat h})^2$。
+   YOLO v1 直接回归 bbox 参数$(x_c,y_c,w,h)$，坐标损失使用平方差。计算损失时，为了降低目标scale对(w,h)损失项的影响，将这一损失项由$(w-\hat w) ^ 2+(h-\hat h) ^ 2$ 改为 $(\sqrt w - \sqrt {\hat w}) ^ 2+(\sqrt h - \sqrt {\hat h}) ^ 2$。
 2. R-CNN
    
    R-CNN使用selective search先获得候选boxes，然后回归bbox中心点偏差（求差）和size的偏差（求商），为了降低scale敏感度，将size 偏差转换到对数空间（求log），然会对偏差使用$l_2$范数（最小均方差MSE）作为目标函数进行优化。
@@ -56,7 +56,7 @@ __bbox表示和损失：__ 2D目标检测中，bbox参数非常重要。最近�
 __使用近似或替代函数优化IoU：__ 在语义分割任务种，曾使用近似函数或替代损失优化IoU。类似地，目标检测任务中，最近的一些研究工作也尝试直接或间接利用IoU以更好地进行bbox回归，然而却在非重叠情况下优化IoU时遇到近似或梯度平坦问题。本文我们通过引入GIoU解决IoU在非重叠情况下的问题。
 
 # 泛化IoU
-用于比较两个任意形状 $A,B \subseteq S \in \mathbb{R}^n$ 的 IoU 计算方法为：
+用于比较两个任意形状 $A,B \subseteq S \in \mathbb{R} ^ n$ 的 IoU 计算方法为：
 $$IoU = \frac {|A \cap B|} {|A \cup B|} $$
 两个显著特性使得这种相似性测量方法流行于评估2D/3D计算机视觉任务中：
 - IoU作为距离同时也作为评估指标。
@@ -69,13 +69,13 @@ $$IoU = \frac {|A \cap B|} {|A \cup B|} $$
 
 为了解决这个问题，我们提出了泛化版IoU，即 GIoU。
 
-两个任意的凸形 $A, B \subseteq S \in \mathbb S^n$，首先在 S 空间中寻找包含 A 和 B 的最小凸形 C。如果比较两个具体类型的几何图形，C 可以也是这个具体类型，例如比较两个椭圆形，C 则是包含这两个椭圆形的最小椭圆形。然后我们计算 C 中扣掉 A 和 B 剩余部分的面积（体积）与 C 自身的面积（体积）的比例，这个比例代表了一种归一化的且注重 A 和 B 之间的空白部分面积（体积）的测量方法，然后，从 IoU 中减去这个比例就得到 GIoU。（面积/体积对应 2D/3D）
+两个任意的凸形 $A, B \subseteq S \in \mathbb S ^ n$，首先在 S 空间中寻找包含 A 和 B 的最小凸形 C。如果比较两个具体类型的几何图形，C 可以也是这个具体类型，例如比较两个椭圆形，C 则是包含这两个椭圆形的最小椭圆形。然后我们计算 C 中扣掉 A 和 B 剩余部分的面积（体积）与 C 自身的面积（体积）的比例，这个比例代表了一种归一化的且注重 A 和 B 之间的空白部分面积（体积）的测量方法，然后，从 IoU 中减去这个比例就得到 GIoU。（面积/体积对应 2D/3D）
 
 整个计算过程总结如下算法1：
 ___
 算法1：GIoU
 ___
-输入： 两个任意凸形 $A,B \subseteq S \in \mathbb S^n$
+输入： 两个任意凸形 $A,B \subseteq S \in \mathbb S ^ n$
 
 输出： GIoU
 - 在 S 空间中寻找包含 A B 的最小凸形 C
@@ -109,45 +109,45 @@ ___
 ## GIoU用作BBox回归损失
 我们已经介绍了 GIoU 可以作为任意两个形状的距离测量指标，但是与 IoU 一样，没有解析解计算两个任意形状的交，也没有解析解可以计算包含这俩形状的最小凸形。
 
-好在2D 目标检测任务中，bbox 是轴对齐的，此时 GIoU 有解析解。两个形状 A B 的交，以及包含 A B 的最小凸形均具为矩形，对 A B 的顶点坐标使用 min 或 max 操作可以求得它们的顶点坐标。为了确定 A B 是否重叠，还需要进行条件检查，比如 A B 的交，作为矩形，其左上顶点的 x 坐标必然比右下顶点的 x 坐标小即 $x^{tl} < x^{br}$，而 $x^{tl}=\max (x_A^{tl}, x_B^{tl}), \ x^{br}=\min (x_A^{br},x_B^{br})$，所以有 $x_B^{tl} \le x_A^{tl}<x_B^{br}$ 或 $x_A^{tl} \le x_B^{tl}<x_A^{br}$。
+好在2D 目标检测任务中，bbox 是轴对齐的，此时 GIoU 有解析解。两个形状 A B 的交，以及包含 A B 的最小凸形均具为矩形，对 A B 的顶点坐标使用 min 或 max 操作可以求得它们的顶点坐标。为了确定 A B 是否重叠，还需要进行条件检查，比如 A B 的交，作为矩形，其左上顶点的 x 坐标必然比右下顶点的 x 坐标小即 $x ^ {tl} < x ^ {br}$，而 $x ^ {tl}=\max (x_A ^ {tl}, x_B ^ {tl}), \ x ^ {br}=\min (x_A ^ {br},x_B ^ {br})$，所以有 $x_B ^ {tl} \le x_A ^ {tl}<x_B ^ {br}$ 或 $x_A ^ {tl} \le x_B ^ {tl}<x_A ^ {br}$。
 
 反向传播中，min、max和按位计算的线性函数如 ReLU 的梯度计算均是可行的，算法2 中每个部分均可以求导，故 IoU 和 GIoU 均可以直接用作损失即 $\mathcal L_{IoU}, \mathcal L_{GIoU}$ 来优化基于深度神经网络的目标检测器。
 _________
 算法2：IoU和GIoU用作BBox回归损失
 _________
-输入：预测框 $B^p$ 和 GT 框 $B^g$ 的坐标，$B^p=(x_1^p,y_1^p,x_2^p,y_2^p), \quad B^g=(x_1^g,y_1^g,x_2^g,y_2^g)$
+输入：预测框 $B ^ p$ 和 GT 框 $B ^ g$ 的坐标，$B ^ p=(x_1 ^ p,y_1 ^ p,x_2 ^ p,y_2 ^ p), \quad B ^ g=(x_1 ^ g,y_1 ^ g,x_2 ^ g,y_2 ^ g)$
 
 输出：$\mathcal L_{IoU}, \ \mathcal L_{GIoU}$
 
 1. 因为预测框各个坐标是独立预测出来的，所以需要确保 预测 box 坐标有效即，
    
-   $x_2^p>x_1^p, \ y_2^p>y_1^p$，故进行如下转换：
-   - $\hat x_1^p=\min(x_1^p,x_2^p), \ \hat x_2^p=\max(x_1^p,x_2^p)$
-   - $\hat y_1^p=\min(y_1^p,y_2^p), \ \hat y_2^p=\max(y_1^p,y_2^p)$
+   $x_2 ^ p>x_1 ^ p, \ y_2 ^ p>y_1 ^ p$，故进行如下转换：
+   - $\hat x_1 ^ p=\min(x_1 ^ p,x_2 ^ p), \ \hat x_2 ^ p=\max(x_1 ^ p,x_2 ^ p)$
+   - $\hat y_1 ^ p=\min(y_1 ^ p,y_2 ^ p), \ \hat y_2 ^ p=\max(y_1 ^ p,y_2 ^ p)$
 2. 计算 GT box 面积：
    
-   $A^g=(x_2^g-x_1^g)\times (y_2^g-y_1^g)$
+   $A ^ g=(x_2 ^ g-x_1 ^ g)\times (y_2 ^ g-y_1 ^ g)$
 3. 计算预测 box 面积：
    
-   $A^p=(x_2^p-x_1^p)\times (y_2^p-y_1^p)$
+   $A ^ p=(x_2 ^ p-x_1 ^ p)\times (y_2 ^ p-y_1 ^ p)$
 4. 计算交：
    
-   - $x_1^{\mathcal I}=\max(\hat x_1^p, x_1^g), \ x_2^{\mathcal I}=\min(\hat x_2^p,x_2^p)$
-   - $y_1^{\mathcal I}=\max(\hat y_1^p, y_1^g), \ y_2^{\mathcal I}=\min(\hat y_2^p,y_2^p)$
-   - $\mathcal I=\begin{cases} (x_2^{\mathcal I}-x_1^{\mathcal I})\times (y_2^{\mathcal I}-y_1^{\mathcal I}) & x_2^{\mathcal I} > x_1^{\mathcal I}, y_2^{\mathcal I} > y_1^{\mathcal I} \\ 0 & \text{otherwise} \end{cases}$
+   - $x_1 ^ {\mathcal I}=\max(\hat x_1 ^ p, x_1 ^ g), \ x_2 ^ {\mathcal I}=\min(\hat x_2 ^ p,x_2 ^ p)$
+   - $y_1 ^ {\mathcal I}=\max(\hat y_1 ^ p, y_1 ^ g), \ y_2 ^ {\mathcal I}=\min(\hat y_2 ^ p,y_2 ^ p)$
+   - $\mathcal I=\begin{cases} (x_2 ^ {\mathcal I}-x_1 ^ {\mathcal I})\times (y_2 ^ {\mathcal I}-y_1 ^ {\mathcal I}) & x_2 ^ {\mathcal I} > x_1 ^ {\mathcal I}, y_2 ^ {\mathcal I} > y_1 ^ {\mathcal I} \\ 0 & \text{otherwise} \end{cases}$
 5. 计算最小包含凸形 c：
    
-   - $x_1^c=\min(\hat x_1^p, x_1^g), \ \max(\hat x_2^p, x_2^g)$
-   - $y_1^c=\min(\hat y_1^p, y_1^g), \ \max(\hat y_2^p, y_2^g)$
+   - $x_1 ^ c=\min(\hat x_1 ^ p, x_1 ^ g), \ \max(\hat x_2 ^ p, x_2 ^ g)$
+   - $y_1 ^ c=\min(\hat y_1 ^ p, y_1 ^ g), \ \max(\hat y_2 ^ p, y_2 ^ g)$
 6. 计算 c 的面积：
    
-   $A^c=(x_2^c-x_1^c)\times (y_2^c-y_1^c)$
+   $A ^ c=(x_2 ^ c-x_1 ^ c)\times (y_2 ^ c-y_1 ^ c)$
 7. 计算 IoU：
    
-   $IoU = \frac {\mathcal I}{\mathcal U}$，其中 $\mathcal U = A^p+A^g-\mathcal I$
+   $IoU = \frac {\mathcal I}{\mathcal U}$，其中 $\mathcal U = A ^ p+A ^ g-\mathcal I$
 8. 计算 GIoU：
    
-   $GIoU = IoU - \frac {A^c-\mathcal U} {A^c}$
+   $GIoU = IoU - \frac {A ^ c-\mathcal U} {A ^ c}$
 9. 计算 GIoU 损失：
     
    $\mathcal L_{IoU}=1-IoU, \ \mathcal L_{GIoU}=1-GIoU$
@@ -161,12 +161,12 @@ _________
 ### 损失稳定性
 我们也考察了预测值为任意的情况下，损失是否会不稳定或者出现未定义情况（比如除数为0）。
 
-假设 GT box 是矩形，且面积大于0即，$A^g > 0$，算法2中第1点和第4点分别确保了预测框和两个bbox的交均非负即，$A^p \ge 0, \ \mathcal I \ge 0, \forall B^p \in \mathbb R^4$，又根据$\mathcal U \ge A^g$，故 $\mathcal U > 0$，所以 IoU 的分母为正非零。又 $\mathcal U \ge \mathcal I$，故 $0 \le IoU \le 1$，于是 IoU 损失范围为 $0 \le \mathcal L_{IoU} \le 1$
+假设 GT box 是矩形，且面积大于0即，$A ^ g > 0$，算法2中第1点和第4点分别确保了预测框和两个bbox的交均非负即，$A ^ p \ge 0, \ \mathcal I \ge 0, \forall B ^ p \in \mathbb R ^ 4$，又根据$\mathcal U \ge A ^ g$，故 $\mathcal U > 0$，所以 IoU 的分母为正非零。又 $\mathcal U \ge \mathcal I$，故 $0 \le IoU \le 1$，于是 IoU 损失范围为 $0 \le \mathcal L_{IoU} \le 1$
 
-检查 GIoU 的稳定性，需要考察项 $\frac {A^c-\mathcal U} {A^c}$，显然包含 A B 的最小凸形不小于 A B 的并，即 $A^c \ge \mathcal U > 0$，所以 $\frac {A^c-\mathcal U} {A^c} \ge 0$。理论上来讲，$\frac {A^c-\mathcal U} {A^c} <1$，且当 A B 中心点的几何距离比 A B 的 size 大很多时，即 A B 离得很远，此时 $\frac {A^c-\mathcal U} {A^c} \rightarrow 1$，故 $-1 < GIoU \le 1$，为了对称，改写为 $-1 \le GIoU \le 1$。
+检查 GIoU 的稳定性，需要考察项 $\frac {A ^ c-\mathcal U} {A ^ c}$，显然包含 A B 的最小凸形不小于 A B 的并，即 $A ^ c \ge \mathcal U > 0$，所以 $\frac {A ^ c-\mathcal U} {A ^ c} \ge 0$。理论上来讲，$\frac {A ^ c-\mathcal U} {A ^ c} <1$，且当 A B 中心点的几何距离比 A B 的 size 大很多时，即 A B 离得很远，此时 $\frac {A ^ c-\mathcal U} {A ^ c} \rightarrow 1$，故 $-1 < GIoU \le 1$，为了对称，改写为 $-1 \le GIoU \le 1$。
 
 ### IoU=0时$\mathcal L_{GIoU}$的行为
-GIoU 损失 $\mathcal L_{GIoU}=1-GIoU=1+\frac {A^c-\mathcal U} {A^c} - IoU$，当 $B^p$ 和 $B^g$ 不相交，即 $\mathcal I=0, IoU=0$，此时 GIoU 损失简化为 $\mathcal L_{GIoU}=1+\frac{A^c-\mathcal U}{A^c}=2-\frac {\mathcal U}{A^c}$，最小化 GIoU 损失则需要最大化 $\frac {\mathcal U}{A^c}$，这一项已经是归一化的，即 $0\le \frac {\mathcal U}{A^c} \le 1$，并且最大化这一项则需要最小化 $A^c$，同时最大化 $\mathcal U$，因为 $\mathcal I=0$，故此时 $\mathcal U=A^p+A^g$，由于 $A^g$ 已知且固定，所以需要最大化 $A^p$，也就是说，最小化 $A^c$ 且同时最大化 $A^p$，显然，这就使得 $B^p$ 趋于与 $B^g$ 重合。
+GIoU 损失 $\mathcal L_{GIoU}=1-GIoU=1+\frac {A ^ c-\mathcal U} {A ^ c} - IoU$，当 $B ^ p$ 和 $B ^ g$ 不相交，即 $\mathcal I=0, IoU=0$，此时 GIoU 损失简化为 $\mathcal L_{GIoU}=1+\frac{A ^ c-\mathcal U}{A ^ c}=2-\frac {\mathcal U}{A ^ c}$，最小化 GIoU 损失则需要最大化 $\frac {\mathcal U}{A ^ c}$，这一项已经是归一化的，即 $0\le \frac {\mathcal U}{A ^ c} \le 1$，并且最大化这一项则需要最小化 $A ^ c$，同时最大化 $\mathcal U$，因为 $\mathcal I=0$，故此时 $\mathcal U=A ^ p+A ^ g$，由于 $A ^ g$ 已知且固定，所以需要最大化 $A ^ p$，也就是说，最小化 $A ^ c$ 且同时最大化 $A ^ p$，显然，这就使得 $B ^ p$ 趋于与 $B ^ g$ 重合。
 
 # 实验结果
 引入 bbox 回归损失 $\mathcal L_{GIoU}$ 到2D目标检测器中如 Faster R-CNN、Mask R-CNN 和 YOLO v3，即，将原来 Faster R-CNN/Mask R-CNN 中的 $l_1$-smooth 损失和 YOLO v3 中的 MSE 损失替换为 $\mathcal L_{GIoU}$，并且我们还对比了 baseline 和使用 $\mathcal L_{IoU}$ 损失时的结果。记使用目标检测器原先的损失为 baseline。（具体实验数据和结果分析请参考原论文，这里省略）

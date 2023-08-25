@@ -91,7 +91,7 @@ network 的 input size 以 `(600, 1000)` 为例，下采样率为 `16`，于是�
 图 2. RPN
 
 说明：
-1. 每个 location 的中间 feature 均为 `512-d`，对于 cls layer，全连接层参数 $W^{512\times 2k}$，reg layer 的全连接层参数 $W^{512 \times 4k}$，所有 location 处的这两个全连接层共享参数，即，分别使用 `1x1 Conv 2k` 和 `1x1 Conv 4k` 的两个卷积层，输出 shape 分别为 `(B, H, W, 2k)` 和 `(B, H, W, 4k)`， `(H, W)` 为 feature maps 上 size，`B` 为 `batch_size`。
+1. 每个 location 的中间 feature 均为 `512-d`，对于 cls layer，全连接层参数 $W ^ {512\times 2k}$，reg layer 的全连接层参数 $W ^ {512 \times 4k}$，所有 location 处的这两个全连接层共享参数，即，分别使用 `1x1 Conv 2k` 和 `1x1 Conv 4k` 的两个卷积层，输出 shape 分别为 `(B, H, W, 2k)` 和 `(B, H, W, 4k)`， `(H, W)` 为 feature maps 上 size，`B` 为 `batch_size`。
 
 2. 训练 RPN 时，`batch_size=1`，即每个 mini-batch 内仅有 `1` 个 image。在训练 Fast RCNN 子网络时，保持 RPN 不变，此时取 `batch_size=2`。
 
@@ -105,13 +105,13 @@ $$r=\frac h w$$
 
 
 对于标准 scale，即 $r=1, h \times w = 16 \times 16$。改变 $r$ 值，但是面积保持相同，故
-$$s = 16 \times 16 = h  w = r w^2=\frac {h^2} r$$
+$$s = 16 \times 16 = h  w = r w ^ 2=\frac {h ^ 2} r$$
 于是
 $$w= \sqrt {s/r} , \quad h = \sqrt{sr}$$
 
 考虑到 scale 可取不同值，那么最终 anchor size 为
 
-$$w = a \sqrt{s/r}, \quad h = a \sqrt{sr}, \quad a = 0.5, 1, 2, \quad r=0.5, 1, 2, \quad s = 16^2=256$$
+$$w = a \sqrt{s/r}, \quad h = a \sqrt{sr}, \quad a = 0.5, 1, 2, \quad r=0.5, 1, 2, \quad s = 16 ^ 2=256$$
 
 上式可以确定 `9` 个 anchors 的 size，其中心点坐标相同，均为 $x_c=0+0.5(16-1), \ y_c=0+0.5(16-1)$（考虑到 C/Python 语言习惯以 `0` 开始表示第一个位置），于是左上右下坐标为
 $$x_1=x_c-\frac 1 2(w-1), \quad y_1=y_c-\frac 1 2(h-1)$$
@@ -195,13 +195,13 @@ labels[negative_anchor_indices] = 0
 ```
 
 单个 image 的损失如下，
-$$L=\frac 1 {N_cls} \sum_i L_{cls}(p_i, p_i^{\star})+\lambda \frac 1 {N_{reg}}\sum_i p_i^{\star} L_{reg}(t_i, t_i^{\star})$$
+$$L=\frac 1 {N_{cls}} \sum_i L_{cls}(p_i, p_i ^ {\star})+\lambda \frac 1 {N_{reg}}\sum_i p_i ^ {\star} L_{reg}(t_i, t_i ^ {\star})$$
 
 其中：
 
 1. $N_{cls}=256$ 表示一个 mini-batch 内，所选取的用于分类任务的正负 anchors 的数量。按照 `1:1` 比例分配正负 anchors，如果正例 anchors 不足 `128`，那么使用负例 anchors 进行补充。前面说到 `batch_size=1`，这表明，**在每个 image 上随机选择 `128` 个 positive anchors，如果不够，使用 negative anchors 补充**。
 2. $N_{reg}=HWk \approx 10 N_{cls}$，$N_{reg}$ 为一个 image 上所有的 anchors 数量， 故取 $\lambda=10$ 。注意：**回归损失使用全部 anchors，而非第 `1` 点中的取样 `256` 个**。
-3. 第 `i` 个 anchor 如果是 positive，那么 $p_i^{\star}=1$，否则 $p_i^{\star}=0$
+3. 第 `i` 个 anchor 如果是 positive，那么 $p_i ^ {\star}=1$，否则 $p_i ^ {\star}=0$
 4. $p_i$ 表示第 `i` 个 anchor 被预测为正的得分。
 5. $L_{cls}$ 可以使用负对数似然损失，也就是交叉熵损失
     ```python
@@ -214,8 +214,8 @@ $$L=\frac 1 {N_cls} \sum_i L_{cls}(p_i, p_i^{\star})+\lambda \frac 1 {N_{reg}}\s
     ```
 6. $L_{reg}$ 为 smooth L1 函数
 
-    $$L_{reg}(t_i, t_i^{\star})=smooth_{L_1}(t_i-t_i^{\star})$$
-    $$smooth_{L_1}=\begin{cases}0.5 x^2 & |x|<1 \\ |x|-0.5 & |x|\ge 1\end{cases}$$
+    $$L_{reg}(t_i, t_i ^ {\star})=smooth _ {L _ 1}(t _ i-t _ i ^ {\star})$$
+    $$smooth_{L_1}=\begin{cases}0.5 x ^ 2 & |x|<1 \\\\ |x|-0.5 & |x|\ge 1\end{cases}$$
 
     这是为了防止梯度太大，导致训练不稳定
 
@@ -224,11 +224,11 @@ $$L=\frac 1 {N_cls} \sum_i L_{cls}(p_i, p_i^{\star})+\lambda \frac 1 {N_{reg}}\s
     $$t_w=\log(w_p/w_a), \quad t_h=\log(h_p/h_a)$$
     根据上面 4 个等式，以及 anchor 的坐标 $(x_a, y_a, w_a, h_a)$ 可以很容易得到预测 proposal 的坐标 $(x_p, y_p, w_p, h_p)$。
 
-    $t_i^{\star}$ 为 gt box 对 anchor 的坐标偏差，可看作是 gt offset，其计算如下：
-    $$t_x^{\star}=(x_{gt}-x_a)/w_a, \quad t_y^{\star}=(y_{gt}-y_a)/h_a \tag{1}$$
-    $$t_w^{\star}=\log(w_{gt}/w_a), \quad t_h^{\star}=\log(h_{gt}/h_a) \tag{2}$$
+    $t_i ^ {\star}$ 为 gt box 对 anchor 的坐标偏差，可看作是 gt offset，其计算如下：
+    $$t_x ^ {\star}=(x_{gt}-x_a)/w_a, \quad t_y ^ {\star}=(y_{gt}-y_a)/h_a \tag{1}$$
+    $$t_w ^ {\star}=\log(w_{gt}/w_a), \quad t_h ^ {\star}=\log(h_{gt}/h_a) \tag{2}$$
 
-    目标就是使得正例 anchor 的预测偏差 $t_i$ 尽量逼近真实偏差 $t_i^{\star}$。
+    目标就是使得正例 anchor 的预测偏差 $t_i$ 尽量逼近真实偏差 $t_i ^ {\star}$。
     ```python
     assert B == 1
     loss = torch.nn.SmoothL1Loss()

@@ -34,7 +34,7 @@ $$p(\mathbf x, \mathbf y)=\prod_t \Psi_t(y_t, y_{t-1}, x_t) \tag{1}$$
 根据 (1) 式可得观察序列 $\mathbf x$ 的边缘概率为，
 
 $$\begin{aligned} p(\mathbf x)&=\sum_{\mathbf y} \prod_{t=1}^T \Psi_t(y_t, y_{t-1},x_t)
-\\ &=\sum_{y_T}\sum_{y_{T-1}} \Psi_T(y_T,y_{T-1},x_T) \sum_{y_{T-2}} \Psi_{T-1}(y_{T-1},y_{T-2},x_{T-1})\sum_{y_{T-3}}\cdots
+\\\\ &=\sum_{y_T}\sum_{y_{T-1}} \Psi_T(y_T,y_{T-1},x_T) \sum_{y_{T-2}} \Psi_{T-1}(y_{T-1},y_{T-2},x_{T-1})\sum_{y_{T-3}}\cdots
 \end{aligned}$$
 
 **前向算法**
@@ -73,8 +73,8 @@ $$p(\mathbf x)=\beta_0(y_0):=\sum_{j=1}^S \Psi_1(j,y_0,x_1)\beta_1(j) \tag{7}$$
 计算 $p(y_{t-1},y_t|\mathbf x)$，这在后面参数估计中会用到。
 
 $$\begin{aligned}p(y_{t-1},y_t|\mathbf x)&=\frac {p(\mathbf x,y_{t-1},y_t)}{p(\mathbf x)}
-\\&=\frac {p(\mathbf x_{1:t-1},y_{t-1})p(y_t|y_{t-1})p(x_t|y_t)p(\mathbf x_{t+1,T}, y_t)}{p(\mathbf x)}
-\\&=\frac 1 {p(\mathbf x)} \alpha_{t-1}(y_{t-1}) \Psi_t(y_t, y_{t-1},x_t) \beta_t(y_t)
+\\\\ &=\frac {p(\mathbf x_{1:t-1},y_{t-1})p(y_t|y_{t-1})p(x_t|y_t)p(\mathbf x_{t+1,T}, y_t)}{p(\mathbf x)}
+\\\\ &=\frac 1 {p(\mathbf x)} \alpha_{t-1}(y_{t-1}) \Psi_t(y_t, y_{t-1},x_t) \beta_t(y_t)
 \end{aligned} \tag{7-1}$$
 
 ## 1.2 解码
@@ -93,8 +93,8 @@ $$\delta_t(j):=\max_{\mathbf y_{1:t-1}} \ p(\mathbf y_{1:t-1}, \mathbf x_{1:t}, 
 迭代公式为 
 
 $$\begin{aligned}\color{fuchsia} {\delta_t(j)}&=\max_{\mathbf y_{1:t-1}} p(\mathbf y_{1:t-1}, \mathbf x_{1:t}, y_t=j)
-\\&=\max_{i \in 1,\ldots, S} \Psi_t(j,i, x_t) \cdot \max_{\mathbf y_{1:t-2}} p(y_{1:t-2}, \mathbf x_{1:t-1}, y_{t-1}=i)
-\\&= \color{fuchsia} {\max_{i \in 1, \ldots, S} \Psi(j,i,x_t) \delta_{t-1} (i)}
+\\\\ &=\max_{i \in 1,\ldots, S} \Psi_t(j,i, x_t) \cdot \max_{\mathbf y_{1:t-2}} p(y_{1:t-2}, \mathbf x_{1:t-1}, y_{t-1}=i)
+\\\\ &= \color{fuchsia} {\max_{i \in 1, \ldots, S} \Psi(j,i,x_t) \delta_{t-1} (i)}
 \end{aligned} \tag{8}$$
 
 注意：这里使用的是类似于 HMM  的线性 CRF 结构。
@@ -141,7 +141,7 @@ $$p(\mathbf x)=\sum_{\mathbf y} p(\mathbf x, \mathbf y)=\frac {Z(\mathbf x)}{Z}$
 
 采用最大似然估计。
 
-数据集 $\mathcal D=\{\mathbf x^{(i)}, \mathbf y^{(i)}\}_{i=1}^N$，其中 $\mathbf x^{(i)}=(\mathbf x_1^{(i)}, \ldots, \mathbf x_T^{(i)})$ 是输入序列，输出序列为 $\mathbf y^{(i)}=(y_1^{(i)}, \ldots, y_T^{(i)})$，序列长度 $T$ 不固定，即 $T_i$ 可变，但是下文为了表达简单，统一写成 $T$，不影响算法的理解和实现。
+数据集 $\mathcal D=\lbrace \mathbf x^{(i)}, \mathbf y^{(i)}\rbrace _ {i=1}^N$，其中 $\mathbf x^{(i)}=(\mathbf x _ 1 ^ {(i)}, \ldots, \mathbf x _ T ^ {(i)})$ 是输入序列，输出序列为 $\mathbf y ^ {(i)}=(y _ 1 ^ {(i)}, \ldots, y _ T ^ {(i)})$，序列长度 $T$ 不固定，即 $T_i$ 可变，但是下文为了表达简单，统一写成 $T$，不影响算法的理解和实现。
 
 模型参数记为 $\theta=(\theta_1,\ldots, \theta_K)$，K 为特征函数数量。记对数条件似然为
 
@@ -153,28 +153,28 @@ $$l(\theta)=\sum_{i=1}^N \sum_{t=1}^T \sum_{k=1}^K \theta_k f_k(y_t^{(i)}, y_{t-
 
 参数量 $K \ge S\times V+S^2$ （S 为状态数，V 为观测值的集合大小）非常大，可能达几十万，为了避免过拟合，使用 **正则项**，于是
 
-$$l(\theta)=\sum_{i=1}^N \sum_{t=1}^T \sum_{k=1}^K \theta_k f_k(y_t^{(i)}, y_{t-1}^{(i)}, \mathbf x_t^{(i)}) - \sum_{i=1}^N \log Z(\mathbf x^{(i)}) -\sum_{k=1}^K \frac {\theta_k^2}{2\sigma^2}\tag{12}$$
+$$l(\theta)=\sum _ {i=1} ^ N \sum _ {t=1} ^ T \sum _ {k=1} ^ K \theta _ k f _ k(y _ t ^ {(i)}, y _ {t-1} ^ {(i)}, \mathbf x _ t ^ {(i)}) - \sum _ {i=1} ^ N \log Z(\mathbf x ^ {(i)}) -\sum _ {k=1} ^ K \frac {\theta _ k ^ 2}{2\sigma ^ 2}\tag{12}$$
 
 其中 $\sigma^2$ 是平衡因子，引入正则项等效于参数的 MAP （最大后验 ）估计。
 
 由于
 
 $$\begin{aligned}Z(\mathbf x)&=\sum_{\mathbf y} \prod_t \Psi_t(y_t,y_{t-1}, \mathbf x_t)
-\\&=\sum_{\mathbf y}\prod_t \exp\left(\sum_k \theta_k f_k(y_t,y_{t-1}, \mathbf x_t)\right)
-\\&=\sum_{\mathbf y} \exp\left(\sum_t \sum_k \theta_k f_k(y_t,y_{t-1}, \mathbf x_t) \right)
+\\\\ &=\sum_{\mathbf y}\prod_t \exp\left(\sum_k \theta_k f_k(y_t,y_{t-1}, \mathbf x_t)\right)
+\\\\ &=\sum_{\mathbf y} \exp\left(\sum_t \sum_k \theta_k f_k(y_t,y_{t-1}, \mathbf x_t) \right)
 \end{aligned}$$
 
 $$\begin{aligned}\frac 1 {Z(\mathbf x)}\frac {\partial Z(\mathbf x)}{\partial \theta_k}&=\frac 1 {Z(\mathbf x)}\sum_{\mathbf y}  \exp(\cdots) \left(\sum_t f_k(y_t,y_{t-1}, \mathbf x_t)\right)
-\\&=\sum_{\mathbf y} \frac 1 {Z(\mathbf x)} \prod_s \Psi_{s=1}^T (y_s,y_{s-1}, \mathbf x_s)  \left(\sum_t f_k(y_t,y_{t-1}, \mathbf x_t)\right)
-\\&=\sum_{\mathbf y} p(\mathbf y|\mathbf x) \left(\sum_t f_k(y_t,y_{t-1}, \mathbf x_t)\right)
-\\&=\sum_{y_t, y_{t-1}} p(y_t, y_{t-1}|\mathbf x)\left(\sum_t f_k(y_t,y_{t-1}, \mathbf x_t)\right)
-\\&=\sum_{i,j}\sum_t p(j, i|\mathbf x)f_k(j,i, \mathbf x_t)
+\\\\ &=\sum_{\mathbf y} \frac 1 {Z(\mathbf x)} \prod_s \Psi_{s=1}^T (y_s,y_{s-1}, \mathbf x_s)  \left(\sum_t f_k(y_t,y_{t-1}, \mathbf x_t)\right)
+\\\\ &=\sum_{\mathbf y} p(\mathbf y|\mathbf x) \left(\sum_t f_k(y_t,y_{t-1}, \mathbf x_t)\right)
+\\\\ &=\sum_{y_t, y_{t-1}} p(y_t, y_{t-1}|\mathbf x)\left(\sum_t f_k(y_t,y_{t-1}, \mathbf x_t)\right)
+\\\\ &=\sum_{i,j}\sum_t p(j, i|\mathbf x)f_k(j,i, \mathbf x_t)
 \end{aligned}$$
 
 似然函数对参数求偏导，
 
-$$\begin{aligned} \frac {\partial l}{\partial \theta_k}=&\sum_{i=1}^N \sum_{t=1}^T f_k(y_t^{(i)},y_{t-1}^{(i)}, \mathbf x_t^{(i)})
-\\ &-\sum_{i=1}^N\sum_{t=1}^T \sum_{i,j} p(j, i|\mathbf x^{(i)})f_k(j,i, \mathbf x_t^{(i)})
+$$\begin{aligned} \frac {\partial l}{\partial \theta_k}=&\sum _ {i=1} ^ N \sum _ {t=1} ^ T f _ k(y _ t ^ {(i)},y _ {t-1} ^ {(i)}, \mathbf x _ t ^ {(i)})
+\\\\ &-\sum _ {i=1} ^ N\sum _ {t=1} ^ T \sum_{i,j} p(j, i|\mathbf x ^ {(i)})f _ k(j,i, \mathbf x _ t ^ {(i)})
 -\frac {\theta_k}{\sigma^2}
 \end{aligned} \tag{13}$$
 
@@ -184,7 +184,7 @@ $$\begin{aligned} \frac {\partial l}{\partial \theta_k}=&\sum_{i=1}^N \sum_{t=1}
 
 1. 初始化参数 $\theta^{(1)}$
 2. 根据 (13) 式计算的似然函数对参数的梯度，$\nabla_{\theta} l$
-3. 更新参数 $\theta^{(t+1)}=\theta^{(t)}+\alpha \nabla_{\theta}l$
+3. 更新参数 $\theta ^ {(t+1)}=\theta ^ {(t)}+\alpha \nabla _ {\theta}l$
 
 # 2. 通用 CRF
 

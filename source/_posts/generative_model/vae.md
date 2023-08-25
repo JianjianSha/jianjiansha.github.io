@@ -121,7 +121,7 @@ $$\mathcal L(\theta,\phi) = -D _ {KL}(q(x,z)||p(x,z)) + \mathbb E _ {q(x)} [\log
 
 (3-2) 式中，$\mathbb E _ {q(x)} [\log q(x)]$ 是基于训练集分布的未知常数，$-D_{KL}(q(x,z)||p(x,z)) \le 0$，所以训练目标为最大化 $\mathcal L(\theta,\phi)$，最优解为 $D_{KL}(q(x,z)||p(x,z))=0$，即 $q(x,z)$ 尽可能逼近 $p(x,z)$ 。
 
-由于 $D _ {KL}(\cdot) \ge 0$，所以 $\log p _ {\theta}(\mathbf x) \ge \mathcal L(\theta, \phi; \mathbf x)$ ，即 **对数似然的下限是 $\mathcal L(\theta, \phi; \mathbf x)$** ，所以我们的 **目标是最大化 $\mathcal L(\theta, \phi; \mathbf x)$ ，从而达到最大化对数似然的目的** 。
+由于 $D _ {KL}(\cdot) \ge 0$，所以根据 (1) 式可知 $\log p _ {\theta}(\mathbf x) \ge \mathcal L(\theta, \phi; \mathbf x)$ ，即 **对数似然的下限是 $\mathcal L(\theta, \phi; \mathbf x)$** ，所以我们的 **目标是最大化 $\mathcal L(\theta, \phi; \mathbf x)$ ，从而达到最大化对数似然的目的** 。
 
 但是求目标 $\mathcal L(\theta, \phi; \mathbf x)$  的导数存在问题，因为表达式中含有期望计算 $\mathbb E_{q_{\phi}(\mathbf z|\mathbf x)}[\cdot]$，这使得导数计算不好处理。一种常见的方法是使用 Monte Carlo 梯度估计方法：
 
@@ -147,7 +147,7 @@ $$\mathbf z = g_{\phi}(\epsilon, \mathbf x) \tag{5}$$
 其中 $\epsilon \sim p(\epsilon)$ 是一个随机噪声向量，$g_{\phi}(\cdot)$ 是某个参数为 $\phi$ 的向量函数。由于 (5) 式是确定性函数，那么
 
 $$q_{\phi}(\mathbf z|\mathbf x) d \mathbf z=p(\epsilon) d\epsilon
-\\ \int q_{\phi}(\mathbf z|\mathbf x) f(\mathbf z) d\mathbf z=\int p(\epsilon) f(\mathbf z) d\epsilon=\int p(\epsilon) f(g_{\phi}(\epsilon, \mathbf x)) d\epsilon$$
+\\\\ \int q_{\phi}(\mathbf z|\mathbf x) f(\mathbf z) d\mathbf z=\int p(\epsilon) f(\mathbf z) d\epsilon=\int p(\epsilon) f(g_{\phi}(\epsilon, \mathbf x)) d\epsilon$$
 
 （注：为了简洁，$f(\mathbf z)$ 中未注明参数）
 
@@ -185,7 +185,7 @@ $$\tilde {\mathcal L}(\theta, \phi;\mathbf x)=\frac 1 L \sum_{l=1}^L \log p_{\th
 
 ___
 
-我们也可以采用 (3-1) 式计算 $\mathcal L$，由于 $D_{KL}(q_{\phi}(\mathbf z|\mathbf x)||p_{\theta}(\mathbf z))$ 可以计算闭式解（close form）（见下方折叠内容），只有 $\mathbb E_{q_{\phi}(\mathbf z|\mathbf x)} [\log p_{\theta}(\mathbf x|\mathbf z)]$ 需要通过采样计算，前者可以理解为对 $\phi$ 的正则化，即近似后验 $q_{\phi}(\mathbf z|\mathbf x)$ 尽可能地逼近先验 $p_{\theta}(\mathbf z)$ 。这样就得到第二种目标函数的计算方式，
+我们也可以采用 (3-1) 式计算 $\mathcal L$，由于 $D_{KL}(q_{\phi}(\mathbf z|\mathbf x)||p_{\theta}(\mathbf z))$ 可以计算闭式解（close form）（见下方折叠内容），(3-1) 式中只有 $\mathbb E_{q_{\phi}(\mathbf z|\mathbf x)} [\log p_{\theta}(\mathbf x|\mathbf z)]$ 需要通过采样计算，前者可以理解为对 $\phi$ 的正则化，即近似后验 $q_{\phi}(\mathbf z|\mathbf x)$ 尽可能地逼近先验 $p_{\theta}(\mathbf z)$ 。这样就得到第二种目标函数的计算方式，
 
 $$\tilde {\mathcal L}(\theta,\phi;\mathbf x)=-D_{KL}(q_{\phi}(\mathbf z|\mathbf x)||p_{\theta}(\mathbf z)) + \frac 1 L \sum_{l=1}^L \log p_{\theta}(\mathbf x|\mathbf z^{(l)}) \tag{7-1}$$
 

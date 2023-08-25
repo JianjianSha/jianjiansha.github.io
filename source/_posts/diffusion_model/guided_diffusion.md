@@ -110,7 +110,7 @@ $$p_{\theta}(x_t|x_{t+1})=\mathcal N(\mu, \Sigma) \tag{3}$$
 
 取对数
 
-$$\log p_{\theta}(x_t|x_{t+1})=-\frac 1 2 (x_t -\mu)^{\top}\Sigma (x_t-\mu) + C \tag{4}$$
+$$\log p_{\theta}(x_t|x_{t+1})=-\frac 1 2 (x_t -\mu)^{\top}\Sigma ^ {-1} (x_t-\mu) + C \tag{4}$$
 
 对于分类器预测概率对数，可以假设其曲率比 $\Sigma^{-1}$ 小（即 $\log p(y|x_t)$ 曲线变化更缓慢，或者说方差较大），这个假设是合理的，因为当扩散步数 $T \rightarrow \infty$ 时，有 $\|\Sigma\| \rightarrow 0$，原因说明如下：
 
@@ -140,6 +140,8 @@ $$\begin{aligned}\log p _ {\phi}(y|x _ t) & \approx \log p _ {\phi}(y|x _ t)|  _
 \\\\ &=(x _ t-\mu) g + C _ 1
 \end{aligned} \tag{5}$$
 
+(5) 式中，$g = \nabla_{x _ t} \log p _ {\phi}(y|x _ t)| _ {x _ t=\mu}$ ，对于一个预训练好的分类器，输出 $\log p _ {\phi}(y|x _ t)|  _ {x _ t=\mu}$ 是固定不变的，记为 $C _ 1$ 。
+
 
 结合上面两式，可知
 
@@ -148,7 +150,11 @@ $$\begin{aligned} \log (p_{\theta}(x_t|x_{t+1})p_{\phi}(y|x_t)) & \approx -\frac
 \\\\ &= \log p(z) + C_4 
 \end{aligned} \tag{6}$$
 
-其中 $z \sim \mathcal N(\mu + \Sigma g , \Sigma)$ 。相较于 (2) 式可知 $C_4$ 对应归一化因子 $Z$ 。根据 (6) 式可知，条件转移过程也是高斯型，与 DDPM 中得非条件转移类似，只是在期望 $\mu$ 的基础上再平移 $\Sigma g$ 。采用步骤如下文算法 1 所示，这里作者引入了一个关于梯度的 scale 因子 $s$。
+其中 $z \sim \mathcal N(\mu + \Sigma g , \Sigma)$ 。(6) 式第一个等号推导是用到了以下变换形式 
+
+$$-\frac a 2 x ^ 2 + g x + c _ 1=-\frac a 2 (x ^ 2 - 2ag \cdot x)+c _ 2=-\frac a 2 (x-ag) + c _ 3$$
+
+相较于 (2) 式可知 $C_4$ 对应归一化因子 $Z$，满足 $C _ 4 = -\log Z$ 。根据 (6) 式可知，条件转移过程也是高斯型，与 DDPM 中得非条件转移类似，只是在期望 $\mu$ 的基础上再平移 $\Sigma g$ 。采用步骤如下文算法 1 所示，这里作者引入了一个关于梯度的 scale 因子 $s$。
 
 **# 关于 scale 因子 $s$ 的说明**
 

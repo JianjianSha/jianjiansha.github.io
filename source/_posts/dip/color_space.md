@@ -153,3 +153,40 @@ ax.set_ylabel('g')
 ax.set_xlabel('b')
 plt.show()
 ```
+
+# 4. YUV
+
+本节内容源自 [CSDN](https://blog.csdn.net/qq_43426078/article/details/124024237) 。
+
+YUV（YCbCr）
+RGB大约可以表示一千六百七十万种颜色，而人眼大约可以分辨一千万种颜色。因此使用RGB来储存和传输图像会造成很大的空间浪费。为了克服这一问题，YUV于上世纪50年代提出，用于储存和传输电视信号。
+
+YCbCr也由三个通道组成：
+
+Y通道： 表示图像的强度、亮度（luminance)
+Cb通道： 表示图像蓝色 色度（chroma、chrominance）
+Cr通道： 表示图像红色 色度（chroma、chrominance）
+
+YCbCr可以通过图片下方公示，由RGB得到。
+
+![](/images/dip/color_space_1.png)
+
+
+**# YCbCr与RGB的相互转换**
+
+```sh
+Y=0.299R+0.587G+0.114B
+
+Cb=0.564(B-Y)
+
+Cr=0.713(R-Y)
+#=======================
+R=Y+1.402Cr
+
+G=Y-0.344Cb-0.714Cr
+
+B=Y+1.772Cb
+```
+
+如果要显示YCbCr图片，还是需要转化为RGB来显示。相比于色彩，人眼对亮度更加敏感，因此如果保证亮度不变，轻微减少色彩通道的信息，人眼感官上图像质量并不会下降。因此可以通过减少色彩信息的方式来减少存储空间。
+

@@ -131,7 +131,7 @@ arxiv: https://arxiv.org/abs/2001.04086
 
 $$\tilde {\mathbf x}=\mathbf x \times M$$
 
-其中 $\mathbf x \in \mathbb R^{H \times W \times C}$ 表示一图像，$M \in \{0,1\}^{H \times W}$。如何生成这个 binary mask $M$？如图 2，
+其中 $\mathbf x \in \mathbb R ^ {H \times W \times C}$ 表示一图像，$M \in \{0,1\} ^ {H \times W}$。如何生成这个 binary mask $M$？如图 2，
 
 ![](/images/obj_det/yolov4_2.png)
 
@@ -145,7 +145,7 @@ $$k=\frac {sum(M)} {H \times W}$$
 
 表示图像中像素值被保留的比例。$k$ 太大，CNN 可能仍会过拟合，$k$ 太小则会丢失较多信息从而导致欠拟合。忽略图像左侧和上侧的不完整 units，那么 $r, \ k$ 的关系如下，
 
-$$k=1-(1-r)^2=2r-r^2$$
+$$k=1-(1-r) ^ 2=2r-r ^ 2$$
 
 其中 $1-r$ 表示 unit 中黑块的 size。
 
@@ -183,16 +183,16 @@ DIoU 则额外考虑了目标中心点的距离。CIoU 则同时考虑了重叠�
 
 <center>图 3. IoU, GIoU, DIoU 对比。绿色为 gt box，红色为预测 box</center>
 
-$$L_{DIoU}=1-IoU+\frac {\rho^2(\mathbf b, \mathbf b^{gt})} {c^2}$$
+$$L_{DIoU}=1-IoU+\frac {\rho ^ 2(\mathbf b, \mathbf b ^ {gt})} {c ^ 2}$$
 
-其中 $\mathbf b, \mathbf b^{gt}$ 是预测 box 和 gt box 的中心点，$\rho$ 是欧氏距离，$c$ 是包含预测box 和 gt box 的最小框的对角线长度。
+其中 $\mathbf b, \mathbf b ^ {gt}$ 是预测 box 和 gt box 的中心点，$\rho$ 是欧氏距离，$c$ 是包含预测box 和 gt box 的最小框的对角线长度。
 
-$$L_{CIoU}=1-IoU+\frac {\rho^2(\mathbf b, \mathbf b^{gt})} {c^2}+\alpha v$$
+$$L_{CIoU}=1-IoU+\frac {\rho ^ 2(\mathbf b, \mathbf b ^ {gt})} {c ^ 2}+\alpha v$$
 
 其中 $\alpha$ 是一个正 trade-off 参数，$v$ 是预测 box 与 gt box aspect ratio 一致性的测度，
 $$\alpha=\frac v {(1-IoU)+v}$$
 
-$$v=\frac 4 {\pi^2}(\arctan \frac {w^{gt}}{h^{gt}} - \arctan \frac w h)^2$$
+$$v=\frac 4 {\pi ^ 2}(\arctan \frac {w ^ {gt}}{h ^ {gt}} - \arctan \frac w h) ^ 2$$
 
 # 2. Bag of specials
 

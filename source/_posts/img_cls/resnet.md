@@ -1,8 +1,8 @@
 ---
-title: img_cls/resnet.md
+title: resnet
 p: img_cls/resnet
 date: 2021-01-19 17:25:25
-tags: img cls
+tags: image classification
 mathjax: true
 ---
 本篇罗列一些 Resnet 网络的细节。

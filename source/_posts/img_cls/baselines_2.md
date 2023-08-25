@@ -158,3 +158,4 @@ $$\mathbf y_i = \begin{cases}\mathbf x_i & i=1 \\ \mathbf K_i(\mathbf x_i) & i=2
 如图 13，还可以结合 SE block（先 squeeze 得到 `1x1xC` 的特征，然后 excite 得到 `1x1xC` 的 channel 权重） 和 cardinality dimension（分组卷积），
 
 ![](/images/img_cls/baselines2_13.png)
+

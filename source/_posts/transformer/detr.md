@@ -480,7 +480,7 @@ decoder 的输出 shape 为 $(M, B, N, d)$，其中 $M$ 为 decoder layer 循环
 
 > 预测集损失用于反向传播，优化网络。Hungarian 匹配损失用于寻找匹配的预测 box，不用于反向传播。
 
-记 $y$ 为 gt box 集合，$\hat y = \{\hat y_i \}_{i=1}^N$ 为预测 box 集合，                      
+记 $y$ 为 gt box 集合，$\hat y = \lbrace \hat y_i \rbrace _ {i=1}^N$ 为预测 box 集合，                      
 
 1. $N$ 为某固定不变的值，表示对单个 image，预测 box 的数量。设置 $N$ 的值使得较大于一般意义上单个 image 中 object 数量。论文中设置 $N=100$
 2. 如果 gt box 数量不足 $N$，用 no-object进行填充，使得数量为 $N$。
@@ -607,7 +607,7 @@ $$L _ {cls}=-\frac 1 N \sum_{i=1} ^ N w_i \log \hat p _ {\hat \sigma(i)}(c _ i)$
 
 其中权重
 
-$$w _ i=\begin{cases} 1 & 0\le c _ i <C(\text{fg}) \\ 0.1 & c _ i=C(\text{bg})\end{cases}$$
+$$w _ i=\begin{cases} 1 & 0\le c _ i <C(\text{fg}) \\\\ 0.1 & c _ i=C(\text{bg})\end{cases}$$
 
 __L1 坐标损失：__
 

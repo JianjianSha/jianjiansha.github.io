@@ -37,12 +37,12 @@ backbone 采用图像分类网络 EfficentNets，然后结合 BiFPN 以及 model
 ![](/images/obj_det/efficientdet_1.png)
 <center>图 1. 几种网络的特征融合方式</center>
 
-记 $P_i^{in}, \ P_i^{out}$ 分别为第 `i` 层融合前后的特征，那么对于 FPN，有
+记 $P_i ^ {in}, \ P_i ^ {out}$ 分别为第 `i` 层融合前后的特征，那么对于 FPN，有
 
-$$\begin{aligned}P_7^{out}&=Cov(P_7^{in})
-\\ P_6^{out}&=Cov(P_6^{in}+Resize(P_7^{in}))
-\\ \ldots
-\\ P_3^{out}&=Cov(P_3^{in}+Resize(P_4^{in}))
+$$\begin{aligned}P_7 ^ {out}&=Cov(P_7 ^ {in})
+\\\\ P_6 ^ {out}&=Cov(P_6 ^ {in}+Resize(P_7 ^ {in}))
+\\\\ \ldots
+\\\\ P_3 ^ {out}&=Cov(P_3 ^ {in}+Resize(P_4 ^ {in}))
 \end{aligned}$$
 
 FPN 的融合信息流是单向的，即从上到下，PANET 则实现了融合信息的双向流动。NAS-FPN 则进一步地使用 neural architecture search（NAS）搜索出较好的跨尺度信息融合方式，不过 NAS 对硬件要求（GPU）较高，而且搜索出来的网络结果不规则，难以对其进行解释或者调整。
@@ -71,7 +71,7 @@ $$O=\sum_i w_i \cdot I_i$$
 
 **Softmax-based fusion**
 
-$$O=\sum_i \frac {e^{w_i}}{\sum_j e^{w_j}} \cdot I_i$$
+$$O=\sum_i \frac {e ^ {w_i}}{\sum_j e ^ {w_j}} \cdot I_i$$
 
 每个特征 $I_i$ 对应一个参数 $w_i$，使用 softmax 得到归一化权重，从而避免了 Unbounded fusion 会造成训练不稳定的缺点，但是 Softmax-based fusion 也有缺点，即降低 GPU 的计算速度。
 

@@ -38,7 +38,7 @@ __答：__ 我们假定不会有多个目标的中心落入同一个 grid cell�
 
 ### 1.4 损失
 
-$$\begin{aligned} L&=\lambda_{coord} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj}(x_i-\hat x_i)^2+(y_i-\hat y_i)^2 \\\\ &+ \lambda_{coord} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj}(\sqrt {w_i}- \sqrt {\hat w_i})^2+(\sqrt {h_i}- \sqrt {\hat h_i})^2 \\\\ &+ \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{obj} (C_i-\hat C_i)^2 \\\\ &+ \lambda_{noobj} \sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{noobj}(C_i-\hat C_i)^2 \\\\ &+ \sum_{i=1}^{S^2} \mathbf 1_i^{obj} \sum_{c \in classes}\left(p_i(c)-\hat p_i(c)\right)^2 \end{aligned}
+$$\begin{aligned} L&=\lambda_{coord} \sum_{i=1} ^ {S ^ 2}\sum_{j=1} ^ B \mathbf 1_{ij} ^ {obj}(x_i-\hat x_i) ^ 2+(y_i-\hat y_i) ^ 2 \\\\ &+ \lambda_{coord} \sum_{i=1} ^ {S ^ 2}\sum_{j=1} ^ B \mathbf 1_{ij} ^ {obj}(\sqrt {w_i}- \sqrt {\hat w_i}) ^ 2+(\sqrt {h_i}- \sqrt {\hat h_i}) ^ 2 \\\\ &+ \sum_{i=1} ^ {S ^ 2}\sum_{j=1} ^ B \mathbf 1_{ij} ^ {obj} (C_i-\hat C_i) ^ 2 \\\\ &+ \lambda_{noobj} \sum_{i=1} ^ {S ^ 2}\sum_{j=1} ^ B \mathbf 1_{ij} ^ {noobj}(C_i-\hat C_i) ^ 2 \\\\ &+ \sum_{i=1} ^ {S ^ 2} \mathbf 1_i ^ {obj} \sum_{c \in classes}\left(p_i( c )-\hat p_i( c )\right) ^ 2 \end{aligned}
 $$
 
 __分析：__
@@ -49,7 +49,7 @@ $\mathbf 1_{ij}^{obj}$ 表示第 `i` 个 grid cell 有目标（中心），且�
 
 对于较大 box 和 较小 box，在相同偏差$\Delta w, \ \Delta h$ 下，较大 box 的损失应该比较小 box 的损失更小才合理，然而两者平方差损失相同，所以我们对宽高 `w,h`，先求平方根，再求平方差，这在一定程度上降低了这种不合理性。
 
-$\mathbf 1_{ij}^{noobj}$ 表示 i) 第 `i` 个 grid cell 无目标（中心），或者 ii) 有目标（中心），但是第 `j` 个预测 box 不负责预测（即，与 gt box 的 IOU 不是 `B` 个预测 box 中最大的）。
+$\mathbf 1_{ij} ^ {noobj}$ 表示： 第 `i` 个 grid cell 无目标（中心），或者有目标（中心），但是第 `j` 个预测 box 不负责预测（即，与 gt box 的 IOU 不是 `B` 个预测 box 中最大的）。
 
 $\mathbf 1_i^{obj}$ 表示第 `i` 个 grid cell 有目标（中心）。
 
@@ -87,17 +87,17 @@ $$L=L_p+L_{box}+L_C$$
 
 __分类损失__
 
-$$L_p=\sum_{i=1}^{S^2} \sum_{j=1}^B \sum_{c=1}^{20} \mathbf 1_{ij}^{obj} [\hat p_{ij}(c)-p_{ij}(c)]^2$$
+$$L_p=\sum_{i=1} ^ {S ^ 2} \sum_{j=1} ^ B \sum_{c=1} ^ {20} \mathbf 1_{ij} ^ {obj} [\hat p_{ij}(c)-p_{ij}(c)] ^ 2$$
 
 __坐标损失__
 
-$$\begin{aligned}L_{box}&=\lambda_{obj}^{coord} \sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{obj} (\hat x_{ij} - x_{ij})^2 + (\hat y_{ij} - y_{ij})^2+ (\hat w_{ij} - w_{ij})^2+ (\hat h_{ij} - h_{ij})^2 
-\\ &+ \lambda_{noobj}^{coord} \sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{noobj} (\hat x_{ij} - x_{ij}^a)^2 + (\hat y_{ij} - y_{ij}^a)^2+ (\hat w_{ij} - w_{ij}^a)^2+ (\hat h_{ij} - h_{ij}^a)^2 \end{aligned}$$
+$$\begin{aligned}L_{box}&=\lambda_{obj} ^ {coord} \sum_{i=1} ^ {S ^ 2} \sum_{j=1} ^ B \mathbf 1_{ij} ^ {obj} (\hat x_{ij} - x_{ij}) ^ 2 + (\hat y_{ij} - y_{ij}) ^ 2+ (\hat w_{ij} - w_{ij}) ^ 2+ (\hat h_{ij} - h_{ij}) ^ 2 
+\\\\ &+ \lambda_{noobj} ^ {coord} \sum_{i=1} ^ {S ^ 2} \sum_{j=1} ^ B \mathbf 1_{ij} ^ {noobj} (\hat x_{ij} - x_{ij} ^ a) ^ 2 + (\hat y_{ij} - y_{ij} ^ a) ^ 2+ (\hat w_{ij} - w_{ij} ^ a) ^ 2+ (\hat h_{ij} - h_{ij} ^ a) ^ 2 \end{aligned}$$
 
 __置信度损失__
 
-$$\begin{aligned}L_C &=\lambda_{obj}^{conf}\sum_{i=1}^{S^2} \sum_{j=1}^B \mathbf 1_{ij}^{obj}[\hat C_{ij}-iou(\hat {\text{box}}_{ij}, \text{box}_{ij})]^2  
-\\&+ \lambda_{noobj}^{conf}\sum_{i=1}^{S^2}\sum_{j=1}^B \mathbf 1_{ij}^{noobj}[\hat C_{ij}-0]^2 \end{aligned}$$
+$$\begin{aligned}L_C &=\lambda_{obj} ^ {conf}\sum_{i=1} ^ {S ^ 2} \sum_{j=1} ^ B \mathbf 1_{ij} ^ {obj}[\hat C_{ij}-iou(\hat {\text{box}} _ {ij}, \text{box} _ {ij})] ^ 2  
+\\\\ &+ \lambda_{noobj} ^ {conf}\sum _ {i=1} ^ {S ^ 2}\sum_{j=1} ^ B \mathbf 1_{ij} ^ {noobj}[\hat C_{ij}-0] ^ 2 \end{aligned}$$
 
 以上，带 ^ 表示 network 输出，带 a 表示 anchor，不带这两个修饰的表示 GT label。
 
@@ -119,9 +119,9 @@ __分析：__
 
 坐标损失中 $x_{ij}, y_{ij}, w_{ij}, h_{ij}$ 使用的是 $\sigma(t_x), \sigma(t_y), t_w, t_h$，对于网络输出，不用做任何修改，而对于 GT box 以及 anchor box，则需要做变换，也就是说，将预测 box 分别替换为 GT box 和 anchor box 来计算 $\sigma(t_x), \sigma(t_y), t_w, t_h$。
 
-位于某 location `(i,j)` 处，将 `B` 个预测 box 与 GT label 中所有目标 box 两两求 IOU，最后得到一个最大 IOU，如果这个最大 IOU 大于阈值 0.5，那么 $\mathbf 1_{ij}^{noobj}=0$，此时置信度损失中第二项为 0。
+位于某 location `(i,j)` 处，将 `B` 个预测 box 与 GT label 中所有目标 box 两两求 IOU，最后得到一个最大 IOU，如果这个最大 IOU 大于阈值 0.5，那么 $\mathbf 1_{ij} ^ {noobj}=0$，此时置信度损失中第二项为 0。
 
-对于每个 GT box，找出与这个 GT box 有最大 IOU 预测 box，注意这个 IOU 没有阈值限制，然后设置 $\mathbf 1_{ij}^{obj}=1$（每个 GT box 有且只有一个负责预测的 box），此时置信度损失中第一项非零，且分类损失非零，此时计算分类损失时，$\sum_{c=1}^C$ 求和中，当且仅当 `c` 等于 GT label 中的 class id 时，$p_{ij}(c)=1$，其余 `C-1` 种情况 $p_{ij}(c)=0$。
+对于每个 GT box，找出与这个 GT box 有最大 IOU 预测 box，注意这个 IOU 没有阈值限制，然后设置 $\mathbf 1_{ij} ^ {obj}=1$（每个 GT box 有且只有一个负责预测的 box），此时置信度损失中第一项非零，且分类损失非零，此时计算分类损失时，$\sum_{c=1} ^ C$ 求和中，当且仅当 `c` 等于 GT label 中的 class id 时，$p_{ij}(c)=1$，其余 `C-1` 种情况 $p_{ij}(c)=0$。
 
 # 3. YOLOv3
 在 YOLOv2 基础上做了修改：

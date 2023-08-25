@@ -83,11 +83,15 @@ $$R = TP/(TP + FN)$$
 
 F1 score 为
 
-$$F1 = \frac {2P*R}{(P+R)}= \frac {2 TP}{(TP+FP)+(TP+FN)}$$
+$$F1 = \frac {2*P*R}{(P+R)}= \frac {2 * TP}{(TP+FP)+(TP+FN)}$$
 
-这与 DICE 系数完全一致。
+这与 DICE 系数完全一致，其中：
 
-实际计算中，为了防止 $D$ 分母为 0，往往分子分母均加 1 。
+1. 分母 $TP+FP$ 表示预测为 postive（真阳和假阳），对应 $\sum _ i ^ N p _ i$ 。$TP+FN$ 表示 gt positive（真阳和假阴），对应 $\sum _ i ^ N g _ i$ 。
+
+2. 分子中 $TP$ 表示真阳，对应 $\sum _ i ^ N p _ i g _ i$ 。
+
+实际计算中，为了防止 $D$ 分母为 0，往往分子分母均加 1 （平滑）。
 
 DICE loss 为
 
