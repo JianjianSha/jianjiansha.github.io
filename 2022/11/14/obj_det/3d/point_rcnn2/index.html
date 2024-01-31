@@ -1,0 +1,1900 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="PointRCNN 论文解读（二）, SJJ">
+    <meta name="description" content="前面我在 PointRCNN 论文解读（一） 中介绍了 PointRCNN 的模型结构，以及 RPN 的训练代码。由于 PointRCNN 内容较多，所以分成两篇文章来介绍，这篇文章重点介绍第二部分 RCNN 网络。
+1. RCNN
+具体而">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>PointRCNN 论文解读（二） | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/23.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">PointRCNN 论文解读（二）</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/3d-object-detection/">
+                                <span class="chip bg-color">3d object detection</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-11-14
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>前面我在 <a href="/obj_det/3d/2022/10/24/point_rcnn">PointRCNN 论文解读（一）</a> 中介绍了 PointRCNN 的模型结构，以及 RPN 的训练代码。由于 PointRCNN 内容较多，所以分成两篇文章来介绍，这篇文章重点介绍第二部分 RCNN 网络。</p>
+<h1>1. RCNN</h1>
+<p>具体而言， <a href="/obj_det/3d/2022/10/24/point_rcnn">PointRCNN 论文解读（一）</a>  中给出 RCNN 网络的数据准备，以及预测由 RPN 得到的 3D proposal 的位置精调和目标分类。这篇文章以代码为主，对代码进行注释并穿插讲解原理。</p>
+<p>项目 github 代码的 readme 文档中，训练 RCNN 过程为：假设 RPN 网络训练好，模型保存在文件 <code>output/rpn/default/ckpt/checkpoint_epoch_200.pth</code>，那么训练 RCNN 有两种策略：</p>
+<ol>
+<li>
+<p>固定 RPN，训练 RCNN。在线进行 GT 扩增。</p>
+ <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">python train_rcnn.py <span class="token parameter variable">--cfg_file</span> cfgs/default.yaml <span class="token parameter variable">--batch_size</span> <span class="token number">4</span> <span class="token parameter variable">--train_mode</span> rcnn <span class="token parameter variable">--epochs</span> <span class="token number">70</span> <span class="token parameter variable">--ckpt_save_interval</span> <span class="token number">2</span> <span class="token parameter variable">--rpn_ckpt</span> <span class="token punctuation">..</span>/output/rpn/default/ckpt/checkpoint_epoch_200.pth<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li>
+<p>离线进行 GT 扩增。</p>
+<ul>
+<li>
+<p>生成扩增的离线场景</p>
+  <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">python generate_aug_scene.py <span class="token parameter variable">--class_name</span> Car <span class="token parameter variable">--split</span> train <span class="token parameter variable">--aug_times</span> <span class="token number">4</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li>
+<p>保存 RPN 特征和 proposals。具体命令参见 readme 文档。这里略</p>
+</li>
+<li>
+<p>此时可训练 RCNN。命令参见 readme 文档。</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>由于第一种策略更加优雅，所以本文以第一种策略为例进行原理和代码讲解。</p>
+<p>由于启用了 RPN ，所以整个网络的输入依然与训练 RPN 相同，数据准备与训练 RPN 过程中的数据准备相似，具体可阅读 <a href="/obj_det/3d/2022/10/24/point_rcnn">PointRCNN 论文解读（一）</a> 中相关内容，这里仅列出 <code>__getitem__</code> 方法的返回结果，代码如下，注意不需要计算 <code>rpn_cls_label</code> 和 <code>rpn_reg_label</code>，因为不需要计算 RPN 的损失。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">get_rpn_sample</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> index<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token keyword">if</span> cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>FIXED<span class="token punctuation">:</span>
+        sample_info<span class="token punctuation">[</span><span class="token string">'pts_input'</span><span class="token punctuation">]</span> <span class="token operator">=</span> pts_input
+        sample_info<span class="token punctuation">[</span><span class="token string">'pts_rect'</span><span class="token punctuation">]</span> <span class="token operator">=</span> aug_pts_rect
+        sample_info<span class="token punctuation">[</span><span class="token string">'pts_feature'</span><span class="token punctuation">]</span> <span class="token operator">=</span> ret_pts_features
+        sample_info<span class="token punctuation">[</span><span class="token string">'gt_boxes3d'</span><span class="token punctuation">]</span> <span class="token operator">=</span> aug_gt_boxes3d
+        <span class="token keyword">return</span> sample_info<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="1-1-模型">1.1 模型</h2>
+<p>此时 RPN 和 RCNN 均启用，且 RPN 是 fixed，即网络参数固定不变。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">elif</span> args<span class="token punctuation">.</span>train_mode <span class="token operator">==</span> <span class="token string">'rcnn'</span><span class="token punctuation">:</span>
+    cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ENABLED <span class="token operator">=</span> <span class="token boolean">True</span>
+    cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>ENABLED <span class="token operator">=</span> cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>ENABLED <span class="token operator">=</span> <span class="token boolean">True</span>    <span class="token comment"># 启动 RPN，且其 FIXED 属性为 True</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>然后看模型定义，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># lib/net/point_rcnn.py</span>
+<span class="token keyword">class</span> <span class="token class-name">PointRCNN</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> num_classes<span class="token punctuation">,</span> use_xyz<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> mode<span class="token operator">=</span><span class="token string">'TRAIN'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>         <span class="token comment"># 定义 RPN 网络，接着定义 RCNN 网络，如下</span>
+        rcnn_input_channels <span class="token operator">=</span> <span class="token number">128</span>   <span class="token comment"># RPN 网络的 backbone 的输出特征 channel</span>
+        <span class="token keyword">if</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>BACKBONE <span class="token operator">==</span> <span class="token string">'pointnet'</span><span class="token punctuation">:</span> <span class="token comment"># RCNN 网络仅用于精调，不需要很复杂故采用 pointnet</span>
+            self<span class="token punctuation">.</span>rcnn_net <span class="token operator">=</span> RCNNNet<span class="token punctuation">(</span>num_classes<span class="token operator">=</span>num_classes<span class="token punctuation">,</span> 
+                                    input_channels<span class="token operator">=</span>rcnn_input_channels<span class="token punctuation">,</span> use_xyz<span class="token operator">=</span>use_xyz<span class="token punctuation">)</span>
+        <span class="token keyword">elif</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>BACKBONE <span class="token operator">==</span> <span class="token string">'pointsift'</span><span class="token punctuation">:</span>
+            <span class="token keyword">pass</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">raise</span> NotImplementedError<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>PointNet 其实是将点云数据经 MLP 最后在进行 global pooling，得到一维特征（shape 为 <code>(B,1024)</code>）后再与网络中间层特征（shape 为 <code>(B, npoints, 64)</code>）进行 concatenate（将一维全局特征 <code>(B, 1024)</code> repeat 为 <code>(B, npoints)</code> 然后再与中间层特征 concatenate 成 <code>(B, npoints, 1088)</code> 的特征），然后再经 MLP 得到 <code>(B, npoints, m)</code> 的特征，这里 m 指分类数量，也就是代码中的 <code>num_classes</code>。更多 PointNet 细节可参考 <a href="/obj_det/3d/2022/10/18/pointnet">PointNet 论文解读</a>。</p>
+<p>RPN 是训练好的，且在训练 RCNN 过程中保持固定不变，故加载 RPN 模型参数，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">if</span> args<span class="token punctuation">.</span>rpn_ckpt <span class="token keyword">is</span> <span class="token keyword">not</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+    total_keys <span class="token operator">=</span> model<span class="token punctuation">.</span>state_dict<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>keys<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__len__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    train_utils<span class="token punctuation">.</span>load_part_ckpt<span class="token punctuation">(</span>model<span class="token punctuation">,</span> filename<span class="token operator">=</span>args<span class="token punctuation">.</span>rpn_ckpt<span class="token punctuation">,</span> logger<span class="token operator">=</span>logger<span class="token punctuation">,</span> total_keys<span class="token operator">=</span>total_keys<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>具体加载部分网络参数的函数定义为，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">load_part_ckpt</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> filename<span class="token punctuation">,</span> logger<span class="token operator">=</span>cur_logger<span class="token punctuation">,</span> total_keys<span class="token operator">=</span>total_keys<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    checkpoint <span class="token operator">=</span> torch<span class="token punctuation">.</span>load<span class="token punctuation">(</span>filename<span class="token punctuation">)</span>
+    model_state <span class="token operator">=</span> checkpoint<span class="token punctuation">[</span><span class="token string">'model_state'</span><span class="token punctuation">]</span>
+
+    update_model_state <span class="token operator">=</span> <span class="token punctuation">&#123;</span>key<span class="token punctuation">:</span> val <span class="token keyword">for</span> key<span class="token punctuation">,</span> val <span class="token keyword">in</span> model_state<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">if</span> key <span class="token keyword">in</span> model<span class="token punctuation">.</span>state_dict<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span>
+    state_dict <span class="token operator">=</span> model<span class="token punctuation">.</span>state_dict<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    state_dict<span class="token punctuation">.</span>update<span class="token punctuation">(</span>update_model_state<span class="token punctuation">)</span>
+    model<span class="token punctuation">.</span>load_state_dict<span class="token punctuation">(</span>state_dict<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>加载了预训练的 RPN 模型后，我们分析整个模型的前向传播过程，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">model_fn</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    model: 整个模型 RPN+RCNN
+    data: 一批训练据。dict 类型
+    '''</span>
+    <span class="token comment"># inputs: (B, npoints, 3) 点云数据坐标</span>
+    <span class="token comment"># gt_boxes3d: (B, max_gt, 7) 批样本中的 gt box3d，包含 x,y,z,h,w,l.ry。</span>
+    <span class="token comment">#             max_gt 是这批中单个样本中最大gt 数量</span>
+    input_data <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">'pts_input'</span><span class="token punctuation">:</span> inputs<span class="token punctuation">,</span> <span class="token string">'gt_boxes3d'</span><span class="token punctuation">:</span> gt_boxes3d<span class="token punctuation">&#125;</span>
+
+    ret_dict <span class="token operator">=</span> model<span class="token punctuation">(</span>input_data<span class="token punctuation">)</span>    <span class="token comment"># 模型前向传播</span>
+
+    tb_dict <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+    disp_dict <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+    loss <span class="token operator">=</span> <span class="token number">0</span>
+    <span class="token keyword">if</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ENABLED<span class="token punctuation">:</span>
+        rcnn_loss <span class="token operator">=</span> get_rcnn_loss<span class="token punctuation">(</span>model<span class="token punctuation">,</span> ret_dict<span class="token punctuation">,</span> tb_dict<span class="token punctuation">)</span>
+        loss <span class="token operator">+=</span> rcnn_loss           <span class="token comment"># 这是 RCNN 子网络的损失</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>从以上代码中可见，固定 RPN 网络参数，模型输入与原来训练 RPN 时相同，输入经过模型前向传播后，再计算 RCNN 的损失。所以我们接下来先看前向传播，然后再看如何计算损失。</p>
+<h2 id="1-2-forward">1.2 forward</h2>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># class PointRCNN</span>
+
+<span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> input_data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>ENABLED<span class="token punctuation">:</span>
+        output <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+        <span class="token keyword">with</span> torch<span class="token punctuation">.</span>set_grad_enabled<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">not</span> cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>FIXED<span class="token punctuation">)</span> <span class="token keyword">and</span> self<span class="token punctuation">.</span>training<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">if</span> cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>FIXED<span class="token punctuation">:</span>
+                self<span class="token punctuation">.</span>rpn<span class="token punctuation">.</span><span class="token builtin">eval</span><span class="token punctuation">(</span><span class="token punctuation">)</span>     <span class="token comment"># 训练 RCNN 时，固定 RPN，故 RPN 网络运行于 EVAL 模式</span>
+            rpn_output <span class="token operator">=</span> self<span class="token punctuation">.</span>rpn<span class="token punctuation">(</span>input_data<span class="token punctuation">)</span>
+            output<span class="token punctuation">.</span>update<span class="token punctuation">(</span>rpn_output<span class="token punctuation">)</span>
+    
+        <span class="token keyword">if</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ENABLED<span class="token punctuation">:</span>
+            <span class="token keyword">with</span> torch<span class="token punctuation">.</span>no_grad<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+                <span class="token comment"># (B, npoints, 1), (B, npoints, 76)</span>
+                rpn_cls<span class="token punctuation">,</span> rpn_reg <span class="token operator">=</span> rpn_output<span class="token punctuation">[</span><span class="token string">'rpn_cls'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> rpn_output<span class="token punctuation">[</span><span class="token string">'rpn_reg'</span><span class="token punctuation">]</span>
+                <span class="token comment"># 原始输入点云数据 (B, npoints, 3)</span>
+                <span class="token comment"># backbone 输出特征 (B, 128, npoints)</span>
+                backbone_xyz<span class="token punctuation">,</span> backbone_features <span class="token operator">=</span> rpn_output<span class="token punctuation">[</span><span class="token string">'backbone_xyz'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> rpn_output<span class="token punctuation">[</span><span class="token string">'backbone_features'</span><span class="token punctuation">]</span>
+                rpn_scores_raw <span class="token operator">=</span> rpn_cls<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span>        <span class="token comment"># 未归一化的点二分类得分，(B, npoints)</span>
+                rpn_scores_norm <span class="token operator">=</span> torch<span class="token punctuation">.</span>sigmoid<span class="token punctuation">(</span>rpn_score_raw<span class="token punctuation">)</span>   <span class="token comment"># RPN 输出二分类得分归一化到 (0, 1)</span>
+                seg_mask <span class="token operator">=</span> <span class="token punctuation">(</span>rpn_scores_norm <span class="token operator">></span> cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>SCORE_THRESH<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">float</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment"># (B, npoints)</span>
+                <span class="token comment"># (B, npoints) 转换到 CCS 坐标，丢失了深度信息，故增加一个点到相机距离作为深度信息</span>
+                pts_depth <span class="token operator">=</span> torch<span class="token punctuation">.</span>norm<span class="token punctuation">(</span>backbone_xyz<span class="token punctuation">,</span> p<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span>    <span class="token comment"># (B, npoints,)</span>
+
+                <span class="token comment"># (B, RPN_POST_NMS_TOP_N, 7),  (B, RPN_POST_NMS_TOP_N)。top n 的点对 box3d 的预测，以及</span>
+                <span class="token comment"># top n 的点二分类得分预测。第二维度实际有效的点的数量不足 RPN_POST_NMS_TOP_N，不足的使用 0 填充</span>
+                rois<span class="token punctuation">,</span> roi_scores_raw <span class="token operator">=</span> self<span class="token punctuation">.</span>rpn<span class="token punctuation">.</span>proposal_layer<span class="token punctuation">(</span>rpn_score_raw<span class="token punctuation">,</span> rpn_reg<span class="token punctuation">,</span> backbone_xyz<span class="token punctuation">)</span>
+
+            <span class="token comment"># save rois, roi_scores_raw, seg_mask to output</span>
+            rcnn_input_info <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">'rpn_xyz'</span><span class="token punctuation">:</span> backbone_xyz<span class="token punctuation">,</span>                             <span class="token comment"># (B, npoints, 3)</span>
+                               <span class="token string">'rpn_features'</span><span class="token punctuation">:</span> backbone_features<span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  <span class="token comment"># (B, npoints, 128)</span>
+                               <span class="token string">'seg_mask'</span><span class="token punctuation">:</span> seg_mask<span class="token punctuation">,</span>                                <span class="token comment"># (B, npoints)</span>
+                               <span class="token string">'roi_boxes3d'</span><span class="token punctuation">:</span> rois<span class="token punctuation">,</span>
+                               <span class="token string">'pts_depth'</span><span class="token punctuation">:</span> pts_depth<span class="token punctuation">&#125;</span>                              <span class="token comment"># (B, npoints)</span>
+            <span class="token keyword">if</span> self<span class="token punctuation">.</span>training<span class="token punctuation">:</span>
+                rcnn_input_info<span class="token punctuation">[</span><span class="token string">'gt_boxes3d'</span><span class="token punctuation">]</span> <span class="token operator">=</span> input_data<span class="token punctuation">[</span><span class="token string">'gt_boxes3d'</span><span class="token punctuation">]</span>
+            rcnn_output <span class="token operator">=</span> self<span class="token punctuation">.</span>rcnn_net<span class="token punctuation">(</span>rcnn_input_info<span class="token punctuation">)</span>
+            output<span class="token punctuation">.</span>update<span class="token punctuation">(</span>rcnn_output<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> output<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这里根据 RPN 输出结果来生成 3D proposals 的过程由 <code>ProposalLayer</code> 类实现，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">ProposalLayer</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> mode<span class="token operator">=</span><span class="token string">'TRAIN'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>mode <span class="token operator">=</span> mode
+        self<span class="token punctuation">.</span>MEAN_SIZE <span class="token operator">=</span> torch<span class="token punctuation">.</span>from_numpy<span class="token punctuation">(</span>cfg<span class="token punctuation">.</span>CLS_MEAN_SIZE<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>cuda<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> rpn_scores<span class="token punctuation">,</span> rpn_reg<span class="token punctuation">,</span> xyz<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        rpn_scores: RPN 点二分类 fg/bg 预测，未归一化，(B, N)
+        rpn_reg: RPN 点对相关 gt box3d 的预测，(B, N, 76)
+        xyz: 输入点云的坐标，(B, N, 3)
+        :return bbox3d: (B, M, 7)
+        '''</span>
+        batch_size <span class="token operator">=</span> xyz<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+        <span class="token comment"># 根据点云中每个点进行 local region 的预测，得到预测 proposals，(B*npoint, 7)</span>
+        <span class="token comment"># 预测的是 bin-based，转换为相机坐标系的 x y z h w l ry</span>
+        proposals <span class="token operator">=</span> decode_bbox_target<span class="token punctuation">(</span>xyz<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">,</span> rpn_reg<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> rpn_reg<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                                       anchor_size<span class="token operator">=</span>self<span class="token punctuation">.</span>MEAN_SIZE<span class="token punctuation">,</span>
+                                       loc_scope<span class="token operator">=</span>cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>LOC_SCOPE<span class="token punctuation">,</span>
+                                       loc_bin_size<span class="token operator">=</span>cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>LOC_BIN_SIZE<span class="token punctuation">,</span>
+                                       num_head_bin<span class="token operator">=</span>cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>NUM_HEAD_BIN<span class="token punctuation">,</span>
+                                       get_xz_fine<span class="token operator">=</span>cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>LOC_XZ_FINE<span class="token punctuation">,</span>
+                                       get_y_by_bin<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+                                       get_ry_fine<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+        <span class="token comment"># 将体中心 Y 坐标变为底部面中心 Y 坐标，由于 Y 轴方向向下，所以 Y 坐标增大</span>
+        proposals<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+=</span> proposals<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">/</span> <span class="token number">2</span>
+        proposals <span class="token operator">=</span> proposals<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">)</span>   <span class="token comment"># (B, N, 7)</span>
+
+        scores <span class="token operator">=</span> rpn_scores     <span class="token comment"># 点云的二分类得分，(B, N)</span>
+        _<span class="token punctuation">,</span> sorted_idxs <span class="token operator">=</span> torch<span class="token punctuation">.</span>sort<span class="token punctuation">(</span>scores<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span> descending<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span> <span class="token comment"># 得分排序  (B, N)</span>
+
+        <span class="token comment"># (B, 512, 7)，NMS 之后选 top 512 个 proposals，以及相应的得分</span>
+        ret_bbox3d <span class="token operator">=</span> scores<span class="token punctuation">.</span>new<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> cfg<span class="token punctuation">[</span>self<span class="token punctuation">.</span>mode<span class="token punctuation">]</span><span class="token punctuation">.</span>RPN_POST_NMS_TOP_N<span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">.</span>zero_<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        ret_scores <span class="token operator">=</span> scores<span class="token punctuation">.</span>new<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> cfg<span class="token punctuation">[</span>self<span class="token punctuation">.</span>mode<span class="token punctuation">]</span><span class="token punctuation">.</span>RPN_POST_NMS_TOP_N<span class="token punctuation">)</span><span class="token punctuation">.</span>zero_<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">for</span> k <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>batch_size<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            scores_single <span class="token operator">=</span> scores<span class="token punctuation">[</span>k<span class="token punctuation">]</span>           <span class="token comment"># (N,)</span>
+            proposals_single <span class="token operator">=</span> proposals<span class="token punctuation">[</span>k<span class="token punctuation">]</span>     <span class="token comment"># (N, 7)</span>
+            order_single <span class="token operator">=</span> sorted_idxs<span class="token punctuation">[</span>k<span class="token punctuation">]</span>       <span class="token comment"># (N,)，N 个点的得分排序</span>
+
+            <span class="token keyword">if</span> cfg<span class="token punctuation">.</span>TEST<span class="token punctuation">.</span>RPN_DISTANCE_BASED_PROPOSE<span class="token punctuation">:</span> <span class="token comment"># 基于距离的 NMS</span>
+                <span class="token comment"># (n1+n2,)  (n1+n2, 7) </span>
+                <span class="token comment"># top n 的点的二分类得分，以及基于各个点 local region 对 box3d 的预测 (x,y,z,h,w,l,ry)</span>
+                scores_single<span class="token punctuation">,</span> proposals_single <span class="token operator">=</span> self<span class="token punctuation">.</span>distance_based_proposal<span class="token punctuation">(</span>scores_single<span class="token punctuation">,</span> 
+                                                                               proposals_single<span class="token punctuation">,</span> order_single<span class="token punctuation">)</span>
+            <span class="token keyword">else</span><span class="token punctuation">:</span>
+                <span class="token keyword">pass</span>
+            proposals_tot <span class="token operator">=</span> proposals_single<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+            ret_bbox3d<span class="token punctuation">[</span>k<span class="token punctuation">,</span> <span class="token punctuation">:</span>proposals_tot<span class="token punctuation">]</span> <span class="token operator">=</span> proposals_single
+            ret_scores<span class="token punctuation">[</span>k<span class="token punctuation">,</span> <span class="token punctuation">:</span>proposals_tot<span class="token punctuation">]</span> <span class="token operator">=</span> scores_single
+    <span class="token keyword">return</span> ret_bbox3d<span class="token punctuation">,</span> ret_scores <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中 <code>decode_bbox_target</code> 函数是根据 RPN 的输出恢复出各个 point 对物体的预测（预测物体的 xyzhwl,ry 7个数值)，函数定义为，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">decode_bbox_target</span><span class="token punctuation">(</span>roi_box3d<span class="token punctuation">,</span> pred_reg<span class="token punctuation">,</span> loc_scope<span class="token punctuation">,</span> loc_bin_size<span class="token punctuation">,</span> num_head_bin<span class="token punctuation">,</span> anchor_size<span class="token punctuation">,</span>
+                       get_xz_fine<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> get_y_by_bin<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> loc_y_scope<span class="token operator">=</span><span class="token number">0.5</span><span class="token punctuation">,</span> loc_y_bin_size<span class="token operator">=</span><span class="token number">0.25</span><span class="token punctuation">,</span>
+                       get_ry_fine<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    roi_box3d: (B * npoints, 3) 模型的原始输入点云
+    pred_reg: (B * npoints, 76)
+    loc_scope: 3m， RPN 的 X Z 轴的搜索半径
+    loc_bin_size: 0.5m，RPN 的 X Z 轴 bin size
+    num_head_bin: 朝向角的 bin 数量
+    anchor_size: 长度为 3 的列表，表示数据集中同一类的 box3d 的 h w l
+    get_y_by_bin: bool 类型，表示是否对 Y 坐标使用 bin-based 预测
+    '''</span>
+    anchor_size <span class="token operator">=</span> anchor_size<span class="token punctuation">.</span>to<span class="token punctuation">(</span>roi_box3d<span class="token punctuation">.</span>get_device<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>    <span class="token comment"># 训练集中同一分类的 box3d, hwl 的平均值</span>
+    per_loc_bin_num <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>loc_scope <span class="token operator">/</span> loc_bin_size<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">2</span>     <span class="token comment"># RPN 的 X, Z  bin-based, 12 个 bin</span>
+    loc_y_bin_num <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>loc_y_scope <span class="token operator">/</span> loc_y_bin_size<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">2</span>   <span class="token comment"># Y bin-based， 4 个 bin</span>
+
+    x_bin_l<span class="token punctuation">,</span> x_bin_r <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> per_loc_bin_num
+    z_bin_l<span class="token punctuation">,</span> z_bin_r <span class="token operator">=</span> per_loc_bin_num<span class="token punctuation">,</span> per_loc_bin_num <span class="token operator">*</span> <span class="token number">2</span>
+    start_offset <span class="token operator">=</span> z_bin_r
+
+    x_bin <span class="token operator">=</span> torch<span class="token punctuation">.</span>argmax<span class="token punctuation">(</span>pred_reg<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> x_bin_l<span class="token punctuation">:</span>x_bin_r<span class="token punctuation">]</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>      <span class="token comment"># (B*npoints,) 预测最可能的 x bin index</span>
+    z_bin <span class="token operator">=</span> torch<span class="token punctuation">.</span>argmax<span class="token punctuation">(</span>pred_reg<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> z_bin_l<span class="token punctuation">:</span>x_bin_r<span class="token punctuation">]</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>      <span class="token comment"># (B*npoints,) 预测最可能的 z bin index</span>
+
+    pos_x <span class="token operator">=</span> x_bin<span class="token punctuation">.</span><span class="token builtin">float</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> loc_bin_size <span class="token operator">+</span> loc_bin_size <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">-</span> loc_scope <span class="token comment"># 这个最可能的 bin 中心X坐标 - 当前点X坐标</span>
+    pos_y <span class="token operator">=</span> z_bin<span class="token punctuation">.</span><span class="token builtin">float</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> loc_bin_size <span class="token operator">+</span> loc_bin_size <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">-</span> loc_scope <span class="token comment"># 这个最可能的 bin 中心X坐标 - 当前点X坐标</span>
+
+    <span class="token keyword">if</span> get_xz_fine<span class="token punctuation">:</span>     <span class="token comment"># 使用 residual</span>
+        x_res_l<span class="token punctuation">,</span> x_res_r <span class="token operator">=</span> per_loc_bin_num <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">,</span> per_loc_bin_num <span class="token operator">*</span> <span class="token number">3</span>
+        y_res_l<span class="token punctuation">,</span> y_res_r <span class="token operator">=</span> per_loc_bin_num <span class="token operator">*</span> <span class="token number">3</span><span class="token punctuation">,</span> per_loc_bin_num <span class="token operator">*</span> <span class="token number">4</span>
+        start_offset <span class="token operator">=</span> z_res_r
+
+        <span class="token comment"># 根据 bin index，获取相应的 bin residual</span>
+        x_res_norm <span class="token operator">=</span> torch<span class="token punctuation">.</span>gather<span class="token punctuation">(</span>pred_reg<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> x_res_l<span class="token punctuation">:</span>x_res_r<span class="token punctuation">]</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span> index<span class="token operator">=</span>x_bin<span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>squeeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+        z_res_norm <span class="token operator">=</span> torch<span class="token punctuation">.</span>gather<span class="token punctuation">(</span>pred_reg<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> z_res_l<span class="token punctuation">:</span>z_res_r<span class="token punctuation">]</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span> index<span class="token operator">=</span>x_bin<span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>squeeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+        x_res <span class="token operator">=</span> x_res_norm <span class="token operator">*</span> loc_bin_size   <span class="token comment"># 预测的是归一化值 [-1/2，1/2）， x bin size，得到实际的 residual</span>
+        z_res <span class="token operator">=</span> z_res_norm <span class="token operator">*</span> loc_bin_size
+
+        pos_x <span class="token operator">+=</span> x_res      <span class="token comment"># 预测物体中心点X坐标 - 当前点X坐标。</span>
+        pos_z <span class="token operator">+=</span> z_res      <span class="token comment"># 预测物体中心点Y坐标 - 当前点Y坐标。参见 PointRCNN 论文解读（一） 一文中的图2</span>
+    
+    <span class="token keyword">if</span> get_y_by_bin<span class="token punctuation">:</span>    <span class="token comment"># 不使用 Y bin-based</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>               <span class="token comment"># 直接使用 Y residual，即 center_y - point_y</span>
+        y_offset_l<span class="token punctuation">,</span> y_offset_r <span class="token operator">=</span> start_offset<span class="token punctuation">,</span> start_offset<span class="token operator">+</span><span class="token number">1</span>
+        start_offset <span class="token operator">=</span> y_offset_r
+
+        pos_y <span class="token operator">=</span> roi_box3d<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> pred_reg<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span>y_offset_l<span class="token punctuation">]</span>     <span class="token comment"># center_y，中心点Y坐标预测</span>
+    
+    <span class="token comment"># rotation_y  bin-based</span>
+    ry_bin_l<span class="token punctuation">,</span> ry_bin_r <span class="token operator">=</span> start_offset<span class="token punctuation">,</span> start_offset <span class="token operator">+</span> num_head_bin
+    ry_res_l<span class="token punctuation">,</span> ry_res_r <span class="token operator">=</span> ry_bin_r<span class="token punctuation">,</span> ry_bin_r <span class="token operator">+</span> num_head_bin
+
+    ry_bin <span class="token operator">=</span> torch<span class="token punctuation">.</span>argmax<span class="token punctuation">(</span>pred_reg<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> ry_bin_l<span class="token punctuation">:</span>ry_bin_r<span class="token punctuation">]</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>    <span class="token comment"># 对 ry bin index 的预测</span>
+    <span class="token comment"># </span>
+    ry_res_norm <span class="token operator">=</span> torch<span class="token punctuation">.</span>gather<span class="token punctuation">(</span>pred_reg<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> ry_res_l<span class="token punctuation">:</span>ry_res_r<span class="token punctuation">]</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span> index<span class="token operator">=</span>ry_bin<span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>squeeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> get_ry_fine<span class="token punctuation">:</span>     <span class="token comment"># False, RPN 角度预测不精调，将 [-pi, pi] 划分为 n 个 bin</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>             <span class="token comment"># RCNN 精调角度预测，将 [-pi/4, pi/4] 范围划分为 n 个 bin</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        angle_per_class <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">*</span> np<span class="token punctuation">.</span>pi<span class="token punctuation">)</span> <span class="token operator">/</span> num_head_bin    <span class="token comment"># 每个 bin 张开角度</span>
+        ry_res <span class="token operator">=</span> ry_res_norm <span class="token operator">*</span> <span class="token punctuation">(</span>angle_per_class <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span>    <span class="token comment"># theta 角度预测是归一化到 [-1, 1]，所以需要先scale 到[-0.5, 0.5]</span>
+                                                        <span class="token comment"># 然后再 scale 到实际角度，* delta</span>
+        <span class="token comment"># 参见 PointRCNN 论文解读（一）一文的 (13) 式</span>
+        ry <span class="token operator">=</span> <span class="token punctuation">(</span>ry_bin<span class="token punctuation">.</span><span class="token builtin">float</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> angle_per_class <span class="token operator">+</span> ry_res<span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">*</span> np<span class="token punctuation">.</span>pi<span class="token punctuation">)</span>
+        ry<span class="token punctuation">[</span>ry <span class="token operator">></span> np<span class="token punctuation">.</span>pi<span class="token punctuation">]</span> <span class="token operator">-=</span> <span class="token number">2</span><span class="token operator">*</span>np<span class="token punctuation">.</span>pi   <span class="token comment"># 将 [pi, 2pi] 范围内的角转为 [-pi, 0]</span>
+    size_res_l<span class="token punctuation">,</span> size_res_r <span class="token operator">=</span> ry_res_r<span class="token punctuation">,</span> ry_res_r <span class="token operator">+</span> <span class="token number">3</span>     <span class="token comment"># hwl 的回归预测</span>
+    <span class="token keyword">assert</span> size_res_r <span class="token operator">==</span> pred_reg<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span>
+    size_res_norm <span class="token operator">=</span> pred_reg<span class="token punctuation">[</span><span class="token punctuation">:</span>size_res_l<span class="token punctuation">:</span>size_res<span class="token punctuation">:</span>r<span class="token punctuation">]</span>    <span class="token comment"># 是针对同类size均值的归一化</span>
+    hwl <span class="token operator">=</span> size_res_norm <span class="token operator">*</span> anchor_size <span class="token operator">+</span> anchor_size
+
+    roi_center <span class="token operator">=</span> roi_box3d<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">:</span><span class="token number">3</span><span class="token punctuation">]</span>  <span class="token comment"># 每个点均独立进行一个 box3d 的预测</span>
+    <span class="token comment"># (B*npoints, 7)</span>
+    shift_ret_box3d <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span><span class="token punctuation">(</span>pos_x<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> pos_y<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> pos_z<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> hwl<span class="token punctuation">,</span> ry<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+    ret_box3d <span class="token operator">=</span> shift_ret_box3d
+    <span class="token keyword">if</span> roi_box3d<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token number">7</span><span class="token punctuation">:</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token comment"># 第二维度为 3</span>
+    ret_box3d<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span> <span class="token operator">+=</span> roi_center<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span>       <span class="token comment"># 加上当前点坐标，得到预测物体中心点 X,Z 坐标</span>
+    <span class="token keyword">return</span> ret_box3d    <span class="token comment"># (B*npoint, 7)，预测的物体中心点坐标，预测物体 hwl 和 ry</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>点云中每个点均进行物体 box3d 的预测，显然这会生成大量 proposals，类似 2d 目标检测中那样，使用 NMS 方法降低 proposals 数量，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">distance_based_proposal</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> scores<span class="token punctuation">,</span> proposals<span class="token punctuation">,</span> order<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    scores: (N,) 当前样本中各点的二分类得分，未排序
+    proposals: (N, 7) 各点对物体的 box3d 预测，未排序
+    order: (N,) 各点二分类得分降序排列 index
+    '''</span>
+    nms_range_list <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">40.0</span><span class="token punctuation">,</span> <span class="token number">80.0</span><span class="token punctuation">]</span>
+    pre_tot_top_n <span class="token operator">=</span> cfg<span class="token punctuation">[</span>self<span class="token punctuation">.</span>mode<span class="token punctuation">]</span><span class="token punctuation">.</span>RPN_PRE_NMS_TOP_N    <span class="token comment"># 9000</span>
+    pre_top_n_list <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token builtin">int</span><span class="token punctuation">(</span>pre_tot_top_n <span class="token operator">*</span> <span class="token number">0.7</span><span class="token punctuation">)</span><span class="token punctuation">,</span> pre_tot_top_n <span class="token operator">-</span> <span class="token builtin">int</span><span class="token punctuation">(</span>pre_tot_top_n <span class="token operator">*</span> <span class="token number">0.7</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+    post_tot_top_n <span class="token operator">=</span> cfg<span class="token punctuation">[</span>self<span class="token punctuation">.</span>mode<span class="token punctuation">]</span><span class="token punctuation">.</span>RPN_POST_NMS_TOP_N  <span class="token comment"># 512</span>
+    post_top_n_list <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token builtin">int</span><span class="token punctuation">(</span>post_tot_top_n <span class="token operator">*</span> <span class="token number">0.7</span><span class="token punctuation">)</span><span class="token punctuation">,</span> post_tot_top_n <span class="token operator">-</span> <span class="token builtin">int</span><span class="token punctuation">(</span>post_tot_top_n <span class="token operator">*</span> <span class="token number">0.7</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+    <span class="token comment"># 分两个（Z坐标）范围段 0~40， 40~80，分别称为 range1 和 range2</span>
+    <span class="token comment"># range1 内取 top 6300 个点，range2 内取 top 2700 个点（由于range2较远，如果range2内无任何点，那么到range1内取top2700个点）</span>
+    <span class="token comment"># 将 range 内所取点的预测 box3d 转为 bev</span>
+    scores_single_list<span class="token punctuation">,</span> proposals_single_list <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+
+    scores_ordered <span class="token operator">=</span> scores<span class="token punctuation">[</span>order<span class="token punctuation">]</span>
+    proposals_ordered <span class="token operator">=</span> proposals<span class="token punctuation">[</span>order<span class="token punctuation">]</span>
+
+    dist <span class="token operator">=</span> proposals_order<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span>    <span class="token comment"># Z 坐标，(N,)</span>
+    first_mark <span class="token operator">=</span> <span class="token punctuation">(</span>dist <span class="token operator">></span> nms_range_list<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token punctuation">(</span>dist <span class="token operator">&lt;=</span> nms_range_list<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>   <span class="token comment"># Z坐标40米之内的点 index</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>nms_range_list<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token comment"># [1, 2]</span>
+        dist_mark <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>dist <span class="token operator">></span> nms_range_list<span class="token punctuation">[</span>i<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token punctuation">(</span>dist <span class="token operator">&lt;=</span> nms_range_list<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> dist_mark<span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">:</span>
+            cur_scores <span class="token operator">=</span> scores_ordered<span class="token punctuation">[</span>dist_mask<span class="token punctuation">]</span>      <span class="token comment"># 满足 Z 坐标范围的点</span>
+            cur_proposals <span class="token operator">=</span> proposals_ordered<span class="token punctuation">[</span>dist_mask<span class="token punctuation">]</span>
+
+            cur_scores <span class="token operator">=</span> cur_scores<span class="token punctuation">[</span><span class="token punctuation">:</span>pre_top_n_list<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">]</span>
+            cur_proposals <span class="token operator">=</span> cur_proposals<span class="token punctuation">[</span><span class="token punctuation">:</span>pre_top_n_List<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">]</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">assert</span> i <span class="token operator">==</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token string">'%d'</span> <span class="token operator">%</span> i
+            cur_scores <span class="token operator">=</span> scores_ordered<span class="token punctuation">[</span>first_mask<span class="token punctuation">]</span>
+            cur_proposals <span class="token operator">=</span> proposals_ordered<span class="token punctuation">[</span>first_mask<span class="token punctuation">]</span>
+
+            cur_scores <span class="token operator">=</span> cur_scores<span class="token punctuation">[</span>pre_top_n_list<span class="token punctuation">[</span>i<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">:</span> pre_top_n_list<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">]</span>
+            cur_proposals <span class="token operator">=</span> cur_proposals<span class="token punctuation">[</span>pre_top_n_list<span class="token punctuation">[</span>i<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">:</span> pre_top_n_list<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">]</span>
+        
+        <span class="token comment"># box3d 转鸟瞰图，得到鸟瞰图的 (x1y1x2y2, ry)，注意这个bev坐标值是相机坐标系逆时针旋转ry所得</span>
+        boxes_bev <span class="token operator">=</span> kitti_utils<span class="token punctuation">.</span>boxes3d_to_bev_torch<span class="token punctuation">(</span>cur_proposals<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>NMS_TYPE <span class="token operator">==</span> <span class="token string">'rotate'</span><span class="token punctuation">:</span>
+            <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+        <span class="token keyword">elif</span> cfg<span class="token punctuation">.</span>RPN<span class="token punctuation">.</span>NMS_TYPE <span class="token operator">==</span> <span class="token string">'normal'</span><span class="token punctuation">:</span>  <span class="token comment"># RPN_NMS_THRESH: 0.85。执行 NMS，得到需要保留的点 index</span>
+            keep_idx <span class="token operator">=</span> iou3d_utils<span class="token punctuation">.</span>nms_normal_gpu<span class="token punctuation">(</span>boxes_bev<span class="token punctuation">,</span> cur_scores<span class="token punctuation">,</span> cfg<span class="token punctuation">[</span>self<span class="token punctuation">.</span>mode<span class="token punctuation">]</span><span class="token punctuation">.</span>RPN_NMS_THRESH<span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">raise</span> NotImplementedError
+        keep_idx <span class="token operator">=</span> keep_idx<span class="token punctuation">[</span><span class="token punctuation">:</span>post_top_n_list<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">]</span>    <span class="token comment"># NMS 之后，再取 top n 的点 index</span>
+
+        scores_single_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>cur_scores<span class="token punctuation">[</span>keep_idx<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token comment"># NMS 之后 top n 的点的得分</span>
+        proposals_single_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>cur_proposals<span class="token punctuation">[</span>keep_idx<span class="token punctuation">]</span><span class="token punctuation">)</span>   <span class="token comment"># NMS 之后 top n 的点得分</span>
+
+    scores_single <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span>scores_single_list<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span>    <span class="token comment"># [n1, n2] -> (n1+n2,)</span>
+    proposals_single <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span>proposals_single_list<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span>  <span class="token comment"># (n1+n2, 7)， n1+n2 &lt;= RPN_POST_NMS_TOP_N</span>
+    <span class="token keyword">return</span> scores_single<span class="token punctuation">,</span> proposals_single<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上述代码中，根据 Z 坐标的远近分成两个范围，这两个范围内分别执行：</p>
+<ol>
+<li>根据得分取 top pre_n 的点</li>
+<li>执行 NMS</li>
+<li>取 top post_n 的点</li>
+</ol>
+<p>两个范围内的点的 top post_n 的点再 concatenate，得到 pre_n + post_n 个点。第 2 步中 NMS 方法为 <code>nms_normal_gpu</code> ，其函数内部又调用了 <code>iou3d_cuda.nms_normal_gpu</code> 方法，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">int nms_normal_gpu(at::Tensor boxes, at::Tensor keep, float nms_overlap_thresh) &#123;
+    &#x2F;&#x2F; 按得分降序排列的 bev boxes: (N, 5) -&gt; (x1,y1,x2,y2,ry)
+    &#x2F;&#x2F; keep: NMS 之后，需要保留的 index
+    &#x2F;&#x2F; nms_overlap_thresh: train-&gt;0.85  test-&gt;0.8
+    int boxes_num &#x3D; boxes.size(0)   
+    const float *boxes_data &#x3D; boxes.data&lt;float&gt;();  
+    long *keep_data &#x3D; keep.data&lt;long&gt;(); &#x2F;&#x2F; 记录被保留的 box 在原 boxes 数组中的下标
+
+    &#x2F;&#x2F; ceil(N &#x2F; 64) 。blocks 数量
+    const int col_blocks &#x3D; DIVUP(boxes_num, THREADS_PER_BLOCK_NMS);
+
+    unsigned long long *mask_data &#x3D; NULL;   &#x2F;&#x2F; mask_data: 长度为 N x M 的向量，参见下方原理说明
+    CHECK_ERROR(cudaMalloc((void**)&amp;mask_data, boxes_num * col_blocks * sizeof(unsigned long long)));
+    nmsNormalLaucher(boxes_data, mask_data, boxes_num, nms_overlap_thresh); &#x2F;&#x2F; 使用 GPU 并行执行 NMS
+                                                                            &#x2F;&#x2F; 代码和原理见下文
+    std::vector&lt;unsigned long long&gt; mask_cpu(boxes_num * col_blocks);
+    CHECK_ERROR(cudaMemcpy(&amp;mask_cpu[0], mask_data, boxes_num * col_blocks * sizeof(unsigned long long),
+                           cudaMemcpyDeviceToHost));
+    cudaFree(mask_data);
+
+    unsigned long long remv_cpu[col_blocks];    
+    &#x2F;&#x2F; M 长度的 vector，第 i 个元素的前 THREADS_PER_BLOCK_NMS 个 bit 表示第 i 组 boxes 是否被抑制
+    memset(remv_cpu, 0, col_blocks * sizeof(unsigned long long));
+
+    int num_to_keep &#x3D; 0; &#x2F;&#x2F; 记录被保留的 box 数量
+
+    for (int i &#x3D; 0; i &lt; boxes_num; i++) &#123;
+        int nblock &#x3D; i &#x2F; THREADS_PER_BLOCK_NMS; &#x2F;&#x2F; 这个 box 所在分组 index
+        int inblock &#x3D; i % THREADS_PER_BLOCK_NMS;&#x2F;&#x2F; 组内下标
+
+        &#x2F;&#x2F; 求分组 index 所在位置的向量元素的第 inblock bit 值(0 or 1)
+        if (!(remv_cpu[nblock] &amp; （1ULL &lt;&lt; inblock)) &#123;&#x2F;&#x2F; 如果为 0，即未被抑制
+            keep_data[num_to_keep++] &#x3D; i;
+            &#x2F;&#x2F; 这个未被抑制的 box，记为 box a，获取被 box a 所抑制的 box index 信息
+            &#x2F;&#x2F; mask 中对每个 box 均计算了 col_blocks 个 group，指针移到这 col_blocks 个组
+            &#x2F;&#x2F;      的掩码信息起始处 (p 处)，考虑 p 处开始的 col_blocks 个组被 box a 抑制情况
+            unsigned long long *p &#x3D; &amp;mask_cpu[0] + i * col_blocks;
+            &#x2F;&#x2F; box a 所在分组为 nblocks，那么 col_blocks 个组中前 (nblocks-1) 个分组的掩码信息
+            &#x2F;&#x2F;      没必要再考虑，因为对称性。相当于只考虑掩码矩阵的上三角信息
+            for (int j &#x3D; nblocks; j &lt; col_blocks; j++) &#123;
+                remv_cpu[j] |&#x3D; p[j]     &#x2F;&#x2F; 或运算，只要被某个box抑制，那么这组就被抑制
+            &#125;
+        &#125;
+    &#125;
+    if ( cudaSuccess !&#x3D; cudaGetLastError() ) printf( &quot;Error!\n&quot; );
+    return num_to_keep;
+&#125;
+
+void nmsNormalLauncher(const float *boxes, unsigned long long *mask, int boxes_num, float nms_overlap_thresh) &#123;
+    dim3 blocks(DIVUP(boxes_num, THREADS_PER_BLOCK_NMS),
+                DIVUP(boxes_num, THREADS_PER_BLOCK_NMS));   &#x2F;&#x2F; 分配 ceil(N&#x2F;64) * ceil(N&#x2F;64) 个 blocks
+    dim3 threads(THREADS_PER_BLOCK_NMS);    &#x2F;&#x2F; 一个 block 有 64 个线程
+    nms_normal_kernel&lt;&lt;blocks, threads&gt;&gt;(boxes_num, nms_overlap_thread, boxes, mask);
+&#125;
+
+&#x2F;&#x2F; GPU 并行计算 nms 的代码，原理见下文说明。
+__global__ void nms_normal_kernel(const int boxes_num, const float nms_overlap_thread,
+                                  const float *boxes, unsigned long long *mask) &#123;
+    &#x2F;&#x2F; NMS 的输入 boxes: (N, 5) (x1,y1,x2,y2,ry)
+    &#x2F;&#x2F; mask: (N, ceil(N&#x2F;64) )  
+    &#x2F;&#x2F; THREADS_PER_BLOCK_NMS &#x3D; 64
+    const int row_start &#x3D; blockIdx.y    &#x2F;&#x2F; block 的 x, y 坐标。block 是二维 grid
+    const int col_start &#x3D; blockIdx.x
+
+    &#x2F;&#x2F; 行方向上 block 有效大小。最后一个 block 可能不足 64
+    const int row_size &#x3D; fminf(boxes_num - row_start * THREADS_PER_BLOCK_NMS, THREADS_PER_BLOCK_NMS);
+    &#x2F;&#x2F; 列方向上 block 有效大小。最后一个 block 可能不足 64
+    const int col_size &#x3D; fminf(boxes_num - col_start * THREADS_PER_BLOCK_NMS, THREADS_PER_BLOCK_NMS);
+
+    __shared__ float block_boxes[THREADS_PER_BLOCK_NMS * 5];    &#x2F;&#x2F; 一个 block 内各线程共享的内存块
+
+    if (threadIdx.x &lt; col_size) &#123;   &#x2F;&#x2F; 如果条件不满足，那么实际上此线性不需要干活
+        &#x2F;&#x2F; 当前线性填充一个 box
+        &#x2F;&#x2F; 每一列对应一个 box，所有列对应所有box
+        &#x2F;&#x2F; 每一行都进行相同的填充
+        &#x2F;&#x2F; 水平方向看，某个 box 对应某列 blocks 内的第几个 thread
+        block_boxes[threadIdx.x * 5 + 0] &#x3D; boxes[(THREADS_PER_BLOCK_NMS * col_start + threadIdx.x) * 5 + 0];
+        block_boxes[threadIdx.x * 5 + 1] &#x3D; boxes[(THREADS_PER_BLOCK_NMS * col_start + threadIdx.x) * 5 + 1];
+        block_boxes[threadIdx.x * 5 + 2] &#x3D; boxes[(THREADS_PER_BLOCK_NMS * col_start + threadIdx.x) * 5 + 2];
+        block_boxes[threadIdx.x * 5 + 3] &#x3D; boxes[(THREADS_PER_BLOCK_NMS * col_start + threadIdx.x) * 5 + 3];
+        block_boxes[threadIdx.x * 5 + 4] &#x3D; boxes[(THREADS_PER_BLOCK_NMS * col_start + threadIdx.x) * 5 + 4];
+    &#125;
+    __syncthreads();        &#x2F;&#x2F; 等待 block 内所有线程填充完毕
+
+    if (threadIdx.x &lt; row_size) &#123; &#x2F;&#x2F; 如果条件不满足，那么此线性不需要干活
+        &#x2F;&#x2F; 计算 子 IOU 的某一行，行的 global index 为 cur_box_idx，
+        const int cur_box_idx &#x3D; THREADS_PER_BLOCK_NMS * row_start + threadIdx.x;
+        const float *cur_box &#x3D; boxes + cur_box_idx * 5;
+
+        int i &#x3D; 0;
+        unsigned long long t &#x3D; 0;
+        int start &#x3D; 0;
+        if (row_start &#x3D;&#x3D; col_start) &#123;   &#x2F;&#x2F; 子矩阵的 行号和列号相等，那么计算上三角矩阵元素（去掉主对角线）
+            start &#x3D; threadIdx.x + 1;    &#x2F;&#x2F; 去掉主对角线，因为主对角线元素为最大 IOU 值 1
+        &#125;
+
+        for (i &#x3D; start; i &lt; col_size; i++) &#123;    &#x2F;&#x2F; 计算子矩阵中，上三角中的某行，行号为 threadIdx.x
+            &#x2F;&#x2F; 列号为 i，如果 IOU &gt; thresh，那么列号所表示的 box 应当被抑制
+            if (iou_normal(cur_box, block_boxes + i * 5) &gt; nms_overlap_thresh) &#123;
+                t |&#x3D; 1ULL &lt;&lt; i; &#x2F;&#x2F; 标记子矩阵中，第 i+1 位 为 1（表示被抑制）
+            &#125;
+        &#125;
+        const int col_blocks &#x3D; DIVUP(boxes_num, THREADS_PER_BLOCK_NMS);
+        mask[cur_box_idx * col_blocks + col_start] &#x3D; t;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>要完全理解以上代码，我们还需要搞清楚并行计算 IOU 的原理。</p>
+<p>通常而言，NMS 一组 boxes 的步骤为：</p>
+<ol>
+<li>boxes 按得分降序排列。记 boxes 为 N。</li>
+<li>计算两两 box 之间的 IOU，得到一个 $N \times N$ 的 IOU 矩阵。</li>
+<li>IOU &gt; thread 的那个较大 index 的 box 被抑制</li>
+</ol>
+<p>记 boxes 数量为 N，使用 GPU 计算，将 boxes 进行分组，每组 p 个 boxes，那么一共有 $M=\lceil N / p \rceil$ 组，一个组称为一个 block，于是一个 block 内最多 p 个 boxes，因为最后一个 block 可能不足 p 个 boxes。以 block 为基本单位（类比上面计算 NMS 三个步骤 中的 box），也就是说，两两 block 之间计算 IOU，最终就能得到所有 boxes 的 IOU。创建一个 $M \times M$ 的 block 矩阵，这个矩阵内的某个 block 的 index 使用行列坐标 $(r, c)$ 表示，其中 $1 \le r,c \le M$，从行和列角度看，分别对应 boxes 的 index 范围为</p>
+<p>$$\mathbb R_r=[p_r * (r-1)+1, p_r * r], \quad \mathbb R_c=[p_c * (c-1)+1, p_c * c]$$</p>
+<p>其中 $p_c$ 定义如下（$p_r$ 定义类似，只要将条件中的 c 改为 r 即可），</p>
+<p>$$p_c=\begin{cases} p &amp; c &lt; M \ \text{or} \ N \ \text{mod} \ p=0 \ N \ \text{mod} \ p &amp; \text{o.w.} \end{cases}$$</p>
+<p>即 $|\mathbb R_r| = p_r, \ |\mathbb R_c| = p_c$ 。</p>
+<p>于是 block $(r,c)$ 的任务就是计算 $\mathbb R_r$ 与 $\mathbb R_c$ boxes 之间的 IOU。这个思想本质是将最终的 $N \times N$ IOU 矩阵划分为 $M \times M$ 个子矩阵，每个 IOU 子矩阵由一个 block 负责计算。</p>
+<p>进一步看单个 block 内部如何计算。对于 block $(r, c)$，我们使用 p 个线程，每个线程计算 $p_r \times p_c$ IOU 子矩阵中的一行。</p>
+<p>特殊地，如果 $r=c$，那么 $\mathbb R_r = \mathbb R_c$，即同一小组 boxes 内的两两 box 计算 IOU，即这个子 IOU 矩阵是对称的，此时我们可以计算这个子 IOU 矩阵的上三角元素，甚至不用计算主对角线元素（因为主对角线元素为最大值 1）。</p>
+<p>对每个计算出的 IOU，判断其是否大于阈值 <code>nms_overlap_thresh</code>，如是，那么对应位置标记为 1，表示被抑制。</p>
+<p>block $(r, c)$ 中某个线程其线程 id 记为 $i \in [1, p_r]$，这个线程需要计算子 IOU 中第 $i$ 行共 $p_c$ 个 IOU，当然如果 $r=c$，那么只需要计算 $p_c-i$ 个 IOU（上三角除主对角线的第 i 行元素数量）。</p>
+<p>使用 <code>mask</code> 作为全局变量记录所有将被抑制的 box index，<code>mask</code> 是长度为 $N \times M$ 的向量，每个向量元素为 <code>unsigned long long</code> 类型的变量，记为 <code>t</code>，记录某个子矩阵中某行中被抑制的 box index，<code>t</code> 的从低到高的前 $p_c$ 个 bit 记录了掩码信息，所以实际上 $N \times M$ 大小的 <code>mask</code> 记录了 $N \times N$ 的掩码信息。</p>
+<p>代码中 NMS 类型有 <code>normal</code> 和 <code>rotate</code> 两种，我个人觉得使用 <code>rotate</code> 才合理，因为这种计算方式考虑了 BEV box 的偏向角，但是代码配置中默认使用 <code>normal</code> ，可能是因为计算量大大减少，且准确率下降并不大，综合效果更好的原因吧，没有实际比较过，这里存疑。</p>
+<p>以上，得到 rois 之后，就打包 RCNN 网络的输入，参见以上 model forward 方法代码中的变量 <code>rcnn_input_info</code> 。</p>
+<h2 id="1-3-RCNNNet">1.3 RCNNNet</h2>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">RCNNNet</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> num_classes<span class="token punctuation">,</span> input_channels<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span> use_xyz<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        num_classes: 分类数量。这里以 Car 分类为例说明。虽然指定了 Car 分类，但
+                    实际上还包括 Background。具体参见 KittiRCNNDataset 类
+        input_channels: 128。 RPN 中 backbone 的输出特征 channel
+        '''</span>
+        <span class="token comment"># 由于代码示例使用了 Car 分类，故 RCNN 中只有 bg 和 Car 二分类</span>
+        <span class="token comment"># RCNN 子网络中，输入首先经过整合，然后是 Pointnet Set abstraction 下采样和 MLP</span>
+        <span class="token comment"># 最后分别喂给 cls head 和 reg head</span>
+        <span class="token comment"># cls head 是三个 conv1d，输出 channel 为 [512, 256, 256, 1]</span>
+        cls_channel <span class="token operator">=</span> <span class="token number">1</span> <span class="token keyword">if</span> num_classes <span class="token operator">==</span> <span class="token number">2</span> <span class="token keyword">else</span> num_classes    <span class="token comment"># 二分类使用一个分类得分</span>
+
+        <span class="token comment"># reg 预测也是 bin-based，但是 bin 搜索范围比 RPN 的小</span>
+        per_loc_bin_num <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>LOC_SCOPE <span class="token operator">/</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>LOC_BIN_SIZE<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">2</span>
+        loc_y_bin_num <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>LOC_Y_SCOPE <span class="token operator">/</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>LOC_Y_BIN_SIZE<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">2</span>
+        <span class="token comment"># 1. x,z 的 bin index 和 bin residual</span>
+        <span class="token comment"># 2. ry 角度的 bin index 和 bin residual</span>
+        <span class="token comment"># 3. h w l ，直接回归预测</span>
+        reg_channel <span class="token operator">=</span> per_loc_bin_num <span class="token operator">*</span> <span class="token number">4</span> <span class="token operator">+</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>NUM_HEAD_BIN <span class="token operator">*</span> <span class="token number">2</span> <span class="token operator">+</span> <span class="token number">3</span>
+        <span class="token comment"># 4. y 的 bin index 和 bin residual（若 y 不是 bin-based，那么直接回归预测 y）</span>
+        reg_channel <span class="token operator">+=</span> <span class="token punctuation">(</span><span class="token number">1</span> <span class="token keyword">if</span> <span class="token keyword">not</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>LOC_Y_BY_BIN <span class="token keyword">else</span> loc_y_bin_num <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span>
+        <span class="token comment"># 其他 layer 的构造代码略、</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> input_data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ROI_SAMPLE_JIT<span class="token punctuation">:</span>     <span class="token comment"># True </span>
+            <span class="token keyword">if</span> self<span class="token punctuation">.</span>training<span class="token punctuation">:</span>
+                <span class="token keyword">with</span> torch<span class="token punctuation">.</span>no_grad<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+                    target_dict <span class="token operator">=</span> self<span class="token punctuation">.</span>proposal_target_layer<span class="token punctuation">(</span>input_data<span class="token punctuation">)</span>
+                pts_input <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span><span class="token punctuation">(</span>target_dict<span class="token punctuation">[</span><span class="token string">'sampled_pts'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> target_dict<span class="token punctuation">[</span><span class="token string">'pts_feature'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span>
+                target_dict<span class="token punctuation">[</span><span class="token string">'pts_input'</span><span class="token punctuation">]</span> <span class="token operator">=</span> pts_input
+            <span class="token keyword">else</span><span class="token punctuation">:</span>
+                <span class="token keyword">pass</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">pass</span>
+        
+        <span class="token comment"># 划分为点云坐标，以及反射强度等组成的特征（配置中不使用反射强度，故 features 为 None）</span>
+        xyz<span class="token punctuation">,</span> features <span class="token operator">=</span> self<span class="token punctuation">.</span>_break_up_pc<span class="token punctuation">(</span>pts_input<span class="token punctuation">)</span>    
+        <span class="token keyword">if</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>USE_RPN_FEATURES<span class="token punctuation">:</span>   <span class="token comment"># True</span>
+            xyz_input <span class="token operator">=</span> pts_input<span class="token punctuation">[</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">:</span>self<span class="token punctuation">.</span>rcnn_input_channel<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>根据 RPN 输出得到 rois 之后，使用 <code>proposal_target_layer</code> 得到 target proposals，逻辑如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># class ProposalTargetLayer</span>
+
+<span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> input_data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''input_data: 输入数据字典，参见 1.2 一节代码中的 rcnn_input_info 变量'''</span>
+    <span class="token comment"># NMS 后 top n 的点，每个点根据 local region 预测的 box3d   (B, n, 7)，n&lt;= POST_NMS_TOP_N</span>
+    <span class="token comment"># gt boxes3d    (B, mn, 7)  mn 是某样本中具有最多 gt boxes3d 的数量</span>
+    roi_boxes3d<span class="token punctuation">,</span> gt_boxes3d <span class="token operator">=</span> input_dict<span class="token punctuation">[</span><span class="token string">'roi_boxes3d'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> input_dict<span class="token punctuation">[</span><span class="token string">'gt_boxes3d'</span><span class="token punctuation">]</span>
+    <span class="token comment"># (B, ROI_PER_IMAGE, 7)</span>
+    <span class="token comment"># (B, ROI_PER_IMAGE, 7)</span>
+    <span class="token comment"># (B, ROI_PER_IMAGE)</span>
+    batch_rois<span class="token punctuation">,</span> batch_gt_of_rois<span class="token punctuation">,</span> batch_roi_iou <span class="token operator">=</span> self<span class="token punctuation">.</span>sample_rois_for_rcnn<span class="token punctuation">(</span>roi_boxes3d<span class="token punctuation">,</span> gt_boxes3d<span class="token punctuation">)</span>
+    <span class="token comment"># RPN 的输入点云坐标 (B, npoints, 3)</span>
+    <span class="token comment"># RPN backbone 输出点云特征 (B, npoints, 128)</span>
+    rpn_xyz<span class="token punctuation">,</span> rpn_features <span class="token operator">=</span> input_dict<span class="token punctuation">[</span><span class="token string">'rpn_xyz'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> input_dict<span class="token punctuation">[</span><span class="token string">'rpn_features'</span><span class="token punctuation">]</span>
+    
+    pts_extra_input_list <span class="token operator">=</span> <span class="token punctuation">[</span>input_dict<span class="token punctuation">[</span><span class="token string">'seg_mask'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">]</span>    <span class="token comment"># (B, npoints, 1)</span>
+    pts_depth <span class="token operator">=</span> input_dict<span class="token punctuation">[</span><span class="token string">'pts_depth'</span><span class="token punctuation">]</span> <span class="token operator">/</span> <span class="token number">70.0</span> <span class="token operator">-</span> <span class="token number">0.5</span>    <span class="token comment"># sqrt(x2+y2+z2)</span>
+    pts_extra_input_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>pts_depth<span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment"># (B, npoints, 1)</span>
+    pts_extra_input <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span>pts_extra_input_list<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token comment"># (B, npoints, 2)</span>
+    pts_feature <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span><span class="token punctuation">(</span>pts_extra_input<span class="token punctuation">,</span> rpn_features<span class="token punctuation">)</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token comment"># (B, npoints, 2+128)</span>
+    <span class="token comment"># 在 box3d 内的所有点中取样 sampled_pt_num 个点，</span>
+    <span class="token comment">#   每个点包含 3 个坐标，预测二分类 seg_mask，depth 以及 backbone 输出特征 128</span>
+    <span class="token comment">#   故输出 pooled 特征 pooled_features: (B, boxes_num, sampled_pt_num, 3+2+128)</span>
+    <span class="token comment">#   pooled_empty_flag: (B, boxes_num)， 值为 1 表示这个预测 roi 内部没有点。默认为 0</span>
+    pooled_features<span class="token punctuation">,</span> pooled_empty_flag <span class="token operator">=</span> roipool3d_utils<span class="token punctuation">.</span>roipool3d_gpu<span class="token punctuation">(</span>rpn_xyz<span class="token punctuation">,</span> pts_feature<span class="token punctuation">,</span> batch_rois<span class="token punctuation">,</span>
+        cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>POOL_EXTRA_WIDTH<span class="token punctuation">,</span> sampled_pt_num<span class="token operator">=</span>cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>NUM_POINTS<span class="token punctuation">)</span>  <span class="token comment"># 1.0,  512</span>
+    <span class="token comment"># (B, boxes_num, sampled_pt_num, 3)</span>
+    <span class="token comment"># (B, boxes_num, sampled_pt_num, 2+128)</span>
+    sampled_pts<span class="token punctuation">,</span> sampled_features <span class="token operator">=</span> pooled_features<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">:</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> pooled_features<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">:</span><span class="token punctuation">]</span>
+    <span class="token keyword">if</span> cfg<span class="token punctuation">.</span>AUG_DATA<span class="token punctuation">:</span>
+        sampled_pts<span class="token punctuation">,</span> batch_rois<span class="token punctuation">,</span> batch_gt_of_rois <span class="token operator">=</span> self<span class="token punctuation">.</span>data_augmentation<span class="token punctuation">(</span>sampled_pts<span class="token punctuation">,</span> batch_rois<span class="token punctuation">,</span> batch_gt_of_rois<span class="token punctuation">)</span>
+    batch_size <span class="token operator">=</span> batch_rois<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+    roi_ry <span class="token operator">=</span> batch_rois<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">]</span> <span class="token operator">%</span> <span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">*</span> np<span class="token punctuation">.</span>pi<span class="token punctuation">)</span>
+    roi_center <span class="token operator">=</span> batch_rois<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">:</span><span class="token number">3</span><span class="token punctuation">]</span>
+    sampled_pts <span class="token operator">=</span> sampled_pts <span class="token operator">-</span> roi_center<span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token comment"># 各点与中心点的坐标差.相当于坐标系原点平移到物体中心，新坐标系下的点坐标</span>
+    batch_gt_of_rois<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">:</span><span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">=</span> batch_gt_of_rois<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">:</span><span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">-</span> roi_center
+    batch_gt_of_rois<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">]</span> <span class="token operator">=</span> batch_gt_of_rois<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">]</span> <span class="token operator">-</span> roi_ry
+    <span class="token keyword">for</span> k <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>batch_size<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># 以物体朝向为 Z 轴，旋转坐标系，得到新坐标系下的点坐标</span>
+        sampled_pts<span class="token punctuation">[</span>k<span class="token punctuation">]</span> <span class="token operator">=</span> kitti_utils<span class="token punctuation">.</span>rotate_pc_along_y_torch<span class="token punctuation">(</span>sampled_pts<span class="token punctuation">[</span>k<span class="token punctuation">]</span><span class="token punctuation">,</span> batch_rois<span class="token punctuation">[</span>k<span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        <span class="token comment"># gt 的中心点坐标也旋转为新坐标系下的坐标</span>
+        batch_gt_of_rois<span class="token punctuation">[</span>k<span class="token punctuation">]</span> <span class="token operator">=</span> kitti_utils<span class="token punctuation">.</span>rotate_pc_along_y_torch<span class="token punctuation">(</span>batch_gt_of_rois<span class="token punctuation">[</span>k<span class="token punctuation">]</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> roi_ry<span class="token punctuation">[</span>k<span class="token punctuation">]</span><span class="token punctuation">.</span>squeeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    
+    valid_mask <span class="token operator">=</span> <span class="token punctuation">(</span>pooled_empty_flag <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>   <span class="token comment"># roi 内部有 points</span>
+    reg_valid_mask <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>batch_roi_iou <span class="token operator">></span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>REG_FG_THRESH<span class="token punctuation">)</span> <span class="token operator">&amp;</span> valid_mask<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment"># IoU > 回归前景阈值</span>
+    batch_cls_label <span class="token operator">=</span> <span class="token punctuation">(</span>batch_roi_iou <span class="token operator">></span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>CLS_FG_THRESH<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">(</span><span class="token punctuation">)</span>               <span class="token comment"># IoU > 分类前景阈值</span>
+    invalid_mask <span class="token operator">=</span> <span class="token punctuation">(</span>batch_roi_iou <span class="token operator">></span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>CLS_BG_THRESH<span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token punctuation">(</span>batch_roi_iou <span class="token operator">&lt;</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>CLS_FG_THRESH<span class="token punctuation">)</span>
+    batch_cls_label<span class="token punctuation">[</span>valid_mask <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">1</span>
+    batch_cls_label<span class="token punctuation">[</span>invalid_mask <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">1</span>
+    output_dict <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">'sampled_pts'</span><span class="token punctuation">:</span> sampled_pts<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>NUM_POINTS<span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                   <span class="token string">'pts_feature'</span><span class="token punctuation">:</span> sampled_features<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>NUM_POINTS<span class="token punctuation">,</span> sampled_features<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                   <span class="token string">'cls_label'</span><span class="token punctuation">:</span> batch_cls_label<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                   <span class="token string">'reg_valid_mask'</span><span class="token punctuation">:</span> reg_valid_mask<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                   <span class="token string">'gt_of_rois'</span><span class="token punctuation">:</span> batch_gt_of_rois<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                   <span class="token string">'gt_iou'</span><span class="token punctuation">:</span> batch_roi_iou<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                   <span class="token string">'roi_boxes3d'</span><span class="token punctuation">:</span> batch_rois<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> output_dict
+
+
+<span class="token keyword">def</span> <span class="token function">sample_rois_for_rcnn</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> roi_boxes3d<span class="token punctuation">,</span> gt_boxes3d<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    按一定的比例，对每个样本，采样一定的 fg rois 和 bg rois
+    每个 roi，均有对应的一个 IoU，以及相关的 gt box
+    '''</span>
+    batch_size <span class="token operator">=</span> roi_boxes3d<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token comment"># RPN 中，每个样本中取 top n 个 预测 rois。然后我们在其中取 0.5 比例的正例 rois</span>
+    <span class="token comment"># 单个样本取 64（配置）个 rois，其中包含 32 （一半） 的正例 rois</span>
+    fg_rois_per_image <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>np<span class="token punctuation">.</span><span class="token builtin">round</span><span class="token punctuation">(</span>cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>FG_RATIO <span class="token operator">*</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ROI_PER_IMAGE<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    batch_rois <span class="token operator">=</span> gt_boxes3d<span class="token punctuation">.</span>new<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ROI_PER_IMAGE<span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">.</span>zero_<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    batch_gt_of_rois <span class="token operator">=</span> gt_boxes3d<span class="token punctuation">.</span>new<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ROI_PER_IMAGE<span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">.</span>zero_<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    batch_roi_iou <span class="token operator">=</span> gt_boxes3d<span class="token punctuation">.</span>new<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ROI_PER_IMAGE<span class="token punctuation">)</span><span class="token punctuation">.</span>zero_<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">for</span> idx <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>batch_size<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        cur_roi<span class="token punctuation">,</span> cur_gt <span class="token operator">=</span> roi_boxes3d<span class="token punctuation">[</span>idx<span class="token punctuation">]</span><span class="token punctuation">,</span> gt_boxes3d<span class="token punctuation">[</span>idx<span class="token punctuation">]</span>
+        k <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>cur_gt<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span>
+        <span class="token keyword">while</span> cur_gt<span class="token punctuation">[</span>k<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">:</span>
+            k <span class="token operator">-=</span> <span class="token number">1</span>      <span class="token comment"># 定位当前样本的最后一个 gt boxes 的 index，因为不足 mn 的，进行了 tail padding</span>
+        
+        cur_gt <span class="token operator">=</span> cur_gt<span class="token punctuation">[</span><span class="token punctuation">:</span>k<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">]</span>
+
+        iou3d <span class="token operator">=</span> iou3d_utils<span class="token punctuation">.</span>boxes_iou3d_gpu<span class="token punctuation">(</span>cur_roi<span class="token punctuation">,</span> cur_gt<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">:</span><span class="token number">7</span><span class="token punctuation">]</span><span class="token punctuation">)</span>    <span class="token comment"># (n, m)</span>
+        max_overlaps<span class="token punctuation">,</span> gt_assignment <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span>iou3d<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>   <span class="token comment"># (n,)</span>
+
+        fg_thresh <span class="token operator">=</span> <span class="token builtin">min</span><span class="token punctuation">(</span>cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>REG_FG_THRESH<span class="token punctuation">,</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>CLS_FG_THRESH<span class="token punctuation">)</span> <span class="token comment"># min(0.55, 0.6)</span>
+        fg_inds <span class="token operator">=</span> torch<span class="token punctuation">.</span>nonzero<span class="token punctuation">(</span><span class="token punctuation">(</span>max_overlaps <span class="token operator">>=</span> fg_thresh<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>   <span class="token comment"># (n1,) fg rois 的 index</span>
+
+        easy_bg_inds <span class="token operator">=</span> torch<span class="token punctuation">.</span>nonzero<span class="token punctuation">(</span><span class="token punctuation">(</span>max_overlap <span class="token operator">&lt;</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>CLS_BG_THRESH_LO<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>    <span class="token comment"># (n2,)</span>
+        hard_bg_inds <span class="token operator">=</span> torch<span class="token punctuation">.</span>nonzero<span class="token punctuation">(</span><span class="token punctuation">(</span>max_overlap <span class="token operator">&lt;</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>CLS_BG_THRESH<span class="token punctuation">)</span> <span class="token operator">&amp;</span>
+                                     <span class="token punctuation">(</span>max_overlap <span class="token operator">>=</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>CLS_BG_THRESH_LO<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>   <span class="token comment"># (n3,)</span>
+        fg_num_rois <span class="token operator">=</span> fg_inds<span class="token punctuation">.</span>numel<span class="token punctuation">(</span><span class="token punctuation">)</span>       <span class="token comment"># fg rois 数量</span>
+        bg_num_rois <span class="token operator">=</span> hard_bg_inds<span class="token punctuation">.</span>numel<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> easy_bg_inds<span class="token punctuation">.</span>numel<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        <span class="token keyword">if</span> fg_num_rois <span class="token operator">></span> <span class="token number">0</span> <span class="token keyword">and</span> bg_num_rois <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">:</span>
+            fg_rois_per_this_image <span class="token operator">=</span> <span class="token builtin">min</span><span class="token punctuation">(</span>fg_rois_per_image<span class="token punctuation">,</span> fg_num_rois<span class="token punctuation">)</span>
+            rand_num <span class="token operator">=</span> torch<span class="token punctuation">.</span>from_numpy<span class="token punctuation">(</span>np<span class="token punctuation">.</span>random<span class="token punctuation">.</span>permutation<span class="token punctuation">(</span>fg_num_rois<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>type_as<span class="token punctuation">(</span>gt_boxes3d<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            fg_inds <span class="token operator">=</span> fg_inds<span class="token punctuation">[</span>rand_num<span class="token punctuation">[</span><span class="token punctuation">:</span>fg_rois_per_this_image<span class="token punctuation">]</span><span class="token punctuation">]</span>    <span class="token comment"># 随机取一定数量的 fg rois</span>
+
+            bg_rois_per_this_image <span class="token operator">=</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ROI_PER_IMAGE <span class="token operator">-</span> fg_rois_per_this_image
+            <span class="token comment"># 选择一定比例的 hard bg，剩余的选择 easy bg</span>
+            bg_inds <span class="token operator">=</span> self<span class="token punctuation">.</span>sample_bg_inds<span class="token punctuation">(</span>hard_bg_inds<span class="token punctuation">,</span> easy_bg_inds<span class="token punctuation">,</span> bg_rois_per_this_image<span class="token punctuation">)</span>
+        <span class="token keyword">elif</span> fg_num_rois <span class="token operator">></span> <span class="token number">0</span> <span class="token keyword">and</span> bg_num_rois <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">:</span>
+            rand_num <span class="token operator">=</span> np<span class="token punctuation">.</span>floor<span class="token punctuation">(</span>np<span class="token punctuation">.</span>random<span class="token punctuation">.</span>rand<span class="token punctuation">(</span>cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ROI_PER_IMAGE<span class="token punctuation">)</span> <span class="token operator">*</span> fg_num_rois<span class="token punctuation">)</span>
+            <span class="token comment"># [0, fg_num_rois) 均匀随机抽取 ROI_PER_IMAGE 个 index</span>
+            rand_num <span class="token operator">=</span> torch<span class="token punctuation">.</span>from_numpy<span class="token punctuation">(</span>rand_num<span class="token punctuation">)</span><span class="token punctuation">.</span>type_as<span class="token punctuation">(</span>gt_boxes3d<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            fg_inds <span class="token operator">=</span> fg_inds<span class="token punctuation">[</span>rand_num<span class="token punctuation">]</span>     <span class="token comment"># 随机抽取 ROI_PER_IMAGE 个 fg</span>
+            fg_rois_per_this_image <span class="token operator">=</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ROI_PER_IMAGE
+            bg_rois_per_this_image <span class="token operator">=</span> <span class="token number">0</span>
+        <span class="token keyword">elif</span> bg_num_rois <span class="token operator">></span> <span class="token number">0</span> <span class="token keyword">and</span> fg_num_rois <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">:</span>
+            bg_rois_per_this_image <span class="token operator">=</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ROI_PER_IMAGE
+            bg_inds <span class="token operator">=</span> self<span class="token punctuation">.</span>sample_bg_inds<span class="token punctuation">(</span>hard_bg_inds<span class="token punctuation">,</span> easy_bg_inds<span class="token punctuation">,</span> bg_rois_per_this_image<span class="token punctuation">)</span>
+            fg_rois_per_this_image <span class="token operator">=</span> <span class="token number">0</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">raise</span> NotImplementedError
+
+        roi_list<span class="token punctuation">,</span> roi_iou_list<span class="token punctuation">,</span> roi_gt_list <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token keyword">if</span> fg_rois_per_this_image <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">:</span>
+            fg_rois_src <span class="token operator">=</span> cur_roi<span class="token punctuation">[</span>fg_inds<span class="token punctuation">]</span>          <span class="token comment"># 正例 rois</span>
+            gt_of_fg_rois <span class="token operator">=</span> cur_gt<span class="token punctuation">[</span>gt_assignment<span class="token punctuation">[</span>fg_inds<span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># 正例 rois 对应的 gt box</span>
+            iou3d_src <span class="token operator">=</span> max_overlaps<span class="token punctuation">[</span>fg_inds<span class="token punctuation">]</span>       <span class="token comment"># 正例 rois 的 IoU</span>
+            <span class="token comment"># 对正例做随机增强</span>
+            fg_rois<span class="token punctuation">,</span> fg_iou3d <span class="token operator">=</span> self<span class="token punctuation">.</span>aug_roi_by_noise_torch<span class="token punctuation">(</span>fg_rois_src<span class="token punctuation">,</span> gt_of_fg_rois<span class="token punctuation">,</span> iou3d_src<span class="token punctuation">,</span>
+                                                            aug_times<span class="token operator">=</span>cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ROI_FG_AUG_TIMES<span class="token punctuation">)</span><span class="token comment"># 10 </span>
+            roi_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>fg_rois<span class="token punctuation">)</span>
+            roi_iou_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>fg_iou3d<span class="token punctuation">)</span>
+            roi_gt_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>gt_of_fg_rois<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> bg_rois_per_this_image <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">:</span>
+            bg_rois_src <span class="token operator">=</span> cur_roi<span class="token punctuation">[</span>bg_inds<span class="token punctuation">]</span>
+            gt_of_bg_rois <span class="token operator">=</span> cur_gt<span class="token punctuation">[</span>gt_assignment<span class="token punctuation">[</span>bg_inds<span class="token punctuation">]</span><span class="token punctuation">]</span>
+            iou3d_src <span class="token operator">=</span> max_overlaps<span class="token punctuation">[</span>bg_inds<span class="token punctuation">]</span>
+            aug_times <span class="token operator">=</span> <span class="token number">1</span> <span class="token keyword">if</span> cfg<span class="token punctuation">.</span>RCNN<span class="token punctuation">.</span>ROI_FG_AUG_TIMES <span class="token operator">></span> <span class="token number">0</span> <span class="token keyword">else</span> <span class="token number">0</span>
+            bg_rois<span class="token punctuation">,</span> bg_iou3d <span class="token operator">=</span> self<span class="token punctuation">.</span>aug_roi_by_noise_torch<span class="token punctuation">(</span>bg_rois_src<span class="token punctuation">,</span> gt_of_bg_rois<span class="token punctuation">,</span> iou3d_src<span class="token punctuation">,</span>
+                                                            aug_times<span class="token operator">=</span>aug_times<span class="token punctuation">)</span>
+            roi_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>bg_rois<span class="token punctuation">)</span>
+            roi_iou_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>bg_iou3d<span class="token punctuation">)</span>
+            roi_gt_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>gt_of_bg_rois<span class="token punctuation">)</span>
+        rois <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span>roi_list<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span>   <span class="token comment"># (ROI_PER_IMAGE, 7)</span>
+        iou_of_rois <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span>roi_iou_list<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span>    <span class="token comment"># (ROI_PER_IMAGE,)</span>
+        gt_of_rois <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span>roi_gt_list<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span>      <span class="token comment"># (ROI_PER_IMAGE, 7)</span>
+
+        batch_rois<span class="token punctuation">[</span>idx<span class="token punctuation">]</span> <span class="token operator">=</span> rois
+        batch_gt_of_rois<span class="token punctuation">[</span>idx<span class="token punctuation">]</span> <span class="token operator">=</span> gt_of_rois
+        batch_roi_iou<span class="token punctuation">[</span>idx<span class="token punctuation">]</span> <span class="token operator">=</span> iou_of_rois
+    <span class="token keyword">return</span> batch_rois<span class="token punctuation">,</span> batch_gt_of_rois<span class="token punctuation">,</span> batch_roi_iou<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># utils/roipool3d/roipool3d_utils.py</span>
+<span class="token keyword">def</span> <span class="token function">roipool3d_gpu</span><span class="token punctuation">(</span>pts<span class="token punctuation">,</span> pts_feature<span class="token punctuation">,</span> boxes3d<span class="token punctuation">,</span> pool_extra_width<span class="token punctuation">,</span> sampled_pt_num<span class="token operator">=</span><span class="token number">512</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    pts: 点云坐标 (B, npoints, 3)
+    pts_feature: 点云特征 (B, npoints, 2+128)，点云经 Backbone 的输出特征+预测二分类seg_mask+depth
+    boxes3d: (B, ROI_PER_IMAGE, 7)，预测 rois
+    pool_extra_width: 1.0 m，将 rois 稍微扩大，以包含 box 边缘的点
+    '''</span>
+    <span class="token comment"># boxes_num: ROI_PER_IMAGE</span>
+    batch_size<span class="token punctuation">,</span> boxes_num<span class="token punctuation">,</span> feature_len <span class="token operator">=</span> pts<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> boxes3d<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> pts_feature<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span>
+    pooled_boxes3d <span class="token operator">=</span> kitti_utils<span class="token punctuation">.</span>enlarge_boxes3d<span class="token punctuation">(</span>boxes3d<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">,</span> pool_extra_width<span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">)</span>
+
+    <span class="token comment"># 批样本数量，每个样本中 roi 数量，每个 roi 中点数，每个点的特征维度</span>
+    pooled_features <span class="token operator">=</span> torch<span class="token punctuation">.</span>cuda<span class="token punctuation">.</span>FloatTensor<span class="token punctuation">(</span><span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> boxes_num<span class="token punctuation">,</span> sampled_pt_num<span class="token punctuation">,</span> <span class="token number">3</span> <span class="token operator">+</span> feature_len<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>zero_<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    pooled_empty_flag <span class="token operator">=</span> torch<span class="token punctuation">.</span>cuda<span class="token punctuation">.</span>FloatTensor<span class="token punctuation">(</span><span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> boxes_num<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>zero_<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    roipool3d_cuda<span class="token punctuation">.</span>forward<span class="token punctuation">(</span>pts<span class="token punctuation">.</span>contiguous<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> pooled_boxes3d<span class="token punctuation">.</span>contiguous<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> pts_feature<span class="token punctuation">.</span>contiguous<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> 
+                           pool_features<span class="token punctuation">,</span> pooled_empty_flag<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> pooled_features<span class="token punctuation">,</span> pooled_empty_flag
+
+<span class="token comment"># roipool3d_cuda.forward 绑定了 c++ 的 roipool3d_gpu 这个方法，其内部调用了 roipool3dLauncher </span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">void roipool3dLauncher(int batch_size, int pts_num, int boxes_num, int feature_in_len, int sampled_pts_num,
+    const float *xyz, const float *boxes3d, const float *pts_feature, float *pooled_features, int *pooled_empty_flat) &#123;
+    int *pts_assign &#x3D; NULL;
+    &#x2F;&#x2F; 存储每个 point，对所有 boxes 是否匹配(point 在 box 内则匹配)。与某个 box 匹配，那么 flag&#x3D;1，否则 flag&#x3D;0
+    cudaMalloc(&amp;pts_assign, batch_size * pts_num * boxes_num * sizeof(int));
+
+    dim3 blocks(DIVUP(pts_num, THREADS_PER_BLOCK), boxes_num, batch_size);
+    dim3 threads(THREADS_PER_BLOCK);
+
+    assign_pts_to_box3d&lt;&lt;blocks, threads&gt;&gt;(batch_size, pts_num, boxes_num, xyz, boxes3d, pts_assign);
+
+    int *pts_idx &#x3D; NULL;
+    &#x2F;&#x2F; 每个 box 取 sampled_pts_num 个点
+    cudaMalloc(&amp;pts_idx, batch_size * boxes_num * sampled_pts_num * sizeof(int));
+
+    dim3 blocks2(DIVUP(boxes_num, THREADS_PER_BLOCK), batch_size);
+    get_pooled_idx&lt;&lt;&lt;blocks2, threads&gt;&gt;&gt;(batch_size, pts_num, boxes_num, sampled_pts_num, pts_assign, pts_idx, pooled_empty_flag);
+
+    dim3 blocks_pool(DIVUP(sampled_pts_num, THREADS_PER_BLOCK), boxes_num, batch_size);
+    roipool3d_forward&lt;&lt;&lt;blocks_pool, threads&gt;&gt;&gt;(batch_size, pts_num, boxes_num, feature_in_len, sampled_pts_num,
+        xyz, pts_idx, pts_feature, pooled_features, pooled_empty_flag);
+&#125;
+
+__global__ void assign_pts_to_box3d(int batch_size, int pts_num, int boxes_num, const float *xyz, const float *boxes3d, int *pts_assign) &#123;
+    int pt_idx &#x3D; blockIdx.x * blockDim.x + threadIdx.x;     &#x2F;&#x2F; point index
+    int box_idx &#x3D; blockIdx.y;                               &#x2F;&#x2F; box index
+    int bs_idx &#x3D; blockIdx.z;                                &#x2F;&#x2F; inner-batch index
+
+    &#x2F;&#x2F; 每个线程负责一个点，与某个 box 是否匹配。若干个线程一组，判断是否与某个 box 匹配（这就是 block(i,j,k)）
+    if (pt_idx &gt;&#x3D; pts_num || box_idx &gt;&#x3D; boxes_num || bs_idx &gt;&#x3D; batch_size) &#123;    &#x2F;&#x2F; 当前线程是多余的，没有分配到执行任务
+        return;
+    &#125;
+
+    &#x2F;&#x2F; (batch_size, pts_num, boxes_num)
+    int assign_idx &#x3D; bs_idx * pts_num * boxes_num + pt_idx * boxes_num + box_idx;
+    pts_assign[assign_idx] &#x3D; 0;     &#x2F;&#x2F; 初始化：当前 point 与当前 box 不匹配
+
+    int box_offset &#x3D; bs_idx * boxes_num * 7 + box_idx * 7;  &#x2F;&#x2F; 当前 box 数据起始点。boxes 数据 shape (batch_size, boxes_num, 7)
+    int pt_offset &#x3D; bs_idx * pts_num * 3 + pt_idx * 3;      &#x2F;&#x2F; 当前 point 数据起始点，points 数据 shape (batch_size, pts_num, 3)
+
+    &#x2F;&#x2F; 判断 point 是否在 box 中
+    int cur_in_flag &#x3D; pt_in_box3d(xyz[pt_offset], xyz[pt_offset+1], xyz[pt_offset+2], boxes3d[box_offset],
+        boxes3d[box_offset+1], boxes3d[box_offset+2], boxes3d[box_offset+3], boxes3d[box_offset+4],
+        boxes3d[box_offset+5], boxes3d[box_offset+6], 10.0);
+    
+    pts_assign[assign_idx] &#x3D; cur_in_flag;
+&#125;
+
+__device__ inline int pt_in_box3d(float x, float y, float z, float cx, float bottom_y, float cz, float h, float w,
+    float l, float angle, float max_dis) &#123;
+    float x_rot, z_rot, cosa, sina, cy;
+    int in_flag;
+
+    cy &#x3D; bottom_y - h &#x2F; 2.0;
+    if ((fabsf(x - cx) &gt; max_dis) || (fabsf(y - cy) &gt; h &#x2F; 2.0) || (fabsf(z - cz) &gt; max_dis)) &#123;
+        return in_flag;
+    &#125;
+
+    cosa &#x3D; cos(angle);
+    sina &#x3D; sin(angle);
+
+    &#x2F;&#x2F; 向量 PO 顺时针旋转 angle 角度。相当于将 P 点坐标系从相机坐标系转换为 CCS 坐标系，CCS 原点位于物体中心，
+    &#x2F;&#x2F;  坐标系 Z 轴沿物体朝向，X 轴垂直于 Z 轴
+    x_rot &#x3D; (x - cx) * cosa + (z - cz) * (-sina);
+    z_rot &#x3D; (x - cx) * sina + (z - cz) * cosa;
+
+    &#x2F;&#x2F; 切换坐标系后，判断 P 点是否在 box 之内非常简单。
+    in_flag &#x3D; (x_rot &gt;&#x3D; -l &#x2F; 2.0) &amp; (x_rot &lt;&#x3D; l &#x2F; 2.0) &amp; (z_rot &gt;&#x3D; -w &#x2F; 2.0) &amp; (z_rot &lt;&#x3D; w &#x2F; 2.0)
+    return in_flag;
+&#125;
+
+__global__ void get_pooled_idx(int batch_size, int pts_num, int boxes_num, int sampled_pts_num,
+    const int *pts_assign, int *pts_idx, int *pooled_empty_flag) &#123;
+    &#x2F;&#x2F; 每个 box 从所有的匹配点中（所谓匹配即，点位于 box 内）采样出 sampled_pts_num 个匹配点。
+    &#x2F;&#x2F; block+thread (batch_size, boxes_num&#x2F;num_threads_per_block, num_threads_per_block)
+    int boxes_idx &#x3D; blockIdx.x * blockDim.x + threadIdx.x;  
+    if (boxes_idx &gt;&#x3D; boxes_num) &#123;
+        return;
+    &#125;
+
+    int bs_index &#x3D; blockIdx.y;
+    int cnt &#x3D; 0;
+
+    for (int k &#x3D; 0; k &lt; pts_num; k++) &#123;
+        if (pts_assign[bs_idx * pts_num * boxes_num + k * boxes_num + boxes_idx]) &#123;
+            if (cnt &lt; sampled_pts_num) &#123;    &#x2F;&#x2F; 匹配，且为达到采样点数上限
+                pts_idx[bs_idx * boxes_num * sampled_pts_num + boxes_idx * sampled_pts_num + cnt] &#x3D; k;
+                cnt++;
+            &#125;
+            else break;
+        &#125;
+    &#125;
+    if (cnt &#x3D;&#x3D; 0) &#123;
+        pooled_empty_flag[bs_idx * boxes_num + boxes_idx] &#x3D; 1;
+    &#125;
+    else if (cnt &lt; sampled_pts_num) &#123;
+        for (int k &#x3D; cnt; k &lt; sampled_pts_num; k++) &#123;
+            &#x2F;&#x2F; 重复采样某些点，使得当前 box 匹配的点数达到 sampled_pts_num
+            int duplicate_idx &#x3D; k % cnt;
+            int base_offset &#x3D; bs_idx * boxes_num * sampled_pts_num + boxes_idx * sampled_pts_num;
+            pts_idx[base_offset + k] &#x3D; pts_idx[base_offset + duplicate_idx];
+        &#125;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2022/11/14/obj_det/3d/point_rcnn2/">https://jianjiansha.github.io/2022/11/14/obj_det/3d/point_rcnn2/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/3d-object-detection/">
+                                    <span class="chip bg-color">3d object detection</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/11/21/obj_det/3d/utils/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="3D 目标检测中的一些计算">
+                        
+                        <span class="card-title">3D 目标检测中的一些计算</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-11-21
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/3d-object-detection/">
+                        <span class="chip bg-color">3d object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/11/12/obj_det/3d/voxelnet/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/17.jpg" class="responsive-img" alt="VoxelNet 解读">
+                        
+                        <span class="card-title">VoxelNet 解读</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-12
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/3d-object-detection/">
+                        <span class="chip bg-color">3d object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

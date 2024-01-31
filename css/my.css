@@ -1,0 +1,51 @@
+/* Here is your custom css styles. */
+
+/* #main-content {
+    width: 90%;
+} */
+
+/* Here is your custom css styles. */
+@font-face {
+    font-family: 'IBMPlexMono-Italic';
+    src: url('../font/IBMPlexMono-Italic.ttf');
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    src: url('../font/IBMPlexMono-Regular.otf');
+}
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    src: url('../font/IBMPlexSans-Regular.otf');
+}
+
+@font-face {
+    font-family: "Monaco";
+    src: url('../font/Monaco-1.ttf');
+}
+
+body{
+    font-family: 'Monaco', 'IBMPlexMono-Italic';
+}
+
+
+#toc-content a.is-active-link {
+    color: rgb(20 160 230 / 75%);
+}
+#toc-content {
+    line-height: 1.8;
+}
+.icon-category {
+    color: red;
+}
+
+/* .post-container {
+    position: relative;
+    top: 50px;
+}
+
+.content {
+    top: 100px;
+    position: relative;
+} */

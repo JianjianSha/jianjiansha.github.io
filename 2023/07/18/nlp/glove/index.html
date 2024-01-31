@@ -1,0 +1,1525 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="GloVe: Global Vectors for Word Representation, SJJ">
+    <meta name="description" content="论文：GloVe: Global Vectors for Word Representation
+源码：stanfordnlp/GloVe
+1. 介绍
+GloVe 是一种获取单词的向量表示的无监督学习方法。
+2. GloVe 模型
+先建立几">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>GloVe: Global Vectors for Word Representation | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/14.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">GloVe: Global Vectors for Word Representation</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/NLP/">
+                                <span class="chip bg-color">NLP</span>
+                            </a>
+                        
+                            <a href="/tags/word-embedding/">
+                                <span class="chip bg-color">word embedding</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2023-07-18
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>论文：<a target="_blank" rel="noopener" href="https://aclanthology.org/D14-1162.pdf">GloVe: Global Vectors for Word Representation</a></p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/stanfordnlp/GloVe">stanfordnlp/GloVe</a></p>
+<h1>1. 介绍</h1>
+<p>GloVe 是一种获取单词的向量表示的无监督学习方法。</p>
+<h1>2. GloVe 模型</h1>
+<p>先建立几个概念。</p>
+<ol>
+<li>
+<p>记 单词-单词共现次数矩阵 为 $X$，其中 $X _ {ij}$ 表示单词 <code>j</code> 出现在单词 <code>i</code> 的上下文中的次数。</p>
+</li>
+<li>
+<p>令 $X _ i = \sum _ k X _ {ik}$ ，表示所有单词出现在单词 <code>i</code> 的上下文中的次数</p>
+</li>
+<li>
+<p>令 $P _ {ij} = P(j|i) = X _ {ij} / X _ i$ 表示单词 <code>j</code> 出现在单词 <code>i</code> 的上下文中的概率</p>
+</li>
+</ol>
+<p>我们举例说明共现概率的意义和作用。假设我们对物体（热力学）相态感兴趣，例如单词 <code>i=ice</code> （冰块） 和 <code>j=steam</code>（蒸汽），另外使用一个探测单词 <code>k</code>，</p>
+<ol>
+<li>
+<p><code>k</code> 与 <code>ice</code> 有关，与 <code>steam</code> 无关，例如 <code>k=solid</code>，我们希望 $P _ {ik} /P _ {jk}$ 较大</p>
+</li>
+<li>
+<p><code>k</code> 与 <code>steam</code> 有关，与 <code>ice</code> 无关，例如 <code>k=gas</code>，$P _ {ik} /P _ {jk}$ 应该较大</p>
+</li>
+<li>
+<p><code>k</code> 如果是 <code>water</code> 或者 <code>fashion</code>，前者与 <code>ice</code> 和 <code>steam</code> 均有关，后者则均无关，那么 $P _ {ik} /P _ {jk}$ 应该接近 1 。</p>
+</li>
+</ol>
+<p>表 1 展示了这些共现概率以及它们之间的比值，从表 1 可见与我们上面分析的三种情况一致。比起概率的绝对值，概率的比值更好地区分两个单词相关还是无关。</p>
+<table>
+<thead>
+<tr>
+<th>概率和比值</th>
+<th>k=solid</th>
+<th>k=gas</th>
+<th>k=water</th>
+<th>k=fashion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P(k|ice)</td>
+<td>1.9e-4</td>
+<td>6.6e-5</td>
+<td>3.0e-3</td>
+<td>1.7e-5</td>
+</tr>
+<tr>
+<td>P(k|steam)</td>
+<td>2.2e-5</td>
+<td>7.8e-4</td>
+<td>2.2e-3</td>
+<td>1.8e-5</td>
+</tr>
+<tr>
+<td>P(k|ice)/P(k|steam)</td>
+<td>8.9</td>
+<td>0.085</td>
+<td>1.36</td>
+<td>0.96</td>
+</tr>
+</tbody>
+</table>
+<center>表 1. 共现概率</center>
+<p>根据以上分析可知，共现概率地比值比概率自身值更适合用于学习词向量。记</p>
+<p>$$F(w _ i, w _ j, \tilde w _ k) = \frac {P _ {ik}}{P _ {jk}} \tag{1}$$</p>
+<p>其中 $w \in \mathbb R ^ d$ 是词向量，$\tilde w \in \mathbb R ^ d$ 是上下文的向量表示，$\tilde w _ k$ 表示单词 <code>k</code> 的上下文，共现概率是单词 <code>i</code> 或者 <code>j</code> 出现在 <code>k</code> 的上下文中的概率。</p>
+<p>由于向量空间是线性的，我们要求函数 $F$ 仅依赖两个词向量之差，于是 (1) 式变为</p>
+<p>$$F(w _ i - w _ j, \tilde w _ k) = \frac {P _ {ik}}{P _ {jk}} \tag{2}$$</p>
+<p>(2) 式右侧是标量，左侧是向量，由于 $F$ 可以是具有复杂参数的函数，例如神经网络，这会混淆输入向量，所以干脆先将两个输入向量做点积运算，避免输入向量被 $F$ 以不希望的方式混合，</p>
+<p>$$F((w _ i - w _ j) ^ {\top} \tilde w _ k) = \frac {P _ {ik}}{P _ {jk}} \tag{3}$$</p>
+<p>$F$ 在群 $(\mathbb R, +)$ 和 $(\mathbb R _ {&gt;0}, \times)$ 之间同态，即</p>
+<p>$$F((w _ i - w _ j) ^ {\top} \tilde w _ k) =\frac {F(w _ i ^ {\top} \tilde w _ k)}{F(w _ j ^ {\top} \tilde w _ k)} \tag{4}$$</p>
+<details><summary>同态定义</summary>
+<p>对代数系统 $\langle A, \star \rangle$， $\langle B, \circ \rangle$ 以及映射 $f$，如果 $\forall x, y \in A$，有 $f(x \star y) = f(x) \circ f(y)$，则称 $f$ 为 $\langle A, \star \rangle$ 到 $\langle B, \circ \rangle$ 的同态映射，简称 同态。</p>
+</details>
+<p>(4) 式结合 (3) 式，可知</p>
+<p>$$F(w _ i ^ {\top} \tilde w _ k) = P _ {ik} = \frac {X _ {ik}}{X _ i} \tag{5}$$</p>
+<p>(4) 式的解是 $F = \exp$，于是</p>
+<p>$$w _ i ^ {\top} \tilde w _ k = \log (P _ {ik}) = \log (X _ {ik}) - \log (X _ i) \tag{6}$$</p>
+<p>(6) 式右侧的 $\log (X _ i)$ 与 <code>k</code> 无关，所以可以使用 $b _ i$ 代替，另外为了让 (6) 式具有对称性，增加一个 $\tilde b _ k$，于是 (6) 式变为</p>
+<p>$$w _ i ^ {\top} \tilde w _ k + b _ i + \tilde b _ k = \log (X _ {ik}) \tag{7}$$</p>
+<p>(7) 式不是良好定义，因为 log 参数不能为 0，一种方法是 $\log (X _ {ik}) \rightarrow \log (1+X _ {ik})$ 。</p>
+<p>有些共现次数很小甚至为 0，这对应着噪声并且所携带的信息很少，在词汇表和语料较大时，$X$ 中 0 元素数量甚至达到 $75 \sim 95 %$ ，故引入一个权重函数 $f(X _ {ij})$ 解决这个问题，使用回归模型，和平方差损失，于是带权重的损失为</p>
+<p>$$J = \sum _ {i,j=1} ^ V f(X _ {ij}) (w _ i ^ {\top} \tilde w _ j + b _ i + \tilde b _ j - \log X _ {ij}) ^ 2 \tag{8}$$</p>
+<p>其中 $V$ 表示词汇表大小。权重函数满足：</p>
+<ol>
+<li>
+<p>$f(0)=0$。 如果 $f$ 是一个连续型函数，那么当 $x \rightarrow 0$ 时，$f$ 要消失（接近 0 的速度）足够快，即 $\lim _ {x \rightarrow 0} f (x) \log ^ 2 x$ 有限。</p>
+</li>
+<li>
+<p>$f(x)$ 非递减，这样共现次数较小（$x$ 较小）的权重不会太大。</p>
+</li>
+<li>
+<p>$f(x)$ 在大 $x$ 处的值相对小，这样共现次数较大的权重也不会太大。</p>
+</li>
+</ol>
+<p>有很多函数满足以上属性，但是作者发现了一类较好的函数，如下</p>
+<p>$$f(x) = \begin{cases} (x/x _ {max}) ^ {\alpha} &amp; x &lt; x _ {max}\\ 1 &amp; o.w. \end{cases} \tag{9}$$</p>
+<p>实验中使用 $x _ {max} = 100$，且 $\alpha = 3/4$ 比 $\alpha =1$ 的性能好。</p>
+<p>(9) 式函数曲线如图 1 所示，</p>
+<p><img src="/images/nlp/glove_1.png" alt=""></p>
+<center>图 1. alpha=3/4</center>
+<h1>3. 其他模型</h1>
+<p>本节介绍了其他模型，以及这些模型与 GloVe 的关系。</p>
+<p>skip-gram 或者 ivLBL 使用 $Q _ {ij}$ 表示单词 <code>j</code> 在单词 <code>i</code> 的上下文出现的概率，假设 $Q _ {ij}$ 是一个 softmax，那么</p>
+<p>$$Q _ {ij} = \frac {\exp (w _ i ^ {\top} \tilde w _ j)}{\sum _ {k=1} ^ V \exp (w _ i ^ {\top} \tilde w _ k)} \tag{10}$$</p>
+<p>目标损失为</p>
+<p>$$J = - \sum _ {i \in corpus, j \in context(i)} \log Q _ {ij} \tag{11}$$</p>
+<p>上式表示最大化概率乘积，也就是所有组 单词-单词 的共现概率乘积，这与之前的训练集最大似然类似。</p>
+<p>(11) 式计算语料中的每个单词 <code>i</code>，实际上语料中单词 <code>i</code> 会出现多次，其上下文中的单词 <code>j</code> 也可能会出现多次，导致 (11) 式中求和重复计算了，可以将相同的 <code>i-j</code> pair 提取出来，即，给 $Q _ {ij} ^ {X _ {ij}}$，取对数如下，</p>
+<p>$$J = - \sum _ {i=1} ^ V \sum _ {j=1} ^ V X _ {ij} \log Q _ {ij} \tag{12}$$</p>
+<p>由于 $X _ i = \sum _ k X _ {ik}$ 以及 $P _ {ij} = X _ {ij} / X _ i$，代入上式得</p>
+<p>$$\begin{aligned} J &amp;=-\sum _ {i=1} ^ V \sum _ {j=1} ^ V X _ i P _ {ij} \log Q _ {ij}<br>
+\\ &amp;= -\sum _ {i=1} ^ V X _ i\sum _ {j=1} ^ V P _ {ij} \log Q _ {ij}<br>
+\\ &amp;=\sum _ {i=1} ^ V X _ i H(P _ i, Q _ i)<br>
+\end{aligned} \tag{13}$$</p>
+<p>实际上，使用 (13) 式这个目标函数训练效果并不好，一种解决方法是使用平方差来替代交叉熵损失，于是目标损失变为</p>
+<p>$$\hat J = \sum _ {i,j} X _ i (\hat P _ {ij} - \hat Q _ {ij}) ^ 2 \tag{14}$$</p>
+<p>其中 $\hat P _ {ij} = X _ {ij}$， $\hat Q _ {ij} = \exp (w _ i ^ {\top} \tilde w _ j)$，也就是说使用非归一化分布，但是 $X _ {ij}$ 值通常会特别大，这使得 (14) 式优化起来也不容易，所以先求对数，然后再求平方差，</p>
+<p>$$\begin{aligned} \hat J &amp;= \sum _ {i,j} X _ i (\log \hat P _ {ij} - \log \hat Q _ {ij}) ^ 2<br>
+\\ &amp;=\sum _ {i,j} X _ i (w _ i ^ {\top} \tilde w _ j - \log X _ {ij}) ^ 2<br>
+\end{aligned} \tag{15}$$</p>
+<p>最后，作者又指出，权重因子 $X _ i$ 不是最佳选择，所以还是使用 $f(X _ {ij})$ 作为权重因子，于是</p>
+<p>$$\hat J = \sum _ {i,j} f(X _ {ij}) (w _ i ^ {\top} \tilde w _ j - \log X _ {ij}) ^ 2 \tag{16}$$</p>
+<h1>3. 源码</h1>
+<p>源码提供了四个工具，分别是：</p>
+<ol>
+<li>
+<p><code>vocab_count</code> 。输入语料是由空格分隔的 tokens（对于原始语料可以使用 Stanford Tokenizer 切分），输出是 unigram counts。根据词汇表大小或者最小频次，可以对词汇表过滤。</p>
+</li>
+<li>
+<p><code>cooccur</code> 。建立单词-单词共现统计。</p>
+</li>
+<li>
+<p><code>shuffle</code> 。对单词-单词共现统计进行 shuffle 操作，类似于深度学习中对数据集 shuffle。</p>
+</li>
+<li>
+<p><code>glove</code> 。 训练 GloVe 模型。</p>
+</li>
+</ol>
+<p>前三个工具的实现代码这里不贴出来了，有兴趣的可直接看源码。下面给出 glove 的训练代码，并适当的做注释。</p>
+<h2 id="3-4-glove">3.4 glove</h2>
+<p>对训练方法代码简单的说明。</p>
+<p>首先需要明确，根据 (8) 式，模型参数为 $\lbrace w _ i, b _ i, \tilde w _ i, \tilde b _ i \rbrace _ {i=1} ^ V$，这四个变量分别表示：1. word vector; 2. word bias; 3. context word vector; 4. context word bias。</p>
+<p>向量 $w _ i$ 和 $\tilde w _ i$ 长度均为 $d$，而 bias $b _ i$ 和 $\tilde b _ i$ 均为标量，$V$ 是词汇表大小，所以参数数量一共为</p>
+<p>$$2 V(d+1) \tag{31}$$</p>
+<p>假设参数存储在 tensor $W$ 中，那么 <code>W.shape</code> 应该是 <code>(2V, d + 1)</code>，前 <code>V</code> 行存储 word vector 和 word bias，后 <code>V</code> 行存储 context word vector 和 context word bias</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 训练方法
+int train_glove() &#123;
+    long long a, file_size;
+    int save_params_return_code;
+    int b;
+    FILE *fin;
+    real total_cost &#x3D; 0;    &#x2F;&#x2F; double 类型
+
+    fin &#x3D; fopen(input_file, &#39;rb&#39;); &#x2F;&#x2F; 读取 shuffled 共现统计文件
+    fseeko(fin, 0, SEEK_END);   &#x2F;&#x2F; 定位到文件尾
+    file_size &#x3D; ftello(fin);    &#x2F;&#x2F; 当前文件当前位置
+    &#x2F;&#x2F; CREC 包含两个单词id(int)，以及共现统计值(double)
+    num_lines &#x3D; file_size &#x2F; (sizeof(CREC)); &#x2F;&#x2F; 得到单词-单词共现数量
+    fclose(fin);
+    &#x2F;&#x2F; 初始化 glove 模型的参数。此方法下方会给出有关注释
+    initialize_parameters();
+    &#x2F;&#x2F; 保存模型参数初值
+    if (save_init_param) &#123; save_params_return_code &#x3D; save_params(0); &#125;
+    &#x2F;&#x2F; 分配用于保存线程句柄的数组
+    pthread_t *pt &#x3D; (pthread_t *)malloc(num_threads * sizeof(pthread_t));
+    &#x2F;&#x2F; linrs_per_thread：存储每个线程负责 单词-单词 pairs 的数量
+    lines_per_thread &#x3D; (long long *)malloc(num_threads * sizeof(long long));
+
+    for (b &#x3D; 0; b &lt; num_iter; b++) &#123;  &#x2F;&#x2F; 迭代次数
+        total_cost &#x3D; 0;     &#x2F;&#x2F; 总的损失
+        &#x2F;&#x2F; 设置每个线程负责的 单词-单词 pairs 数量
+        for (a &#x3D; 0; a &lt; num_threads - 1; a++) lines_per_thread[a] &#x3D; num_lines &#x2F; num_threads;
+        lines_per_thread[a] &#x3D; num_lines &#x2F; num_threads + num_lines % num_threads;
+        &#x2F;&#x2F; 保存所有线程的编号
+        long long *thread_ids &#x3D; (long long*)malloc(sizeof(long long) * num_threads);
+        &#x2F;&#x2F; 设置线程编号，从 0 开始
+        for (a &#x3D; 0; a &lt; num_threads; a++) thread_ids[a] &#x3D; a;
+        &#x2F;&#x2F; 创建每个线程，线程执行函数为 glove_thread，函数参数为线程编号
+        for (a &#x3D; 0; a &lt; num_threads; a++) pthread_create(&amp;pt[a], NULL, glove_thread, (void *)&amp;thread_ids[0]);
+        for (a &#x3D; 0; a &lt; num_threads; a++) pthread_join(pt[a], NULL);&#x2F;&#x2F; 等待线程
+        for (a &#x3D; 0; a &lt; num_threads; a++) total_cost +&#x3D; cost[a];
+        free(thread_ids);
+    &#125;
+    free(pt);
+    free(lines_per_thread);
+    return save_params(-1); &#x2F;&#x2F; 保存最后一次迭代训练后的参数值
+&#125;
+&#x2F;&#x2F; 初始化模型参数
+void initialize_parameters() &#123;
+    if (seed &#x3D;&#x3D; 0) &#123; seed &#x3D; time(0); &#125;
+    srand(seed);        &#x2F;&#x2F; 设置随机种子
+    long long a;
+    &#x2F;&#x2F; 计算 glove 模型参数数量，参考 (8) 式 和 (31) 式
+    long long W_size &#x3D; 2 * vocab_size * (vector_size + 1);
+    &#x2F;&#x2F; 申请 glove 模型参数数组内存，每个参数为 double(real) 类型
+    a &#x3D; posix_memalign((void **)&amp;W, 128, W_size * sizeof(real));
+    &#x2F;&#x2F; 使用梯度下降法更新，gradsq 为参数的梯度平方
+    a &#x3D; posix_memalign((void **)&amp;gradsq, 128, W_size * sizeof(real));
+    if (load_init_param) &#123;&#125; &#x2F;&#x2F; 加载保存的参数初值
+    else &#123;
+        for (a &#x3D; 0; a &lt; W_size; ++a) &#123;
+            &#x2F;&#x2F; 每个参数均从 [-0.5, 0.5] 采样，然后除以 vector_size
+            W[a] &#x3D; (rand() &#x2F; (real)RAND_MAX - 0.5) &#x2F; vector_size;
+        &#125;
+    &#125;
+    if (load_init_gradsq) &#123;&#125;
+    else &#123;
+        for (a &#x3D; 0; a &lt; W_size; ++a) &#123;
+            gradsq[0] &#x3D; 1.0;
+        &#125;
+    &#125;
+&#125;
+&#x2F;&#x2F; 保存模型参数
+int save_params(int nb_iter) &#123;
+    long long a, b;
+    char format[20];
+    &#x2F;&#x2F; 存储输出文件名，输出梯度平方文件名
+    char output_file[MAX_STRING_LENGTH+20], output_file_gsq[MAX_STRING_LENGTH+20];
+    &#x2F;&#x2F; 保存一个单词
+    char *word &#x3D; malloc(size(char) * MAX_STRING_LENGTH + 1);
+    FILE *fid, *fout;
+    FILE *fgs &#x3D; NULL;
+
+    if (use_binary &gt; 0 || nb_iter &#x3D;&#x3D; 0) &#123; &#x2F;&#x2F; 保存为 bin 文件
+        &#x2F;&#x2F; 设置 output_file，文件后缀为 &#96;.bin&#96;
+        ...
+        fout &#x3D; fopen(output_file, &quot;wb&quot;);
+        for (a &#x3D; 0; a &lt; 2 * vocab_size * (vector_size + 1); a++)
+            fwrite(&amp;W[a], sizeof(real), 1, fout);
+        fclose(fout);
+        if (save_gradsq &gt; 0) &#123;  &#x2F;&#x2F; 需要存储梯度平方
+            &#x2F;&#x2F; 设置 output_file_gsq，文件后缀为 &#96;.bin&#96;
+            ...
+            fgs &#x3D; fopen(output_file_gsq, &quot;wb&quot;);
+            for (a &#x3D; 0; a &lt; 2 * vocab_size * (vector_size + 1); a++)
+                fwrite(&amp;gradsq[a], sizeof(real), 1, fgs);
+            fclose(fgs);
+        &#125;
+    &#125;
+    if (use_binary !&#x3D; 1) &#123;  &#x2F;&#x2F; 保存为 txt 文件
+        &#x2F;&#x2F; 设置 output_file，文件后缀为 &#96;.txt&#96;
+        ...
+        if (save_gradsq &gt; 0) &#123;
+            &#x2F;&#x2F; 设置 output_file_gsq，文件后缀为 &#96;.txt&#96;
+            ...
+            fgs &#x3D; fopen(output_file_gsq, &quot;wb&quot;);
+        &#125;
+        fout &#x3D; fopen(output_file, &quot;wb&quot;);
+        fid &#x3D; fopen(vocab_file, &quot;r&quot;);
+        if (write_header) fprintf(fout, &quot;%lld %d\n&quot;, vocab_size, vector_size);
+        for (a &#x3D; 0; a &lt; vocab_size; a++) &#123;
+            if (fscanf(fid, format, word) &#x3D;&#x3D; 0) &#123;return 1;&#125;  &#x2F;&#x2F; 读取当前单词
+            if (strcmp(word, &quot;&lt;unk&gt;&quot;) &#x3D;&#x3D; 0) &#123;return 1;&#125;   &#x2F;&#x2F; 词汇表中不能有 &lt;unk&gt;
+            fprintf(fout, &quot;%s&quot;, word);  &#x2F;&#x2F; 将当前单词写入输出文件
+            if (model &#x3D;&#x3D; 0) &#123;   &#x2F;&#x2F; 保存 word vector 和 context word vector
+                for (b &#x3D; 0; b &lt; (vector_size + 1); b++)
+                    fprintf(fout, &quot;%lf&quot;, W[a * (vector_size + 1) + b]);
+                for (b &#x3D; 0; b &lt; (vector_size + 1); b++)
+                    fprintf(fout, &quot;%lf&quot;, W[(vocab_size + a) * (vector_size + 1) + b]);
+            &#125; else if (model &#x3D;&#x3D; 1) &#123;    &#x2F;&#x2F; 仅保存 word vector，且不包含 bias 项
+                for (b &#x3D; 0; b &lt; vector_size; b++)
+                    fprintf(fout, &quot;%lf&quot;, W[a * (vector_size + 1) + b]);
+            &#125; else if (model &#x3D;&#x3D; 2) &#123; &#x2F;&#x2F; 保存 word vector + context word vector
+                for (b &#x3D; 0; b &lt; vector_size; b++)
+                    fprintf(fout, &quot;%lf&quot;, W[a * (vector_size + 1) + b] +
+                                         W[(vocab_size + a) * (vector_size + 1) + b]);
+            &#125;
+            fprint(fout, &quot;\n&quot;);
+            if (save_gradsq &gt; 0) &#123;&#125; &#x2F;&#x2F; 保存梯度平方
+        &#125;
+        ...
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>训练模型使用多线程，每个线程使用部分 单词-单词 共现统计进行训练，类似于一个线程就是一个 minibatch。代码如下。</p>
+<p>输入是经过 shuffle 的共现统计文件，每一行表示一个 单词-单词 pair 的共现统计频次。假设输入文件有 <code>num_lines</code> 行，线程数量为 <code>num_threads</code>，那么编号为 <code>id</code> 的线程对应的输入数据的起始行位置是 <code>num_lines / num_threads * id</code> ，距离输入文件开始位置的偏移量还需要在乘以 <code>sizeof(CREC)</code>，因为每个 单词-单词 pair 的统计频次数据占用 <code>sizeof(CREC)</code> 个字节。</p>
+<p>实际上输入是 bin 文件，所以不是按行，而是按 <code>CREC</code> 类型，每个 <code>CREC</code> 对象对应一个 单词-单词 pair 共现统计频次。</p>
+<p>根据 (8) 式，损失对参数的梯度为，</p>
+<p>$$\begin{aligned}\frac {\partial J/2}{\partial w _ i} &amp;= f(X _ {ij}) (w _ i ^ {\top} \tilde w _ j + b _ i + \tilde b _ j - \log X _ {ij}) \tilde w _ j<br>
+\\ \frac {\partial J/2}{\partial w _ i} &amp;= f(X _ {ij}) (w _ i ^ {\top} \tilde w _ j + b _ i + \tilde b _ j - \log X _ {ij})<br>
+\end{aligned}\tag{32}$$</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 线程函数，使用部分共现统计数据训练模型参数
+void *glove_thread(void *vid) &#123;
+    long long a, b, l1, l2;
+    long long id &#x3D; *(long long*)vid;
+    CREC cr;
+    real diff, fdiff, temp1, temp2;
+    FILE *fin;
+    &#x2F;&#x2F; input_file: shuffled 共现统计文件
+    fin &#x3D; fopen(input_file, &quot;rb&quot;);
+    &#x2F;&#x2F; 定位到本线程对应的输入数据位置处
+    fseeko(fin, (num_lines &#x2F; num_threads * id) * (sizeof(CREC)), SEEK_SET);
+    cost[id] &#x3D; 0;
+    &#x2F;&#x2F; 存储单词 &#96;i&#96; 的参数的梯度，和单词 &#96;j&#96; 的参数的梯度
+    real *W_updates1 &#x3D; (real*)malloc(vector_size * sizeof(real));
+    real *W_updates2 &#x3D; (real*)malloc(vector_size * sizeof(real));
+    for (a &#x3D; 0; a &lt; lines_per_thread[id]; a++) &#123;    &#x2F;&#x2F; 遍历本线程的那部分 单词-单词 pairs
+        fread(&amp;cr, sizeof(CREC), 1, fin);   &#x2F;&#x2F; 按 CREC 大小读取，读取一个 CREC 大小
+        if (feof(fin)) break;
+        &#x2F;&#x2F; word id &#96;0&#96; 表示 &lt;unk&gt;
+        if (cr.word1 &lt; 1 || cr.word2 &lt; 1) &#123;continue;&#125;
+
+        &#x2F;&#x2F; l1 单词 &#96;i&#96; 在权重数组中的起始位置
+        &#x2F;&#x2F; l2 单词 &#96;j&#96; 在权重数组中的起始位置
+        l1 &#x3D; (cr.word1 - 1LL) * (vector_size + 1);
+        l2 &#x3D; ((cr.word2 - 1LL) + vocab_size) * (vector_size + 1)
+
+        &#x2F;&#x2F; 准备计算损失
+        diff &#x3D; 0;   &#x2F;&#x2F; 参考 (8) 式括号内的差
+        &#x2F;&#x2F; 计算 wi^T · wj
+        for (b &#x3D; 0; b &lt; vector_size; b++) diff +&#x3D; W[b + l1] * W[b + l2];
+        diff +&#x3D; W[vector_size + l1] + W[vector_size + l2] - log(cr.val);
+        &#x2F;&#x2F; 使用 f(Xij) 系数。得到 f(Xij) * ()
+        fdiff &#x3D; (cr.val &gt; x_max) ? diff : pow(cr.val &#x2F; x_max, alpha) * diff;
+        &#x2F;&#x2F; 得到 f(Xij) * () * ()。 增加一个 1&#x2F;2，为了求导方便
+        cost[id] +&#x3D; 0.5 * fdiff * diff;
+
+        &#x2F;&#x2F; Adaptive gradent updates
+        real W_updates1_sum &#x3D; 0;
+        real W_updates2_sum &#x3D; 0;
+        &#x2F;&#x2F; 计算参数的梯度
+        for (b &#x3D; 0; b &lt; vector_size; b++) &#123;
+            &#x2F;&#x2F; 参考 (32) 式，eta 表示学习率
+            temp1 &#x3D; fmin(fmax(fdiff * W[b + l2], -grad_clip_value), grad_clip_value) * eta;
+            temp2 &#x3D; fmin(fmax(fdiff * W[b + l1], -grad_clip_value), grad_clip_value) * eta;
+
+            W_updates1[b] &#x3D; temp1 &#x2F; sqrt(gradsq[b + l1]);
+            W_updates2[b] &#x3D; temp2 &#x2F; sqrt(gradsq[b + l2]);
+            W_updates1_sum +&#x3D; W_updates1[b];
+            W_updates2_sum +&#x3D; W_updates2[b];
+            gradsq[b + l1] +&#x3D; temp1 * temp1;
+            gradsq[b + l2] +&#x3D; temp2 * temp2;
+        &#125;
+        if (!isnan(W_updates1_sum) &amp;&amp; !isinf(W_updates1_sum) &amp;&amp; !isnan(W_updates2_sum) &amp;&amp; !isinf(W_updates2_sum)) &#123;
+            &#x2F;&#x2F; 更新参数
+            for (b &#x3D; 0; b &lt; vector_size; b++) &#123;
+                W[b + l1] -&#x3D; W_updates1[b];
+                W[b + l2] -&#x3D; W_updates2[b];
+            &#125;
+        &#125;
+        &#x2F;&#x2F; calc gradient of bias and update bias
+        W[vector_size + l1] -&#x3D; checknan(fdiff &#x2F; sqrt(gradsq[vector_size + l1]));
+        &#x2F;&#x2F; checknan: if nan&#x2F;inf, return 0; else return input
+        W[vector_size + l2] -&#x3D; checknan(fdiff &#x2F; sqrt(gradsq[vector_size + l2]));
+        fdiff *&#x3D; fdiff;
+        gradsq[vector_size + l1] &#x3D; fdiff;
+        gradsq[vector_size + l2] &#x3D; fdiff;
+    &#125;
+    free(W_updates1);
+    free(W_updates2);
+    fclose(fin);
+    pthread_exit(NULL);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong># 问题</strong></p>
+<p>多线程，每个线程会从参数矩阵中读取参数的值，然后计算参数的梯度，最后更新回参数矩阵中。某个单词可能会出现在多个线程中，那么为何不给参数矩阵加锁？</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2023/07/18/nlp/glove/">https://jianjiansha.github.io/2023/07/18/nlp/glove/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/NLP/">
+                                    <span class="chip bg-color">NLP</span>
+                                </a>
+                            
+                                <a href="/tags/word-embedding/">
+                                    <span class="chip bg-color">word embedding</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2023/07/25/nlp/GPT1/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="GPT1">
+                        
+                        <span class="card-title">GPT1</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-07-25
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/NLP/">
+                        <span class="chip bg-color">NLP</span>
+                    </a>
+                    
+                    <a href="/tags/GPT/">
+                        <span class="chip bg-color">GPT</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2023/07/17/multi_modal/i2t_match/SCAN/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="SCAN：用于 Image-Text 匹配的堆叠交叉注意力">
+                        
+                        <span class="card-title">SCAN：用于 Image-Text 匹配的堆叠交叉注意力</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-07-17
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/image-text-retrieve/">
+                        <span class="chip bg-color">image-text retrieve</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

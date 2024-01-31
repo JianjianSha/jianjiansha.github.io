@@ -1,0 +1,1613 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="GPT2, SJJ">
+    <meta name="description" content="论文：Language Models are unsupervised multitask learners
+源码：openai/gpt-2
+1. 简介
+通常 NLP 中的各类任务，均使用有监督的数据集训练相应的语言模型。作者则认为，可以在">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>GPT2 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/15.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">GPT2</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/NLP/">
+                                <span class="chip bg-color">NLP</span>
+                            </a>
+                        
+                            <a href="/tags/GPT/">
+                                <span class="chip bg-color">GPT</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2023-07-25
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>论文：<a target="_blank" rel="noopener" href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf">Language Models are unsupervised multitask learners</a></p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/openai/gpt-2">openai/gpt-2</a></p>
+<h1>1. 简介</h1>
+<p>通常 NLP 中的各类任务，均使用有监督的数据集训练相应的语言模型。作者则认为，可以在一个具有数百万网页的数据集（WebText）上没有显示监督的训练语言模型，意思是，只要模型容量大，训练数据集足够大，那么即使非监督训练，也能训练出一个强大的语言模型。本文模型称为 GPT2，基于 transformer 结构，模型参数量为 <code>1.5B</code>（15亿）。</p>
+<h1>2. 方法</h1>
+<p>单一任务的概率模型为 <em>p(output|input)</em>，而适用于多个不同任务的通用系统的模型则为 <em>p(output|input,task)</em> ，其中 <em>task</em> 这个条件通常由模型的网络架构实现，即，针对不同的任务设计不同的 encoder 和 decoder，但是最近有研究 (McCann 2018 <a href="#refer-anchor-1"><sup>1</sup></a>) 表明，语言本身可以灵活地指定 任务、输入、输出 这三者为符号序列，例如，</p>
+<ol>
+<li>翻译训练样本可以写为 <code>(translate to french, english text, french text)</code></li>
+<li>阅读理解任务的训练样本为 <code>(answer the question, document, question, answer)</code></li>
+</ol>
+<p>MaCann 论证了训练单个模型 MQAN，可以用于多个不同的任务中，并且不需要显示地监督，也就是说不需要明确指出哪个符号表示输出，于是有监督学习目标与无监督学习目标相同，两者地全局最小点也应该相同。所以问题变为，我们是否能够优化无监督目标使其收敛。</p>
+<p><strong># 重要概念</strong></p>
+<ol>
+<li>zero-shot 学习和 zero-shot 任务迁移</li>
+</ol>
+<p>零次学习（zero-shot learning） 是零次任务迁移的一种特殊情况，指的是推断阶段没有样本，仅给定指令。例如将英语翻译为法语，给模型一个英文句子，以及一个单词——法语和一个提示符 <code>:</code>，那么就可以假设模型知道这是一个翻译任务，然后输出对应的法语。</p>
+<h2 id="2-1-训练集">2.1 训练集</h2>
+<p>使用大且多样的数据集，例如 Common Crawl，它是从网络上抓取文本而得。然而网络语料存在很多数据问题，为了保证语料中的文档质量，作者选择抓取 Reddit 中超链接所定位的网页内容，得到的数据集称为 <code>WebText</code>。去掉 WebText 中的 Wikipedia 文档，因为 Wikipedia 文档在其他数据集中也常见，这就导致训练集和测试集有部分数据重叠，从而使得问题复杂。</p>
+<h2 id="2-2-Input-Representation">2.2 Input Representation</h2>
+<p>一个通用的语言模型应该可以计算任何字符串的概率，并且可以生成任何字符串。词汇表之外的 tokens 限制了模型可以生成的字符串。一种方法是将 unicode 字符串表示为 UTF-8 的字节序列，但是在大数据集上， byte-level 的语言模型没有 word-level 的语言模型性能好。</p>
+<p>Byte Pair Encoding (BPE) 是一种介于 charactor 和 word 之间的编码方案，但是 BPE 也有一些缺点，作者对此进行适当修改。</p>
+<h2 id="2-3-模型">2.3 模型</h2>
+<p>与 GPT1 类似，有一些修改，</p>
+<ol>
+<li>
+<p>layer norm 移到每个 transfomer block（有时候也称 transformer layer） 之前，即，对输入先做 layer norm，然后是 multi-head self-attn，然后是 residual-add，然后是前馈网络也将 norm 前置（norm+MLP+residual），而正常的 decoder 中 layer norm 是放在 residual-add 之后，前馈网络之前。在最后一个 transformer block 之后，再增加一个 layer norm 。整体结构如下文图 4 。</p>
+</li>
+<li>
+<p>初始时，residual layer 的权重修改为 $1/\sqrt N$，其中 $N$ 是 residual layers 数量。</p>
+</li>
+<li>
+<p>词汇表大小增大到 <code>50,257</code></p>
+</li>
+<li>
+<p>context size 从 <code>512</code> 增大到 <code>1024</code></p>
+</li>
+<li>
+<p>batch size 增大到 <code>512</code></p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>GPT1</th>
+<th>GPT2</th>
+<th>GPT3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parameters</td>
+<td>117M</td>
+<td>1.5B</td>
+<td>175B</td>
+</tr>
+<tr>
+<td>Decoder Layers</td>
+<td>12</td>
+<td>48</td>
+<td>96</td>
+</tr>
+<tr>
+<td>Context Size</td>
+<td>512</td>
+<td>1024</td>
+<td>2048</td>
+</tr>
+<tr>
+<td>Hidden Layer</td>
+<td>768</td>
+<td>1600</td>
+<td>12288</td>
+</tr>
+<tr>
+<td>Batch Size</td>
+<td>64</td>
+<td>512</td>
+<td>3.2M</td>
+</tr>
+<tr>
+<td>Dataset</td>
+<td>Common Crawl<br/>BookCorpus</td>
+<td>Common Crawl<br/>BookCorpus<br/>WebText</td>
+<td>Common Crawl<br/>BookCorpus<br/>Wikipedia<br/>Books<br/>Articles</td>
+</tr>
+</tbody>
+</table>
+<p>表 1. 各版本 GPT1 参数</p>
+<h1>3. 实验</h1>
+<p>作者训练了四个语言模型（如表 2），参数量分别为 117M（GPT1），345M，762M 以及 1.5B（GPT2），从前往后，模型增大，perplexity（混乱度？）指标降低。</p>
+<table>
+<thead>
+<tr>
+<th>Parameters</th>
+<th>Layers</th>
+<th>model dim</th>
+<th>Corrected Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>117M</td>
+<td>12</td>
+<td>768</td>
+<td>124M</td>
+</tr>
+<tr>
+<td>345M</td>
+<td>24</td>
+<td>1024</td>
+<td>355M</td>
+</tr>
+<tr>
+<td>762M</td>
+<td>36</td>
+<td>1280</td>
+<td>774M</td>
+</tr>
+<tr>
+<td>1542M</td>
+<td>48</td>
+<td>1600</td>
+<td>1.5B</td>
+</tr>
+</tbody>
+</table>
+<p>表 2. 4 个模型的参数量，作者后来说论文中参数量（第一列）计算错误，而应该是第四列。</p>
+<h1>4. 总结</h1>
+<p>GPT2 为非监督语言模型，模型容量比 GPT1 更大，可以实现 zero-shot 任务迁移。当然，我们也可以继续在下游任务数据集上 fine-tuning ，这与 GPT1 是类似的，所以不再详细说明，但是如何实现 zero-shot 任务迁移，还是有必要搞清楚。</p>
+<h2 id="4-1-机器翻译">4.1 机器翻译</h2>
+<p>如图 1（图源 <a href="#refer-anchor-2"><sup>2</sup></a>），</p>
+<p><img src="/images/nlp/GPT2_1.png" alt=""></p>
+<center>图 1. GPT2 用于机器翻译</center>
+<p>图 1 左边部分是训练数据集的数据展示，当然这是一个 labeled 的数据集，用于机器翻译中将英文翻译为法文，但是我们要将它看作是无监督的数据集，将 <code>x</code>（英文）和 <code>y</code> 连接起来，中间使用一个特殊的 token <code>&lt;to-fr&gt;</code> 分隔（这个特殊 token 是自定义的，不是绝对固定，但是要保证在 train 和 eval 阶段一致）。</p>
+<p>图 1 右边部分是 GPT2 的 transformer decoder（省略了 embedding layer），对于位置 4 <code>position #4</code>，前面的内容为 <code>how are you &lt;to-fr&gt;</code>，后面的被 mask 了，此位置预测应该是 <code>comment</code>，然后下一个位置 <code>position #5</code>，再根据 <code>how are you &lt;to-fr&gt; comment</code> 预测输出应为 <code>allez-vous</code>，依次进行下去。</p>
+<p>对于非监督训练集，则样本不像上面的数据集那样每个样本均为 <code>&lt;english sentence&gt; &lt;to-fr&gt; &lt;french sentence&gt;</code>，而是文档中的句子，例如 图2，一句话中有英文句子以及对应的法文句子，以及相关的词 <code>say in French</code>，<code>wrote in French</code>，<code>translates as</code> 等。由于 GPT2 模型容量大，在大数据集中，GPT2 能够学习到翻译的能力，在 eval 时，输入应该类似于 <code>&lt;english sentence&gt; translate to/as french</code> 或者 <code>translate to/as french: &lt;english sentence&gt;</code>，而不能使用 <code>&lt;to-fr&gt;</code> 这种在训练阶段没见过的 token 。</p>
+<p><img src="/images/nlp/GPT2_2.png" alt=""></p>
+<center>图 2. WebText 训练集中有关英翻法和法翻英的句子示例</center>
+<h2 id="4-1-文本总结">4.1 文本总结</h2>
+<p>与机器翻译任务类似，见图 3（图源 <a href="#refer-anchor-2"><sup>2</sup></a>），注意 <code>&lt;summarize&gt;</code> 这样的 token 与机器翻译中的 <code>&lt;to-fr&gt;</code> 类似，要在训练和 eval 阶段一致。</p>
+<p><img src="/images/nlp/GPT2_3.png" alt=""></p>
+<center>图 3. GPT2 用于文本总结</center>
+<h1>5. 源码解析</h1>
+<h2 id="5-1-官方源码">5.1 官方源码</h2>
+<p>官方源码中没有关于训练的源码。这里仅以 sample 实现为例分析源码。</p>
+<p>以 <code>124M</code> 模型为例说明，下载模型使用如下命令，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">python download_model<span class="token punctuation">.</span>py 124M<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>从 <code>hparams.json</code> 文件中可见超参数为</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">n_vocab: <span class="token number">50257</span>  <span class="token comment"># 词汇表 size</span>
+n_ctx: <span class="token number">1024</span>     <span class="token comment"># context window size</span>
+n_embd: <span class="token number">768</span>     <span class="token comment"># attention model dimension</span>
+n_head: <span class="token number">12</span>      <span class="token comment"># number of heads of multi-head self-attention</span>
+n_layer: <span class="token number">12</span>     <span class="token comment"># number of attention layers in decoder</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="/images/nlp/GPT2_4.png" alt=""></p>
+<center>图 4. transformer layer 结构</center>
+<p>模型定义代码如下，其中</p>
+<p><code>wpe</code> 为 $W _ p \in \mathbb R ^ {k \times d}$ （参见 <a href="/2023/07/25/nlp/GPT1">GPT1</a> 中的 <code>## 2.1</code> 一节中 (2) 式以及相关解释），<code>wte</code> 为 $W _ t \in \mathbb R ^ {V \times d}$，其中 $k$ 为 context window size，$d$ 为模型维度，$V$ 为词汇表 size 。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">model</span><span class="token punctuation">(</span>hparams<span class="token punctuation">,</span> X<span class="token punctuation">,</span> past<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> scope<span class="token operator">=</span><span class="token string">'model'</span><span class="token punctuation">,</span> reuse<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    past: 当前的 context 信息。第 1 步（初始）时，为 None，表示没有 context 信息
+            以后第 i 步时，其 shape 为 (batch, n, 2, heads, i-1, d//heads)
+            n 为 transformer layer 数量，n=12
+            2 表示 k，v 两个变量的值
+            heads：为多头自注意力模型的 head 数量，heads=12
+            d：model dimension，d=768
+    '''</span>
+    <span class="token keyword">with</span> tf<span class="token punctuation">.</span>variable_scope<span class="token punctuation">(</span>scope<span class="token punctuation">,</span> reuse<span class="token operator">=</span>reuse<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        results <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+        batch<span class="token punctuation">,</span> sequence <span class="token operator">=</span> shape_list<span class="token punctuation">(</span>X<span class="token punctuation">)</span>
+        <span class="token comment"># position embedding matrix</span>
+        wpe <span class="token operator">=</span> tf<span class="token punctuation">.</span>get_variable<span class="token punctuation">(</span><span class="token string">'wpe'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>hparams<span class="token punctuation">.</span>n_ctx<span class="token punctuation">,</span> hparams<span class="token punctuation">.</span>n_embd<span class="token punctuation">]</span><span class="token punctuation">,</span>
+                              initializer<span class="token operator">=</span>tf<span class="token punctuation">.</span>random_normal_initializer<span class="token punctuation">(</span>stddev<span class="token operator">=</span><span class="token number">0.01</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token comment"># word embedding matrix</span>
+        wte <span class="token operator">=</span> tf<span class="token punctuation">.</span>get_variable<span class="token punctuation">(</span><span class="token string">'wte'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>hparams<span class="token punctuation">.</span>n_vocab<span class="token punctuation">,</span> hparams<span class="token punctuation">.</span>n_embd<span class="token punctuation">]</span><span class="token punctuation">,</span>
+                              initializer<span class="token operator">=</span>tf<span class="token punctuation">.</span>random_normal_initializer<span class="token punctuation">(</span>stddev<span class="token operator">=</span><span class="token number">0.02</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token comment"># context 的序列长度（不包括当前 timestep 的 token）</span>
+        past_length <span class="token operator">=</span> <span class="token number">0</span> <span class="token keyword">if</span> past <span class="token keyword">is</span> <span class="token boolean">None</span> <span class="token keyword">else</span> tf<span class="token punctuation">.</span>shape<span class="token punctuation">(</span>past<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">2</span><span class="token punctuation">]</span>
+        <span class="token comment"># (batch, sequence, n_embd), 这里 n_embd = model_dim</span>
+        h <span class="token operator">=</span> tf<span class="token punctuation">.</span>gather<span class="token punctuation">(</span>wte<span class="token punctuation">,</span> X<span class="token punctuation">)</span> <span class="token operator">+</span> tf<span class="token punctuation">.</span>gather<span class="token punctuation">(</span>wpe<span class="token punctuation">,</span> position_for<span class="token punctuation">(</span>X<span class="token punctuation">,</span> past_length<span class="token punctuation">)</span><span class="token punctuation">)</span>    <span class="token comment"># h0，参考 GPT1 一文的式 (2)</span>
+        presents <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        pasts <span class="token operator">=</span> tf<span class="token punctuation">.</span>unstack<span class="token punctuation">(</span>past<span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token keyword">if</span> past <span class="token keyword">is</span> <span class="token keyword">not</span> <span class="token boolean">None</span> <span class="token keyword">else</span> <span class="token punctuation">[</span><span class="token boolean">None</span><span class="token punctuation">]</span> <span class="token operator">*</span> hparams<span class="token punctuation">.</span>n_layer
+        <span class="token keyword">for</span> layer<span class="token punctuation">,</span> past <span class="token keyword">in</span> <span class="token builtin">enumerate</span><span class="token punctuation">(</span>pasts<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token comment"># 计算 hl, l=1,...,n,  (batch, sequence, d)</span>
+            <span class="token comment"># present: concat(k, v) of l-th layer, (batch, 2*heads, sequence, d//heads)</span>
+            h<span class="token punctuation">,</span> present <span class="token operator">=</span> block<span class="token punctuation">(</span>h<span class="token punctuation">,</span> <span class="token string">'h%d'</span> <span class="token operator">%</span> layer<span class="token punctuation">,</span> past<span class="token operator">=</span>past<span class="token punctuation">,</span> hparams<span class="token operator">=</span>hparams<span class="token punctuation">)</span>
+            presents<span class="token punctuation">.</span>append<span class="token punctuation">(</span>present<span class="token punctuation">)</span>
+        results<span class="token punctuation">[</span><span class="token string">'presents'</span><span class="token punctuation">]</span> <span class="token operator">=</span> tf<span class="token punctuation">.</span>stack<span class="token punctuation">(</span>presents<span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>    <span class="token comment"># (batch, 2*n*heads, sequence, d//heads)</span>
+        h <span class="token operator">=</span> norm<span class="token punctuation">(</span>h<span class="token punctuation">,</span> <span class="token string">'ln_f'</span><span class="token punctuation">)</span> <span class="token comment"># 最后一个 transformer layer 之后，再增加一个 norm</span>
+        h_flat <span class="token operator">=</span> tf<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>h<span class="token punctuation">,</span> <span class="token punctuation">[</span>batch <span class="token operator">*</span> sequence<span class="token punctuation">,</span> hparams<span class="token punctuation">.</span>n_embd<span class="token punctuation">]</span><span class="token punctuation">)</span>
+        logits <span class="token operator">=</span> tf<span class="token punctuation">.</span>matmul<span class="token punctuation">(</span>h_flat<span class="token punctuation">,</span> wte<span class="token punctuation">,</span> transpose_b<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>   <span class="token comment"># 归一化预测得分，(batch*sequence, n_vocab)</span>
+        logits <span class="token operator">=</span> tf<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>logits<span class="token punctuation">,</span> <span class="token punctuation">[</span>batch<span class="token punctuation">,</span> sequence<span class="token punctuation">,</span> hparams<span class="token punctuation">.</span>n_vocab<span class="token punctuation">]</span><span class="token punctuation">)</span>
+        results<span class="token punctuation">[</span><span class="token string">'logits'</span><span class="token punctuation">]</span> <span class="token operator">=</span> logits
+        <span class="token keyword">return</span> results<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上述代码非常简单，基本上是按 <a href="/2023/07/25/nlp/GPT1">GPT1</a> 中的 (2) 式计算，但是我仔细阅读源码发现输入序列与原始的 transformer 还是不一样的，原始 transformer 其实就是 <a href="/2023/07/25/nlp/GPT1">GPT1</a> 中的 (2) 式，如下，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">Process <span class="token number">1</span>
+<span class="token comment"># 以下输入、输出指的是 transformer decoder 的输入、输出</span>
+<span class="token comment"># i=1, 输入为 &#123;'&lt;|endoftext|>'&#125;，输出为 `&lt;tok1>`</span>
+<span class="token comment"># i=2, 输入为 &#123;'&lt;|endoftext|>', '&lt;tok1>'&#125;，输出为 &#123;'&lt;tok1>', '&lt;tok2>'&#125;</span>
+<span class="token comment"># i=3, 输入为 &#123;'&lt;|endoftext|>', '&lt;tok1>', '&lt;tok2>'&#125;，输出为 &#123;'&lt;tok1>', '&lt;tok2>', '&lt;tok3>'&#125;</span>
+<span class="token comment"># ...</span>
+<span class="token comment"># i=1025, 输入为 &#123;'&lt;tok1>', ..., '&lt;tok1024>'&#125;，输出为 &#123;'&lt;tok2>', ..., '&lt;tok1025>'&#125;</span>
+<span class="token comment"># ...</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>但实际代码并非按照上面这个过程实现，而是</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">Process <span class="token number">2</span>
+<span class="token comment"># 以下每一步均记录 decoder 中各 layer 的 k，v（q,k,v中的 k,v)，12个layers的 k,v 记为 ks，vs，</span>
+<span class="token comment">#   记录结果保存到变量 presents，</span>
+<span class="token comment">#   并且每一步的输出均附加到 output 后面（output初始为 ['&lt;|endoftext|>']）</span>
+<span class="token comment"># i=1, 输入：&#123;'&lt;|endoftext|>'&#125;，输出：'&lt;tok1>'，presents：[(ks1, vs1)]，output：['&lt;|endoftext|>', '&lt;tok1>']</span>
+<span class="token comment"># i=2, 输入：&#123;'&lt;tok1>'&#125;，输出：'&lt;tok2>'，presents：[(ks1, vs1), (ks2, vs2)]，output：['&lt;|endoftext|>', '&lt;tok1>', '&lt;tok2>']</span>
+<span class="token comment"># i=3, 输入：&#123;'&lt;tok2>'&#125;，输出：'&lt;tok3>'，presents：[(ks1, vs1), (ks2, vs2), (ks3, vs3)]，output：['&lt;|endoftext|>', '&lt;tok1>', '&lt;tok2>', '&lt;tok3>']</span>
+<span class="token comment"># ...</span>
+<span class="token comment"># i=1025 -> exit</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>Process 2 中每一步表示执行上面的代码中 <code>model(hparams, X, past, ...)</code> 方法，其中输入就是 <code>X</code>，所以 <code>X.shape=(batch, 1)</code> ，当前步骤输出的 presents 传给给下一步的 <code>past</code> 参数，所以 context 信息没有放在输入 <code>X</code> 上，而是放在 <code>past</code> 上，也就是说 context 信息其实利用的是 context token 对应的 <code>k, v</code> 值，过程如图 5 所示，</p>
+<p><img src="/images/nlp/GPT2_5.png" alt=""></p>
+<center>图 5. 利用 context 信息</center>
+<h2 id="5-2-非官方实现">5.2 非官方实现</h2>
+<p><a target="_blank" rel="noopener" href="https://github.com/karpathy/nanoGPT">karpathy/nanoGPT</a></p>
+<h3 id="5-2-1-数据集">5.2.1 数据集</h3>
+<p>项目中提供了几个数据集，这里以 <code>openwebtext</code> 为例。openwebtext 是一个文档列表，图 6 显示了一部分文档，每个文档（text）的 word 数量都比较多（1K 以上），</p>
+<p><img src="/images/nlp/GPT2_6.png" alt=""></p>
+<center>图 6. openwebtext 训练集的前 1.01M 个文档</center>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">enc <span class="token operator">=</span> tiktoken<span class="token punctuation">.</span>get_encoding<span class="token punctuation">(</span><span class="token string">"gpt2"</span><span class="token punctuation">)</span> <span class="token comment"># 获取 GPT2 的分词器，每个 GPT 版本的词汇表可能不同</span>
+<span class="token keyword">def</span> <span class="token function">process</span><span class="token punctuation">(</span>example<span class="token punctuation">)</span><span class="token punctuation">:</span>   <span class="token comment"># 一个文档就是一个 example</span>
+    ids <span class="token operator">=</span> enc<span class="token punctuation">.</span>encode_ordinary<span class="token punctuation">(</span>example<span class="token punctuation">[</span><span class="token string">'text'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>  <span class="token comment"># 将 text tokenize，并得到 id 序列</span>
+    ids<span class="token punctuation">.</span>append<span class="token punctuation">(</span>enc<span class="token punctuation">.</span>eot_token<span class="token punctuation">)</span>   <span class="token comment"># add the end of text token, e.g. 50256 for gpt2 bpe</span>
+    out <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">'ids'</span><span class="token punctuation">:</span> ids<span class="token punctuation">,</span> <span class="token string">'len'</span><span class="token punctuation">:</span> <span class="token builtin">len</span><span class="token punctuation">(</span>ids<span class="token punctuation">)</span><span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> out
+
+<span class="token comment"># 处理训练集</span>
+outs <span class="token operator">=</span> <span class="token punctuation">[</span>process<span class="token punctuation">(</span>ex<span class="token punctuation">)</span> <span class="token keyword">for</span> ex <span class="token keyword">in</span> train_dataset<span class="token punctuation">]</span>
+arr_len <span class="token operator">=</span> np<span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span><span class="token punctuation">[</span>out<span class="token punctuation">[</span><span class="token string">'len'</span><span class="token punctuation">]</span> <span class="token keyword">for</span> out <span class="token keyword">in</span> outs<span class="token punctuation">]</span><span class="token punctuation">)</span>  <span class="token comment"># 所有文档的 token 数量总和</span>
+arr <span class="token operator">=</span> np<span class="token punctuation">.</span>memmap<span class="token punctuation">(</span><span class="token string">'train.bin'</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>uint16<span class="token punctuation">,</span> mode<span class="token operator">=</span><span class="token string">'w+'</span><span class="token punctuation">,</span> shape<span class="token operator">=</span><span class="token punctuation">(</span>arr_len<span class="token punctuation">,</span> <span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+idx <span class="token operator">=</span> <span class="token number">0</span>
+total_batches <span class="token operator">=</span> <span class="token number">1024</span>    <span class="token comment"># 分成 1024 批，按批写入文件</span>
+size <span class="token operator">=</span> arr_len <span class="token operator">//</span> total_batches  <span class="token comment"># 批大小</span>
+<span class="token keyword">if</span> arr_len <span class="token operator">%</span> total_batches<span class="token punctuation">:</span>
+    size <span class="token operator">+=</span> <span class="token number">1</span>
+
+<span class="token keyword">for</span> batch_idx <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>total_batches<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    batch <span class="token operator">=</span> outs<span class="token punctuation">[</span>idx <span class="token punctuation">:</span> idx<span class="token operator">+</span>size<span class="token punctuation">]</span>
+    batch_size <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>batch<span class="token punctuation">)</span>
+    arr<span class="token punctuation">[</span>idx <span class="token punctuation">:</span> idx<span class="token operator">+</span>batch_size<span class="token punctuation">]</span> <span class="token operator">=</span> np<span class="token punctuation">.</span>concatenate<span class="token punctuation">(</span><span class="token punctuation">[</span>out<span class="token punctuation">[</span><span class="token string">'ids'</span><span class="token punctuation">]</span> <span class="token keyword">for</span> out <span class="token keyword">in</span> batch<span class="token punctuation">]</span><span class="token punctuation">)</span>
+    idx <span class="token operator">+=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>batch_size<span class="token punctuation">)</span>
+arr<span class="token punctuation">.</span>flush<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>根据上述代码，得到的 <code>train.bin</code> 文件就是：</p>
+<ol>
+<li>将文档 tokenize，得到 token id 列表，列表最后增加一个 eot_token id，列表记作 <code>ids</code></li>
+<li>所有文档的 <code>ids</code> concatenate，得到一个超长列表，一维向量，可以看作是一个超大文档。</li>
+</ol>
+<p>使用如下语句读取 <code>train.bin</code>，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">train_data <span class="token operator">=</span> np<span class="token punctuation">.</span>memmap<span class="token punctuation">(</span><span class="token string">'train.bin'</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>uint16<span class="token punctuation">,</span> mode<span class="token operator">=</span><span class="token string">'r'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><strong># 数据加载</strong></p>
+<p>训练时，不按文档，随机选择这个超大文档中的一部分，即一段连续的 tokens，称为一个 block，输入一个 block，输出为预测这个 window 向后移一位后新 block 的概率。block size 为 context window size，对于 GPT2，这个 size 为 1024 。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">block_size <span class="token operator">=</span> <span class="token number">1024</span>
+
+<span class="token keyword">def</span> <span class="token function">get_batch</span><span class="token punctuation">(</span>split<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    data <span class="token operator">=</span> train_data <span class="token keyword">if</span> split <span class="token operator">==</span> <span class="token string">'train'</span> <span class="token keyword">else</span> val_data
+    <span class="token comment"># 随机获取 batch_size 个 block 的 start id</span>
+    ix <span class="token operator">=</span> torch<span class="token punctuation">.</span>randint<span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span> <span class="token operator">-</span> block_size<span class="token punctuation">,</span> <span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> <span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token comment"># (batch_size, block_size)</span>
+    x <span class="token operator">=</span> torch<span class="token punctuation">.</span>stack<span class="token punctuation">(</span><span class="token punctuation">[</span>torch<span class="token punctuation">.</span>from_numpy<span class="token punctuation">(</span><span class="token punctuation">(</span>data<span class="token punctuation">[</span>i<span class="token punctuation">:</span>i<span class="token operator">+</span>block_size<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>astype<span class="token punctuation">(</span>np<span class="token punctuation">.</span>int64<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> ix<span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token comment"># (batch_size, block_size)</span>
+    y <span class="token operator">=</span> torch<span class="token punctuation">.</span>stack<span class="token punctuation">(</span><span class="token punctuation">[</span>torch<span class="token punctuation">.</span>from_numpy<span class="token punctuation">(</span><span class="token punctuation">(</span>data<span class="token punctuation">[</span>i<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">:</span>i<span class="token operator">+</span><span class="token number">1</span><span class="token operator">+</span>block_size<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>astype<span class="token punctuation">(</span>np<span class="token punctuation">.</span>int64<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> ix<span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token comment"># x.to(device), y.to(device)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="5-2-2-训练">5.2.2 训练</h2>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># 通常，计算每一个 batch 的 loss 后，就要使用梯度更新参数</span>
+<span class="token comment"># 由于 batch 太大，而 GPU 显存不够，那么只能累加多个 batch 梯度，然后一次性更新到参数</span>
+<span class="token comment"># 这样就实现大的 batch</span>
+gradient_accumulation_steps <span class="token operator">=</span> <span class="token number">5</span> <span class="token operator">*</span> <span class="token number">8</span>
+batch_size <span class="token operator">=</span> <span class="token number">12</span>
+ctx <span class="token operator">=</span> torch<span class="token punctuation">.</span>amp<span class="token punctuation">.</span>autocast<span class="token punctuation">(</span>device_type<span class="token operator">=</span>device_type<span class="token punctuation">,</span> dtype<span class="token operator">=</span>ptdytpe<span class="token punctuation">)</span>
+scaler <span class="token operator">=</span> torch<span class="token punctuation">.</span>cuda<span class="token punctuation">.</span>amp<span class="token punctuation">.</span>GradScaler<span class="token punctuation">(</span>enabled<span class="token operator">=</span><span class="token punctuation">(</span>dtype<span class="token operator">==</span><span class="token string">'float16'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+X<span class="token punctuation">,</span> Y <span class="token operator">=</span> get_batch<span class="token punctuation">(</span><span class="token string">'train'</span><span class="token punctuation">)</span>
+<span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> micro_step <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>gradient_accumulation_steps<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">with</span> ctx<span class="token punctuation">:</span>
+            logits<span class="token punctuation">,</span> loss <span class="token operator">=</span> model<span class="token punctuation">(</span>X<span class="token punctuation">,</span> Y<span class="token punctuation">)</span>  <span class="token comment"># loss: reduce-mean</span>
+            loss <span class="token operator">=</span> loss <span class="token operator">/</span> gradient_accumulation_steps
+        X<span class="token punctuation">,</span> Y <span class="token operator">=</span> get_batch<span class="token punctuation">(</span><span class="token string">'train'</span><span class="token punctuation">)</span>
+        scaler<span class="token punctuation">.</span>scale<span class="token punctuation">(</span>loss<span class="token punctuation">)</span><span class="token punctuation">.</span>backward<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> grad_clip <span class="token operator">!=</span> <span class="token number">0.0</span><span class="token punctuation">:</span>    <span class="token comment"># clip 梯度，防止梯度太大，导致训练不稳定</span>
+        scaler<span class="token punctuation">.</span>unscale_<span class="token punctuation">(</span>optimizer<span class="token punctuation">)</span>
+        torch<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>utils<span class="token punctuation">.</span>clip_grad_norm_<span class="token punctuation">(</span>model<span class="token punctuation">.</span>parameters<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> grad_clip<span class="token punctuation">)</span>
+    
+    scaler<span class="token punctuation">.</span>step<span class="token punctuation">(</span>optimizer<span class="token punctuation">)</span>
+    scaler<span class="token punctuation">.</span>update<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    optimizer<span class="token punctuation">.</span>zero_grad<span class="token punctuation">(</span>set_to_none<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<details><summary>large batch 分为 small batch 原理</summary>
+<p>假设一个大的 batch size 为 $B$，那么 reduce-mean loss 为</p>
+<p>$$L _ B = \frac 1 B \sum _ {i=1} ^ B l _ i \tag{1}$$</p>
+<p>反向传播，计算梯度为</p>
+<p>$$\nabla _ {W} L _ B = \frac {\partial L _ B}{\partial W} \tag{2}$$</p>
+<p>将大 batch 划分为 <code>n</code> 个小 batch，即 $B = n b$，那么第 <code>j</code> 个小 batch 的 reduce-mean loss 为</p>
+<p>$$L _ {b _ j} = \frac 1 b \sum _ {k _ j =1} ^ b l _ {k _ j} , \quad j =1,\ldots, n\tag{3}$$</p>
+<p>反向传播，计算梯度为</p>
+<p>$$\nabla _ W L _ {b _ j} = \frac {\partial L _ {b _ j}}{\partial W} \tag{4}$$<br>
+满足关系</p>
+<p>$$\begin{aligned} L _ B = \frac 1 B \sum _ {j=1} ^ n b L _ {b _ j} =\sum _ {j=1} ^ n \frac 1 n L _ {b _ j}<br>
+\\ \nabla _ W L _ B = \sum _ {j=1} ^ n \frac 1 b \nabla _ W L _ {b _ j}<br>
+\end{aligned} \tag{4}$$</p>
+</details>
+<br/>
+<h3 id="5-2-3-模型">5.2.3 模型</h3>
+<p>nanoGPT 配置如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">GPTConfig</span><span class="token punctuation">:</span>
+    block_size<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">1024</span>
+    vocab_size<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">50304</span> <span class="token comment"># GPT-2 vocab_size of 50257, padded up to nearest multiple of 64 for efficiency</span>
+    n_layer<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">12</span>
+    n_head<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">12</span>
+    n_embd<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">768</span>
+    dropout<span class="token punctuation">:</span> <span class="token builtin">float</span> <span class="token operator">=</span> <span class="token number">0.0</span>
+    bias<span class="token punctuation">:</span> <span class="token builtin">bool</span> <span class="token operator">=</span> <span class="token boolean">True</span> <span class="token comment"># True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>模型定义如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">GPT</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> config<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>config <span class="token operator">=</span> config
+        self<span class="token punctuation">.</span>transformer <span class="token operator">=</span> nn<span class="token punctuation">.</span>ModuleDict<span class="token punctuation">(</span><span class="token builtin">dict</span><span class="token punctuation">(</span>
+            <span class="token comment"># token embedding matrix</span>
+            wte <span class="token operator">=</span> nn<span class="token punctuation">.</span>Embedding<span class="token punctuation">(</span>config<span class="token punctuation">.</span>vocab_size<span class="token punctuation">,</span> config<span class="token punctuation">.</span>n_embd<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token comment"># position embeding maxtrix</span>
+            wpe <span class="token operator">=</span> nn<span class="token punctuation">.</span>Embedding<span class="token punctuation">(</span>config<span class="token punctuation">.</span>block_size<span class="token punctuation">,</span> config<span class="token punctuation">.</span>n_embd<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            drop <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>config<span class="token punctuation">.</span>dropout<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            h <span class="token operator">=</span> nn<span class="token punctuation">.</span>ModuleList<span class="token punctuation">(</span><span class="token punctuation">[</span>Block<span class="token punctuation">(</span>config<span class="token punctuation">)</span> <span class="token keyword">for</span> _ <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>config<span class="token punctuation">.</span>n_layer<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            ln_f <span class="token operator">=</span> LayerNorm<span class="token punctuation">(</span>config<span class="token punctuation">.</span>n_embd<span class="token punctuation">,</span> bias<span class="token operator">=</span>config<span class="token punctuation">.</span>bias<span class="token punctuation">)</span>
+        <span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token comment"># transformer decoder 输出特征经过一个 FC，转为 vocab 中各 token 的预测得分</span>
+        self<span class="token punctuation">.</span>lm_head <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>config<span class="token punctuation">.</span>n_embd<span class="token punctuation">,</span> config<span class="token punctuation">.</span>vocab_size<span class="token punctuation">,</span> bias<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>transformer<span class="token punctuation">.</span>wte<span class="token punctuation">.</span>weight <span class="token operator">=</span> self<span class="token punctuation">.</span>lm_head<span class="token punctuation">.</span>weight
+
+        self<span class="token punctuation">.</span><span class="token builtin">apply</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>_init_weights<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上述过程参见  <a href="/2023/07/25/nlp/GPT1">GPT1</a> 中的 (2) 式 。</p>
+<p>直接看 GPT 前向传播时对输入序列如何处理，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> idx<span class="token punctuation">,</span> targets<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    idx: (batch_size, block_size)，注意 block_size 就是上下文窗口 size
+    target: 将 idx 中各上下文窗口向后移动一个 token
+    '''</span>
+    device <span class="token operator">=</span> idx<span class="token punctuation">.</span>device
+    b<span class="token punctuation">,</span> t <span class="token operator">=</span> idx<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    pos <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> t<span class="token punctuation">,</span> dtype<span class="token operator">=</span>torch<span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
+
+    tok_emb <span class="token operator">=</span> self<span class="token punctuation">.</span>transformer<span class="token punctuation">.</span>wte<span class="token punctuation">(</span>idx<span class="token punctuation">)</span> <span class="token comment"># token embeddings, (b, t, n_embd)</span>
+    pos_emb <span class="token operator">=</span> self<span class="token punctuation">.</span>transformer<span class="token punctuation">.</span>wpe<span class="token punctuation">(</span>pos<span class="token punctuation">)</span> <span class="token comment"># position embeddings, (t, n_embd)</span>
+
+    <span class="token comment"># (b, t, n_embd)</span>
+    x <span class="token operator">=</span> self<span class="token punctuation">.</span>transformer<span class="token punctuation">.</span>drop<span class="token punctuation">(</span>tok_emb <span class="token operator">+</span> pos_emb<span class="token punctuation">)</span>    <span class="token comment"># drop to avoid overffing</span>
+
+    <span class="token keyword">for</span> block <span class="token keyword">in</span> self<span class="token punctuation">.</span>transformer<span class="token punctuation">.</span>h<span class="token punctuation">:</span>
+        x <span class="token operator">=</span> block<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+    
+    <span class="token comment"># (b, t, n_vocab)</span>
+    x <span class="token operator">=</span> self<span class="token punctuation">.</span>transformer<span class="token punctuation">.</span>ln_f<span class="token punctuation">(</span>x<span class="token punctuation">)</span>    <span class="token comment"># 最后在增加一个 layer norm，参见上面 2.3 一节对 GPT2 的修改说明</span>
+
+    <span class="token keyword">if</span> targets <span class="token keyword">is</span> <span class="token keyword">not</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+        logits <span class="token operator">=</span> self<span class="token punctuation">.</span>lm_head<span class="token punctuation">(</span>x<span class="token punctuation">)</span>    <span class="token comment"># convert to predict tokens</span>
+        <span class="token comment"># 忽略 token id 为 -1 的样本</span>
+        loss <span class="token operator">=</span> F<span class="token punctuation">.</span>cross_entropy<span class="token punctuation">(</span>logits<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> logits<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> targets<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> ignore_index<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        <span class="token comment"># inference-time mini-optimization: only forward the lm_head on the very last position</span>
+        logits <span class="token operator">=</span> self<span class="token punctuation">.</span>lm_head<span class="token punctuation">(</span>x<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        loss <span class="token operator">=</span> <span class="token boolean">None</span>
+    <span class="token keyword">return</span> logits<span class="token punctuation">,</span> loss<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>由于 GPT 使用 transformer decoder，训练时左边位置的 token 应该看不到右边位置的 token，也就是说，计算一个 token 出现的概率，应该与这个 token 之前的 tokens 有关，即 $p(u _ i | u _ {i-k}, \ldots, u _ {i-1} )$ 。来看代码如何实现，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># 一个 transformer layer(block)</span>
+<span class="token keyword">class</span> <span class="token class-name">Block</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> config<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token comment"># layer norm 前置</span>
+        self<span class="token punctuation">.</span>ln_1 <span class="token operator">=</span> LayerNorm<span class="token punctuation">(</span>config<span class="token punctuation">.</span>n_embd<span class="token punctuation">,</span> bias<span class="token operator">=</span>config<span class="token punctuation">.</span>bias<span class="token punctuation">)</span>
+        <span class="token comment"># 这个 causal 表示要考虑因果关系，即当前只看到左边的 tokens，看不到右边的 tokens</span>
+        self<span class="token punctuation">.</span>attn <span class="token operator">=</span> CausalSelfAttention<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>ln_2 <span class="token operator">=</span> LayerNorm<span class="token punctuation">(</span>config<span class="token punctuation">.</span>n_embd<span class="token punctuation">,</span> bias<span class="token operator">=</span>config<span class="token punctuation">.</span>bias<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>mlp <span class="token operator">=</span> MLP<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        x <span class="token operator">=</span> x <span class="token operator">+</span> self<span class="token punctuation">.</span>attn<span class="token punctuation">(</span>self<span class="token punctuation">.</span>ln_1<span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        x <span class="token operator">=</span> x <span class="token operator">+</span> self<span class="token punctuation">.</span>mlp<span class="token punctuation">(</span>self<span class="token punctuation">.</span>ln_2<span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> x<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>考虑因果关系的 multi-head self-attention 的实现代码如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">CausalSelfAttention</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> config<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">assert</span> config<span class="token punctuation">.</span>n_embd <span class="token operator">%</span> config<span class="token punctuation">.</span>n_head <span class="token operator">==</span> <span class="token number">0</span>
+        <span class="token comment"># key, query, value projections for all heads, but in a batch</span>
+        self<span class="token punctuation">.</span>c_attn <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>config<span class="token punctuation">.</span>n_embd<span class="token punctuation">,</span> <span class="token number">3</span> <span class="token operator">*</span> config<span class="token punctuation">.</span>n_embd<span class="token punctuation">,</span> bias<span class="token operator">=</span>config<span class="token punctuation">.</span>bias<span class="token punctuation">)</span>
+        <span class="token comment"># output projection</span>
+        self<span class="token punctuation">.</span>c_proj <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>config<span class="token punctuation">.</span>n_embd<span class="token punctuation">,</span> config<span class="token punctuation">.</span>n_embd<span class="token punctuation">,</span> bias<span class="token operator">=</span>config<span class="token punctuation">.</span>bias<span class="token punctuation">)</span>
+        <span class="token comment"># regularization</span>
+        self<span class="token punctuation">.</span>attn_dropout <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>config<span class="token punctuation">.</span>dropout<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>resid_dropout <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>config<span class="token punctuation">.</span>dropout<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>n_head <span class="token operator">=</span> config<span class="token punctuation">.</span>n_head
+        self<span class="token punctuation">.</span>n_embd <span class="token operator">=</span> config<span class="token punctuation">.</span>n_embd
+        self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> config<span class="token punctuation">.</span>dropout
+        <span class="token comment"># flash attention make GPU go brrrrr but support is only in PyTorch >= 2.0</span>
+        self<span class="token punctuation">.</span>flash <span class="token operator">=</span> <span class="token builtin">hasattr</span><span class="token punctuation">(</span>torch<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>functional<span class="token punctuation">,</span> <span class="token string">'scaled_dot_product_attention'</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> <span class="token keyword">not</span> self<span class="token punctuation">.</span>flash<span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"WARNING: using slow attention. Flash Attention requires PyTorch >= 2.0"</span><span class="token punctuation">)</span>
+            <span class="token comment"># causal mask to ensure that attention is only applied to the left in the input sequence</span>
+            <span class="token comment"># 下三角</span>
+            self<span class="token punctuation">.</span>register_buffer<span class="token punctuation">(</span><span class="token string">"bias"</span><span class="token punctuation">,</span> torch<span class="token punctuation">.</span>tril<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>ones<span class="token punctuation">(</span>config<span class="token punctuation">.</span>block_size<span class="token punctuation">,</span> config<span class="token punctuation">.</span>block_size<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                                        <span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> config<span class="token punctuation">.</span>block_size<span class="token punctuation">,</span> config<span class="token punctuation">.</span>block_size<span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>看到这里，其中各 layer 的定义应该已经很熟悉了，我们看看前向传播的实现，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># T = 1024 上下文窗口 size</span>
+    B<span class="token punctuation">,</span> T<span class="token punctuation">,</span> C <span class="token operator">=</span> x<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment"># batch size, sequence length, embedding dimensionality (n_embd)</span>
+
+    <span class="token comment"># calculate query, key, values for all heads in batch and move head forward to be the batch dim</span>
+    q<span class="token punctuation">,</span> k<span class="token punctuation">,</span> v  <span class="token operator">=</span> self<span class="token punctuation">.</span>c_attn<span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">.</span>split<span class="token punctuation">(</span>self<span class="token punctuation">.</span>n_embd<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span>     <span class="token comment"># (B, n_ctx, n_embd)</span>
+    k <span class="token operator">=</span> k<span class="token punctuation">.</span>view<span class="token punctuation">(</span>B<span class="token punctuation">,</span> T<span class="token punctuation">,</span> self<span class="token punctuation">.</span>n_head<span class="token punctuation">,</span> C <span class="token operator">//</span> self<span class="token punctuation">.</span>n_head<span class="token punctuation">)</span><span class="token punctuation">.</span>transpose<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token comment"># (B, nh, T, hs)</span>
+    q <span class="token operator">=</span> q<span class="token punctuation">.</span>view<span class="token punctuation">(</span>B<span class="token punctuation">,</span> T<span class="token punctuation">,</span> self<span class="token punctuation">.</span>n_head<span class="token punctuation">,</span> C <span class="token operator">//</span> self<span class="token punctuation">.</span>n_head<span class="token punctuation">)</span><span class="token punctuation">.</span>transpose<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token comment"># (B, nh, T, hs)</span>
+    v <span class="token operator">=</span> v<span class="token punctuation">.</span>view<span class="token punctuation">(</span>B<span class="token punctuation">,</span> T<span class="token punctuation">,</span> self<span class="token punctuation">.</span>n_head<span class="token punctuation">,</span> C <span class="token operator">//</span> self<span class="token punctuation">.</span>n_head<span class="token punctuation">)</span><span class="token punctuation">.</span>transpose<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token comment"># (B, nh, T, hs)</span>
+
+    <span class="token comment"># causal self-attention; Self-attend: (B, nh, T, hs) x (B, nh, hs, T) -> (B, nh, T, T)</span>
+    <span class="token keyword">if</span> self<span class="token punctuation">.</span>flash<span class="token punctuation">:</span>
+        <span class="token comment"># efficient attention using Flash Attention CUDA kernels</span>
+        y <span class="token operator">=</span> torch<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>functional<span class="token punctuation">.</span>scaled_dot_product_attention<span class="token punctuation">(</span>q<span class="token punctuation">,</span> k<span class="token punctuation">,</span> v<span class="token punctuation">,</span> attn_mask<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> dropout_p<span class="token operator">=</span>self<span class="token punctuation">.</span>dropout <span class="token keyword">if</span> self<span class="token punctuation">.</span>training <span class="token keyword">else</span> <span class="token number">0</span><span class="token punctuation">,</span> is_causal<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        <span class="token comment"># manual implementation of attention</span>
+        att <span class="token operator">=</span> <span class="token punctuation">(</span>q @ k<span class="token punctuation">.</span>transpose<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">1.0</span> <span class="token operator">/</span> math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>k<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment"># Q K^T / sqrt(n_embd), shape is (B, heads, n_ctx, n_ctx)</span>
+        att <span class="token operator">=</span> att<span class="token punctuation">.</span>masked_fill<span class="token punctuation">(</span>self<span class="token punctuation">.</span>bias<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span>T<span class="token punctuation">,</span><span class="token punctuation">:</span>T<span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span><span class="token string">'-inf'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment"># 上三角（主对角线除外）位置值设为 -inf</span>
+        att <span class="token operator">=</span> F<span class="token punctuation">.</span>softmax<span class="token punctuation">(</span>att<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>    <span class="token comment"># attention 矩阵中每一行表示一个 token 对序列中其他 token 的注意力</span>
+        att <span class="token operator">=</span> self<span class="token punctuation">.</span>attn_dropout<span class="token punctuation">(</span>att<span class="token punctuation">)</span>
+        y <span class="token operator">=</span> att @ v <span class="token comment"># (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)</span>
+    y <span class="token operator">=</span> y<span class="token punctuation">.</span>transpose<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">.</span>contiguous<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span>B<span class="token punctuation">,</span> T<span class="token punctuation">,</span> C<span class="token punctuation">)</span> <span class="token comment"># re-assemble all head outputs side by side</span>
+
+    <span class="token comment"># output projection</span>
+    y <span class="token operator">=</span> self<span class="token punctuation">.</span>resid_dropout<span class="token punctuation">(</span>self<span class="token punctuation">.</span>c_proj<span class="token punctuation">(</span>y<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> y    <span class="token comment"># (B, n_ctx, n_embd)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上述代码中，先不看 CUDA 中的 attention 快速实现，而是使用原始 tensor 操作实现 attention（<code>not self.flash</code> 分支），先求 $Q T ^ {\top} / \sqrt {d}$，这里 $d$ 是 model dimension，然后使用下三角 mask，因为 attention 矩阵中，第 <code>i</code> 行表示窗口中第 <code>i</code> 对窗口中所有 token 的注意力，显然只有左边的 tokens 能被注意到，即 $\ge i$ 的位置值应为为 0，但是这里是非归一化的注意力值，所以使用 $-\infty$，经过 softmax 归一化后则为 0，softmax 归一化沿着每一行进行，故 softmax 的参数 <code>dim=-1</code> 。</p>
+<h1>REF</h1>
+<div id="refer-anchor-1"></div>
+<ul>
+<li>[1] The natural language decathlon: Multitask learning as question answering</li>
+</ul>
+<div id='refer-anchor-2'></div>
+<ul>
+<li>[2] <a target="_blank" rel="noopener" href="http://jalammar.github.io/illustrated-gpt2/">The Illustrated GPT-2 (Visualizing Transformer Language Models)</a></li>
+</ul>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2023/07/25/nlp/GPT2/">https://jianjiansha.github.io/2023/07/25/nlp/GPT2/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/NLP/">
+                                    <span class="chip bg-color">NLP</span>
+                                </a>
+                            
+                                <a href="/tags/GPT/">
+                                    <span class="chip bg-color">GPT</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2023/07/26/nlp/GPT3/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="GPT3">
+                        
+                        <span class="card-title">GPT3</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-07-26
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/NLP/">
+                        <span class="chip bg-color">NLP</span>
+                    </a>
+                    
+                    <a href="/tags/GPT/">
+                        <span class="chip bg-color">GPT</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2023/07/25/nlp/GPT1/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="GPT1">
+                        
+                        <span class="card-title">GPT1</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-07-25
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/NLP/">
+                        <span class="chip bg-color">NLP</span>
+                    </a>
+                    
+                    <a href="/tags/GPT/">
+                        <span class="chip bg-color">GPT</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

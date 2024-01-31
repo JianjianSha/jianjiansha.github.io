@@ -1,0 +1,1349 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Connectionist Temporal Classification (1), SJJ">
+    <meta name="description" content="隐马尔可夫模型中，可观测序列 $X$ 与隐状态序列 $Y$ 的长度是相等的，但是在语音识别中，语音序列被转为文字序列，这两者长度可能不相等，也就是说，语音片与文字无法一一对应。这就需要寻找其他解决方法。
+
+简介
+我们将“对数据序列打标签”看">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Connectionist Temporal Classification (1) | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/16.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Connectionist Temporal Classification (1)</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/deep-learning/">
+                                <span class="chip bg-color">deep learning</span>
+                            </a>
+                        
+                            <a href="/tags/CTC/">
+                                <span class="chip bg-color">CTC</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2021-12-04
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>隐马尔可夫模型中，可观测序列 $X$ 与隐状态序列 $Y$ 的长度是相等的，但是在语音识别中，语音序列被转为文字序列，这两者长度可能不相等，也就是说，语音片与文字无法一一对应。这就需要寻找其他解决方法。</p>
+<span id="more"></span>
+<h1>简介</h1>
+<p>我们将“对数据序列打标签”看作是 <strong>时序分类</strong>，通常可采用 RNN 网络实现，这称为 connectionist temporal classification（CTC），所适用的任务包括 语音识别，图片中的文字识别等。</p>
+<p>记输入序列为 $X=[x_1,\ldots, x_T]$，输出序列为 $Y=[y_1,\ldots,y_U]$，（通常 $T &gt; U$）。我们的任务是找到一个准确的 $X \rightarrow Y$ 的映射，但是可以想象这其中的难点：</p>
+<ol>
+<li>$X, \ Y$ 长度可变</li>
+<li>$X, \ Y$ 长度之比可变</li>
+<li>$X, \ Y$ 序列元素之间没有明确关系。</li>
+</ol>
+<h2 id="损失函数">损失函数</h2>
+<p>采用负对数似然函数。给定一个输入 $X$ 以及对应的输出 $Y$，我们的目标是求 $p(Y|X)$ 的最大化。</p>
+<h2 id="推断">推断</h2>
+<p>给定输入 $X$，求最有可能的输出 $Y$，即</p>
+<p>$$Y^{\star}=\arg \max_Y p(Y|X)$$</p>
+<h1>算法</h1>
+<h2 id="对齐方式">对齐方式</h2>
+<p>通常，输入序列的一个或多个元素用于生成一个输出元素，是多对一的关系，所以输出序列长度小于输入序列长度。例如一个输入序列长度为 6，输出序列长度为 3，如下</p>
+<pre class="line-numbers language-none"><code class="language-none">x1 x2 x3 x4 x5 x6       input(X)
+c  c  a  a  a  t        alignment
+ c  |    a   | t        output(Y)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>通过将连续相邻的重复的输出元素进行合并（去重），可以得到输出序列为 <code>cat</code>。</p>
+<p>但是这种做法也存在以下两个问题：</p>
+<ol>
+<li>有时候输入元素不一定必须要对应一个输出元素。例如语音识别中，语音之中存在沉默片段，这部分不应对应任何一个文字（或单词）。</li>
+<li>将相邻的重复元素去重，会使得例如 “hello” 变成 “helo”，而无法得到想要的 “hello”。</li>
+</ol>
+<p>为了解决这两个问题，CTC 引入了一个新的 token $\epsilon$ 表示空白（blank token），这个 $\epsilon$ 最终从输出序列中移除。于是，对于一段语音，可以通过如下方式进行识别，</p>
+<table>
+<thead>
+<tr>
+<th>h</th>
+<th>h</th>
+<th>e</th>
+<th>$\epsilon$</th>
+<th>$\epsilon$</th>
+<th>l</th>
+<th>l</th>
+<th>l</th>
+<th>$\epsilon$</th>
+<th>l</th>
+<th>l</th>
+<th>o</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>h</td>
+<td></td>
+<td>e</td>
+<td>$\epsilon$</td>
+<td></td>
+<td>l</td>
+<td></td>
+<td></td>
+<td>$\epsilon$</td>
+<td>l</td>
+<td></td>
+<td>o</td>
+<td>合并相邻重复的元素</td>
+</tr>
+<tr>
+<td>h</td>
+<td></td>
+<td>e</td>
+<td></td>
+<td></td>
+<td>l</td>
+<td></td>
+<td></td>
+<td></td>
+<td>l</td>
+<td></td>
+<td>o</td>
+<td>移除 $\epsilon$</td>
+</tr>
+</tbody>
+</table>
+<p>最后就得到了 <code>hello</code> 这个输出序列。</p>
+<h2 id="损失函数-v2">损失函数</h2>
+<p>我们采用 RNN 网络结构，记输入序列长度为 $T$，那么 RNN 一共有 $T$ 个输出，每个时刻 $t$ 的输出 $z_t$ 为一个长度为 $L+1$ 的得分向量，其中 $L$ 为输出字符集大小，$+1$ 是由于我们增加了一个 $\epsilon$。RNN 的输出序列记为 $A$，那么通过上述的合并相邻重复和去掉 $\epsilon$ 这个操作，可得到最终的输出序列 $Y$，记这个操作为 $B$，即 $Y=B(A)$，显然 $A$ 与 $Y$ 是多对一的关系，即 $A \in B^{-1}(Y)$，那么似然函数</p>
+<p>$$p(Y|X)=\sum_{A \in B^{-1}(Y)} \prod_{t=1}^T p_t(a_t|X)$$</p>
+<p>对于一个输出 $Y$，有很多个 $Z$，故如果想暴力计算，那么计算量会非常大，考虑动态规划方法。</p>
+<p>空白 token  $\epsilon$ 可出现在输出序列 $Y$ 的任意位置，那么不妨我们将每两个 $y_i , \ i \in [U]$ 之间均插入 $\epsilon$，以及最起始位置和最后位置也插入  $\epsilon$，那么序列变为</p>
+<p>$$Z=[\epsilon, y_1,\epsilon, y_2,\ldots, \epsilon, y_U, \epsilon]$$</p>
+<p>仍以语音识别为例，如果语音开头有沉默，那么 RNN 输出序列 $A$ 以 $\epsilon$ 开头，否则以 $y_1$ 开头。具体而言，将语音等分为 $T$ 个语音片，即 $A=[a_1,a_2,\ldots,a_T]$，第 1 个语音片为沉默（无声音），那么对应 $\epsilon$，否则对应 $y_1$，第 2 个语音片则需要根据上一个语音片的情况进行讨论，如下表所示，</p>
+<p>$$\begin{array}{c|c|c}<br>
+a _ 1 &amp; a _ 2 &amp; (a _ 1,a _ 2)<br>
+\\<br>
+\hline<br>
+\\<br>
+a _ 1=y _ 1 &amp; \begin{aligned}a _ 2&amp;=\epsilon \\ a _ 2&amp;=y _ 1 \\ a _ 2&amp;=y _ 2 (y _ 2\neq y _ 1)\end{aligned} &amp; \begin{aligned} &amp;(y _ 1, \epsilon) \\ &amp;(y _ 1,y _ 1) \\ &amp;(y _ 1,y _ 2)\end{aligned}<br>
+\\<br>
+\hline<br>
+\\<br>
+a _ 1=\epsilon &amp; \begin{aligned}a _ 2&amp;=\epsilon \\ a _ 2&amp;=y _ 1\end{aligned} &amp; \begin{aligned} &amp;(\epsilon, \epsilon) \\ &amp;(\epsilon,y _ 1)\end{aligned}<br>
+\end{array}$$</p>
+<p>注意，$a _ 1=y _ 1, \ a _ 2=y _ 2$ 时，必须保证 $y _ 1\neq y _ 2$ 这个条件成立，否则 $B(a _ 1,a _ 2)=B(y _ 1,y _ 1)=(y _ 1)$，即，经过合并后，就少了一个 $y _ 1$。</p>
+<p>我们讨论更一般的情况。</p>
+<p><s>输出 $Y$ 的长度为 $U$，$Z$ 的长度为 $2U+1$，另外 $U \le T$，如果 ：</s></p>
+<p><s>1. $2U+1 &lt;= T$，这表示需要重复 $Z$ 中的部分元素，共重复 $T-(2U+1)$ 次。</s><br>
+<s>2. $2U+1 &gt; T$，这表示需要跳过 $Z$ 中的部分 $\epsilon$ ，共跳过 $2U+1-T$ 次。</s></p>
+<p>为了使用动态规划方法，定义 $\alpha_{s,t}$ 表示到达 $t$ 时刻止，预测为 $Z_{1:s}$ 的概率，</p>
+<p>$$\alpha_{s,t}=P\lbrace B(A_{1:t}) = C(Z_{1:s})\rbrace$$</p>
+<p>其中 $C$ 表示适当地去掉下方 case 3 中的 <code>eps</code>，使得 $B(A_{1:t})$ 与 $C(Z_{1:s})$ 相等。</p>
+<p>对于 $Z$ 中连续的三个元素 $z_{s-2}, z_{s-1},z_s$，这三个元素所有可能的情况为</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">case_idx    z<span class="token punctuation">(</span>s-2<span class="token punctuation">)</span>  z<span class="token punctuation">(</span>s-1<span class="token punctuation">)</span>  z<span class="token punctuation">(</span>s<span class="token punctuation">)</span>
+<span class="token number">1</span>           a       eps     a
+<span class="token number">2</span>           eps     a       eps
+<span class="token number">3</span>           a       eps     b<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>根据是否可以跳过 $z _ {s-1}$，可以将这三种情况分为两大类：</p>
+<ol>
+<li>
+<p><strong>无法跳过 $z_{s-1}$</strong>，即，必须有一个 RNN 输出 $a_j$ 对齐到 $z_{s-1}$。</p>
+<p>case 1 和 2 属于此类。case 1 中的 <code>eps</code> 如果不预测，那么两个连续的 <code>a</code> 经过去重变成一个 <code>a</code>，而原来 gt $Y$ 中这里是两个相同的 token <code>a</code>；case 2 中的 <code>a</code> 显然不能跳过。</p>
+<p>如图1 所示，</p>
+<p><img src="/images/dl/CTC1.png" alt=""></p>
+ <center>图 1 （来源于 ref 1）</center>
+<p>$\alpha_{s,t}$ 可由 $\alpha_{s,t-1}$ 转化而来，即 $a_t=a_{t-1}$，也可由 $\alpha_{s-1,t-1}$ 转化而来，即 $a_t \neq a_{t-1}$，</p>
+<p>转化公式为</p>
+<p>$$\alpha_{s,t}=(\alpha_{s-1,t-1}+\alpha_{s,t-1}) \cdot p_t(z_s|X)$$</p>
+</li>
+<li>
+<p><strong>允许跳过 $z_{s-1}$</strong>，允许跳过，即，可以跳过，也可以不跳过。</p>
+<p>如图 2 所示，对应上面的 case 3，$z_{s-1}=\epsilon$，且 $z_{s-2}\neq z_s$</p>
+<p><img src="/images/dl/CTC2.png" alt=""></p>
+ <center>图 2 （来源于 ref 1）</center>
+<p>此时，$\alpha_{s,t}$ 可由 $\alpha_{s-2,t-1}$ 或 $\alpha_{s-1,t-1}$ 或者 $\alpha_{s,t-1}$ 转化而来。</p>
+<p>$$\alpha_{s,t}=(\alpha_{s-2,t-1}+\alpha_{s-1,t-1}+\alpha_{s,t-1})\cdot p_t(z_s|X)$$</p>
+</li>
+</ol>
+<p>例如，一个输入序列长度为 6，输出序列 $Y=[a,b]$，那么所有可能的预测路径如下图，</p>
+<p><img src="/images/dl/CTC3.png" alt=""></p>
+<center>图 3 （来源于 ref 1）</center>
+<p>从图3可知，只有两个有效的起始节点，以及两个有效的终止节点。</p>
+<p>现在，就可以快速地计算似然函数了，损失函数采用负对数似然，对于一个训练集 $\mathcal D$，损失函数为</p>
+<p>$$\sum_{(X,Y) \in \mathcal D} -\log p(Y|X)$$</p>
+<p>接下来就是计算梯度并训练模型了。<br>
+将 CTC 损失函数对每个时刻的输出概率求导。</p>
+<p><strong>计算 ctc loss 过程</strong></p>
+<p>以图 3 为例进行说明，根据 $X$ 得到最终的序列预测得分为</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">L<span class="token operator">=</span> <span class="token number">6</span>    <span class="token comment"># 序列长度</span>
+N <span class="token operator">=</span> <span class="token number">4</span>   <span class="token comment"># 每个 timestep 预测 3 个类别的得分，a, b, c, eps</span>
+labels <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">'eps'</span><span class="token punctuation">,</span> <span class="token string">'a'</span><span class="token punctuation">,</span> <span class="token string">'b'</span><span class="token punctuation">,</span> <span class="token string">'c'</span><span class="token punctuation">]</span>
+labels <span class="token operator">=</span> <span class="token punctuation">&#123;</span>x<span class="token punctuation">:</span> i <span class="token keyword">for</span> i<span class="token punctuation">,</span> x <span class="token keyword">in</span> <span class="token builtin">enumerate</span><span class="token punctuation">(</span>labels<span class="token punctuation">)</span><span class="token punctuation">&#125;</span>
+X <span class="token operator">=</span> torch<span class="token punctuation">.</span>randn<span class="token punctuation">(</span><span class="token punctuation">(</span>L<span class="token punctuation">,</span> N<span class="token punctuation">)</span><span class="token punctuation">)</span>
+X <span class="token operator">=</span> torch<span class="token punctuation">.</span>softmax<span class="token punctuation">(</span>p<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>    <span class="token comment"># 转为归一化预测概率</span>
+<span class="token comment"># 计算 ctc loss： -log p(Y|X)</span>
+Y <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">'a'</span><span class="token punctuation">,</span> <span class="token string">'b'</span><span class="token punctuation">]</span>
+Z <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">'eps'</span> <span class="token keyword">if</span> i <span class="token operator">%</span> <span class="token number">2</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token keyword">else</span> Y<span class="token punctuation">[</span>i <span class="token operator">//</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">]</span>  <span class="token comment"># eps, a, eps, b, eps</span>
+Z <span class="token operator">=</span> <span class="token punctuation">[</span>labels<span class="token punctuation">[</span>z<span class="token punctuation">]</span> <span class="token keyword">for</span> z <span class="token keyword">in</span> Z<span class="token punctuation">]</span>
+
+alpha <span class="token operator">=</span> torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>Z<span class="token punctuation">)</span><span class="token punctuation">,</span> L<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">for</span> t <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>L<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> s<span class="token punctuation">,</span> z <span class="token keyword">in</span> <span class="token builtin">enumerate</span><span class="token punctuation">(</span>Z<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> t <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">:</span>
+            alpha<span class="token punctuation">[</span>s<span class="token punctuation">,</span> t<span class="token punctuation">]</span> <span class="token operator">=</span> X<span class="token punctuation">[</span>t<span class="token punctuation">,</span> z<span class="token punctuation">]</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">if</span> s <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">:</span>
+                alpha<span class="token punctuation">[</span>s<span class="token punctuation">,</span> t<span class="token punctuation">]</span> <span class="token operator">=</span> alpha<span class="token punctuation">[</span>s<span class="token punctuation">,</span> t<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">*</span> X<span class="token punctuation">[</span>t<span class="token punctuation">,</span> z<span class="token punctuation">]</span>
+            <span class="token keyword">elif</span> s <span class="token operator">==</span> <span class="token number">1</span><span class="token punctuation">:</span>
+                alpha<span class="token punctuation">[</span>s<span class="token punctuation">,</span> t<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>alpha<span class="token punctuation">[</span>s<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> t<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> alpha<span class="token punctuation">[</span>s<span class="token punctuation">,</span> t<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">*</span> X<span class="token punctuation">[</span>t<span class="token punctuation">,</span> z<span class="token punctuation">]</span>
+            <span class="token keyword">else</span><span class="token punctuation">:</span>   <span class="token comment"># s >= 2</span>
+                <span class="token keyword">if</span> Z<span class="token punctuation">[</span>s<span class="token operator">-</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">!=</span> z<span class="token punctuation">:</span> <span class="token comment"># 情况 2</span>
+                    alpha<span class="token punctuation">[</span>s<span class="token punctuation">,</span> t<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>alpha<span class="token punctuation">[</span>s<span class="token operator">-</span><span class="token number">2</span><span class="token punctuation">,</span> t<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> alpha<span class="token punctuation">[</span>s<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> t<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> alpha<span class="token punctuation">[</span>s<span class="token punctuation">,</span> t<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">*</span> X<span class="token punctuation">[</span>t<span class="token punctuation">,</span> z<span class="token punctuation">]</span>
+                <span class="token keyword">else</span><span class="token punctuation">:</span>           <span class="token comment"># 情况 1</span>
+                    alpha<span class="token punctuation">[</span>s<span class="token punctuation">,</span> t<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>alpha<span class="token punctuation">[</span>s<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> t<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> alpha<span class="token punctuation">[</span>s<span class="token punctuation">,</span> t<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">*</span> X<span class="token punctuation">[</span>t<span class="token punctuation">,</span> z<span class="token punctuation">]</span>
+
+prob <span class="token operator">=</span> alpha<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> alpha<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span>    <span class="token comment"># 如图 3， 右下角的两个 nodes 是有效的，P(Y|X) 为两个 nodes 处 alpha 之和</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>pytorch 中 CTCLoss 类说明</strong></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">CLASStorch<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>CTCLoss<span class="token punctuation">(</span>blank<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span> reduction<span class="token operator">=</span><span class="token string">'mean'</span><span class="token punctuation">,</span> zero_infinity<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<ol>
+<li>blank 是 <code>eps</code> 的 label id，默认为 0</li>
+<li>zero_infinity 用于输入序列长度太短无法对齐 targets</li>
+</ol>
+<p>forward 方法参数：</p>
+<ol>
+<li><code>Log_probs</code>，各分类的预测得分（非归一化，概率对数），shape 为 $(T, N, C)$，表示序列长度，batch size，以及分类数量（包括 eps）</li>
+<li><code>Targets</code>， gt 序列。$(N, S)$，表示 batch size，以及 batch 中最大序列长度</li>
+<li><code>Input_lengths</code>，各个输入序列的长度，$(N,)$，通常每个输入序列长度相等，均为 T</li>
+<li><code>Target_lengths</code>，各个 gt 序列的长度，$(N, )$，各个 gt 序列长度不一定相等</li>
+</ol>
+<p>推断一节在下一篇讨论。</p>
+<h1>参考</h1>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://distill.pub/2017/ctc/">Sequence Modeling With CTCT</a></li>
+</ol>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2021/12/04/dl/ctc/">https://jianjiansha.github.io/2021/12/04/dl/ctc/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/deep-learning/">
+                                    <span class="chip bg-color">deep learning</span>
+                                </a>
+                            
+                                <a href="/tags/CTC/">
+                                    <span class="chip bg-color">CTC</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2021/12/04/dl/ctc2/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/23.jpg" class="responsive-img" alt="Connectionist Temporal Classification (2)">
+                        
+                        <span class="card-title">Connectionist Temporal Classification (2)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            上一篇文章介绍了 CTC 的算法和损失函数，现在继续讨论 CTC 的推断部分。
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2021-12-04
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/deep-learning/">
+                        <span class="chip bg-color">deep learning</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2021/11/26/tools/docker/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="容器使用示例">
+                        
+                        <span class="card-title">容器使用示例</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            介绍简单的容器使用示例。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-26
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/docker/">
+                        <span class="chip bg-color">docker</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

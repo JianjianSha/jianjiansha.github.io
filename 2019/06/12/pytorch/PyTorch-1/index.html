@@ -1,0 +1,1350 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="PyTorch-1, SJJ">
+    <meta name="description" content="安装
+一直以来就对深度学习的框架源码有着浓厚兴趣，但是由于涉及到的领域较多，C++，python，CUDA，数学等，加上时间也比较零碎，就耽搁至今，后来意识到我不可能等完全弄明白之后再来写博客记录，毕竟能力不足，所以还是边看源码边记录，不求">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>PyTorch-1 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/9.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">PyTorch-1</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/PyTorch/">
+                                <span class="chip bg-color">PyTorch</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/DL-Framework/" class="post-category">
+                                DL Framework
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-06-12
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1>安装</h1>
+<p>一直以来就对深度学习的框架源码有着浓厚兴趣，但是由于涉及到的领域较多，C++，python，CUDA，数学等，加上时间也比较零碎，就耽搁至今，后来意识到我不可能等完全弄明白之后再来写博客记录，毕竟能力不足，所以还是边看源码边记录，不求完全搞明白，但求能从整体上有个大致的理解，如果还能整明白一些数学计算上的代码实现，那就再好不过了。</p>
+<span id="more"></span>
+<p>当前最流行的深度学习框架就是tensorflow和pytorch了，但是tensorflow据说代码工业化程度非常高，我等菜鸡先避其锋芒，来分析pytorch，希望能给自己带来点信心。</p>
+<p>下载源码</p>
+<pre class="line-numbers language-none"><code class="language-none">git clone --recursive https:&#x2F;&#x2F;github.com&#x2F;pytorch&#x2F;pytorch<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>由于使用了子模块所以增加–recursive选项，记pytorch的root dir为$ROOT_DIR。</p>
+<p>根据安装步骤进行自上而下的阅读。Linux下安装使用命令</p>
+<pre class="line-numbers language-none"><code class="language-none">cd pytorch
+python setup.py install<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>pytorch底层计算使用C++实现，并提供了python调用接口，所以这一命令就是使用setuptools安装python包，安装依赖库及修改配置项这里均跳过，故直接看$ROOT_DIR/setup.py中的setup()方法，但是在这个方法之前先执行了build_deps()用于生成有关 caffe2 的依赖库</p>
+<h3 id="build-deps">build_deps()</h3>
+<p>这个方法内部关键的一步为</p>
+<pre class="line-numbers language-none"><code class="language-none">build_caffe2(...)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>查看这个方法的定义，发现build_caffe2做了如下几件事：</p>
+<ol>
+<li>run_cmake。执行cmake，这个命令的选项这里省略不展开，注意执行cmake这个命令的工作目录为<code>$ROOD_DIR/build</code>， cmake的Source Tree为$ROOD_DIR，这个 目录下存在top level的CMakeLists.txt</li>
+<li>在$ROOT_DIR/build下编译并安装，使用make install或者 ninja install（cmake生成的Makefile中install这个target包含了build这个步骤）</li>
+<li>将build/caffe2/proto下的所有.py文件 拷贝到caffe2/proto/下，这些.py文件是根据caffe2/proto/下的.proto文件生成</li>
+</ol>
+<p>这其中最复杂的部分就是run_cmake了，先是使用cmake的-D option设置一些cmake的变量，然后对source tree应用cmake， 查看top level的CMakeLists.txt，这个文件看着好像特别庞大，实际上做的事情也就那么几种：1)设置变量，根据不同操作系统设置或修改变量；2)设置include dir以及lib dir；3）加载.cmake文件以使用其中自定义的cmake函数；4）设置C++文件编译选项；5）安装配置文件/目录到指定位置等；我们注意比较关键的语句如下：</p>
+<pre class="line-numbers language-none"><code class="language-none">add_subdirectory(c10)
+add_subdirectory(caffe2)
+add_subdirectory(modules)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>这表明将c10,caffe2,modules等目录添加进build tree，这些目录下必定也有相应的CMakeLists.txt， 所以需要继续查看这些CMakeLists.txt中定义了哪些生成规则。</p>
+<p>另外，top level 中CMakeLists.txt中有这么一行</p>
+<pre class="line-numbers language-none"><code class="language-none">include(cmake&#x2F;Dependencies.cmake)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>这个Dependencies.cmake指明安装Caffe2所依赖的各种库，其中一些库位于本项目中如<code>$ROOT_DIR/third_party</code>或$ROOT_DIR/caffe2，还有一些库则是需要预先手动安装的，举个例子：</p>
+<ol>
+<li>非本项目的公共库，比如添加BLAS库依赖，假设最开始设置了环境变量BLAS=OpenBLAS（环境变量的设置可参考setup.py文件头部注释）, 那么选择添加OpenBLAS库依赖，在Dependencies.cmake中代码为</li>
+</ol>
+<pre class="line-numbers language-none"><code class="language-none">...
+elseif(BLAS STREQUAL &quot;OpenBLAS&quot;)
+  find_package(OpenBLAS REQUIRED)
+  include_directories(SYSTEM $&#123;OpenBLAS_INCLUDE_DIR&#125;)
+  list(APPEND Caffe2_PUBLIC_DEPENDENCY_LIBS $&#123;OpenBLAS_LIB&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这个find_package告诉我们去查看<code>$ROOT_DIR/cmake/Modules/FindOpenBLAS.cmake</code>，好的我们跳过去看一下这个.cmake文件，发现其定义了OpenBLAS的头文件和库文件的搜索路径，然后根据这些搜索路径分别搜索头文件cblas.h所在目录以及库名openblas， 分别使用变量OpenBLAS_INCLUDE_DIR和OpenBLAS_LIB保存，从上面的代码片段，我们知道搜索到的库名被添加到Caffe2_PUBLIC_DEPENDENCY_LIBS中，而我们再跳至$ROOT_DIR/caffe2/CMakeLists.txt发现其中有</p>
+<pre class="line-numbers language-none"><code class="language-none">target_link_libraries(caffe2 PUBLIC $&#123;Caffe2_PUBLIC_DEPENDENCY_LIBS&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>这就相当于能生成-lopenblas这样的链接选项。</p>
+<p>我们直接再看另一个库caffe2_pybind11_state的生成，因为下文会提到它，查看$ROOT_DIR/caffe2/CMakeLists.txt发现</p>
+<pre class="line-numbers language-none"><code class="language-none">add_subdirectory(python)
+...
+add_library(caffe2_pybind11_state MODULE $&#123;Caffe2_CPU_PYTHON_SRCS&#125;)
+install(TARGETS caffe2_pybind11_state DESTINATION &quot;$&#123;PYTHON_LIB_REL_PATH&#125;&#x2F;caffe2&#x2F;python&quot;)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中Caffe2_CPU_PYTHON_SRCS在$ROOT_DIR/caffe2/python/CMakeLists.txt中设置， 类似地，还根据是否使用CUDA或者ROCM , 生成caffe2_pybind11_state_gpu或caffe2_pybind11_state_hip。生成这些库文件后，直接install到python的site-packages目录下的caffe2/python目录中</p>
+<p>以上就是build_dep()这个方法介绍，接着看$ROOT_DIR/setup.py中的setup方法。</p>
+<h3 id="setup">setup()</h3>
+<p>setup方法（可以参考<a target="_blank" rel="noopener" href="https://docs.python.org/3/distutils/apiref.html">setup()</a>），其中几个值得说明的参数：</p>
+<ol>
+<li>ext_modules 有5个扩展库分别如下：</li>
+</ol>
+<ul>
+<li>torch._C 指定了C++源文件，链接库，编译选项，链接选项和头文件/库dir</li>
+<li>torch._dl 非WINDOWS平台下才有，指定了C源文件</li>
+<li>caffe2.python.caffe2_pybind11_state</li>
+<li>caffe2.python.caffe2_pybind11_state_gpu</li>
+<li>caffe2.python.caffe2_pybind11_state_hip</li>
+</ul>
+<p>后三个库在上一步中其实已经生成好了，其中caffe2.python前缀表示两级目录（package），可以在$ROOT_DIR/build/caffe2/python目录下查看。扩展模块ext_modules在build_ext这个动作中生成。</p>
+<ol start="2">
+<li>cmdclass，重写了build_ext, clean, install这几个action，这个action用在python <a target="_blank" rel="noopener" href="http://setup.py">setup.py</a> <action> 命令中。install动作跟默认一致。 clean是清除编译过程中产生的临时文件，这些临时文件的pattern在.gitignore中给定。我们重点看一下build_ext这个动作对应的类build_ext，其中方法包含</li>
+</ol>
+<ul>
+<li>create_compile_commands这是一个自定义方法，用于将compile_commands.json中的gcc编译器改为g++，修改原因代码注释写的很清楚，使用gcc编译s时不会include c++的头文件目录。 文件compile_commands.json是根据<code>$ROOT_DIR/CMakeLists.txt中的set(CMAKE_EXPORT_COMPILE_COMMAND ON)</code>这句代码而生成，所以位于$ROOT_DIR/build目录下，这个json文件中指明了编译各个文件时的工作路径（working directory），编译指令（command）以及被编译的原文件，格式如下</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[
+&#123;
+  &quot;directory&quot;:&quot;&lt;path&#x2F;to&#x2F;root&gt;build&#x2F;third_party&#x2F;protobuf&#x2F;cmake&quot;,
+  &quot;command&quot;: &quot;&#x2F;usr&#x2F;bin&#x2F;c++ ... -I&lt;path&#x2F;to&#x2F;root&gt;&#x2F;third_party&#x2F;protobuf&#x2F;src ... 
+                -o CMakeFiles&#x2F;libprotobuf.dir&#x2F;__&#x2F;src&#x2F;google&#x2F;protobuf&#x2F;arena.cc.o ...&quot;,
+  &quot;file&quot;: &quot;&lt;path&#x2F;to&#x2F;root&gt;&#x2F;third_party&#x2F;protobuf&#x2F;src&#x2F;google&#x2F;protobuf&#x2F;arena.cc&quot;
+&#125;,
+...
+]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中每个{…}块表示编译一个源文件到目标文件 .o。 将文件中gcc改为g++后重新保存为$ROOT_DIR/compile_commands.json。</p>
+<ul>
+<li>run打印各library（比如 CUDA, CUDNN, NUMPY等）的使用情况，然后执行基类同名方法的逻辑</li>
+<li>build_extensions 生成由ext_modules指定的python扩展库所用的方法</li>
+</ul>
+<p>ext_modules中添加了5个扩展，后三个扩展在build_deps()中已经生成并安装，当然，caffe2_pybind11_state_gpu和caffe2_pybind11_state_hip是根据配置决定是否生成，配置了CUDA则生成前者，配置了ROCM则生成后者，如果均未配置，则这两个扩展均不生成。既然在build_deps()中已经生成并安装，所以这里将其从ext_modules中删除，于是build_extensions实际上只生成torch._C, torch._dl这两个扩展库。</p>
+<p>然而，除了build_deps()方法还有其他方法可用于生成ext_modules中 的后三个扩展库，生成路径为<code>$ROOT_DIR/torch/lib/python3.7/site-packages/caffe2/python/</code>，所以需要判断在这个路径下是否存在后三个扩展库，若不在（此时就是前面所说的使用build_deps()生成），则将扩展库名称从ext_modules中予以删除， 若存在，则还需则将其拷贝到生成目录<code>$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/</code>下，并修改拷贝后的文件名称，以caffe2.python.caffe2_pybind11_state为例说明，两级前缀表示目录所以最终的目录为<code>$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/caffe2/python/</code>，剩余的caffe2_pybind11_state表示扩展库的文件名，还需要添加后缀名，这个后缀名由系统平台和python版本，我这里是.cpython-37m-x86_64-linux-gnu.so，于是拷贝后得到文件$ROOT_DIR/torch/build/lib.linux-x86_64-3.7/caffe2/python/caffe2_pybind11_state.cpython-37m-x86_64-linux-gnu.so ，这样使用基类的build_extensions()方法才能将其进一步安装到 python的site-packages目录下，我这里是…/miniconda3/lib/python3.7/site-packages/caffe2/python/目录。</p>
+<ol start="3">
+<li>packages 指定安装到python 的site-packages下的包</li>
+</ol>
+<pre class="line-numbers language-none"><code class="language-none">packages &#x3D; find_packages(exclude&#x3D;[&#39;tools&#39;, &#39;tools.*&#39;])<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>由于PyTorch项目中除tools之外，只有caffe2和torch两个目录包含__init__.py，所以将caffe2和torch两个包安装到site-packages下。</p>
+<p>现在再回头看看ext_modules中指定的5个扩展，不难得知，其中torch._C, torch._dl这两个扩展安装到site-packages/torch下，扩展包名称分别为_C, _dl（省略了文件ext后缀），而另外三个caffe2有关的扩展则根据名称（.号切分，前面都是目录名，最后一个是文件名）知道其安装在site-packages/caffe2/python下。</p>
+<h3 id="整理">整理</h3>
+<p>以上就是pytorch安装过程，主要分为两部分:</p>
+<ol>
+<li>使用CMake生成c++库，对应build_deps()这个方法执行</li>
+<li>使用python的setup方法生成扩展库，主要是build_ext。</li>
+</ol>
+<p>根据上面两点，重新整理一遍。</p>
+<pre class="line-numbers language-none"><code class="language-none">top-level的CMakeLists.txt中
+add_subdirectory(c10)
+add_subdirectory(caffe2)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>于是先看caffe2这个目录下的CMakeLists.txt， 寻找其中的关键语句，</p>
+<pre class="line-numbers language-none"><code class="language-none">add_library(caffe2_proto STATIC $&lt;TARGET_OBJECTS:Caffe2_PROTO&gt;
+add_library(thnvrtc SHARED $&#123;TORCH_SRC_DIR&#125;&#x2F;csrc&#x2F;jit&#x2F;fuser&#x2F;cuda&#x2F;thnvrtc.cpp&gt;
+add_library(caffe2 $&#123;Caffe2_CPU_SRCS&#125;)
+if (TORCH_STATIC)
+  add_library(torch STATIC $&#123;DUMMY_EMPTY_FILE&#125;)
+else()
+  add_library(torch SHARED $&#123;DUMMY_EMPTY_FILE&#125;)
+endif()
+torch_cuda_based_add_library(caffe2_gpu $&#123;Caffe2_GPU_SRCS&#125;)
+hip_add_library(caffe2_hip $&#123;Caffe2_HIP_SRCS&#125;)
+add_library(caffe2_pybind11_state MODULE $&#123;Caffe2_CPU_PYTHON_SRCS&#125;)
+add_library(caffe2_pybind11_state_gpu MODULE $&#123;Caffe2_GPU_PYTHON_SRCS&#125;)
+add_library(caffe2_pybind11_state_hip MODULE $&#123;Caffe2_HIP_PYTHON_SRCS&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>安装目录则寻找对应的install语句。此外，文件中还有一句</p>
+<pre class="line-numbers language-none"><code class="language-none">add_subdirectory(..&#x2F;torch torch)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>（实际上caffe2目录下CMakeLists.txt中存在很多add_subdirectory，但是都是类似的处理过程，所以不一一说明，仅以torch这个目录进行说明）</p>
+<p>于是查看torch目录下的CMakeLists.txt， 其中生成的库为</p>
+<pre class="line-numbers language-none"><code class="language-none">add_library(torch_python SHARED $&#123;TORCH_PYTHON_SRCS&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>然后根据其中的</p>
+<pre class="line-numbers language-none"><code class="language-none">set(LIBSHM libshm)
+set(LIBSHM_SRCDIR $&#123;TORCH_SRC_DIR&#125;&#x2F;lib&#x2F;$&#123;LIBSHM_SUBDIR&#125;)
+add_subdirectory($&#123;LIBSHM_SRCDIR&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>继续查看torch/lib/libshm下的CMakeLists.txt，其中生成的库为</p>
+<pre class="line-numbers language-none"><code class="language-none">ADD_LIBRARY(shm SHARED core.cpp)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>有关的库依赖，分为预装库和本项目（pytorch）内包含的库，CMake生成规则位于cmake/Dependencies.cmake文件中，仔细查看该文件发现：</p>
+<ul>
+<li>预先装的库依赖，这些库名存在Caffe2_PUBLIC_DEPENDENCY_LIBS中。如上文所举例子OpenBLAS 那样添加g++的链接flag和 <code>-I&lt;include dir&gt;flag</code>。</li>
+<li>本项目内包含的库。包括：<br>
+(1) tbb</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">add_subdirectory($&#123;CMAKE_SOURCE_DIR&#125;&#x2F;aten&#x2F;src&#x2F;ATen&#x2F;cpu&#x2F;tbb)    # 添加tbb库<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>(2) qnnpack</p>
+<pre class="line-numbers language-none"><code class="language-none"># 添加 qnnpack 库
+# source directory为$&#123;PROJECT_SOURCE_DIR&#125;&#x2F;third_party&#x2F;QNNPACK
+# output directory为$&#123;PROJECT_BINARY_DIR&#125;&#x2F;confu-deps&#x2F;QNNPACK
+add_subdirectory(&quot;$&#123;QNNPACK_SOURCE_DIR&#125;&quot; &quot;$&#123;CONFU_DEPENDENCIES_BINARY_DIR&#125;&#x2F;QNNPACK&quot;)
+list(APPEND Caffe2_DEPENDENCY_LIBS qnnpack)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>最后一行指引CMake去QNNPACK的目录（位于third_party下）去生成qnnpack库，然后回到Dependencies.cmake中添加到Caffe2_DEPENDENCY_LIBS中。<br>
+(3) nnpack</p>
+<pre class="line-numbers language-none"><code class="language-none"># 添加 nnpack
+include($&#123;CMAKE_CURRENT_LIST_DIR&#125;&#x2F;External&#x2F;nnpack.cmake)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>跳至nnpack.cmake文件，发现其中包含</p>
+<pre class="line-numbers language-none"><code class="language-none">add_subdirectory($&#123;NNPACK_SOURCE_DIR&#125; $&#123;CONFU_DEPENDENCIES_BINARY_DIR&#125;&#x2F;NNPACK)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>找到包含NNPACK的代码目录位于third_party下，显然这个NNPACK也应该包含CMakeLists.txt文件指示CMake 生成nnpack库，然后回到Dependencies.cmake中将nnpack添加到Caffe2_DEPENDENCY_LIBS。</p>
+<p>(4) 类似地，还添加了 cpuinfo，gflag，glog::glog，googletest，fbgemm，fp16等。这些也不一定全部使用，是否使用还得看相应配置</p>
+<p>(5) LMDB。使用如下语句</p>
+<pre class="line-numbers language-none"><code class="language-none">find_package(LMDB)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>所以去cmake/Modules目录下寻找FindLMDB.cmake， 在这个.cmake文件中寻找lmdb库以及lmdb.h头文件（linux中已经安装，分别位于/usr/lib/x86_64-linux-gnu和/usr/include）, 将库名称和头文件目录分别保存于变量LMDB_LIBRARIES和LMDB_INCLUDE_DIR，然后回到Dependencies.cmake，照例执行</p>
+<pre class="line-numbers language-none"><code class="language-none">include_directories(SYSTEM $&#123;LMDB_INCLUDE_DIR&#125;)
+list(APPEND Caffe2_DEPENDENCY_LIBS $&#123;LMDB_LIBRARIES&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>类似的，还可以添加OPENCL，LEVELDB，NUMA，ZMQ，REDIS，OPENCV，FFMPEG，Python，MPI等。</p>
+<p>(6) pybind11。在Dependencies.cmake添加pybind11依赖，</p>
+<pre class="line-numbers language-none"><code class="language-none">find_package(pybind11 CONFIG)# 配置模式下寻找，然而没有$&#123;pybind11_DIR&#125;，也没有pybind11Config.cmake
+if(NOT pybind11_FOUND)
+  find_package(pybind11)     # 继续module模式下寻找
+endif()<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>虽然存在cmake/Modules/Findpybind11.cmake，然而其中find_path并没有找到pybind11/pybind11.h这个头文件，因为我没有预先安装pybind11，CMake自然是找不到的，于是在Dependencies.cmake中直接添加</p>
+<pre class="line-numbers language-none"><code class="language-none">include_directories(SYSTEM $&#123;CMAKE_CURRENT_LIST_DIR&#125;&#x2F;..&#x2F;third_party&#x2F;pybind11&#x2F;include)
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>(7) OPENMP</p>
+<pre class="line-numbers language-none"><code class="language-none">FIND_PACKAGE(OpenMP QUIET)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>如果找到OpenMP，那么${OpenMP_CXX_FLAGS} 和 ${OpenMP_CXX_LIBRARIES}分别存储头文件搜索路径和库文件链接flag，生成caffe2时可以用到OpenMP，用法是在caffe2/CMakeLists.txt中，</p>
+<pre class="line-numbers language-none"><code class="language-none">target_compile_options(caffe2 INTERFACE $&#123;OpenMP_CXX_FLAGS&#125;)
+target_link_libraries(caffe2 PRIVATE $&#123;OpenMP_CXX_LIBRARIES&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>(8) CUDA。在Dependencies.cmake中有</p>
+<pre class="line-numbers language-none"><code class="language-none">include($&#123;CMAKE_CURRENT_LIST_DIR&#125;&#x2F;public&#x2F;cuda.cmake)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>在这个cuda.cmake中，使用 find_library寻找cuda相关的库，找到后作为IMPORTED target进行库的添加，</p>
+<pre class="line-numbers language-none"><code class="language-none">add_library(caffe2::cuda UNKNOWN IMPORTED)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>其他cuda有关的库类似的进行添加，包括caffe2::cudart，caffe2::cudnn，caffe2::curand，caffe2::cufft，caffe2::tensorrt， caffe2::cublas，caffe2::nvrtc，当然这些库不一定全部添加，根据配置决定添加哪些库，然后回到Dependencies.cmake中，</p>
+<pre class="line-numbers language-none"><code class="language-none">list(APPEND Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS caffe2::cuda caffe2::nvrtc)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>保存到Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS，将来在caffe2/CMakeLists.txt用于链接。</p>
+<p>(9) 其他的依赖库如NCCL，CUB，GLOO等与上述某一点说明类似，不再一一罗列。</p>
+<p>Dependencies.cmake中有很多库是作为生成caffe2库的依赖，比如QNNPACK，对这部分库添加到Caffe2_DEPENDENCY_LIBS（或Caffe2_PUBLIC_DEPENDENCY_LIBS，Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS），这个使用下面语句（位于caffe2/CMakeLists.txt）得到链接flag</p>
+<pre class="line-numbers language-none"><code class="language-none">target_link_libraries(caffe2 PRIVATE $&#123;Caffe2_DEPENDENCY_LIBS&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<ol start="2">
+<li>生成python的扩展库。首先后三个有关caffe2的扩展已经在上一步中生成并安装，所以对于剩下的两个扩展予以说明。</li>
+</ol>
+<ul>
+<li>torch._C 链接的两个库为</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">main_libraries&#x3D;[&#39;shm&#39;, &#39;torch_python&#39;]<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>显然前面已经生成了这两个库。而使用的源文件则为</p>
+<pre class="line-numbers language-none"><code class="language-none">main_sources&#x3D;[&quot;torch&#x2F;csrc&#x2F;stub.cpp&quot;]<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<ul>
+<li>torch._dl此扩展使用源文件torch/csrc/dl.c生成 。查看这个文件，发现就是添加了&lt;dlfcn.h&gt;中的三个常量到torch._dl库中，如下</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">RTLD_GLOBAL&#x3D;0x100
+RTLD_NOW   &#x3D;0x2
+RTLD_LAZY  &#x3D;0x1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>这三个常量指示动态加载（比如加载torch._C）的模式，用于dlopen()方法中，增加这三个常量是为了防止python 的os 模块中没有这些flag，并且也没有python的DLFCN模块，此时可以从torch._dl中得到这些flag。相当于把torch._dl当作备胎。</p>
+<h3 id="还有…">还有…</h3>
+<p>可能，大概了解清楚PyTorch的安装过程了，毕竟安装过程我也没试过（只试过较老版本的安装），没有看到最终生成的各种文件，仅供参考吧。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2019/06/12/pytorch/PyTorch-1/">https://jianjiansha.github.io/2019/06/12/pytorch/PyTorch-1/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/PyTorch/">
+                                    <span class="chip bg-color">PyTorch</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/06/13/tools/Hexo-Sync/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="Hexo Sync">
+                        
+                        <span class="card-title">Hexo Sync</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            场景：
+在A, B两台电脑上同步Hexo博客
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2019-06-13
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/tool/">
+                        <span class="chip bg-color">tool</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                本篇&nbsp;<i class="far fa-dot-circle"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/06/12/pytorch/PyTorch-1/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="PyTorch-1">
+                        
+                        <span class="card-title">PyTorch-1</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            安装
+一直以来就对深度学习的框架源码有着浓厚兴趣，但是由于涉及到的领域较多，C++，python，CUDA，数学等，加上时间也比较零碎，就耽搁至今，后来意识到我不可能等完全弄明白之后再来写博客记录，毕竟能力不足，所以还是边看源码边记录，不求
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-06-12
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/DL-Framework/" class="post-category">
+                                    DL Framework
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/PyTorch/">
+                        <span class="chip bg-color">PyTorch</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

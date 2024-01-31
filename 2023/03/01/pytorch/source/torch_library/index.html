@@ -1,0 +1,1924 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="注册和调用 operator（PyTorch）, SJJ">
+    <meta name="description" content="介绍如何注册 operator 以及从 python 调用时的调用过程">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>注册和调用 operator（PyTorch） | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/9.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">注册和调用 operator（PyTorch）</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/pytorch-source-code/">
+                                <span class="chip bg-color">pytorch source code</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2023-03-01
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>准备知识：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="http://blog.ezyang.com/2020/09/lets-talk-about-the-pytorch-dispatcher/">Let’s talk about the PyTorch dispatcher</a></li>
+</ol>
+<h1>1. 注册一个 dispatched operator</h1>
+<p>参考 <a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/advanced/dispatcher.html">官方文档</a> 。</p>
+<p>创建一个 torch::Library ，并定义其中的 operator，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">TORCH_LIBRARY(myops, m) &#123;
+  m.def(&quot;myadd(Tensor self, Tensor other) -&gt; Tensor&quot;);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>说明：</p>
+<ol>
+<li>
+<p><code>myops</code> 是这个 torch::Library 的 namespace，每个 torch::Library 需要将 namespace 注册到 Dispatcher.libraries_ 中，所以 namespace 必须唯一。</p>
+</li>
+<li>
+<p>torch::Library.dispatch_key_ 类型为 optional<DispatchKey>，此时默认为 c10::nullopt，即 has_value() = false 。</p>
+</li>
+<li>
+<p>参数 <code>m</code> 就表示这个创建的 torch::Library，使用 <code>def</code> 方法定义 operator 。</p>
+</li>
+</ol>
+<p>注意： Dispatcher 是全局唯一的单实例。</p>
+<h2 id="1-1-在-Library-中定义一个-operator">1.1 在 Library 中定义一个 operator</h2>
+<p>这个 torch::Library 初始化过程中定义了一个 operator <code>&quot;myadd(Tensor self, Tensor other) -&gt; Tensor&quot;</code> ，从这个字符串中可见，</p>
+<ol>
+<li>
+<p>函数名为 <code>myadd</code></p>
+</li>
+<li>
+<p>没有命名空间，如要指定命名空间，可写为 <code>&quot;myops::myadd(..)&quot;</code>，因为必须要与 torch::Library 的命名空间（<code>myops</code>）相同，如未指定，那么使用 torch::Library 的命名空间</p>
+</li>
+<li>
+<p>函数参数为两个 Tensor，函数返回值为一个 Tensor。</p>
+</li>
+</ol>
+<details>
+<summary>相关代码</summary>
+位于 aten/src/ATen/core/library.cpp 中的 
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">Library&amp; Library::_def(c10::FunctionSchema&amp;&amp; schema, c10::OperatorName* out_name, const std::vector&lt;at::Tag&gt;&amp; tags, _RegisterOrVerify rv)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</details>
+<p>这个 operator 还需要注册到 Dispatcher 中，其实 Library，operator Def 和 operator Impl 都要注册到 Dispatcher 中，这样用户发起一个函数调用时，Dispather 才能找到相应的 operator 来处理。</p>
+<p><strong># Dispatcher 的几个字段</strong>，</p>
+<ol>
+<li>
+<p><code>libraries_</code> 存储各个 Library 的 namespace</p>
+</li>
+<li>
+<p><code>operatorLookupTable_</code> 存储所有 operator 的 <code>OperatorName</code> 到 <code>OperatorHandle</code> 的映射</p>
+</li>
+<li>
+<p><code>operators_</code> 存储所有 operator，类似于 <code>operatorLookupTable_</code> 中的所有 value 集合</p>
+<p>区别是 value 类型是 OperatorHandle，而 <code>operators_</code> 存储的是 OperatorDef 对象。OperatorHandle 与 OperatorDef 是一一对应的，且在 OperatorDef 基础上增加几个方法，以对 operator 进行调用。</p>
+ <pre class="line-numbers language-none"><code class="language-none">+-----OperatorHandle----+
+|   1. callBoxed()      |
+|   2. typed()          |       +----OperatorDef----+      +--- OperatorEntry ---+
+|   3. operatorDef_ ----+----&gt;  |   1. op ----------+---&gt;  | 1. registerSchema() |
+|   ...                 |       |   ...             |      | ...                 |
++-----------------------+       +-------------------+      +---------------------+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+</ol>
+<p><strong># 注册 operator Def 的流程</strong>为：</p>
+<ol>
+<li>
+<p>在 <code>Dispatcher.operatorLookupTable_</code> 中根据 OperatorName 查找是否有 OperatorHandle</p>
+<p>OperatorName 包含了函数 name 和 overload_name。在这个例子中，name 为 <code>myops::myadd</code> （包含了命名空间），overload_name 为空，要指定 overload_name，那么函数名需要是 <code>[name].[overload_name]</code> 的形式。</p>
+</li>
+<li>
+<p>如存在则直接返回找到的 OperatorHandle；如不存在，则根据 OperatorName 创建一个 OperatorHandle，然后加入 <code>operatorLookupTable_</code> 映射，返回新建的 OperatorHandle</p>
+</li>
+<li>
+<p>如上面的类示意图所示，在 OperatorHandle 的 OperatorEntry 上调用 <code>registerSchema</code> 完成 operator Def 注册</p>
+<p>要搞清楚 <code>registerSchema</code> 做了什么，需要先对 OperatorEntry 这个类了解一下。</p>
+</li>
+</ol>
+<h3 id="1-1-1-OperatorEntry">1.1.1 OperatorEntry</h3>
+<p><strong># OperatorEntry 几个关键字段</strong>：</p>
+<ol>
+<li>
+<p><code>name_</code> operator 的名称 OperatorName</p>
+</li>
+<li>
+<p><code>dispatchTable_</code> KernelFunction 的数组，一个 operator 通常由若干个 kernel 实现，最多 <code>num_runtime_entries</code> 个 kernel</p>
+<p>每个 kernel 对应一个 DispatchKey。</p>
+</li>
+<li>
+<p><code>dispatchKeyExtractor_</code> 根据 operator 的函数参数获取对应的 DispatchKeySet</p>
+</li>
+<li>
+<p><code>kernels_</code> DispatchKey 与 list&lt; AnnotatedKernel &gt; 之间的映射。AnnotatedKernel 是在 KernelFunction 基础上增加了函数 schema 和 debug 信息。</p>
+<p>这里为何一个 DispatchKey 对应多个 Kernel？<code>dispatchTable_</code> 中 kernel 与 DispatchKey 不是一一对应的吗？其实，对于每个 DispatchKey， <code>dispatchTable_</code> 中的 kernel 是 <code>kernels_</code> 中列表的第一个 kernel，列表中其他 kernel 则是 overwrited，即新的 kernel 覆盖了旧的 kernel，而 <code>dispatchTable_</code> 中总数存储最新的 kernel。</p>
+</li>
+</ol>
+<p><strong># OperatorEntry 的构造函数</strong></p>
+<p>前面讲到，<code>Dispatcher.operatorLookupTable_</code> 根据 OperatorName 查找 OperatorHandle，如不存在，则根据 OperatorName 创建 OperatorHandle，在构造 OperatorEntry 对象时，<code>name_</code> 就使用这个 OperatorName 初始化，OperatorEntry 的其他字段则全部默认初始化。构造函数中还做了一件事 <code>updateDispatchTableFull_(..)</code>，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">OperatorEntry::OperatorEntry(OperatorName&amp;&amp; operator_name) : name_(std::move(operator_name)), ... &#123;
+    updateDispatchTableFull_(c10::Dispatcher::singleton());
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p><code>updateDispatchTableFull_</code> 方法做了哪些事呢？</p>
+<ol>
+<li>更新 <code>dispatchTable_</code></li>
+<li>记录每个 DispatchKey 是否 fallthrough</li>
+</ol>
+<p>对于第 1 点，每个 DispatchKey 均对应 <code>dispatchTable_</code> 中的一个下标 index（参见 <a href="2023/02/17/pytorch/source/dispatchkeyset">DispatchKeySet 一文</a> 中的表 1），有了下标 index，还需要知道每个 DispatchKey 的 kernel，才能更新到 <code>dispatchTable_</code> 中去。</p>
+<blockquote>
+<p>如何根据 DispatchKey 得到 kernel？</p>
+</blockquote>
+<details>
+<summary>相关代码</summary>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">std::pair&lt;const AnnotatedKernel&amp;, const char*&gt; OperatorEntry::computeDispatchTableEntryWithDebug(
+    const c10::Dispatcher&amp; dispatcher, 
+    DispatchKey dispatch_key)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+</details>
+<p>以下按照优先级从高到低的顺序获取 kernel，</p>
+<ol>
+<li>
+<p>从 <code>kernels_</code> 中根据 DispatchKey 获取 kernel（如有，则取已有的 kernel，否则往下执行，下同）</p>
+</li>
+<li>
+<p>如果 DispatchKey 被某个 alias key 包含，那么从 <code>kernels_</code> 中根据这个 alias key 获取 kernel</p>
+</li>
+<li>
+<p>从 <code>Dispatcher.backendFallbackKernels_</code> 中获取 DispatchKey 对应的 kernel</p>
+</li>
+<li>
+<p>返回默认的 kernel <code>missingKernel()</code></p>
+</li>
+</ol>
+<p><strong>结论</strong>：在初始化 OperatorEntry 对象时，<code>dispatchTable_</code> 中每个 DispatchKey 的 kernel 均为默认 kernel</p>
+<blockquote>
+<p><code>updateDispatchTableFull_</code> 为哪些 DispatchKey 更新 kernel？</p>
+</blockquote>
+<details>
+<summary>updateDispatchTableFull_ 代码</summary>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">void OperatorEntry::updateDispatchTableFull_(const c10::Dispatcher&amp; dispatcher) &#123;
+  updateDispatchTable_(dispatcher, DispatchKey::Undefined);
+  for (auto k : DispatchKeySet(DispatchKeySet::FULL)) &#123;
+    updateDispatchTable_(dispatcher, k);
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</details>
+<p>从上面的代码可知，被 updateDispatchTableFull_ 更新的 DispatchKey 包括 <code>DispatchKey::Undefined</code>，以及 <code>DispatchKeySet(Full)</code> （这是 Dispatchkey 集合）中所有 DispatchKey，共 <code>41-5+5*14=106</code> 个，遍历顺序如下：</p>
+<details>
+<summary>CPU, CUDA, ... , FPGA, ...</summary>
+<pre class="line-numbers language-none"><code class="language-none">CPU
+CUDA
+...
+PrivateUse3
+
+FPGA
+ORT
+Vulkan
+Metal
+
+QuantizedCPU
+QuantizedCUDA
+...
+QuantizedPrivateUse3
+
+CustomRNGKeyId
+MkldnnCPU
+
+SparseCPU
+SparseCUDA
+...
+SparsePrivateUse3
+
+SparseCsrCPU
+SparseCsrCUDA
+
+NestedTensorCPU
+NestedTensorCUDA
+...
+NestedTensorPrivateUse3
+
+BackendSelect
+&#123;其他普通 DispatchKey，这里不在一一列举&#125;
+AutogradOther
+
+AutogradCPU
+AutogradCUDA
+...
+AutogradPrivateUse3
+
+AutogradNestedTensor
+&#123;其他普通 DispatchKey，这里不在一一列举&#125;
+PythonDispatcher<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</details>
+<p>以上 DispatchKey 集合加上 <code>DispatchKey::Undefined</code> 一共 107 个，这与 <code>dispatchTable_</code> 数组的大小 <code>c10::num_runtime_entries=107</code> 相等。</p>
+<!-- 一个 OperatorEntry 类实例对应一个 operator，一个 operator 由多个 kernel 实现，每个 kernel 对应一个 DispatchKey，然而经过刚才分析一共有 107 个 DispatchKey，显然为每个 DispatchKey 均实现一个 kernel 太麻烦，实际上也没有必要， -->
+<p><strong># registerSchema</strong></p>
+<p>前面 <strong># 注册 operator Def 的流程</strong> 一节讲到使用 OperatorEntry 对象的 registerSchema 完成注册，根据下方代码片段可知，这个方法主要是给 OperatorEntry 的 <code>schema_</code> 赋值 。</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">void OperatorEntry::registerSchema(FunctionSchema&amp;&amp; schema, std::string&amp;&amp; debug, std::vector&lt;at::Tag&gt; tags) &#123;
+  ...
+  &#x2F;&#x2F; 记录 schema 中哪些位置的 param 用于 dispatch。
+  &#x2F;&#x2F; 用于 dispatch 的 param 包括 Tensor，List&lt;Tensor&gt;, Optional&lt;Tensor&gt;, List&lt;Optional&lt;Tensor&gt;&gt;
+  dispatchKeyExtractor_.registerSchema(schema); 
+  schema_ &#x3D; AnnotatedSchema(std::move(schema), std::move(debug));
+  #ifndef C10_MOBILE
+    tags_ &#x3D; std::move(tags);
+  #endif
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="1-2-注册一个-operator-Impl">1.2 注册一个 operator Impl</h2>
+<p>前面介绍了注册一个 operator Def，但是 operator 的具体实现方法，还未注册，只有注册了 operator Impl，才能调用这个 operator。官方文档的例子如下，</p>
+<details>
+<summary>一个自定义的加法实现</summary>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">Tensor myadd_cpu(const Tensor&amp; self_, const Tensor&amp; other_) &#123;
+  TORCH_CHECK(self_.sizes() &#x3D;&#x3D; other_.sizes());
+  TORCH_INTERNAL_ASSERT(self_.device().type() &#x3D;&#x3D; DeviceType::CPU);
+  TORCH_INTERNAL_ASSERT(other_.device().type() &#x3D;&#x3D; DeviceType::CPU);
+  Tensor self &#x3D; self_.contiguous();
+  Tensor other &#x3D; other_.contiguous();
+  Tensor result &#x3D; torch::empty(self.sizes(), self.options());
+  const float* self_ptr &#x3D; self.data_ptr&lt;float&gt;();
+  const float* other_ptr &#x3D; other.data_ptr&lt;float&gt;();
+  float* result_ptr &#x3D; result.data_ptr&lt;float&gt;();
+  for (int64_t i &#x3D; 0; i &lt; result.numel(); i++) &#123;
+    result_ptr[i] &#x3D; self_ptr[i] + other_ptr[i];
+  &#125;
+  return result;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</details>
+<p>这个加法基于 CPU 实现，使用 PyTorch 宏注册这个实现，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">TORCH_LIBRARY_IMPL(myops, CPU, m) &#123;
+  m.impl(&quot;myadd&quot;, myadd_cpu);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>其中 <code>&quot;myadd&quot;</code> 是 operator 的函数名，<code>myadd_cpu</code> 是 c++ 实现方法。</p>
+<p>查看宏 <code>TORCH_LIBRARY_IMPL</code> 的定义发现，这里竟然重新创建了一个 torch::Library 实例，并调用这个实例的 <code>impl</code> 方法。</p>
+<p>这两个 torch::Library，其中一个是 DEF 类型的，另一个 IMPL 类型的，两者并不冲突，DEF 类型的 torch::Library 用于向 Dispatcher 注册 Library 并注册 operator Def（相当于函数声明），而 IMPL 类型的 torch::Library 用于向 Dispatcher 注册 operator 的 kernel 方法实现，用户在调用一个 operator 时，由于 Def 和 Impl 均注册到 Dispatcher 中，所以 Dispatcher 可以直接 dispatch 到对应的 operator kernel，不需要经过任何 torch::Library 就能到达 operator kernel。</p>
+<p>注册 Impl 过程：</p>
+<ol>
+<li>
+<p>将 c++ 实现方法包装成 <code>CppFunction</code> 类型的对象</p>
+</li>
+<li>
+<p>调用 Dispatcher 的 registerImpl 方法完成注册</p>
+<ul>
+<li>根据 OperatorName 找到对应的 OperatorHandle （由于之前已经注册 Def，所以 Dispather 中一定有这个 OperatorHandle）</li>
+<li>取得 OperatorHandle 内部的 OperatorEntry，然后调用 OperatorEntry 的 registerKernel 方法</li>
+</ul>
+</li>
+</ol>
+<p>下面来仔细看这两个步骤如何完成。</p>
+<h3 id="1-2-1-包装成-CppFunction">1.2.1 包装成 CppFunction</h3>
+<p>torch::Library 的 <code>impl</code> 方法中调用如下语句将 c++ 原生实现方法保证成 CppFunction 实例，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">CppFunction f(std::forward&lt;Func&gt;(raw_f));<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>这里 <code>Func</code> 就是 <code>myadd_cpu</code> 的类型 <code>Tensor (*)(const Tensor&amp;, const Tensor&amp;)</code>，使用的 CppFunction 构造函数如下，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">explicit CppFunction(
+      Func* f,
+      std::enable_if_t&lt;
+          c10::guts::is_function_type&lt;Func&gt;::value,
+          std::nullptr_t&gt; &#x3D; nullptr)
+      : func_(c10::KernelFunction::makeFromUnboxedRuntimeFunction(f)),
+        cpp_signature_(c10::impl::CppSignature::make&lt;Func&gt;()),
+        schema_(
+            c10::detail::inferFunctionSchemaFromFunctor&lt;std::decay_t&lt;Func&gt;&gt;()),
+        debug_() &#123;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ol>
+<li>使用函数指针 <code>f</code>（实参是 <code>myadd_cpu</code>） 构造一个 KernelFunction 实例</li>
+<li>根据 <code>f</code> 的函数类型构造一个 CppSignature 实例</li>
+<li>根据 <code>f</code> 的函数类型构造一个 FunctionSchema 实例</li>
+</ol>
+<p>CppSignature 内部记录了一个 <code>std::type_info</code>，用于封装函数类型相关的信息。FunctionSchema 则记录了函数 OperationName，参数，返回值等信息。重点是第 1 点：构造 KernelFunction 实例，核心调用语句为</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; func 就是 &#96;f&#96; 对象（这里例子的实参是 &#96;myadd_cpu&#96;）
+&#x2F;&#x2F; AllowLegacyTypes 未指定，默认为 false
+&#x2F;&#x2F; FuncType 就是 &#96;f&#96; 的函数类型
+return makeFromUnboxedFunctor&lt;AllowLegacyTypes, impl::WrapFunctionIntoRuntimeFunctor&lt;std::decay_t&lt;FuncType&gt;&gt;&gt;(
+        guts::make_unique_base&lt;OperatorKernel, impl::WrapFunctionIntoRuntimeFunctor&lt;std::decay_t&lt;FuncType&gt;&gt;&gt;(func)
+    );<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>（注：decay 为类型T应用从左值到右值（lvalue-to-rvalue）、数组到指针（array-to-pointer）和函数到指针（function-to-pointer）的隐式转换。转换将移除类型T的cv限定符（const和volatile），并定义结果类型为 decay&lt; T &gt;::type）</p>
+<p>我们先看模板参数类型 <code>WrapFunctionIntoRuntimeFunctor&lt;std::decay_t&lt;FuncType&gt;&gt;</code>，这是一个包装类型，其自身是一个模板类，这个模板类的参数类型是函数指针类型、函数的返回值类型以及函数的参数类型，如下所示，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;class FuncType&gt;
+  using WrapFunctionIntoRuntimeFunctor &#x3D; detail::WrapFunctionIntoRuntimeFunctor_&lt;
+      FuncType,
+      typename guts::infer_function_traits_t&lt;FuncType&gt;::return_type,
+      typename guts::infer_function_traits_t&lt;FuncType&gt;::parameter_types
+  &gt;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>这个包装类型将任何一个函数指针进行包装</strong>，内部记录了一个函数指针，所有（使用任意类型的函数指针具现化后）的包装类均有一个共同的基类 —— <code>OperationKernel</code>，以后，我们可以将 OperationKernel 类型强转为某个具现化的包装类，从而可以获取其内部的函数指针，然后调用函数，不过这个包装类提供了一个 <code>operation()</code> 方法，可以直接调用这个包装类的实例，内部实际上正是调用所存储的函数指针。</p>
+<p>回到 <code>makeFromUnboxedFunctor</code> 调用语句，<code>make_unique_base</code> 就是根据参数 <code>func</code> （这里例子实参是 <code>myadd_cpu</code>）构造包装类 <code>WrapFunctionIntoRuntimeFunctor&lt;std::decay_t&lt;FuncType&gt;&gt;</code>，然后再根据这个子类创建父类（即 OperationKernel）的 unique 类型指针 <code>unique_ptr&lt;OperationKernel&gt;</code>，其指向的 OperationKernel 实际上是一个 Functor（函子，提供了 operator() 方法的类，可直接当成函数调用），于是，<code>makeFromUnboxedFunctor</code> 就是根据一个 Functor 创建 KernelFunction 对象。</p>
+<p>（注：暂时先不用关注 <code>boxed</code> 和 <code>unboxed</code> 两种调用类型的区别）</p>
+<p>下面给出 <code>makeFromUnboxedFunctor</code> 的实现代码（一目了然，并不复杂），</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;bool AllowLegacyTypes, class KernelFunctor&gt;
+inline KernelFunction KernelFunction::makeFromUnboxedFunctor(std::unique_ptr&lt;OperatorKernel&gt; kernelFunctor) &#123;
+    ...
+    auto* unboxed_fn &#x3D; &amp;impl::wrap_kernel_functor_unboxed&lt;KernelFunctor&gt;::call;
+    void* void_unboxed_fn &#x3D; reinterpret_cast&lt;void*&gt;(unboxed_fn);
+    bool is_symint &#x3D; fn_has_symint&lt;decltype(unboxed_fn)&gt;::value;
+    return KernelFunction(
+        std::move(kernelFunctor),
+        &amp;impl::make_boxed_from_unboxed_functor&lt;KernelFunctor, AllowLegacyTypes&gt;::call,
+        is_symint ? nullptr : void_unboxed_fn,
+        is_symint ? void_unboxed_fn : nullptr
+    );
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>根据前面 <code>makeFromUnboxedFunctor</code> 调用语句，这里的模板参数 <code>AllowLegacyTypes</code> 默认为 false，<code>KernelFunctor</code> 就是 <code>WrapFunctionIntoRuntimeFunctor&lt;std::decay_t&lt;FuncType&gt;&gt;</code> （包装类，函子，内部存储了具体的函数指针），其父类型是 <code>OperatorKernel</code>。</p>
+<p>简单的说一下上述代码，</p>
+<ol>
+<li>
+<p><code>wrap_kernel_functor_unboxed</code> 这是一个模板类，定义如下</p>
+ <pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;class KernelFunctor&gt;
+using wrap_kernel_functor_unboxed &#x3D; wrap_kernel_functor_unboxed_&lt;KernelFunctor, typename guts::infer_function_traits_t&lt;KernelFunctor&gt;::func_type&gt;;
+
+template&lt;class KernelFunctor, class ReturnType, class... ParameterTypes&gt;
+struct wrap_kernel_functor_unboxed_&lt;KernelFunctor, ReturnType(ParameterTypes...)&gt; final &#123;
+    ...
+    static ReturnType call(OperatorKernel* functor, DispatchKeySet, ParameterTypes... args) &#123;
+    KernelFunctor* functor_ &#x3D; static_cast&lt;KernelFunctor*&gt;(functor);
+    return (*functor_)(std::forward&lt;ParameterTypes&gt;(args)...);
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ul>
+<li><code>infer_function_traits_t&lt;KernelFunctor&gt;</code>::func_type  获取函子中 <code>operator()</code> 方法类型，这里剥离了 <code>Class::</code>，也就是得到的不是一个类方法，而是一个普通的函数，参数和返回值与函子的 <code>operator()</code> 完全相同。</li>
+<li><code>wrap_kernel_functor_unboxed_</code> 对函子 KernelFunctor 又进行了一层包装，提供 <code>call</code> 方法，传入一个函子的基类对象（OperatorKernel）对象，以及参数，将基类对象类型强转为具体的函子类型（这里例子中则是 <code>WrapFunctionIntoRuntimeFunctor&lt;std::decay_t&lt;FuncType&gt;&gt;</code>），然后将参数传入函子进行调用。</li>
+</ul>
+</li>
+<li>
+<p><code>unboxed_fn</code> 是一个类方法的指针，<code>ReturnType (wrap_kernel_functor_unboxed_&lt;KernelFunctor&gt;::*)(DispatchKeySet, ParameterTypes...)</code></p>
+<p>这里例子中，ReturnType 是一个 Tensor，<code>ParametersTypes...</code> 是 <code>const Tensor&amp;, const Tensor&amp;</code></p>
+</li>
+<li>
+<p>将 <code>unboxed_fn</code> 转为一个 <code>void *</code> 指针得到 <code>void_unboxed_fn</code></p>
+</li>
+<li>
+<p><code>is_symint</code> unboxed_fn 参数列表中是否含有 <code>SymInt</code> 或其相关类（在这个例子中，没有）</p>
+</li>
+<li>
+<p>创建 KernelFunction 对象</p>
+<ul>
+<li>
+<p>第一个参数是函子的基类型指针 <code>unique_ptr&lt;OperatorKernel&gt;</code></p>
+</li>
+<li>
+<p>第 三/四 个参数是 没有/有 SymInt 相关类型参数时转为 <code>void*</code> 的调用方法<code>::call</code></p>
+</li>
+<li>
+<p>第二个参数是 BoxedKernel::InternalBoxedKernelFunction 类型，</p>
+  <pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">using InternalBoxedKernelFunction &#x3D; void(OperatorKernel*, const OperatorHandle&amp;, DispatchKeySet, Stack*);<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>实参是 make_boxed_from_unboxed_functor 的类方法 <code>call</code>，从这个类名大概知道是从 unboxed functor 得到 boxed 的调用，类方法 <code>call</code> 实现如下（简化后），</p>
+  <details>
+  <summary>make_boxed_from_unboxed_functor::call 方法实现</summary>
+  <pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">static void call(OperatorKernel* functor, const OperatorHandle&amp;, DispatchKeySet dispatchKeySet, Stack* stack) &#123;
+    using ReturnType &#x3D; typename guts::infer_function_traits_t&lt;KernelFunctor&gt;::return_type;  &#x2F;&#x2F; 返回值类型
+    using ArgTypes &#x3D; typename c10::remove_DispatchKeySet_arg_from_func&lt;KernelFunctor&gt;::parameter_types; &#x2F;&#x2F; 参数类型（去除 DispatchKeySet 参数）
+    constexpr bool has_outputs &#x3D; !std::is_same&lt;void, ReturnType&gt;::value;    &#x2F;&#x2F; 返回void则表示无输出，否则有输出
+    constexpr size_t num_inputs &#x3D; guts::typelist::size&lt;ArgTypes&gt;::value;    &#x2F;&#x2F; 参数量
+    guts::if_constexpr&lt;has_outputs&gt;([&amp;] (auto delay_check) &#123;    &#x2F;&#x2F; 编译期 if 语句
+        &#x2F;&#x2F; 如果有返回值，那么调用 call_functor_with_args_from_stack，其内部执行 functor，函数参数存储与 stack 中
+        using ReturnType_ &#x3D; std::decay_t&lt;typename decltype(delay_check)::template type_identity&lt;ReturnType&gt;&gt;;
+        ReturnType_ output &#x3D; call_functor_with_args_from_stack&lt;KernelFunctor, AllowDeprecatedTypes&gt;(functor, dispatchKeySet, delay_check(stack));
+        &#x2F;&#x2F; 将输入参数从 stack 中移除
+        torch::jit::drop(*stack, num_inputs);
+        &#x2F;&#x2F; 将函数输出压入 stack 中
+        push_outputs&lt;ReturnType_, AllowDeprecatedTypes&gt;::call(std::move(output), stack);
+
+    &#125;, &#x2F;* else *&#x2F; [&amp;] &#123;
+        &#x2F;&#x2F; 没有返回值，那么直接调用 functor，参数在 stack 中，调用完毕后将参数从 stack 中移除
+        call_functor_with_args_from_stack&lt;KernelFunctor, AllowDeprecatedTypes&gt;(functor, dispatchKeySet, stack);
+        torch::jit::drop(*stack, num_inputs); 
+    &#125;);
+
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+  </details>
+<p>从这里可见，unboxed 的调用，函数参数是各种类型的，boxed 的调用，参数存储与 Stack 中，且每个参数均包装成 IValue 类型，所以 <code>make_boxed_from_unboxed_functor&lt;KernelFunctor, AllowLegacyTypes&gt;::call</code> 是一个 boxed 的调用。</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>至此，根据函数指针创建 CppFunction 对象完成。由于内容较多，需要将代码完整的看一遍才能彻底搞清楚，以上是将代码中几个关键的部分拎出来讲一下。</p>
+<p><strong># 总结创建 CppFunction 的过程</strong></p>
+<details>
+<summary>示意图</summary>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">kernelFunctor ----&gt; +--WrapFunctionIntoRuntimeFunctor&lt;Func*&gt;----+     
+                    |  Base: OperatorKernel                     |
+                    |  Func*     -------------------------------+-----&gt; |Func* f(e.g. myadd_cpu)|
+                    |  operator()                               |
+                    +-------------------------------------------+         
+
+KernelFunctor &#x3D; WrapFunctionIntoRuntimeFunctor&lt;Func*&gt;
+
+                            +--------------wrap_kernel_functor_unboxed&lt;KernelFunctor&gt;----------------+
+void_unboxed_fn --(void*)---+--&gt; ReturnType call(OperatorKernel*, DispatchKeySet, ParameterTypes...) |
+                            +------------------------------------------------------------------------+
+
+
+
+                    +-------make_boxed_from_unboxed_functor&lt;KernelFunctor, AllowLegacyTypes&gt;--------+
+boxed_kernel_func --+--&gt; void call(OperatorKernel*, const OperatorHandle&amp;, DispatchKeySet, Stack*)  |
+                    +-------------------------------------------------------------------------------+
+
+boxed_kernel_func ---&gt;  +----------BoxedKernel-----------+
+                        | intrusive_ptr&lt;OperatorKernel&gt; -+--&gt; kernelFunctor
+                        | InternalBoxedKernelFunction* --+--&gt; boxed_kernel_func
+                        +--------------------------------+
+
+   
+func ----&gt;  +---------KernelFunction-----------+     
+            | BoxedKernel  --------------------+---&gt; boxed_kernel_func
+            | void* unboxed_kernel_func_     \_|__-&gt; void_unboxed_fn   
+            | void* sym_unboxed_kernel_func_ &#x2F; |     
+            +----------------------------------+
+
++----CppFunction----+ 
+| KernelFunction  --+--&gt; func
+| ...               |
++-------------------+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</details>
+<ol>
+<li>
+<p>参数 <code>Func* f</code> （这里例子是 <code>myadd_cpu</code>） 先是封装到 <code>unique_ptr&lt;OperatorKernel&gt;</code> 中（即 kernelFunctor 这个对象），然后封装到 <code>BoxedKernel</code> 中，且 <code>BoxedKernel</code> 还有一个 boxed 调用，然后 <code>KernelFunction</code> 中包含 <code>BoxedKernel</code> 以及另外一个 unboxed 调用</p>
+</li>
+<li>
+<p>BoxedKernel 包含 functor 和 boxed call，KernelFunction 在 BoxedKernel 基础上增加一个 unboxed call</p>
+</li>
+<li>
+<p>functor、boxed call 和 unboxed call 的区别大概是</p>
+ <pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">functor(Parameters... args) &#x2F;&#x2F; 直接调用
+boxed_call(functor, Stack* stack) &#123; functor( (Parameters...)stack ); &#125;
+unboxed_call(functor, Parameters... args) &#123; functor(args); &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+</li>
+</ol>
+<h3 id="1-2-2-registerKernel">1.2.2 registerKernel</h3>
+<p>这是 OperatorEntry 的类方法（回顾前面 1.2 小节最开始的讲解）。</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">OperatorEntry::AnnotatedKernelContainerIterator OperatorEntry::registerKernel(
+  const c10::Dispatcher&amp; dispatcher,
+  c10::optional&lt;DispatchKey&gt; dispatch_key,
+  KernelFunction kernel,
+  c10::optional&lt;CppSignature&gt; cpp_signature,
+  std::unique_ptr&lt;FunctionSchema&gt; inferred_function_schema,
+  std::string debug
+)&#123; ... &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>参数：</p>
+<ol>
+<li>
+<p><code>dispatcher</code> 全局唯一 Dispatcher 单实例</p>
+</li>
+<li>
+<p><code>dispatch_key</code> 这个 kernel 对应的 DispatchKey</p>
+<p>创建 IMPL 的 torch::Library 我们指定了 DispatchKey，而 CppFunction 中未指定 DispatchKey，所以使用 torch::Library 中的 DispatchKey，这里例子中这个参数为 DispatchKey::CPU</p>
+</li>
+<li>
+<p><code>kernel</code> CppFunction 的 <code>func_</code> 字段，为 KernelFunction 类型</p>
+</li>
+<li>
+<p><code>cpp_signature</code> CppFunction 中的 <code>cpp_signature_</code> 字段</p>
+</li>
+<li>
+<p><code>inferred_function_schema</code> 根据 <code>Func* f</code> 原生函数指针类型推断出的 FunctionSchema</p>
+<p>这里例子中则是根据 <code>myadd_cpu</code> 推断出的 FunctionSchema</p>
+</li>
+<li>
+<p><code>debug</code> 出错时用于打印的信息</p>
+<p><code>debug = c10::str(&quot;registered at &quot;, file, &quot;:&quot;, line)</code>，file 和 line 分别为当前 TORCH_LIBRARY_IMPL 调用语句所在文件和行号</p>
+</li>
+</ol>
+<p>在注册 Impl 阶段，从 Dispatcher 中查找的 OperatorEntry 对象与之前注册 Def 阶段中从 Dispatcher 中查找的 OperatorEntry 对象是同一个，在 registerDef 过程中，OperatorEntry 对象已经设置了 <code>schema_</code>，所以需要将 <code>schema_</code> 与 <code>infered_function_schema</code> 比较是否相同，如不同则报错。接着，</p>
+<ol>
+<li>
+<p>从 <code>kernels_</code> 中根据 dispatch_key 取相应的列表，这是对应 dispatch_key 的 kernel 列表。</p>
+<p>前面讲过，<code>kernels_</code> 的每个 dispatch_key 对应的是 kernel 列表，而不是单个 kernel，这是因为 kernel 可能被 overwrite，而最新的 kernel 则总是列表的第一个元素，这个元素与 <code>dispatchTable_</code> 中的 kernel 一致。But，如果 dispatch_key != DispatchKey::Meta，那么 overwrite kernel 会打印一个 WRAN 信息。</p>
+</li>
+<li>
+<p><code>kernels_</code> 是 <code>flat_hash_map</code> 类型，使用 <code>kernels_[*dispatch_key]</code> 获取列表时，如果 <code>kernels_</code> 不存在 dispatch_key，那么会及时的创建一个列表存储到 <code>kernels_</code> 中。故在 registerDef 过程中，遍历 <code>kernels_</code> 时，<code>kernels_</code> 中其实是没有键值对的，而现在 registerImpl/registerKernel 时，对于指定的 DispatchKey，则初始都会创建一个空列表。</p>
+</li>
+<li>
+<p>将 <code>kernel</code> 插入列表第一个位置</p>
+</li>
+<li>
+<p>将列表第一个位置的元素更新到 <code>dispatchTable_</code> 中</p>
+</li>
+<li>
+<p>设置 operator 对应 dispatch_key 是否是 fallthrough kernel</p>
+<p>如果注册的 kernel （其内部的 boxed call） 是 <code>fallthrough_kernel</code> 方法，那么就要相应的设置 flag，表示这个 dispatch_key 有 fallthrough 方法。<code>fallthrough_kernel</code> 是位于 kernelfunction.cpp 文件中的一个默认方法。</p>
+</li>
+</ol>
+<h1>2. 一个真实的例子</h1>
+<h2 id="2-1-注册一个真实的-operator">2.1 注册一个真实的 operator</h2>
+<p>我们以一个真实存在于 pytorch 中的 operator <code>empty.memory_format</code> 为例再梳理一遍注册过程。</p>
+<p><strong># 注册 Def</strong></p>
+<p>build pytorch 项目之后，可以在文件 build/aten/src/ATen/RegisterSchema.cpp 文件中发现注册了很多 operator，如下代码所示</p>
+<p>（这些生成的源码文件都是由 <code>gen.py</code> 文件生成）</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">TORCH_LIBRARY(aten, m) &#123;
+    ...
+    m.def(&quot;empty.memory_format(SymInt[] size, *, ScalarType? dtype&#x3D;None, Layout? layout&#x3D;None, Device? device&#x3D;None, bool? pin_memory&#x3D;None, MemoryFormat? memory_format&#x3D;None) -&gt; Tensor&quot;, &#123;&#125;);
+    ...
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>m.def(&quot;xxx&quot;, &#123;&#125;)</code> 中的 <code>&#123;&#125;</code> 表示 tags 这个参数值，这个参数默认值就是 <code>&#123;&#125;</code>，所以前面的 <code>myadd</code> 注册时就没有提供这个实参。具体可查看 <code>Library::def</code> 方法。</p>
+<p><strong># 注册 Impl</strong></p>
+<p>注册 operator Impl 的代码则位于 build/aten/src/ATen 目录下的多个源码文件中，</p>
+<pre class="line-numbers language-none"><code class="language-none">RegisterCPU.cpp
+RegisterCUDA.cpp
+RegisterQuantizedCPU.cpp
+RegisterQuantizedCUDA.cpp
+RegisterSparseCPU.cpp
+RegisterSparseCUDA.cpp
+RegisterBackendSelect.cpp
+...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>例如在 RegisterCPU.cpp 中，我们可以找到</p>
+<pre class="line-numbers language-C++" data-language="C++"><code class="language-C++">TORCH_LIBRARY_IMPL(aten, CPU, m) &#123;
+    ...
+    m.impl(&quot;empty.memory_format&quot;,
+    TORCH_FN(wrapper_memory_format_empty));
+    ...
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>首先需要注意，这里的函数变成了 <code>TORCH_FN(wrapper_memory_format_empty)</code>，其中</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">at::Tensor wrapper_memory_format_empty(c10::SymIntArrayRef size, c10::optional&lt;at::ScalarType&gt; dtype, c10::optional&lt;at::Layout&gt; layout, c10::optional&lt;at::Device&gt; device, c10::optional&lt;bool&gt; pin_memory, c10::optional&lt;at::MemoryFormat&gt; memory_format) &#123;
+  return at::native::empty_cpu(c10::asIntArrayRefSlow(size), dtype, layout, device, pin_memory, memory_format);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p><code>wrapper_memory_format_empty</code> 的 schema 与前面注册 Def 的保持一致，在应用 <code>TORCH_FN</code> 之后就不是一个普通的函数了，而是一个将函数包装成 c++ 类，此时 <code>m.impl</code> 方法中创建 CppFunction 对象的构造函数也变成</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 torch&#x2F;library.h
+template &lt;typename FuncPtr&gt;
+explicit CppFunction(
+    FuncPtr f,
+    std::enable_if_t&lt;
+        c10::is_compile_time_function_pointer&lt;FuncPtr&gt;::value,
+        std::nullptr_t&gt; &#x3D; nullptr)
+    : func_(c10::KernelFunction::makeFromUnboxedFunction(f)),
+    cpp_signature_(
+        c10::impl::CppSignature::make&lt;typename FuncPtr::FuncType&gt;()),
+    schema_(c10::detail::inferFunctionSchemaFromFunctor&lt;
+            typename FuncPtr::FuncType&gt;()),
+    debug_() &#123;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<details>
+<summary>创建一个 empty tensor 过程简介</summary>
+<p>回到 <code>wrapper_memory_format_empty</code> 函数中来，这个函数调用 <code>at::native::empty_cpu</code>，其定义如下</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于
+Tensor empty_cpu(IntArrayRef size, c10::optional&lt;ScalarType&gt; dtype_opt, c10::optional&lt;Layout&gt; layout_opt,
+                 c10::optional&lt;Device&gt; device_opt, c10::optional&lt;bool&gt; pin_memory_opt, c10::optional&lt;c10::MemoryFormat&gt; memory_format_opt) &#123;
+  return at::detail::empty_cpu(size, dtype_opt, layout_opt, device_opt, pin_memory_opt, memory_format_opt);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其内部又继续调用 <code>at::detail::empty_cpu</code> 定义如下，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">TensorBase empty_cpu(
+    IntArrayRef size,
+    c10::optional&lt;ScalarType&gt; dtype_opt,
+    c10::optional&lt;Layout&gt; layout_opt,
+    c10::optional&lt;Device&gt; device_opt,
+    c10::optional&lt;bool&gt; pin_memory_opt,
+    c10::optional&lt;c10::MemoryFormat&gt; memory_format_opt) &#123;
+  auto device &#x3D; device_or_default(device_opt);
+  TORCH_INTERNAL_ASSERT_DEBUG_ONLY(device.type() &#x3D;&#x3D; DeviceType::CPU);
+  TORCH_INTERNAL_ASSERT_DEBUG_ONLY(layout_or_default(layout_opt) &#x3D;&#x3D; Layout::Strided);
+
+  auto pin_memory &#x3D; pinned_memory_or_default(pin_memory_opt);
+  auto dtype &#x3D; dtype_or_default(dtype_opt);
+  return empty_cpu(size, dtype, pin_memory, memory_format_opt);
+&#125;
+
+TensorBase empty_cpu(IntArrayRef size, ScalarType dtype, bool pin_memory,
+                     c10::optional&lt;c10::MemoryFormat&gt; memory_format_opt) &#123;
+  auto allocator &#x3D; GetCPUAllocatorMaybePinned(pin_memory);
+  constexpr c10::DispatchKeySet cpu_ks(c10::DispatchKey::CPU);
+  return empty_generic(size, allocator, cpu_ks, dtype, memory_format_opt);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>第一个 <code>empty_cpu</code> 方法中，将各参数由 <code>optional&lt;T&gt;</code> 转为 T 类型，如果 <code>optional&lt;T&gt;</code> 没有值，那么使用 T 的默认值。第二个 <code>empty_cpu</code> 方法实现则是调用 <code>empty_generic</code> 方法，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 aten&#x2F;src&#x2F;ATen&#x2F;EmptyTensor.cpp
+TensorBase empty_generic(
+    IntArrayRef size,
+    c10::Allocator* allocator,
+    c10::DispatchKeySet ks,
+    ScalarType scalar_type,
+    c10::optional&lt;c10::MemoryFormat&gt; memory_format_opt) &#123;
+    at::detail::check_size_nonnegative(size);
+    at::detail::raise_warning_for_complex_half(scalar_type);
+    caffe2::TypeMeta dtype &#x3D; scalarTypeToTypeMeta(scalar_type);
+    size_t size_bytes &#x3D; computeStorageNbytesContiguous(size, dtype.itemsize());
+    auto storage_impl &#x3D; c10::make_intrusive&lt;StorageImpl&gt;(
+        c10::StorageImpl::use_byte_size_t(),
+        size_bytes,
+        allocator-&gt;allocate(size_bytes),
+        allocator,
+        &#x2F;*resizeable&#x3D;*&#x2F;true);
+
+    auto tensor &#x3D; detail::make_tensor_base&lt;TensorImpl&gt;(
+        std::move(storage_impl), ks, dtype);
+    &#x2F;&#x2F; Default TensorImpl has size [0]
+    if (size.size() !&#x3D; 1 || size[0] !&#x3D; 0) &#123;
+        tensor.unsafeGetTensorImpl()-&gt;set_sizes_contiguous(size);
+    &#125;
+
+    if (memory_format_opt.has_value()) &#123;
+        &#x2F;&#x2F; Restriding a just-created empty contiguous tensor does nothing.
+        if (*memory_format_opt !&#x3D; MemoryFormat::Contiguous) &#123;
+        tensor.unsafeGetTensorImpl()-&gt;empty_tensor_restride(*memory_format_opt);
+        &#125;
+    &#125;
+    return tensor;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>在 <code>empty_generic</code> 方法中，根据 tensor size 和 dtype 计算所需要的内存大小 <code>size_bytes</code>，然后分配内存 <code>allocator-&gt;allocate(size_bytes)</code>，接着逐步创建一系列对象</p>
+<pre class="line-numbers language-none"><code class="language-none">StorageImpl -&gt; TensorImpl -&gt; TensorBase<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>函数 <code>at::native::empty_cpu</code> 返回时，再根据 <code>TensorBase</code> 构造一个 <code>Tensor</code> 对象并返回。</p>
+</details>
+<h2 id="2-2-从-python-中调用-operator">2.2 从 python 中调用 operator</h2>
+<p><code>empty.memory_format</code> 这个 operator 用于创建一个新的 Tensor 对象。现使用如下代码创建 Tensor，</p>
+<p><strong>例 1</strong></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">a <span class="token operator">=</span> torch<span class="token punctuation">.</span>Tensor<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>a<span class="token punctuation">.</span>shape<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>打印结果为 <code>torch.Size([1, 2, 3, 4])</code>，表示创建了一个 Tensor，其 shape 为 <code>(1,2,3,4)</code>。</p>
+<p><strong>例 2</strong></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">b <span class="token operator">=</span> torch<span class="token punctuation">.</span>Tensor<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>b<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>b<span class="token punctuation">.</span>shape<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>打印结果为</p>
+<pre class="line-numbers language-none"><code class="language-none">tensor([1., 2., 3., 4.])
+torch.Size([4])<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p><strong>例 3</strong></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">c <span class="token operator">=</span> torch<span class="token punctuation">.</span>Tensor<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>Size<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>c<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>输出结果与 例1 中一样</p>
+<h3 id="2-2-1-代码分析">2.2.1 代码分析</h3>
+<p>这里 <code>torch.Tensor</code> 是一个 python 类，位于 torch/_tensor.py 文件中，其继承了 <code>torch._C._TensorBase</code>，<code>torch.Tensor</code> 类没有提供构造函数，故我们查看其父类的构造函数。父类位于 torch/csrc/autograd/python_variable.cpp 文件中，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">PyTypeObject THPVariableType &#x3D; &#123;
+    PyVarObject_HEAD_INIT(
+        &amp;THPVariableMetaType,
+        0) &quot;torch._C._TensorBase&quot;, &#x2F;* tp_name *&#x2F;
+    ...
+    THPVariable_pynew, &#x2F;* tp_new *&#x2F;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>构造函数定义如下，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">PyObject* THPVariable_pynew(
+    PyTypeObject* type,
+    PyObject* args,
+    PyObject* kwargs) &#123;
+  HANDLE_TH_ERRORS
+  TORCH_CHECK(
+      type !&#x3D; &amp;THPVariableType,
+      &quot;Cannot directly construct _TensorBase; subclass it and then construct that&quot;);
+  jit::tracer::warn(&quot;torch.Tensor&quot;, jit::tracer::WARN_CONSTRUCTOR);
+  auto tensor &#x3D; torch::utils::base_tensor_ctor(args, kwargs);   &#x2F;&#x2F; &lt;----- 创建 at::Tensor 对象
+  &#x2F;&#x2F; WARNING: tensor is NOT guaranteed to be a fresh tensor; e.g., if it was
+  &#x2F;&#x2F; given a raw pointer that will refcount bump
+  return THPVariable_NewWithVar(
+      type,
+      std::move(tensor),
+      c10::impl::PyInterpreterStatus::MAYBE_UNINITIALIZED);
+  END_HANDLE_TH_ERRORS
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中 <code>base_tensor_ctor</code> 用于创建 at::Tensor 对象，这是一个 c++ 的 Tensor 类，方法内部调用如下函数，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">Tensor legacy_tensor_generic_ctor_new(
+    c10::DispatchKey dispatch_key,  &#x2F;&#x2F; 实参使用默认值，即 Dispatch::CPU
+    at::ScalarType scalar_type,     &#x2F;&#x2F; 实参使用默认值，即  TypeMeta::Make&lt;float&gt;()
+    PyObject* args,
+    PyObject* kwargs,
+    CtorOrNew ctor_or_new) &#123;
+    auto options &#x3D; dispatchKeyToTensorOptions(dispatch_key);
+    static PythonArgParser parser(&#123;
+        &quot;new(*, Device? device&#x3D;None)&quot;,
+        &quot;new(Storage storage)&quot;,
+        &quot;new(*, int64_t cdata)|hidden&quot;,
+        &#x2F;&#x2F; This constructor is no longer legacy, it will also be usable for
+        &#x2F;&#x2F; subclass initialization
+        &quot;new(Tensor other)&quot;,
+        &quot;new(Tensor other, *, Device? device&#x3D;None)|hidden&quot;, &#x2F;&#x2F; prevent Tensor
+                                                            &#x2F;&#x2F; matching with
+                                                            &#x2F;&#x2F; IntArrayRef,
+                                                            &#x2F;&#x2F; PyObject*
+        &quot;new(SymIntArrayRef size, *, Device? device&#x3D;None)&quot;,
+        &quot;new(PyObject* data, *, Device? device&#x3D;None)&quot;,
+    &#125;); &#x2F;&#x2F; ? means allow_none, &#x3D; means set default value
+
+    ParsedArgs&lt;2&gt; parsed_args;
+    auto r &#x3D; parser.parse(args, kwargs, parsed_args);
+    if (r.idx &#x3D;&#x3D; 0) &#123;
+    ...
+    &#125; else if (r.idx &#x3D;&#x3D; 5) &#123;
+        PyObject* arg &#x3D; r.pyobject(0);
+        auto deviceOptional &#x3D; r.deviceOptional(1);
+        check_legacy_ctor_device(dispatch_key, deviceOptional);
+        if (!THPSize_Check(arg) &amp;&amp; PyTuple_GET_SIZE(args) &gt;&#x3D; 1 &amp;&amp;
+            arg &#x3D;&#x3D; PyTuple_GET_ITEM(args, 0)) &#123;
+        &#x2F;&#x2F; new(sequence) binds to this signature but should be treated differently
+        &#x2F;&#x2F; unless the sequences is a torch.Size
+        return legacy_new_from_sequence(
+            options, scalar_type, deviceOptional, r.pyobject(0));
+        &#125;
+        return new_with_sizes(
+            options, scalar_type, r.deviceOptional(1), r.symintlist(0));
+    &#125; 
+    ...
+    throw std::runtime_error(&quot;new(): invalid arguments&quot;);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>从上面的方法定义中，可见创建一个 Tensor 对象，有 6 个 schema，我们的 例1 和 例2 均匹配到 <code>&quot;new(SymIntArrayRef size, *, Device? device=None)&quot;</code>，也就是代码中的 <code>r.idx==5</code> 成立，</p>
+<ol>
+<li>
+<p>例1 <code>torch.Tensor(1,2,3,4)</code>，函数输入参数 <code>args</code> 为 <code>(1,2,3,4)</code>， 解析后的 <code>arg</code> 为 <code>(1,2,3,4)</code>，于是 <code>args[0]!=arg</code></p>
+<p>执行 <code>new_with_sizes</code> 函数，创建一个指定 size 的 Tensor</p>
+</li>
+<li>
+<p>例2 <code>torch.Tensor([1,2,3,4])</code>，函数输入参数 <code>args</code> 为 <code>([1,2,3,4],)</code>，解析后的 <code>arg</code> 为 <code>[1,2,3,4]</code>，于是 <code>args[0]==arg</code></p>
+<p>执行 <code>legacy_new_from_sequence</code> 函数，创建一个指定数值序列的 Tensor</p>
+</li>
+<li>
+<p>例3 <code>c = torch.Tensor(torch.Size([1,2,3,4]))</code>，函数输入参数 <code>args</code> 为 <code>(torch.Size([1,2,3,4]),)</code>，解析后的 <code>arg</code> 为 <code>torch.Size([1,2,3,4])</code>，于是 <code>args[0]==arg</code>，但是 <code>THPSize_Check(arg)=true</code></p>
+<p>执行 <code>new_with_sizes</code> 函数，创建一个指定 size 的 Tensor</p>
+</li>
+</ol>
+<p><strong># new_with_sizes 方法</strong></p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">Tensor new_with_sizes(
+    c10::TensorOptions options,
+    at::ScalarType scalar_type,
+    const optional&lt;Device&gt;&amp; device,
+    c10::SymIntArrayRef sizes) &#123;
+  maybe_initialize_cuda(options.device());  &#x2F;&#x2F; 初始化 cuda（如果device 类型为 cuda）
+  pybind11::gil_scoped_release no_gil;      &#x2F;&#x2F; 释放 GIL
+  return at::empty_symint(sizes, build_options(options, scalar_type, device));
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这个函数定义在<br>
+torch/include/ATen/ops/empty.h 中，其内部调用 <code>empty_memory_format::call</code>，这里 <code>empty_memory_format</code> 是一个 struct，定义在 torch/include/ATen/ops/empty_ops.h 中，而类方法 empty_memory_format::call 这个方法定义于 build/aten/src/ATen/Operators_2.cpp 和 build/aten/src/ATen/OperatorsEverything.cpp 两个文件中（源文件使用 torchgen/gen.py 生成，相关函数为 <code>class ComputeOperators.__call__</code>），但是 Everything 结尾的源码文件不参与编译，详见 <a target="_blank" rel="noopener" href="http://torchgen.utils.py">torchgen.utils.py</a> 中 write_sharded() 的代码</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">self<span class="token punctuation">.</span>filenames<span class="token punctuation">.</span>discard<span class="token punctuation">(</span>
+            <span class="token string-interpolation"><span class="token string">f"</span><span class="token interpolation"><span class="token punctuation">&#123;</span>self<span class="token punctuation">.</span>install_dir<span class="token punctuation">&#125;</span></span><span class="token string">/</span><span class="token interpolation"><span class="token punctuation">&#123;</span>base_filename<span class="token punctuation">&#125;</span></span><span class="token string">Everything</span><span class="token interpolation"><span class="token punctuation">&#123;</span>extension<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
+        <span class="token punctuation">)</span><span class="token operator">//</span> 丢弃 Everything 结尾的源码文件<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>以及 build/aten/src/ATen/generated_sources.cmake 文件。实际上，OperatorsEverything.cpp文件是几个 Operators_x.cpp 文件的合并。</p>
+<p><strong># 注册 Impl for BackendSelect</strong></p>
+<p>这里我们突然插入一节内容，介绍注册 DispatchKey::BackendSelect 对应的 kernel 实现，这显得有点突兀，但是因为刚刚介绍了位于 empty_ops.h 文件中的 empty_memory_format 类，这个类除了 <code>call</code> 方法，还有一个 <code>redispatch</code> 方法，这两个方法从参数上看，后者多了一个 <code>DispatchKeySet</code> 类似参数。</p>
+<p>通常情况下，Dispatcher 根据 operator 中的 Tensor（或 Generator）类型参数就可以确定 DispatchKey，从而 dispatch 到对应的 kernel 上，然而我们选的 <code>empty</code> 函数有些特别，因为 empty 函数参数不包含 Tensor（以及 Generator），这使得 Dispatcher 无法从 Tensor 类型参数中获取有效的 DispatchKey 信息，此时使用 DispatchKey::BackendSelect，所以像 <code>empty</code> 这样的 operator，需要注册对应 BackendSelect 的 kernel。这就是我给出这一小节内容的原因。</p>
+<p>在文件 RegisterBackendSelect.cpp 中，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">TORCH_LIBRARY_IMPL(aten, BackendSelect, m) &#123;
+    ...
+    m.impl(&quot;aten::empty.memory_format&quot;, TORCH_FN(empty_memory_format));
+    ...
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>kernel 所用的 c++ 原生函数定义为</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">C10_ALWAYS_INLINE
+at::Tensor empty_memory_format(c10::SymIntArrayRef size, c10::optional&lt;at::ScalarType&gt; dtype, c10::optional&lt;at::Layout&gt; layout, c10::optional&lt;at::Device&gt; device, c10::optional&lt;bool&gt; pin_memory, c10::optional&lt;at::MemoryFormat&gt; memory_format) &#123;
+  DispatchKeySet _dk &#x3D; c10::DispatchKeySet(c10::computeDispatchKey(dtype, layout, device)); &#x2F;&#x2F; 计算 DispatchKey
+  return at::_ops::empty_memory_format::redispatch(
+      _dk, size, dtype, layout, device, pin_memory, memory_format);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>以上代码中，计算 DispatchKey 时，由于 dtype 为 float，layout 为 strided，device 为 cpu，所以得到 DispatchKey::CPU 。 <code>redispatch</code> 方法也是位于类 empty_memory_format 中，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">at::Tensor empty_memory_format::redispatch(c10::DispatchKeySet dispatchKeySet, c10::SymIntArrayRef size, c10::optional&lt;at::ScalarType&gt; dtype, c10::optional&lt;at::Layout&gt; layout, c10::optional&lt;at::Device&gt; device, c10::optional&lt;bool&gt; pin_memory, c10::optional&lt;at::MemoryFormat&gt; memory_format) &#123;
+    
+    static auto op &#x3D; create_empty_memory_format_typed_handle();
+    return op.redispatch(dispatchKeySet, size, dtype, layout, device, pin_memory, memory_format);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>可见，redispatch 与 call 方法一致，都是先获取 TypedOperatorHandle 对象，然后调用 handle 对象的同名方法，然后调用 Dispatcher（全局唯一）的同名方法，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;class Return, class... Args&gt;
+inline Return Dispatcher::redispatch(const TypedOperatorHandle&lt;Return (Args...)&gt;&amp; op, DispatchKeySet currentDispatchKeySet, Args... args) const &#123;
+    detail::unused_arg_(args...);  &#x2F;&#x2F; workaround for a false-positive warning about unused parameters in gcc 5
+    ...
+    const KernelFunction&amp; kernel &#x3D; op.operatorDef_-&gt;op.lookup(currentDispatchKeySet);
+    return kernel.template call&lt;Return, Args...&gt;(op, currentDispatchKeySet, std::forward&lt;Args&gt;(args)...);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>在 Dispatcher::call 方法中，根据 Tensor 类型参数获取 DispatchKey，而调用 Dispatcher::redispatch 之前，已经事先根据 dtype, layout 和 device 计算出 DispatchKey 。</p>
+<p>下面我们看 <code>empty_memory_format::call</code> 的方法定义，这部分是关键，涉及到方法 dispatching，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">at::Tensor empty_memory_format::call(c10::SymIntArrayRef size, c10::optional&lt;at::ScalarType&gt; dtype, c10::optional&lt;at::Layout&gt; layout, c10::optional&lt;at::Device&gt; device, c10::optional&lt;bool&gt; pin_memory, c10::optional&lt;at::MemoryFormat&gt; memory_format) &#123;
+    
+    static auto op &#x3D; create_empty_memory_format_typed_handle();
+    return op.call(size, dtype, layout, device, pin_memory, memory_format);
+&#125;
+
+static C10_NOINLINE c10::TypedOperatorHandle&lt;empty_memory_format::schema&gt; create_empty_memory_format_typed_handle() &#123;
+  return c10::Dispatcher::singleton()
+      .findSchemaOrThrow(empty_memory_format::name, empty_memory_format::overload_name)
+      .typed&lt;empty_memory_format::schema&gt;();
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>call</code> 方法第一步是创建 handle 对象，第二部是调用这个 handle 对象创建一个指定 size 的 empty Tensor。</p>
+<p><strong># 创建 handle 对象</strong></p>
+<p>根据 name 和 overload_name （这俩组成 OperatorName）到 Dispatcher（全局唯一）中查找相应的 OperatorHandle，前面我们特意列出了 <code>empty.memory_format</code> 的注册代码语句调用，所以显然 Dispatcher 中存在这样的 OperatorHandle，然后将找到的这个 OperatorHandle 封装为带类型的 handle，即 <code>TypedOperatorHandle&lt;empty_memory_format::schema&gt;</code> 类对象，这里模板参数是一个函数类型，位于 <code>empty_memory_format</code> 这个类中，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">using schema &#x3D; at::Tensor (at::IntArrayRef, c10::optional&lt;at::DimnameList&gt;, c10::optional&lt;at::ScalarType&gt;, c10::optional&lt;at::Layout&gt;, c10::optional&lt;at::Device&gt;, c10::optional&lt;bool&gt;, c10::optional&lt;at::MemoryFormat&gt;);<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>有了这个模板参数，<code>TypedOperatorHandle&lt;empty_memory_format::schema&gt;</code> 可以很容易就知道 operator 的类型（参数类型 Args… ，返回类型 Return），<code>call</code> 函数定义如下，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; TypedOperatorHandle&lt;Return (Args...)&gt; 类方法
+C10_ALWAYS_INLINE Return call(Args... args) const &#123;
+return c10::Dispatcher::singleton().call&lt;Return, Args...&gt;(*this, std::forward&lt;Args&gt;(args)...);
+&#125;
+
+&#x2F;&#x2F; Dispatcher 类方法
+template&lt;class Return, class... Args&gt;
+C10_ALWAYS_INLINE_UNLESS_MOBILE Return Dispatcher::call(const TypedOperatorHandle&lt;Return(Args...)&gt;&amp; op, Args... args) const &#123;
+    detail::unused_arg_(args...);  &#x2F;&#x2F; workaround for a false-positive warning about unused parameters in gcc 5
+    auto dispatchKeySet &#x3D; op.operatorDef_-&gt;op.dispatchKeyExtractor()
+        .template getDispatchKeySetUnboxed&lt;Args...&gt;(args...);       &#x2F;&#x2F; 根据参数获取 DispatchKeySet
+    ...
+    const KernelFunction&amp; kernel &#x3D; op.operatorDef_-&gt;op.lookup(dispatchKeySet);  &#x2F;&#x2F; OperatorEntry 中寻找对应 DispatchKey 的 kernel
+    ...
+    return kernel.template call&lt;Return, Args...&gt;(op, dispatchKeySet, std::forward&lt;Args&gt;(args)...);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>Dispatcher::call 做了以下三件事：</p>
+<ol>
+<li>
+<p>根据参数获取 DispatchKeySet。</p>
+<p>由于只从 Tensor 和 Generator 相关的类型参数种获取 DispatchKey 信息，我们这里的 例123 的参数均不涉及这两种类型，从参数中没有能获取到 DispatchKey 信息，但是使用 computeDispatchKeySet 方法之后得到默认的 DispatchKeySet({DispatchKey::BackendSelect, DispatchKey::ADInplaceOrView})</p>
+</li>
+<li>
+<p>从 OperatorEntry（来源路径 OperatorHandle -&gt; OperatorDef -&gt; OperatorEntry)中获取关联的 kernel（for DispatchKey::BackendSelect）</p>
+</li>
+<li>
+<p>调用这个 kernel（for DispatchKey::BackendSelect）</p>
+<p>这个 kernel 执行时，先根据 dtype，layout 和 device 计算好 DispatchKey，本例中为 DispatchKey::CPU，然后 redispatch 到 DispatchKey::CPU 的 kernel（for DispatchKey::CPU），最后调用这个 kernel（for DispatchKey::CPU）</p>
+</li>
+</ol>
+<p>整个创建一个指定 size 的 empty Tensor 过程已经介绍完毕，不过 Tensor 是一个 c++ 类对象，还需要使用  <code>THPVariable_NewWithVar</code> 方法将其封装为一个 PyObject 对象，这里是 <code>torch._C._TensorBase</code> 对象，这就完成了 torch.Tensor 的基类的构造，从而完成 torch.Tensor 的构造。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2023/03/01/pytorch/source/torch_library/">https://jianjiansha.github.io/2023/03/01/pytorch/source/torch_library/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/pytorch-source-code/">
+                                    <span class="chip bg-color">pytorch source code</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2023/03/06/pytorch/c++_example/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/19.jpg" class="responsive-img" alt="C++ Example (PyTorch)">
+                        
+                        <span class="card-title">C++ Example (PyTorch)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            使用 C++ 调用 PyTorch
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-03-06
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/PyTorch/">
+                        <span class="chip bg-color">PyTorch</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2023/02/21/sql/update_by_select/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/13.jpg" class="responsive-img" alt="根据select进行update">
+                        
+                        <span class="card-title">根据select进行update</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-02-21
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

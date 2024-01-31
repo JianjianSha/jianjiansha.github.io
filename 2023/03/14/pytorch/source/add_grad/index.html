@@ -1,0 +1,1582 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Tensor 加法运算中的梯度计算, SJJ">
+    <meta name="description" content="1. Autograd
+在 Tensor add 方法源码分析 一文中，我们说明了 Tensor 加法的计算过程，但是没有涉及到梯度计算，所以这篇文章仍以 Tensor 加法计算为例，看看梯度是如何计算的。
+1.1 再看分发过程
+我们从 D">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Tensor 加法运算中的梯度计算 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/9.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Tensor 加法运算中的梯度计算</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/pytorch-source-code/">
+                                <span class="chip bg-color">pytorch source code</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2023-03-14
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1>1. Autograd</h1>
+<p>在 <a href="2023/03/16/pytorch/source/add">Tensor add 方法源码分析</a> 一文中，我们说明了 Tensor 加法的计算过程，但是没有涉及到梯度计算，所以这篇文章仍以 Tensor 加法计算为例，看看梯度是如何计算的。</p>
+<h2 id="1-1-再看分发过程">1.1 再看分发过程</h2>
+<p>我们从 Dispatcher 对 operator 根据参数进行分发开始，代码如下（如果不理解的，可以再看看 <a href="2023/03/16/pytorch/source/add">Tensor add 方法源码分析</a> 这篇文章），</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; aten::add.Tensor(Tensor self, Tensor other, *, Scalar alpha&#x3D;1) -&gt; Tensor
+static C10_NOINLINE c10::TypedOperatorHandle&lt;add_Tensor::schema&gt; create_add_Tensor_typed_handle() &#123;
+  return c10::Dispatcher::singleton()
+      .findSchemaOrThrow(add_Tensor::name, add_Tensor::overload_name)
+      .typed&lt;add_Tensor::schema&gt;();
+&#125;
+
+&#x2F;&#x2F; aten::add.Tensor(Tensor self, Tensor other, *, Scalar alpha&#x3D;1) -&gt; Tensor
+at::Tensor add_Tensor::call(const at::Tensor &amp; self, const at::Tensor &amp; other, const at::Scalar &amp; alpha) &#123;
+    
+    static auto op &#x3D; create_add_Tensor_typed_handle();
+    return op.call(self, other, alpha);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中 <code>create_add_Tensor_typed_handle</code> 是根据 operator 的 name+overload_name 得到 operator 的 handle，然后调用 call 方法，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;class Return, class... Args&gt;
+C10_ALWAYS_INLINE_UNLESS_MOBILE Return Dispatcher::call(const TypedOperatorHandle&lt;Return(Args...)&gt;&amp; op, Args... args) const &#123;
+  detail::unused_arg_(args...);  &#x2F;&#x2F; workaround for a false-positive warning about unused parameters in gcc 5
+  auto dispatchKeySet &#x3D; op.operatorDef_-&gt;op.dispatchKeyExtractor()
+    .template getDispatchKeySetUnboxed&lt;Args...&gt;(args...);           &#x2F;&#x2F; 获取 DispatchKeySet
+
+  const KernelFunction&amp; kernel &#x3D; op.operatorDef_-&gt;op.lookup(dispatchKeySet);
+#ifndef PYTORCH_DISABLE_PER_OP_PROFILING
+  auto step_callbacks &#x3D; at::getStepCallbacksUnlessEmpty(at::RecordScope::FUNCTION);
+  if (C10_UNLIKELY(step_callbacks.has_value() &amp;&amp; op.operatorDef_-&gt;op.isObserved())) &#123;
+    return callWithDispatchKeySlowPath&lt;Return, Args...&gt;(op, *step_callbacks, dispatchKeySet, kernel, std::forward&lt;Args&gt;(args)...);
+  &#125;
+#endif  &#x2F;&#x2F; PYTORCH_DISABLE_PER_OP_PROFILING
+  return kernel.template call&lt;Return, Args...&gt;(op, dispatchKeySet, std::forward&lt;Args&gt;(args)...);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong># 获取 DispatchKeySet</strong></p>
+<p>DispatchKeyExtractor::getDispatchKeySetUnboxed(args…) 方法中借助 <code>MultiDispatchKeySet</code> 这个类获取 DispatchKeySet，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 aten&#x2F;src&#x2F;ATen&#x2F;core&#x2F;dispatch&#x2F;DispatchKeyExtractor.h
+DispatchKeySet ts;
+void operator()(const at::Tensor&amp; x) &#123;
+    ts &#x3D; ts | x.key_set();
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>参数 <code>args...</code> 为 <code>Tensor self, Tensor other, Scalar alpha=1</code>，依次对参数应用 MultiDispatchKeySet::operator() ，便能得到最终的 DispatchKeySet。<code>Tensor::key_set</code> 方法返回的是 <code>TensorImpl::key_set_</code> 字段，我们创建 Tensor 时（ 例如使用 python 创建一个 Tensor：<code>a = torch.Tensor(1,2)</code> ），准确的说创建 TensorImpl 完成后，对应的 DispatchKeySet 并不仅仅包含 DispatchKey::CPU，参见下方的 TensorImpl 构造函数，还包含 DispatchKey::AutogradCPU，DispatchKey::AutocastCPU 和 DispatchKey::ADInplaceOrView 。</p>
+<details>
+<summary>TensorImpl 构造函数</summary>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">TensorImpl::TensorImpl(
+    Storage&amp;&amp; storage,
+    DispatchKeySet key_set,     &#x2F;&#x2F; &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&gt; 对于 a &#x3D; torch.Tensor(1,2)，此参数仅包含 CPU
+    const caffe2::TypeMeta data_type,
+    c10::optional&lt;c10::Device&gt; device_opt)
+    : storage_(std::move(storage)),
+      pyobj_interpreter_(nullptr),
+      pyobj_(nullptr),
+      storage_offset_(0),
+      numel_(0),
+      data_type_(data_type),
+      device_opt_(device_opt) &#123;
+  init_bitfields();
+  ...
+  bool inference_mode &#x3D; c10::InferenceMode::is_enabled();   &#x2F;&#x2F; 默认 false
+
+  &#x2F;&#x2F; TODO: be more explicit about the full key set at call sites so we
+  &#x2F;&#x2F; don&#39;t have to keep recomputing it here
+  auto k &#x3D; key_set.highestBackendKey(); &#x2F;&#x2F; backend 为 CPU
+
+  key_set &#x3D; key_set | getAutocastRelatedKeySetFromBackend(k);   &#x2F;&#x2F; enable AutocastCPU 这个 bit
+
+  &#x2F;&#x2F; See [Note: Python key removal]
+  key_set &#x3D; key_set - c10::python_ks;
+
+  &#x2F;&#x2F; Inference tensor doesn&#39;t have autograd related keys.
+  if (inference_mode) &#123;
+    &#x2F;&#x2F; See Note [Expected TLS state in InferenceMode] for why we exclude
+    &#x2F;&#x2F; Autograd &amp; ADInplaceOrView keys. Normally key_set only contains backend
+    &#x2F;&#x2F; keys but we do the substraction here to make sure.
+    key_set_ &#x3D; key_set - c10::autograd_dispatch_keyset_with_ADInplaceOrView;
+  &#125; else &#123;
+    &#x2F;&#x2F; TODO: Ideally we only add AutogradBackend key when the tensor requires
+    &#x2F;&#x2F; grad.
+    &#x2F;&#x2F;       See Note [Dream: skip VariableType kernel when requires_grad&#x3D;false]
+    &#x2F;&#x2F; 对于 CPU 这个 backend，enable ADInplaceOrView 和 AutogradCPU
+    key_set_ &#x3D; key_set | getAutogradRelatedKeySetFromBackend(k);        
+  &#125;
+  ...
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</details>
+<p>所以，并不是直接分发到 DispatchKey::CPU 对应的 kernel 也就是 wrapper_add_Tensor 这个方法。</p>
+<details>
+<summary>wrapper_add_Tensor -> Dispatch::CPU</summary>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">TORCH_LIBRARY_IMPL(aten, CPU, m) &#123;
+    ...
+    m.impl(&quot;add.Tensor&quot;, TORCH_FN(wrapper_add_Tensor));
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+</details>
+<h3 id="1-1-1-不分发到-AutocastCPU">1.1.1 不分发到 AutocastCPU</h3>
+<p>Tensor 的三个 functionality key 为 <code>AutocastCPU, AutogradFunctionality, ADInplaceOrView</code>，看着是最先分发到 AutocastCPU 上，实际上不会。这是因为注册了 AutocastCPU 的 fallthrough 方法，</p>
+<details><summary>AutocastCPU 的 fallthrough 注册语句</summary>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 aten&#x2F;src&#x2F;ATen&#x2F;autocast_mode.cpp
+
+TORCH_LIBRARY_IMPL(_, AutocastCPU, m) &#123;  
+  m.fallback(torch::CppFunction::makeFallthrough());
+&#125;
+
+
+TORCH_LIBRARY_IMPL(aten, AutocastCPU, m) &#123;
+  &#x2F;&#x2F; lower_precision_fp cast policy
+  KERNEL_CPU(conv1d, lower_precision_fp)
+  ...
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>第一个 TORCH_LIBRARY_IMPL 在 AutocastCPU 这一列中将所有 operator kernel 均注册为 fallthrough 方法。第二个 TORCH_LIBRARY_IMPL 则在 AutocastCPU 这一列中将部分 operator kernel 注册为有效方法，由于我们知道后面注册的 kernel 始终排在先注册的 kernel 之前，即最新注册的方法总是位于 <code>OperatorEntry::kernels_[AutocastCPU].front()</code>，最新注册的 kernel 总是更新到 <code>OperatorEntry::dispatchTable_</code> 中，故 conv1d 等一系列 operator 的 AutocastCPU 的 kernel 是 nonFallthrough 的。</p>
+<p>不过，我们的 (AutocastCPU, add) 这个坐标处的 kernel 是 fallthrough 的。</p>
+</details>
+<p>注册 fallthrough 调用 <code>OperatorEntry::updateFallback</code> 方法，这里不详细分析代码，只提一个关键的方法调用，如下所示，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 aten&#x2F;src&#x2F;ATen&#x2F;core&#x2F;dispatch&#x2F;OperatorEntry.cpp
+dispatchKeyExtractor_.setOperatorHasFallthroughForKey(dispatch_key, dispatchTable_[dispatch_ix].isFallthrough());<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>这句调用设置了 DispatchKeyExtractor::nonFallthroughKeys_ 中 AutocastCPU 这个 bit 位为 0，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 aten&#x2F;src&#x2F;ATen&#x2F;core&#x2F;dispatch&#x2F;DispatchKeyExtractor.h
+template&lt;class... Args&gt;
+DispatchKeySet getDispatchKeySetUnboxed(const Args&amp;... args) const &#123;
+    auto ks &#x3D; detail::multi_dispatch_key_set(args...);  &#x2F;&#x2F; 根据 Tensor 参数计算 DispatchKeySet，包含 AutocastCPU，AutogradCPU，ADInplaceorview，CPU
+    &#x2F;&#x2F; Keys that are fallthrough should be skipped
+    if (requiresBitsetPerBackend_) &#123;
+        auto backend_idx &#x3D; ks.getBackendIndex();
+        return impl::computeDispatchKeySet(ks, nonFallthroughKeysPerBackend_[backend_idx]);
+    &#125; else &#123;
+        return impl::computeDispatchKeySet(ks, nonFallthroughKeys_);
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>根据参数计算处相关的 DispatchKeySet，根据函数 <code>computeDispatchKeySet</code> 再合并上 TLS 的 dispatchkey，然后使用 nonFallthroughKeys_ 对得到的 DispatchKeySet 进行 mask 操作，即，**去掉 DispatchKeySet 中具有 fallthrough 的 dispatchkey`，于是 AutocastCPU 就被移除了。</p>
+<p>同样地，还有 <code>ADInplaceOrView</code> 对于 add 这个 operator 也添加到 nonFallthroughKeys_ 中，故也不分发到 ADInplaceOrView。</p>
+<details><summary>为 ADInplaceOrView 注册 Fallthrought 方法</summary>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 aten&#x2F;src&#x2F;ATen&#x2F;core&#x2F;VariableFallbackKernel.cpp
+TORCH_LIBRARY_IMPL(_, ADInplaceOrView, m) &#123;
+      m.fallback(torch::CppFunction::makeFallthrough());
+&#125;
+
+&#x2F;&#x2F; 位于 torch&#x2F;csrc&#x2F;autograd&#x2F;VariableTypeManual.cpp
+TORCH_LIBRARY_IMPL(aten, ADInplaceOrView, m) &#123;
+  m.impl(
+      &quot;copy_&quot;,
+      torch::dispatch(
+          DispatchKey::ADInplaceOrView, TORCH_FN(ADInplaceOrView::copy_)));
+  m.impl(
+      &quot;detach&quot;,
+      torch::dispatch(
+          DispatchKey::ADInplaceOrView, TORCH_FN(ADInplaceOrView::detach)));
+  m.impl(
+      &quot;_fw_primal&quot;,
+      torch::dispatch(
+          DispatchKey::ADInplaceOrView, TORCH_FN(ADInplaceOrView::_fw_primal)));
+  m.impl(
+      &quot;_make_dual&quot;,
+      torch::dispatch(
+          DispatchKey::ADInplaceOrView, TORCH_FN(ADInplaceOrView::_make_dual)));
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</details>
+<h3 id="1-1-2-分发到-DispatchKey-AutogradCPU">1.1.2 分发到 DispatchKey::AutogradCPU</h3>
+<p>此时最终计算得到的 DispatchKeySet enabled 的 bit 位包括 <code>AutogradFunctionality, ADInplaceOrView, CPU</code>，根据 DispatchKeySet::getDispatchTableIndexForDispatchKeySet() 方法，得到 AutogradFunctionality 与 CPU 组合的 key 即 DispatchKey::AutogradCPU 对应的 kernel 在 OperatorEntry::dispatchTable_ 中的 idnex。</p>
+<p>为 operator 注册 DispatchKey::Autograd 的 Impl。</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 torch&#x2F;csrc&#x2F;autograd&#x2F;generated&#x2F;VariableType_2.cpp
+TORCH_LIBRARY_IMPL(aten, Autograd, m) &#123;
+    ...
+    m.impl(&quot;add.Tensor&quot;,
+       TORCH_FN(VariableType::add_Tensor)
+    );
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这个注册过程最后是调用如下方法（此时已经向 <code>OperatorEntry::kernels_[Autograd]</code> 的 front 位置插入了 kernel <code>VariableType::add_Tensor</code>），</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">void OperatorEntry::updateDispatchTable_(const c10::Dispatcher&amp; dispatcher, DispatchKey dispatch_key&#x2F;*实参 Autograd*&#x2F;) &#123;
+  ... &#x2F;&#x2F; 省略无关代码
+  for (auto k : c10::getRuntimeDispatchKeySet(dispatch_key)) &#123;
+    updateDispatchTableEntry_(dispatcher, k);
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>getRuntimeDispatchKeySet 函数将 DispatchKey::Autograd 映射为 runtime DispatchKeySet，其中被 enabled 的 bit 位为</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">AutogradNestedTensor
+AutogradFunctionality
+AutogradOther
+<span class="token comment"># 以下是 14 个 backend</span>
+PrivateUse3
+PrivateUse2
+PrivateUse1
+Meta
+Lazy
+<span class="token punctuation">..</span>.
+HIP
+CUDA
+CPU<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>此 DispatchKeySet 经 for 循环时，得到一系列的 runtime DispatchKey，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">AutogradNestedTensor,
+<span class="token comment"># === 14 个 key 开始 ===</span>
+AutogradPrivateUse3,
+AutogradPrivateUse2,
+<span class="token punctuation">..</span>.
+AutogradCUDA,
+AutogradCPU,
+<span class="token comment"># === 14 个 key 结束 ===</span>
+AutogradOther<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>循环体中，对每一个 runtime DispatchKey（例如AutogradCPU），获取到 kernel，然后更新到 <code>OperatorEntry::dispatchTable_</code> 对应位置，获取 kernel 的相关语句调用为，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 aten&#x2F;src&#x2F;ATen&#x2F;core&#x2F;dispatch&#x2F;OperatorEntry.cpp
+if (isIncludedInAlias(dispatch_key, DispatchKey::Autograd)) &#123;
+  if (auto autograd_registration &#x3D; getKernelForDispatchKey(DispatchKey::Autograd)) &#123;
+    return &#123;*autograd_registration, &quot;autograd kernel&quot;&#125;;
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="1-2-VariableType-add-Tensor">1.2 VariableType::add_Tensor</h2>
+<p>为了拥有梯度，python 端代码改为如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">a <span class="token operator">=</span> torch<span class="token punctuation">.</span>Tensor<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1.</span><span class="token punctuation">,</span><span class="token number">2.</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+a<span class="token punctuation">.</span>requires_grad <span class="token operator">=</span> <span class="token boolean">True</span>
+b <span class="token operator">=</span> a <span class="token operator">+</span> <span class="token number">1</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>Dispatcher::call 中最后调用 <code>kernel.call</code> 方法，就是调用 VariableType::add_Tensor，这个方法的定义代码较多，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 torch&#x2F;csrc&#x2F;autograd&#x2F;generated&#x2F;VariableType_2.cpp
+at::Tensor add_Tensor(c10::DispatchKeySet ks, const at::Tensor &amp; self, const at::Tensor &amp; other, const at::Scalar &amp; alpha) &#123;
+  auto&amp; self_ &#x3D; unpack(self, &quot;self&quot;, 0);
+  auto&amp; other_ &#x3D; unpack(other, &quot;other&quot;, 1);
+  auto _any_requires_grad &#x3D; compute_requires_grad( self, other );   &#x2F;&#x2F; 例子中，self requires_grad&#x3D;True
+  
+  (void)_any_requires_grad;
+  &#x2F;&#x2F; self 设置了 requires_grad，故 autograd_meta_ 有值，但是 fw_grad 仍尚未定义；other autograd_meta_ 无值
+  auto _any_has_forward_grad_result &#x3D; (isFwGradDefined(self) || isFwGradDefined(other)); &#x2F;&#x2F; false
+  (void)_any_has_forward_grad_result;
+  std::shared_ptr&lt;AddBackward0&gt; grad_fn;
+  if (_any_requires_grad) &#123;
+    grad_fn &#x3D; std::shared_ptr&lt;AddBackward0&gt;(new AddBackward0(), deleteNode);
+    grad_fn-&gt;set_next_edges(collect_next_edges( self, other ));
+    grad_fn-&gt;other_scalar_type &#x3D; other.scalar_type();
+    grad_fn-&gt;alpha &#x3D; alpha;
+    grad_fn-&gt;self_scalar_type &#x3D; self.scalar_type();
+  &#125;
+
+  auto _tmp &#x3D; ([&amp;]() &#123;
+    at::AutoDispatchBelowADInplaceOrView guard;
+    return at::redispatch::add(ks &amp; c10::after_autograd_keyset, self_, other_, alpha);
+  &#125;)();
+  auto result &#x3D; std::move(_tmp);
+
+  if (grad_fn) &#123;
+      set_history(flatten_tensor_args( result ), grad_fn);
+  &#125;
+  c10::optional&lt;at::Tensor&gt; result_new_fw_grad_opt &#x3D; c10::nullopt;
+  if (_any_has_forward_grad_result &amp;&amp; (result.defined())) &#123;
+      auto self_t_raw &#x3D; toNonOptFwGrad(self);
+      auto self_tensor &#x3D; toNonOptTensor(self);
+      auto self_t &#x3D; (self_t_raw.defined() || !self_tensor.defined())
+        ? self_t_raw : at::_efficientzerotensor(self_tensor.sizes(), self_tensor.options());
+      auto other_t_raw &#x3D; toNonOptFwGrad(other);
+      auto other_tensor &#x3D; toNonOptTensor(other);
+      auto other_t &#x3D; (other_t_raw.defined() || !other_tensor.defined())
+        ? other_t_raw : at::_efficientzerotensor(other_tensor.sizes(), other_tensor.options());
+      result_new_fw_grad_opt &#x3D; self_t + maybe_multiply(other_t, alpha);
+  &#125;
+  if (result_new_fw_grad_opt.has_value() &amp;&amp; result_new_fw_grad_opt.value().defined() &amp;&amp; result.defined()) &#123;
+    &#x2F;&#x2F; The hardcoded 0 here will need to be updated once we support multiple levels.
+    result._set_fw_grad(result_new_fw_grad_opt.value(), &#x2F;* level *&#x2F; 0, &#x2F;* is_inplace_op *&#x2F; false);
+  &#125;
+  return result;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="1-2-1-创建-grad-fn">1.2.1 创建 grad_fn</h3>
+<p>对于 add 操作，创建相应的计算梯度的类 <code>AddBackward0</code> 的实例，在梯度图 graph 中，<code>grad_fn</code> 是一个 node，根据 add 的两个操作数 <code>self, other</code> 分别创建两条 edge，</p>
+<details>
+<summary>创建 edge 的代码</summary>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 torch&#x2F;csrc&#x2F;autograd&#x2F;variable.cpp
+Edge gradient_edge(const Variable&amp; self) &#123;
+  if (const auto&amp; gradient &#x3D; self.grad_fn()) &#123;
+    return Edge(gradient, self.output_nr());
+  &#125; else &#123;
+    return Edge(grad_accumulator(self), 0);
+  &#125;
+&#125;
+
+std::shared_ptr&lt;Node&gt; grad_accumulator(const Variable&amp; self) &#123;
+  auto autograd_meta &#x3D; get_autograd_meta(self);
+  if (!autograd_meta) &#123;         &#x2F;&#x2F; other 参数没有 autograd_meta
+    return nullptr;
+  &#125;
+  if (autograd_meta-&gt;grad_fn_) &#123;
+    throw std::logic_error(
+        &quot;grad_accumulator() should be only called on leaf Variables&quot;);
+  &#125;
+  if (!autograd_meta-&gt;requires_grad_) &#123;
+    return nullptr;
+  &#125;
+
+  std::lock_guard&lt;std::mutex&gt; lock(autograd_meta-&gt;mutex_);
+
+  auto result &#x3D; autograd_meta-&gt;grad_accumulator_.lock();
+  if (result)
+    return result;
+
+  c10::raw::intrusive_ptr::incref(self.unsafeGetTensorImpl());
+  auto intrusive_from_this &#x3D;
+      c10::intrusive_ptr&lt;at::TensorImpl&gt;::reclaim(self.unsafeGetTensorImpl());
+  result &#x3D; std::make_shared&lt;AccumulateGrad&gt;(
+      Variable(std::move(intrusive_from_this)));
+  autograd_meta-&gt;grad_accumulator_ &#x3D; result;
+  return result;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</details>
+<p>由于 <code>self, other</code> 的 grad_fn 均为 null，所以这里使用 grad_accumulator 为 <code>self, other</code> 创建两个 edge。</p>
+<p>edge 连接两个 node，以 <code>out=self+other</code> 为例，一个 edge 连接 out 和 self 的 grad_fn，另一个 edge 连接 out 和 other 的 grad_fn，这里 self 和 other 的 grad_fn 均为 AccumulateGrad 类型。 <code>output_nr</code> tensor 是 function 的第几个输出，例如第二个输出，那么 <code>output_nr()=1</code>，显然对于 self 和 other 对于各自的 AccumulateGrad（一个 dummy function），都是第一且唯一的输出，所以 <code>Edge(grad_accumulator(self), 0)</code> 第二个参数为 0。</p>
+<p>上述代码中新建的 <code>grad_fn</code>（AddBackward0 类实例）则作为 out 的 grad_fn，也就是说 grad_fn 是 add 这个操作对应的用于计算梯度的函数，而 out 是 add 这个参数的输出，由于是 add 操作的第一个且唯一的输出，所以 <code>out.output_nr()=0</code> 。</p>
+<details>
+<summary>Node, Edge, Variable 三者关系图</summary>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">+------------------+                                  +------------------+
+<span class="token operator">|</span> Variable out     <span class="token operator">|</span>                                  <span class="token operator">|</span> Variable self    <span class="token operator">|</span>
+<span class="token operator">|</span> <span class="token number">1</span>. grad_fn --<span class="token operator">></span>-+ <span class="token operator">|</span>                                  <span class="token operator">|</span> <span class="token number">1</span>. grad_fn --<span class="token operator">></span>-+ <span class="token operator">|</span>
+<span class="token operator">|</span> <span class="token number">2</span>. output_nr   <span class="token operator">|</span> <span class="token operator">|</span>                                  <span class="token operator">|</span> <span class="token number">2</span>. output_nr   <span class="token operator">|</span> <span class="token operator">|</span>
++----------------+-+                                  +----------------+-+
+                 <span class="token operator">|</span>                                                     <span class="token operator">|</span>
+                 <span class="token function">v</span>              +---------------+                      <span class="token function">v</span>
++---------------------+         <span class="token operator">|</span> Edge          <span class="token operator">|</span>     +--------------------+
+<span class="token operator">|</span> Node                <span class="token operator">|</span>  +----<span class="token operator">></span> <span class="token operator">|</span> <span class="token number">1</span>. <span class="token keyword">function</span> --+---<span class="token operator">></span> <span class="token operator">|</span> Node               <span class="token operator">|</span>
+<span class="token operator">|</span> <span class="token number">1</span>. next_edges_ ---+-<span class="token operator">|</span>--+      <span class="token operator">|</span> <span class="token number">2</span>. input_nr   <span class="token operator">|</span>     <span class="token operator">|</span> <span class="token punctuation">(</span>AccumulateGrad<span class="token punctuation">)</span>   <span class="token operator">|</span>
+<span class="token operator">|</span> <span class="token number">2</span>. <span class="token assign-left variable">topological_nr</span><span class="token operator">=</span><span class="token number">1</span> <span class="token operator">|</span>  <span class="token operator">|</span>      +---------------+     <span class="token operator">|</span> <span class="token number">1</span>. <span class="token assign-left variable">topological_nr</span><span class="token operator">=</span><span class="token number">0</span><span class="token operator">|</span>
++---------------------+  <span class="token operator">|</span>                            +--------------------+
+                         <span class="token operator">|</span>      +-------------------+     +----------------------+
+                         +----<span class="token operator">></span> <span class="token operator">|</span> Edge              <span class="token operator">|</span>     <span class="token operator">|</span> Variable other       <span class="token operator">|</span> 
+                                <span class="token operator">|</span> <span class="token number">1</span>. <span class="token keyword">function</span> <span class="token operator">=</span>NULL <span class="token operator">|</span>     <span class="token operator">|</span><span class="token number">1</span>. <span class="token assign-left variable">autograd_meta_</span><span class="token operator">=</span>NULL<span class="token operator">|</span>
+                                <span class="token operator">|</span> <span class="token number">2</span>. input_nr       <span class="token operator">|</span>     <span class="token operator">|</span><span class="token number">2</span>. output_nr          <span class="token operator">|</span>
+                                +-------------------+     +----------------------+ <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</details>
+<p>variable 的 output_nr 表示 variable 是相关操作的第一个输出，对于 leaf variable，虚拟出一个操作，leaf variable 是虚拟操作的第 1 个输出，output_nr=0，虚拟操作的梯度计算函数为 accumulategrad。</p>
+<p>edge 的 input_nr 表示反向梯度计算时，edge 是其梯度计算函数 function 的第几个输入。</p>
+<p><code>other</code> 这个 Variable 是对 scalar <code>1</code> 的 wapper，所以 <code>autograd_meta_=NULL</code>，不需要计算梯度，故不创建 AccumulateGrad。</p>
+<p><strong>Node</strong></p>
+<p>每个节点 Node 有一个序列号 <code>sequence_nr</code>，创建节点时对其自增赋值，注意是线程内自增；每个节点还有一个拓扑号 <code>topological_nr</code>，表示当前 node 与所有 leaf node 之间的最长距离，对于leaf node 即 AccumulateGrad，其 topological_nr=0。</p>
+<p>topological_nr 更新规则：</p>
+<ol>
+<li>leaf node 的 topological_nr=0</li>
+<li>parent node 的 topological_nr 是其最大 child node 的 topological_nr 再加上 1</li>
+<li>如果某个 node 在确定其有 parent node 之后，这个 node 的 topological_nr 不能再改变</li>
+</ol>
+<h3 id="1-2-2-分发到-DispatchKey-CPU">1.2.2 分发到 DispatchKey::CPU</h3>
+<p>创建并初始化 grad_fn （即 AddBackward0类实例）后，执行如下的 lambda 函数，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">auto _tmp &#x3D; ([&amp;]() &#123;
+    at::AutoDispatchBelowADInplaceOrView guard;
+    return at::redispatch::add(ks &amp; c10::after_autograd_keyset, self_, other_, alpha);
+&#125;)();<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上面代码中 <code>AutoDispatchBelowADInplaceOrView guard</code>，在 AutoDispatchBelowADInplaceOrView 构造函数中，将 TLS（线程本地状态）的 DispatchKeySet 设置 excludeed_ 包含以下几个 key，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">AutogradFunctionality, AutogradOther, AutogradNestedTensor, ADInplaceOrView<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><strong>分发时计算 DispatchKeySet 的过程综合了实参 Tensor 、tls 和 global 的 DispatchKeySet</strong></p>
+<p><code>at::redispatch::add</code> 方法中，<code>ks &amp; c10::after_autograd_keyset</code> 操作对 DispatchKeySet ks 进行 mask，使得仅有 autograd 之后（不包括任何 autograd）的 bit 值被保留，之前的（包括所有 autograd）的 bit 全部被 disable。而上面已经说明 <code>ks</code> 中的 ADInplaceOrView bit 已经被 disable，所以当前将分发到 DispatchKey::CPU 上，注意 DispatchKey::CPU 是 DispatchKey::Dense 与 backendcomponent CPUBit 合成的 key。</p>
+<p><code>at::redispatch::add</code> 方法定义为，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 torch&#x2F;include&#x2F;ATen&#x2F;RedispatchFunctions.h
+inline at::Tensor add(c10::DispatchKeySet dispatchKeySet, const at::Tensor &amp; self, const at::Tensor &amp; other, const at::Scalar &amp; alpha&#x3D;1) &#123;
+    return at::_ops::add_Tensor::redispatch(dispatchKeySet, self, other, alpha);
+&#125;
+
+&#x2F;&#x2F; 位于 build&#x2F;aten&#x2F;src&#x2F;ATen&#x2F;Operators_2.cpp
+at::Tensor add_Tensor::redispatch(c10::DispatchKeySet dispatchKeySet, const at::Tensor &amp; self, const at::Tensor &amp; other, const at::Scalar &amp; alpha) &#123;
+    static auto op &#x3D; create_add_Tensor_typed_handle();
+    return op.redispatch(dispatchKeySet, self, other, alpha);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>现在，<code>at::redispatch::add</code> 方法参数 dispatchKeySet 的最高位 functionality_key 为 Dense，backendcomponent 为 CPU，所以根据 dispatchKeySet 得到的 dispatchTable_ 中 kernel 下标是对应 DispatchKey::CPU 的。 <code>op.redispatch</code> 方法调用 <code>Dispatcher::redispatch</code>，为了方便，这里再贴出其代码，由于简单，不再多说。</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">template&lt;class Return, class... Args&gt;
+inline Return Dispatcher::redispatch(const TypedOperatorHandle&lt;Return (Args...)&gt;&amp; op, DispatchKeySet currentDispatchKeySet, Args... args) const &#123;
+  detail::unused_arg_(args...);  &#x2F;&#x2F; workaround for a false-positive warning about unused parameters in gcc 5
+  const KernelFunction&amp; kernel &#x3D; op.operatorDef_-&gt;op.lookup(currentDispatchKeySet); &#x2F;&#x2F; 找到 DispatchKey::CPU 对应的 kernel
+  return kernel.template call&lt;Return, Args...&gt;(op, currentDispatchKeySet, std::forward&lt;Args&gt;(args)...);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="1-2-3-设置-output-Tensor-的-grad">1.2.3 设置 output Tensor 的 grad</h3>
+<p>计算得到 output Tensor 之后，我们再回到 AutogradCPU 的 kernel 方法实现并接着往下看，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">if (grad_fn) &#123; &#x2F;&#x2F; grad_fn 是 output Tensor 的 grad_fn
+    set_history(flatten_tensor_args( result ), grad_fn);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>flatten_tensor_args(result) 是将 Variable 全部展平放入一个 <code>vector&lt;Variable&gt;</code> 中，因为有时候一个 Node 有多个 output Tensor。然后使用 <code>set_history</code> 设置每个 Variable 的 grad_fn，相关函数定义如下，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 位于 torch&#x2F;csrc&#x2F;autograd&#x2F;functions&#x2F;utils.h
+inline void set_history(
+    at::Tensor&amp; variable,
+    const std::shared_ptr&lt;Node&gt;&amp; grad_fn) &#123;
+  AT_ASSERT(grad_fn);
+  if (variable.defined()) &#123;
+    TORCH_INTERNAL_ASSERT(isDifferentiableType(variable.scalar_type())); &#x2F;&#x2F; 确保是可导数据类型，例如 float。int 类型不可导
+    auto output_nr &#x3D; grad_fn-&gt;add_input_metadata(variable);
+    impl::set_gradient_edge(variable, &#123;grad_fn, output_nr&#125;);
+  &#125; else &#123;
+    grad_fn-&gt;add_input_metadata(Node::undefined_input());
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上面代码中，<code>add_input_metadata</code> 为当前 Node 设置 input_metadata_。  Node 通过 input_metadata_ 关联 Tensor，Tensor 通过 autograd_meta_ 关联 Node。 output_nr 为当前 Variable 是此 Node 的第一个输出，例如第一个输出那么 output_nr=0。</p>
+<h1>2. AddBackward0</h1>
+<p>分析本例中的用于计算梯度的函数 <code>AddBackward0</code> ，首先给出其定义，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">struct TraceableFunction : public Node &#123;
+  using Node::Node;
+  bool is_traceable() final &#123;
+    return true;
+  &#125;
+&#125;;
+
+struct TORCH_API AddBackward0 : public TraceableFunction &#123;
+  using TraceableFunction::TraceableFunction;
+  variable_list apply(variable_list&amp;&amp; grads) override;
+  std::string name() const override &#123; return &quot;AddBackward0&quot;; &#125;
+  void release_variables() override &#123;
+  &#125;
+
+  at::ScalarType other_scalar_type;
+  at::Scalar alpha;
+  at::ScalarType self_scalar_type;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中 <code>apply</code> 方法定义为</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; grads 传递到这个 node 的 梯度集合
+variable_list AddBackward0::apply(variable_list&amp;&amp; grads) &#123;
+  IndexRangeGenerator gen;
+  auto self_ix &#x3D; gen.range(1);
+  auto other_ix &#x3D; gen.range(1);
+  variable_list grad_inputs(gen.size());
+  const auto&amp; grad &#x3D; grads[0];
+  &#x2F;&#x2F; grads 本质是 Tensor list，是否至少有一个 Tensor 是 defined
+  bool any_grad_defined &#x3D; any_variable_defined(grads);
+  if (task_should_compute_output(&#123; other_ix &#125;)) &#123;   &#x2F;&#x2F; other Tensor 是否需要计算 grad
+    auto grad_result &#x3D; any_grad_defined ? (handle_r_to_c(other_scalar_type, maybe_multiply(grad, alpha.conj()))) : Tensor();
+    copy_range(grad_inputs, other_ix, grad_result);
+  &#125;
+  if (task_should_compute_output(&#123; self_ix &#125;)) &#123;
+    auto grad_result &#x3D; any_grad_defined ? (handle_r_to_c(self_scalar_type, grad)) : Tensor();
+    copy_range(grad_inputs, self_ix, grad_result);
+  &#125;
+  return grad_inputs;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>传递到一个 Node 的梯度通常是一个列表，因为 Node 所关联的 Tensor（Tensor.grad_fn == Node）可能作为多个 operator 的输入，那么反向传播时，就有多个 梯度传递到这个 Tensor 的 grad_fn<br>
+即 Node 上 。</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">              <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>   +-Edge--+      +------Node-------+
++-Node-+    +-----<span class="token operator">></span> <span class="token operator">|</span> self -+----<span class="token operator">></span> <span class="token operator">|</span> AccumulatedGrad <span class="token operator">|</span>
+<span class="token operator">|</span>      <span class="token operator">|</span>    <span class="token operator">|</span>       +-------+      +-----------------+
+<span class="token operator">|</span> out -+----+
+<span class="token operator">|</span>      <span class="token operator">|</span>    <span class="token operator">|</span> <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>   +-Edge--+
++------+    +-----<span class="token operator">></span> <span class="token operator">|</span> other <span class="token operator">|</span>
+                    +-------+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>本文例子中，other 是包装 <code>1</code> 而来的 Tensor，这个路径分支不需要计算 grad 。对于 self 分支， add 操作的梯度计算是 1，即下式中的 $\partial o/\partial x$。</p>
+<p>$$\frac {\partial L}{\partial x} = \frac {\partial L}{\partial o} \cdot \frac {\partial o}{\partial x}= \frac {\partial L}{\partial o} \cdot 1 = \frac {\partial L}{\partial o}$$</p>
+<p>上式中，</p>
+<ol>
+<li>L -&gt; loss</li>
+<li>o -&gt; output</li>
+<li>x -&gt; self</li>
+<li>$\partial L/ \partial o$ -&gt; 上述代码中的 <code>grad</code></li>
+</ol>
+<p><code>copy_range</code> 则是将计算出来的梯度结果 copy 到 <code>grad_inputs</code> 中，然后传递到下一个 Node 上，这里下一个 Node 是 <code>AccumulatedGrad</code> 。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2023/03/14/pytorch/source/add_grad/">https://jianjiansha.github.io/2023/03/14/pytorch/source/add_grad/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/pytorch-source-code/">
+                                    <span class="chip bg-color">pytorch source code</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2023/03/16/pytorch/source/add/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="Tensor add 方法源码分析">
+                        
+                        <span class="card-title">Tensor add 方法源码分析</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-03-16
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/pytorch-source-code/">
+                        <span class="chip bg-color">pytorch source code</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2023/03/06/pytorch/c++_example/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/19.jpg" class="responsive-img" alt="C++ Example (PyTorch)">
+                        
+                        <span class="card-title">C++ Example (PyTorch)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            使用 C++ 调用 PyTorch
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-03-06
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/PyTorch/">
+                        <span class="chip bg-color">PyTorch</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

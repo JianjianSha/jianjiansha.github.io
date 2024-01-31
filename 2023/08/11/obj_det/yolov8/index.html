@@ -1,0 +1,1410 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="yolov8 解读, SJJ">
+    <meta name="description" content="源码：ultralytics/ultralytics
+1. 网络结构
+yolov8 与 yolov5 一样，不仅用于检测，还可以用于分类，分割等任务。本文主要讨论目标检测任务。
+yolov8 有 5 个 size 不同的模型，结构相似，在模">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>yolov8 解读 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/13.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">yolov8 解读</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/object-detection/">
+                                <span class="chip bg-color">object detection</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2023-08-11
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>源码：<a target="_blank" rel="noopener" href="https://github.com/ultralytics/ultralytics">ultralytics/ultralytics</a></p>
+<h1>1. 网络结构</h1>
+<p>yolov8 与 yolov5 一样，不仅用于检测，还可以用于分类，分割等任务。本文主要讨论目标检测任务。</p>
+<p>yolov8 有 5 个 size 不同的模型，结构相似，在模型 depth，width，max_channels 三个维度上不同，所有模型配置位于文件 <code>ROOT/cfg/models/v8/yolov8.yaml</code> 。</p>
+<p>目标检测模型类位于文件 <code>nn/tasks.py</code>，为 <code>DetectionModel</code>，其他任务如分割，分类，姿态估计等模型类也位于文件 <code>nn/tasks.py</code> 中。</p>
+<p>以 yolov8l 为例说明，因为 <code>l</code> 这个模型的 depth 和 width 的缩放比例均为 <code>1</code> ，网络配置为，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">backbone:
+  <span class="token comment"># [from, repeats, module, args]</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">1</span>, Conv, <span class="token punctuation">[</span><span class="token number">64</span>, <span class="token number">3</span>, <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># 0-P1/2</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">1</span>, Conv, <span class="token punctuation">[</span><span class="token number">128</span>, <span class="token number">3</span>, <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># 1-P2/4</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">3</span>, C2f, <span class="token punctuation">[</span><span class="token number">128</span>, True<span class="token punctuation">]</span><span class="token punctuation">]</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">1</span>, Conv, <span class="token punctuation">[</span><span class="token number">256</span>, <span class="token number">3</span>, <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># 3-P3/8</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">6</span>, C2f, <span class="token punctuation">[</span><span class="token number">256</span>, True<span class="token punctuation">]</span><span class="token punctuation">]</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">1</span>, Conv, <span class="token punctuation">[</span><span class="token number">512</span>, <span class="token number">3</span>, <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># 5-P4/16</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">6</span>, C2f, <span class="token punctuation">[</span><span class="token number">512</span>, True<span class="token punctuation">]</span><span class="token punctuation">]</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">1</span>, Conv, <span class="token punctuation">[</span><span class="token number">1024</span>, <span class="token number">3</span>, <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># 7-P5/32</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">3</span>, C2f, <span class="token punctuation">[</span><span class="token number">1024</span>, True<span class="token punctuation">]</span><span class="token punctuation">]</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">1</span>, SPPF, <span class="token punctuation">[</span><span class="token number">1024</span>, <span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># 9</span>
+
+<span class="token comment"># YOLOv8.0n head</span>
+head:
+  - <span class="token punctuation">[</span>-1, <span class="token number">1</span>, nn.Upsample, <span class="token punctuation">[</span>None, <span class="token number">2</span>, <span class="token string">'nearest'</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+  - <span class="token punctuation">[</span><span class="token punctuation">[</span>-1, <span class="token number">6</span><span class="token punctuation">]</span>, <span class="token number">1</span>, Concat, <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># cat backbone P4</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">3</span>, C2f, <span class="token punctuation">[</span><span class="token number">512</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># 12</span>
+
+  - <span class="token punctuation">[</span>-1, <span class="token number">1</span>, nn.Upsample, <span class="token punctuation">[</span>None, <span class="token number">2</span>, <span class="token string">'nearest'</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+  - <span class="token punctuation">[</span><span class="token punctuation">[</span>-1, <span class="token number">4</span><span class="token punctuation">]</span>, <span class="token number">1</span>, Concat, <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># cat backbone P3</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">3</span>, C2f, <span class="token punctuation">[</span><span class="token number">256</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># 15 (P3/8-small)</span>
+
+  - <span class="token punctuation">[</span>-1, <span class="token number">1</span>, Conv, <span class="token punctuation">[</span><span class="token number">256</span>, <span class="token number">3</span>, <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+  - <span class="token punctuation">[</span><span class="token punctuation">[</span>-1, <span class="token number">12</span><span class="token punctuation">]</span>, <span class="token number">1</span>, Concat, <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># cat head P4</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">3</span>, C2f, <span class="token punctuation">[</span><span class="token number">512</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># 18 (P4/16-medium)</span>
+
+  - <span class="token punctuation">[</span>-1, <span class="token number">1</span>, Conv, <span class="token punctuation">[</span><span class="token number">512</span>, <span class="token number">3</span>, <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+  - <span class="token punctuation">[</span><span class="token punctuation">[</span>-1, <span class="token number">9</span><span class="token punctuation">]</span>, <span class="token number">1</span>, Concat, <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># cat head P5</span>
+  - <span class="token punctuation">[</span>-1, <span class="token number">3</span>, C2f, <span class="token punctuation">[</span><span class="token number">1024</span><span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># 21 (P5/32-large)</span>
+
+  - <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">15</span>, <span class="token number">18</span>, <span class="token number">21</span><span class="token punctuation">]</span>, <span class="token number">1</span>, Detect, <span class="token punctuation">[</span>nc<span class="token punctuation">]</span><span class="token punctuation">]</span>  <span class="token comment"># Detect(P3, P4, P5)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>网络的整体结构与 yolov5 类似，其中 <code>C3</code> 换成了 <code>C2f</code> 模块，并且去掉了 head 中 upsample 前面的 conv 。</p>
+<p><strong>几个特殊的 模块</strong></p>
+<p><strong>C2f</strong></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">    +-------+                               +-------+
+---<span class="token operator">>|</span> Conv <span class="token operator">=</span><span class="token operator">+=</span><span class="token operator">=</span>+---------------------------<span class="token operator">>|</span>       <span class="token operator">|</span>
+    +-------+  <span class="token operator">|</span>                            <span class="token operator">|</span>       <span class="token operator">|</span>
+               +---------------------------<span class="token operator">>|</span>       <span class="token operator">|</span>
+               <span class="token operator">|</span>        +-------------+     <span class="token operator">|</span>       <span class="token operator">|</span>
+               <span class="token operator">|</span>   +---<span class="token operator">>|</span> Bottleneck -+----<span class="token operator">>|</span>       <span class="token operator">|</span>
+               <span class="token operator">|</span>   <span class="token operator">|</span>    +-------------+     <span class="token operator">|</span>       <span class="token operator">|</span>
+               <span class="token operator">|</span>   <span class="token operator">|</span>        <span class="token builtin class-name">.</span>        ------<span class="token operator">>|</span> Conv -+---<span class="token operator">></span>
+               +---+        <span class="token builtin class-name">.</span>        ------<span class="token operator">>|</span>       <span class="token operator">|</span>
+                   <span class="token operator">|</span>        <span class="token builtin class-name">.</span>        ------<span class="token operator">>|</span>       <span class="token operator">|</span>
+                   <span class="token operator">|</span>    +-------------+     <span class="token operator">|</span>       <span class="token operator">|</span>
+                   +---<span class="token operator">>|</span> Bottleneck -+----<span class="token operator">>|</span>       <span class="token operator">|</span>
+                        +-------------+     +-------+       <span class="token punctuation">(</span>C2f<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">C2f</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Faster Implementation of CSP Bottleneck with 2 convolutions."""</span>
+
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> c1<span class="token punctuation">,</span> c2<span class="token punctuation">,</span> n<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span> shortcut<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> g<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span> e<span class="token operator">=</span><span class="token number">0.5</span><span class="token punctuation">)</span><span class="token punctuation">:</span>  <span class="token comment"># ch_in, ch_out, number, shortcut, groups, expansion</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>c <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>c2 <span class="token operator">*</span> e<span class="token punctuation">)</span>  <span class="token comment"># hidden channels</span>
+        self<span class="token punctuation">.</span>cv1 <span class="token operator">=</span> Conv<span class="token punctuation">(</span>c1<span class="token punctuation">,</span> <span class="token number">2</span> <span class="token operator">*</span> self<span class="token punctuation">.</span>c<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>cv2 <span class="token operator">=</span> Conv<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">+</span> n<span class="token punctuation">)</span> <span class="token operator">*</span> self<span class="token punctuation">.</span>c<span class="token punctuation">,</span> c2<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>  <span class="token comment"># optional act=FReLU(c2)</span>
+        self<span class="token punctuation">.</span>m <span class="token operator">=</span> nn<span class="token punctuation">.</span>ModuleList<span class="token punctuation">(</span>Bottleneck<span class="token punctuation">(</span>self<span class="token punctuation">.</span>c<span class="token punctuation">,</span> self<span class="token punctuation">.</span>c<span class="token punctuation">,</span> shortcut<span class="token punctuation">,</span> g<span class="token punctuation">,</span> k<span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> e<span class="token operator">=</span><span class="token number">1.0</span><span class="token punctuation">)</span> <span class="token keyword">for</span> _ <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""Forward pass through C2f layer."""</span>
+        y <span class="token operator">=</span> <span class="token builtin">list</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>cv1<span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">.</span>chunk<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        y<span class="token punctuation">.</span>extend<span class="token punctuation">(</span>m<span class="token punctuation">(</span>y<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">for</span> m <span class="token keyword">in</span> self<span class="token punctuation">.</span>m<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> self<span class="token punctuation">.</span>cv2<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span>y<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>SPPF</strong></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">-<span class="token operator">></span> conv -+-<span class="token operator">></span> maxpool -+-<span class="token operator">></span> maxpool -+-<span class="token operator">></span> maxpool -<span class="token operator">></span> c
+         <span class="token operator">|</span>            <span class="token operator">|</span>            +------------<span class="token operator">></span> o -<span class="token operator">></span>
+         <span class="token operator">|</span>            +-------------------------<span class="token operator">></span> n
+         +--------------------------------------<span class="token operator">></span> <span class="token function">v</span>         <span class="token punctuation">(</span>SPPF<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">SPPF</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Spatial Pyramid Pooling - Fast (SPPF) layer for YOLOv5 by Glenn Jocher."""</span>
+
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> c1<span class="token punctuation">,</span> c2<span class="token punctuation">,</span> k<span class="token operator">=</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">:</span>  <span class="token comment"># equivalent to SPP(k=(5, 9, 13))</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        c_ <span class="token operator">=</span> c1 <span class="token operator">//</span> <span class="token number">2</span>  <span class="token comment"># hidden channels</span>
+        self<span class="token punctuation">.</span>cv1 <span class="token operator">=</span> Conv<span class="token punctuation">(</span>c1<span class="token punctuation">,</span> c_<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>cv2 <span class="token operator">=</span> Conv<span class="token punctuation">(</span>c_ <span class="token operator">*</span> <span class="token number">4</span><span class="token punctuation">,</span> c2<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>m <span class="token operator">=</span> nn<span class="token punctuation">.</span>MaxPool2d<span class="token punctuation">(</span>kernel_size<span class="token operator">=</span>k<span class="token punctuation">,</span> stride<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span> padding<span class="token operator">=</span>k <span class="token operator">//</span> <span class="token number">2</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""Forward pass through Ghost Convolution block."""</span>
+        x <span class="token operator">=</span> self<span class="token punctuation">.</span>cv1<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+        y1 <span class="token operator">=</span> self<span class="token punctuation">.</span>m<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+        y2 <span class="token operator">=</span> self<span class="token punctuation">.</span>m<span class="token punctuation">(</span>y1<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> self<span class="token punctuation">.</span>cv2<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> y1<span class="token punctuation">,</span> y2<span class="token punctuation">,</span> self<span class="token punctuation">.</span>m<span class="token punctuation">(</span>y2<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>整个网络结构的关键部分如图 2 所示，</p>
+<p><img src="/images/obj_det/yolov8_2.png" alt=""></p>
+<center>图 2. </center>
+<p>图 2 中浅蓝色的特征为网络的输出特征，与 FPN 的主要区别是：每个 scale 的输出特征既有高层语义又有低层语义，而 FPN 通过自上而下的融合，使得小 scale 的输出特征仅有高层语义。</p>
+<p>预测包含了 3 个 scale 的特征</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># name  下采样率</span>
+P3      <span class="token number">8</span>
+P4      <span class="token number">16</span>
+P5      <span class="token number">32</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>网络结构中 Detect 将分类和坐标检测头分开（解耦），且使用 anchor free ，如图 1 所示，</p>
+<p><img src="/images/obj_det/yolov8_1.png" alt=""></p>
+<center>图 1. 图源：参考文章</center>
+<blockquote>
+<p>本文参考了文章 <a target="_blank" rel="noopener" href="https://mmyolo.readthedocs.io/zh_CN/latest/recommended_topics/algorithm_descriptions/yolov8_description.html%EF%BC%8C%E8%AE%B0%E4%B8%BA%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0">https://mmyolo.readthedocs.io/zh_CN/latest/recommended_topics/algorithm_descriptions/yolov8_description.html，记为参考文章</a></p>
+</blockquote>
+<p>训练阶段，<code>Detect</code> 对 3 个 scale 的预测特征平面分别处理，每个 scale 特征均经过图 1 下方所示的检测头，检测头有一个分类分支和一个回归分支，分别经过 3 个 conv，得到分类输出 shape 为 <code>(b, nc, h, w)</code>，其中 <code>nc</code> 表示前景分类数量。回归输出 shape 为 <code>(b, 4 * reg_max, h, w)</code>，其中 <code>reg_max=16</code> ，两者 concat 为 shape  <code>(b, 4 * reg_max + nc, h, w)</code> ，这就是某个 scale 对应的预测输出。</p>
+<p>相关代码如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""x: A list of 3 tensors, and each tensor's shape is (b, c, h, w)"""</span>
+    shape <span class="token operator">=</span> x<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>shape  <span class="token comment"># BCHW</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>nl<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># cv2 output is for box regression: (b, 4*reg_max, h, w)</span>
+        <span class="token comment"># cv3 output is for classification: (b, nc, h, w)</span>
+        x<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>cv2<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">(</span>x<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> self<span class="token punctuation">.</span>cv3<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">(</span>x<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> self<span class="token punctuation">.</span>training<span class="token punctuation">:</span>
+        <span class="token keyword">return</span> x <span class="token comment"># x 是一个list，包含 3 个 tensor，每个 tensor 形如 (b,4*reg_max+nc,h,w)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>我们需要知道：yolov8 是 anchor free 模型，所以每个 anchor point 处均需要预测 4 个坐标值以及分类得分。yolov8 预测每个坐标的分布而非一个确定的值，将坐标分布离散化，使用 <code>reg_max=16</code> 个离散值，每个离散值预测对应的概率，计算分布的期望作为坐标的预测值，参见下文 (2) 式。</p>
+<h1>2. Loss 计算</h1>
+<p>loss 计算包括 如何分配正负样本和如何计算损失两部分。</p>
+<p>yolov8 使用动态分配策略：TOOD 的 TaskAlignedAssigner，TaskAlignedAssigner 策略为：根据分类与回归的分数加权和选择正样本。</p>
+<p>$$t = s ^ {\alpha} \times u ^ {\beta}\tag{1}$$</p>
+<p>其中 $s$ 表示标注类别对应的预测得分，即，每个 anchor point 取所在 gt box 的分类得分，如果 anchor point 不在任何 gt box 内部，那么 $s=0$。</p>
+<p>如果 anchor point 在 n 个 gt box 内部，那么保留这 n 个 gt box 对应的分类得分，因为实现过程中，使用一个得分矩阵，矩阵行数为 gt box 数量，矩阵列数为 anchor point 数量，故这个 anchor point 所在列将有 n 个值非零。</p>
+<p>$u$ 是预测 box 与 gt box 的 IoU。$\alpha, \beta$ 为两个控制参数，分别控制 $s$ 和 $u$ 对 t 值指标的影响。</p>
+<p>这里 $t$ 是一个指标，用于衡量分类任务的 anchor point 和定位任务的 anchor point 对齐程度，一个 anchor，如果既能有大的分类得分预测，又能有精确的定位，那么这个 anchor 就是很好对齐的。</p>
+<p>基于 $t$ 指标，为每个 gt box 选择 top-K 大的 t 值对应的 anchor points 作为正样本，其他 anchor points 作为负样本。</p>
+<p>代码中相关超参数选择为，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">self<span class="token punctuation">.</span>assigner <span class="token operator">=</span> TaskAlignedAssigner<span class="token punctuation">(</span>topk<span class="token operator">=</span><span class="token number">10</span><span class="token punctuation">,</span> num_classes<span class="token operator">=</span>self<span class="token punctuation">.</span>nc<span class="token punctuation">,</span> alpha<span class="token operator">=</span><span class="token number">0.5</span><span class="token punctuation">,</span> beta<span class="token operator">=</span><span class="token number">6.0</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><strong>损失</strong> 包含分类损失和回归损失，没有置信度（objectness）损失。</p>
+<ol>
+<li>分类损失使用 BCE 损失（二值交叉熵损失），计算对象：所有 anchor points</li>
+<li>回归损失使用  DFL 损失（distribution focal loss），还使用了 CIoU 损失。</li>
+</ol>
+<p><strong>问题</strong></p>
+<ol>
+<li>为什么取消了置信度预测之和，分类数量没有包含背景，即，为什么不使用 <code>nc+1</code>?</li>
+<li>为什么 <code>reg_max</code> 取值 16，即，如何选择合适的 <code>reg_max</code> 值？</li>
+</ol>
+<p>这两个问题等下文介绍了损失如何计算之后再来解答。</p>
+<h2 id="2-1-动态分配样本">2.1 动态分配样本</h2>
+<p>根据 (1) 式动态分配样本。</p>
+<p>有 3 个 scale 的 feat maps，但是可以通过 concatenate 操作，看作是 $h _ 1 w _ 1 + h _ 2 w _ 2 + h _ 3 w _ 3$ 个 anchor points，本节为了表示简洁，记总共 anchor points 数量为 $3hw=h _ 1 w _ 1 + h _ 2 w _ 2 + h _ 3 w _ 3$ 。（anchor free 模型，每个特征平面的 point 可看作是一个 anchor）。</p>
+<p>batch 数据中，目标 gt boxes 的 x1y1x2y2 坐标，数据 shape 为 <code>(b, max_obj_num,  4)</code>，其中 <code>b</code> 是 batch size，<code>max_obj_num</code> 是这批数据中单个图像的目标数量的最大值，显然这是经过填充的，使用一个 <code>mask_gt</code> 作为真实目标 box 坐标数据的掩码，易知掩码 shape 为 <code>(b, max_obj_num)</code> 。</p>
+<p>gt boxes 的分类 labels 的 shape 为 <code>(b, max_obj_num, 1)</code> ，前景分类 index 为 <code>0 ~ nc-1</code>。</p>
+<p><font color="magenta">模型预测输出点距离左上右下的 distance 数据 shape 为 <code>(b, 3hw, reg_max * 4)</code></font>。这里使用 <a href="/2023/08/13/obj_det/GFL">DFL</a>，box 坐标预测值是一个分布，离散化处理，则是 <code>reg_max</code> 个离散值，每个值对应一个概率，所以回归分支实际上预测的是每个离散值的概率，例如 anchor point 距离 box 左边的距离是一个离散型随机变量，取值范围为 <code>0, 1, ..., reg_max-1</code>，模型预测输出距离左边 distance 为一个 <code>reg_max</code> 长度的向量，表示各个离散值的概率，那么距离左边 distance 的预测结果为</p>
+<p>$$\hat y = \sum _ {x=0} ^ {reg_max} p(x) x \tag{2}$$</p>
+<p>距离其余三个边的 distance 类似处理，处理后得到预测 boxes 的 x1y1x2y2 坐标，shape 为 <code>(b, 3hw, 4)</code> ，即，每个 anchor point 处有一个预测 box，需要注意，这里得到的预测 box 的坐标是基于各个 scale 特征平面的，也就是说，相对于原输入 image size，box 的坐标缩小到 <code>1/stride</code> 。</p>
+<p><font color="magenta">模型预测分类得分 <code>pd_scores</code> 的 shape 为 <code>(b, 3hw, nc)</code></font> 。</p>
+<p><strong># 动态分配</strong></p>
+<p>有了以上数据说明，接下来看如何动态分配样本。调用语句为</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># pred_scores: 所有锚点处的预测分类得分，(b, 3*hw, nc)</span>
+<span class="token comment"># pred_bboxes: 所有锚点处的预测 box 坐标，基于相应 scale 特征平面，(b, 3*hw, 4)</span>
+<span class="token comment"># anchor_points: 所有锚点坐标，基于相应 scale 特征平面，(3*hw, 2) y-x 坐标</span>
+<span class="token comment"># gt_labels: gt box 的分类 id，(b, max_obj_num, 1)</span>
+<span class="token comment"># gt_bboxes: gt box 的坐标，基于 image size，(b, max_obj_num, 4)</span>
+<span class="token comment"># mask_gt: gt box 的 mask，因为部分 gt box 是填充的，(b, max_obj_num, 1)</span>
+_<span class="token punctuation">,</span> target_bboxes<span class="token punctuation">,</span> target_scores<span class="token punctuation">,</span> fg_mask<span class="token punctuation">,</span> _ <span class="token operator">=</span> self<span class="token punctuation">.</span>assigner<span class="token punctuation">(</span>
+    pred_scores<span class="token punctuation">.</span>detach<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>sigmoid<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>pred_bboxes<span class="token punctuation">.</span>detach<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> stride_tensor<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">type</span><span class="token punctuation">(</span>gt_bboxes<span class="token punctuation">.</span>dtype<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    anchor_points <span class="token operator">*</span> stride_tensor<span class="token punctuation">,</span> gt_labels<span class="token punctuation">,</span> gt_bboxes<span class="token punctuation">,</span> mask_gt<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ol>
+<li>
+<p>根据 gt boxes 的 x1y1x2y2 和 <code>3hw</code> 个 anchor points，筛选出位于 gt boxes 内部的 anchor points，得到筛选掩码 <code>mask_in_gt</code>，其 shape 为 <code>(b, max_obj_num, 3hw)</code>，再与 <code>mask_gt</code> 相乘，得到 <font color="magenta">最终掩码</font>（即，位于有效非填充 gt boxes 内部的 anchor points），shape 依然为 <code>(b, max_obj_num, 3hw)</code></p>
+</li>
+<li>
+<p>从预测得分中根据 gt 分类 label 取值，然后使用最终掩码提取有效 anchor points 的预测分类得分。</p>
+<p>对 batch 中某个 image 其预测得分矩阵 shape 为 <code>(3hw, nc)</code>，这个 image 有 <code>max_obj_num</code> 个 gt boxes，每个 gt box 有一个分类 index，可以取得 <code>(3hw,)</code> 的预测分类，那么取得这个 image 的所有 gt boxes 一共取得预测得分 的 shape 为 <code>(max_obj_num, 3hw)</code>，<code>b</code> 个 images 一共取得的预测得分为 <code>(b, max_obj_num, 3hw)</code> 。当然了，只有最终掩码为 True 的位置上的预测得分有效，其他位置上无效值使用 <code>0</code> 表示。</p>
+<p>预测分类得分提取结果记为 <code>bbox_scores</code>，这个 <code>bbox_scores</code> 就是 (1) 式中的 $s$ 。</p>
+</li>
+<li>
+<p>类似第 <code>2</code> 步，提取预测 boxes 坐标，然后再根据最终掩码提取有效位置处的预测坐标，其 shape 为 <code>(N, 4)</code>，N 为最终掩码中 true 元素数量。</p>
+<p>batch 数据中总共 <code>(b, max_obj_num)</code> 个 gt boxes，每个 gt boxes 提取 <code>(3hw, 4)</code> 的预测 boxes 坐标，那么一共 <code>(b, max_obj_num, 3hw, 4)</code> 的提取数据，然后取最终掩码 <code>(b, max_obj_num, 3hw)</code> 中 true 位置处的值。</p>
+</li>
+<li>
+<p>gt boxes 坐标数据 shape 为 <code>(b, max_obj_num, 4)</code>，通过扩充（repeat）操作得到 <code>(b, max_obj_num, 3hw, 4)</code>，然后同样的取最终掩码为 true 位置处的值，得到 <code>(N, 4)</code> 。</p>
+</li>
+<li>
+<p>第 <code>3</code> 和第 <code>4</code> 步提取的预测 boxes 与 gt boxes，计算 CIoU，由于两个 tensor shape 均为 <code>(N, 4)</code>，计算出来的 CIoU 为 <code>(N, )</code> 向量。创建一个 <code>overlaps</code>，其 shape 为 <code>(b, max_obj_num, 3hw)</code>，根据最终掩码为 true 的位置，将 CIoU 设置到 <code>overlaps</code> 中。这个 <code>overlaps</code> 就是 (1) 式中的 $u$ 。</p>
+</li>
+<li>
+<p>根据 (1) 式计算 $t$ 值，使用超参数 $\alpha=0.5, \ \beta=6.0$ ，代码如下：</p>
+ <pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># (b, max_obj_num, 3hw)</span>
+align_metric <span class="token operator">=</span> bbox_scores<span class="token punctuation">.</span><span class="token builtin">pow</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>alpha<span class="token punctuation">)</span> <span class="token operator">*</span> overlaps<span class="token punctuation">.</span><span class="token builtin">pow</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>beta<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>易知， <code>align_metric</code> 的 shape 为 <code>(b, max_obj_num, 3hw)</code>，每个 gt box 有 <code>3hw</code> 个 $t$ 值，最终掩码 true 值位置处值有效，其他值均为 0 。</p>
+</li>
+<li>
+<p>将 <code>align_metric</code> 沿着 <code>dim=-1</code> 取 topK 大的值，以及对应的位置，即，每个 gt box 取 topK 大 $t$ 值对应的 anchor points 作为正样本。</p>
+<p>取出来的 topK 大 anchor points 实际上还需要使用 <code>mask_gt</code> 做掩码过滤，因为 <code>align_metric</code> 有 <code>(b, max_obj_num)</code> 个 gt boxes，显然要过滤掉填充的假 gt boxes 。最后所选择的 topK 的 anchor points 也使用掩码表示，记为 <code>mask_topk</code>，其 shape 为 <code>(b, max_obj_num, 3hw)</code>，一共 <code>b * max_obj_num</code> 个 gt boxes，每个 gt box 的 <code>3hw</code> 长度向量 mask 中，有 K 个 元素为 true 或者全部为 false（这种对应填充的假 gt box）。</p>
+</li>
+<li>
+<p><code>mask_topk</code> 与上述 <code>mask_in_gt</code> 和 <code>mask_gt</code> 三者按 elementwise 相乘，得到用于提取 <strong>正样本</strong> 的掩码，记为 <code>mask_pos</code>，其 shape 为 <code>(b, max_obj_num, 3hw)</code> 。</p>
+<p><strong>某个 anchor point 被多个 gt boxes 包含，那么与这个 anchor point 的预测 box 有最大 CIoU 的 gt box 被选中</strong>。以某一个 image 为例，那么正样本掩码 shape 为 <code>(max_obj_num, 3hw)</code>，这是一个矩阵，按行求和，那么得到每个 gt boxes 所对应的正样本数量。按列求和，那么能判断每个 anchor point 被用作了几次正样本，或者是，有几个 gt boxes 将这个 anchor point 作为正样本，如果某个 anchor point 被不止 1 个 gt boxes 看作正样本，那么这个 anchor point 只选择具有最大 CIoU 的那个 gt box，也就是说其余 gt box 不再将这个 anchor point 看作正样本，经过这样的调整后的正样本掩码仍用变量 <code>mask_pos</code> 存储 。</p>
+</li>
+</ol>
+<h2 id="2-2-计算损失">2.2 计算损失</h2>
+<p>有了以上说明，我们来看如何计算损失：</p>
+<ol>
+<li>
+<p>分类损失为所有样本（<strong>包括正负样本，所有 anchor points</strong>）的 BCE 损失。因为取消了置信度损失，所以这里分类损失除了考虑正样本，还需要考虑负样本。</p>
+<p><code>target_scores</code>: shape 为 <code>(b, 3*hw, nc)</code>，为每个 anchor point 设置 gt label。只有正样本 anchor points 处有 one-hot 向量，此向量长度为 <code>nc</code>，向量中 正样本对应的 gt box 分类 id 处的元素值为 1，但是这里实际上不使用 <code>1</code> 作为 target 值，而是</p>
+<p>$$\hat t _ {ij} \cdot \max(CIoU _ i) = \frac {t _ {ij}}{\max (\mathbf t _ i)} \cdot \max (CIoU _ i)\tag{3}$$</p>
+<p>以单个 image 为例理解上式更容易些，$t$ 值矩阵 shape 为 <code>(max_obj_num, 3*hw)</code>，对于每一个 gt box 编号为 <code>i</code> 分布进行归一化得到 $\hat t$ 。然后 CIoU 矩阵 shape 也是 <code>(max_obj_num, 3*hw)</code>，一个 gt box 对应多个正样本 anchor points，自然就有多个 CIoU 值，求出最大的 CIoU ，记为 $CIoU _ i$ ，以此值为这个 gt box 的分类得分基准，那么与这个 gt box 匹配的正样本 anchor points 的分类得分 target 就是这个基准乘上 $\hat t$ 。</p>
+<p>负样本 anchor point 则是全 0 向量。</p>
+<p>分类损失使用 BCE，正负样本均参与计算，相关代码为，</p>
+ <pre class="line-numbers language-python" data-language="python"><code class="language-python">target_scores_sum <span class="token operator">=</span> <span class="token builtin">max</span><span class="token punctuation">(</span>target_scores<span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span> 
+loss<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> self<span class="token punctuation">.</span>bce<span class="token punctuation">(</span>pred_scores<span class="token punctuation">,</span> target_scores<span class="token punctuation">.</span>to<span class="token punctuation">(</span>dtype<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> target_scores_sum<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+</li>
+<li>
+<p>坐标损失，只考虑正样本的坐标损失。损失包含两种：</p>
+<ul>
+<li>
+<p>CIoU 损失：$1-CIoU$ 。CIoU 损失还考虑了权重，使用分类得分 <code>target_scores</code> 作为权重，分类得分 target 实际上考虑了定位质量，值越大，越是需要注重学习优化，所以使用 <code>target_scores</code> 作为权重是合理的 。计算加权平均。</p>
+</li>
+<li>
+<p>DFL 损失：</p>
+</li>
+</ul>
+<p>$$DFL(\mathcal S _ i, \mathcal S _ {i+1}) =-((y _ {i+1}-y)\log \mathcal S _ i + (y - y _ i)\log \mathcal S _ {i+1}) \tag{4}$$</p>
+<p>上式就是 <a href="/2023/08/13/obj_det/GFL">GFL</a> 一文中的 (6) 式。下面给出计算 DFL 的代码，然后根据代码进行说明。</p>
+ <pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">_df_loss</span><span class="token punctuation">(</span>pred_dist<span class="token punctuation">,</span> target<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Return sum of left and right DFL losses."""</span>
+    <span class="token comment"># pred_dist: (n * 4, reg_max)</span>
+    <span class="token comment"># target: (n, 4)， left top right bottom distance</span>
+    <span class="token comment"># 返回值：(n, 4) -> (n, )</span>
+
+    tl <span class="token operator">=</span> target<span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">(</span><span class="token punctuation">)</span>  <span class="token comment"># target left</span>
+    tr <span class="token operator">=</span> tl <span class="token operator">+</span> <span class="token number">1</span>  <span class="token comment"># target right</span>
+    wl <span class="token operator">=</span> tr <span class="token operator">-</span> target  <span class="token comment"># weight left</span>
+    wr <span class="token operator">=</span> <span class="token number">1</span> <span class="token operator">-</span> wl  <span class="token comment"># weight right</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>F<span class="token punctuation">.</span>cross_entropy<span class="token punctuation">(</span>pred_dist<span class="token punctuation">,</span> tl<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> reduction<span class="token operator">=</span><span class="token string">'none'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span>tl<span class="token punctuation">.</span>shape<span class="token punctuation">)</span> <span class="token operator">*</span> wl <span class="token operator">+</span>
+            F<span class="token punctuation">.</span>cross_entropy<span class="token punctuation">(</span>pred_dist<span class="token punctuation">,</span> tr<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> reduction<span class="token operator">=</span><span class="token string">'none'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span>tl<span class="token punctuation">.</span>shape<span class="token punctuation">)</span> <span class="token operator">*</span> wr<span class="token punctuation">)</span><span class="token punctuation">.</span>mean<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> keepdim<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这个函数的参数为正例的 box 预测值，实际上是正例 anchor point 距离预测 box 左上右下 4 个 distance 的离散概率分布的预测，即一个 anchor point 预测 4 个向量，每个向量表示一个 distance 的概率分布，记 batch 中一共 <code>n</code> 个正样本。4 个 distance 的 target 值为变量 <code>target</code>，其 shape 为 <code>(n, 4)</code>，也就是 (4) 式中的 $y$ 。<code>tl</code> 表示 (4) 式中的 $y _ i$，<code>tr</code> 为 $y _ {i+1}$ ，<code>wl</code> 为 $y _ {i+1}-y$， <code>wr</code> 为 $y - y _ i = y - (y _ {i+1}-1)=1-(y _ {i+1}-y)$</p>
+<p>DFL 与 CIoU 一样，使用加权平均，权重也是使用正例的 <code>target_scores</code> 分数。</p>
+</li>
+</ol>
+<h2 id="2-3-总结">2.3 总结</h2>
+<p>对于一个 image，其中有 <code>obj_num</code> 个 gt boxes，<code>h*w</code> 个 anchor points（只考虑单个 scale 预测平面），那么可以计算 CIoU 矩阵，shape 为 <code>obj_num x hw</code>，每行表示一个 gt box，每列表示一个 anchor point。</p>
+<p>需要注意，这里回归分支预测输出不是 anchor points 距离预测 box 的左上右下 4 个 distance 值，而是 4 个离散分布，每个 distance 取值范围为 <code>0 ~ reg_max-1</code> 是固定的预先设置好的，预测的是 distance 的概率分布，分布的期望，作为 distance 的预测值。</p>
+<p>正样本不仅仅是指某个 anchor point ，还包含与之相关联的 gt box，即，这个 anchor point 位于这个 gt box 内部，也可以称作正样本对 <code>(anchor point, gt box)</code> 。那么如果 anchor point 位于多个 gt boxes 内部呢？根据 CIoU 矩阵这个 anchor point 所在列求最大值，最大值所在行，决定了 anchor point 关联到哪个 gt box 上，其他 gt boxes 不再与这个 anchor point 关联。另外，还通过计算 (1) 式选择 top-k 的 anchor points 为正样本，其余正样本置为负样本。</p>
+<h3 id="2-3-1-分类">2.3.1 分类</h3>
+<p>正样本 anchor point 的分类 target 是一个 one-hot 向量，向量长度为分类总数 <code>nc</code> ，向量中 <code>1</code> 值所在位置就是 anchor point 关联的 gt box 的分类 id （范围为 <code>0 ~ nc-1</code>）。负样本分类 target 则是全 <code>0</code> 向量。</p>
+<p>由于分类预测最佳 anchor point 与回归预测最佳 anchor point 不对齐，那么 NMS 时会导致差的预测 anchor point 抑制好的预测 anchor piont，所以为了对齐，正样本分类 target 的 one hot 向量中的 <code>1</code> 值替换为 (3) 式计算结果。(3) 式基于三点考虑：</p>
+<ol>
+<li>
+<p>同一 gt box 内部不同正样本 anchor points 的分类 target 应该与各自的 CIoU 成正比，这样 CIoU 最大的 anchor point 既是分类预测最佳 anchor point，又同时是回归预测最佳 anchor point。作者实现中，使用的是 $t$ 值，即，分类 target 与 $t$ 值成正比。</p>
+</li>
+<li>
+<p>不同 gt boxes 对应的正样本 anchor points，其分类 target 也应该不同。为每个 gt box 设置一个分类 target 基准，对 CIoU 矩阵按行取最大值，那么每行最大值就是这个 gt box 的基准。</p>
+</li>
+</ol>
+<p>所有样本的分类 target 应该是 shape 为 <code>(h*w, nc)</code> 的矩阵，每行是一个类似 one-hot 向量（其中 <code>1</code> 由 (3) 式替代）</p>
+<h3 id="2-3-2-回归">2.3.2 回归</h3>
+<p>与分类损失不同，<strong>回归损失仅考虑正样本</strong></p>
+<p>回归损失包含两部分：CIoU 损失和 DFL 损失。</p>
+<p>CIoU 损失为 $1-CIoU$，根据前述的 CIoU 矩阵，取正样本的 CIoU 代入计算即可。</p>
+<p>DFL 损失根据 (4) 式，也很容易计算。</p>
+<p>CIoU 损失和 DFL 损失均使用加权平均，权重为正样本的分类 target，这在上一小节 <code>### 2.3.1</code> 已讲。</p>
+<h1>3. 分割任务</h1>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2023/08/11/obj_det/yolov8/">https://jianjiansha.github.io/2023/08/11/obj_det/yolov8/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/object-detection/">
+                                    <span class="chip bg-color">object detection</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2023/08/12/obj_det/TOOD/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="TOOD: Task-aligned One-stage Object Detection">
+                        
+                        <span class="card-title">TOOD: Task-aligned One-stage Object Detection</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-08-12
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/object-detection/">
+                        <span class="chip bg-color">object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2023/08/09/obj_det/yolov5/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt="YOLOv5 解读">
+                        
+                        <span class="card-title">YOLOv5 解读</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-08-09
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/object-detection/">
+                        <span class="chip bg-color">object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

@@ -1,0 +1,1630 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="BERT, SJJ">
+    <meta name="description" content="1. 简介
+1.1 参数量
+$BERT_{BASE}$ $L=12, H=768, A=12$
+$BERT_{LARGE}$ $L=24, H=1024, A=16$
+参考 Transformer 结构，L 是 Encoder 中 bloc">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>BERT | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/13.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">BERT</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/NLP/">
+                                <span class="chip bg-color">NLP</span>
+                            </a>
+                        
+                            <a href="/tags/transformer/">
+                                <span class="chip bg-color">transformer</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-03-31
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1>1. 简介</h1>
+<h2 id="1-1-参数量">1.1 参数量</h2>
+<p>$BERT_{BASE}$ $L=12, H=768, A=12$<br>
+$BERT_{LARGE}$ $L=24, H=1024, A=16$</p>
+<p>参考 Transformer 结构，L 是 Encoder 中 block 的数量，即 《Attention is all you need》 中的 $N \times$，$A$ 是 multi-head attention 中的 head 数量，$H$ 是隐藏层的单元数，即模型宽度，也就是 《Attention is all you need》 中的 $d$。</p>
+<p>于是，multi-head attention 中 单个 head 的模型宽带为 $H/A=64$。</p>
+<ol>
+<li>
+<p>embedding， 一个矩阵 $\mathbb R^{V\times H}$，其中 $V$ 表示词汇集大小，$H$ 为 embedding 维度，由于 Transformer 中有 identity shortcut 连接，所以 embedding 维度必须与 attention 输出维度相同，故 embedding 维度也是 $H$ 。</p>
+</li>
+<li>
+<p>Attention 中 $Q,K,V$ 的映射矩阵均为 $W \in \mathbb R^{H \times H}$，single/multi-head attention 均为这个大小。</p>
+</li>
+<li>
+<p>Attention 中输出 $O$ 的映射矩阵也是 $W \in \mathbb R^{H \times H}$</p>
+</li>
+<li>
+<p>attention 上方是 feed-forward layer，这是一个由两个 全连接 组成的 layer，Bert 论文指出，feed-forward/filter size 为 $4H$，所以这两个 全连接 的维度转换应该是 $H \rightarrow 4 H, \ 4H \rightarrow H$，参数量为 $2 \times 4\times H \times H=8H^2$</p>
+</li>
+</ol>
+<p>于是一个 Transformer block 的（可学习）参数量为 $4H^2 + 8H^2 = 12H^2$</p>
+<p>$L$ 个 Transformer block 的参数量为 $12LH^2$，总参数量为 $VH+12LH^2$，</p>
+<p>论文中指出所用词汇集大小为 $V=30000$，然后根据 Bert base 的超参数 $L=12,H=768$，计算出总参数量为 $VH+12LH^2=107,974,656$ （Bert large 模型的参数可类似地计算出来）。</p>
+<h2 id="1-2-词嵌入">1.2 词嵌入</h2>
+<p>例如以空格进行分词，那么对于大数据集，token 数量会特别大，导致模型参数集中在嵌入层，为了解决这个问题，使用 WordPiece embedding。具体而言：使用一个 word 的子序列（字符串的前 n 个字符构成的子串），这个子序列有可能就是这个 word 的词根。参考 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1609.08144">Google’s neural machine translation system: Bridging the gap between human and machine translation</a></p>
+<h2 id="1-3-特殊-token">1.3 特殊 token</h2>
+<p>[CLS] 表示句子的整体信息，这个 token 的最终表示，即最后一个 Transformer block 的输出 （是一个 $H$ 长度的向量）就是这个句子信息的 BERT 表征，可用于对句子（单词序列）的分类任务。</p>
+<p>每个句子末尾添加 [SEP] token 表示句子结束。</p>
+<p>BERT 的输入序列可以是单个句子，也可以是句子对（两个句子）。输入是单个句子是，输入序列是 “[cls]”、文本序列的标记、以及特殊分隔词元 “[sep]”的连结。当输入为文本对时，BERT输入序列是“[cls]”、第一个文本序列的标记、“[sep]”、第二个文本序列标记、以及“[sep]”的连结。</p>
+<h2 id="1-4-输入表示">1.4 输入表示</h2>
+<p>每个 token 由三个 embedding 构成：</p>
+<ol>
+<li>word embedding。这就是 word 自身的词嵌入表示</li>
+<li>segment embedding。由于 BERT 使用两个句子作为输入，那么每个句子的 token 均需要一个额外 embedding 表示是第一个句子还是第二个句子。</li>
+<li>position embedding。与原生 Transformer 相同，由于 attention 中各输入是未知无关的，所以需要额外增加一个位置信息的 embedding。</li>
+</ol>
+<p>三种 embedding 的维度均为 $H$，相加得到最终的 embedding 表示（维度仍为 $H$）。如图 2 所示，</p>
+<p><img src="/images/transformer/BERT2.png" alt=""></p>
+<p>图 2.</p>
+<h2 id="1-5-BERT">1.5 BERT</h2>
+<p>BERT 有两个阶段：预训练和精调。</p>
+<ol>
+<li>预训练使用无标签数据进行训练，masked 语言模型（MLM），训练时，有一定概率对句子中的词进行 mask，然后训练预测这个 masked 的词。</li>
+<li>精调，对 BERT 使用预训练模型进行初始化，然后使用有标签数据进行学习，并对 bert 模型的所有参数进行微调。</li>
+</ol>
+<h1>2. 预训练 BERT</h1>
+<h2 id="2-1-Masked-LM">2.1 Masked LM</h2>
+<p>标准的条件语言模型只能进行从左到右或者从右到左地训练，数学模型为<br>
+$$p(x_i|x_1,…,x_{i-1})<br>
+\\ p(x_i|x_{i+1},…,x_T)$$</p>
+<p>双向条件的训练的数学模型为<br>
+$$p(x_i|x_1,…,x_T)$$</p>
+<p>这使得每个 word 可以看见自己，导致模型可以平凡地预测目标值。</p>
+<p>为了训练出一个深度双向的表征，作者随机对 token 进行掩码处理，然后预测这些被掩盖的 token，这称为 <code>masked LM</code>，这些 masked token 的最后一个 Transformer block 的输出特征，输入到一个 fc 层，输出向量表示词汇表各 word 的得分，然后使用 softmax 进行预测。</p>
+<p>每个输入序列的 15% 的 wordpiece 被 mask，即使用 <code>[MASK]</code> 替换原来的 token。对于 <code>[CLS], [SEP]</code> 则不参与 mask。</p>
+<p>但是这种 mask 处理也会带来不匹配问题，在 fine-tuning 阶段，<code>[MASK]</code> 可不会出现。因为 fine-tuning 阶段的目标不同，并非用于预测被 mask 的 token，所以不会有 <code>[MASK]</code>。</p>
+<p>为了解决这个不匹配问题，对于每个被选中的待 mask 的 token：</p>
+<ol>
+<li>80% 训练时间使用 <code>[MASK]</code> 替换</li>
+<li>10% 训练时间使用一个有效的随机 token 替换</li>
+<li>10% 训练时间保持不变，就是原来的 token</li>
+</ol>
+<p>假设无表情句子为 <code>my dog is hairy</code>，经过随机 mask，假设选择了第 4 个 token （hairy）进行 mask，mask 流程为：</p>
+<ul>
+<li>80% 的训练时间，将这个 masked word 替换为 <code>[MASK]</code> token，即 <code>my dog is hairy</code> $\rightarrow$ <code>my dog is [MASK]</code></li>
+<li>10% 的训练时间，将这个 masked word 替换为词汇表中一个随机 word，例 <code>my dog is hairy</code> $\rightarrow$ <code>my dog is apple</code></li>
+<li>10% 的训练时间，保持 masked word 不变，取消对这个 word 进行 mask，即 <code>my dog is hairy</code> $\rightarrow$ <code>my dog is hairy</code>。这么做的目的是引导 token 特征趋于表征实际的观察 word，这个位置的 token 本来是随机的每个 word 等概率出现，或者均为一个 <code>[MASK]</code> 特殊token，而将 10% 的训练时间内使用这个位置的实际 word，相当于对这个真实 word 进行 bias。</li>
+</ul>
+<p>分析：</p>
+<ul>
+<li>Transformer encoder 学习每个 input token 的上下文表征。</li>
+<li>输入序列中只有 15% 的 word 被选择，然后再以 10% 的概率被随机替换为另一个 word，所以被随机替换的概率为 1.5%，这个概率足够小，不会有损模型对句子的理解。</li>
+</ul>
+<h2 id="2-2-NSP">2.2 NSP</h2>
+<p>Next Sentence Prediction(NSP)</p>
+<p>许多下游任务例如 问答（QA）以及 自然语言推断（NLI）均基于两个句子间关系的理解。为了训练出一个能理解两个句子间关系的模型，作者设计了一个二分类的下一句预测任务，即给两个句子作为输入，预测第二个句子是否是第一个句子的下一句。</p>
+<p>训练时，每个训练样本中的句子 A 和 B，50% 的概率下 B 是 A 的下一句，即 label 为正，另外 50% 的概率下 label 为负。将 <code>[CLS]</code> 的最终向量用于预测是否是下一句。</p>
+<p><strong>预训练数据：</strong></p>
+<p>使用 BooksCorpus 和 English Wikipedia 数据集。作者使用 document-level 的语料而非 sentence-level 语料。Document 中，可以获得连续的两个句子（在 document 中自然连续，不一定要有语义上的某种关联）。</p>
+<p>NSP 任务数据集举例说明：</p>
+<pre class="line-numbers language-none"><code class="language-none">Input &#x3D; [CLS] the man went to [MASK] store [SEP]
+        he bought a gallon [MASK] milk [SEP]
+Label &#x3D; IsNext
+
+Input &#x3D; [CLS] the man [MASK] to the store [SEP]
+        penguin [MASK] are flight ##less birds [SEP]
+Label &#x3D; NotNext<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1>3. 实验</h1>
+<h2 id="3-1-GLUE">3.1 GLUE</h2>
+<p>输入序列（单个句子或者句子对），使用 <code>[CLS]</code> 的最终特征向量 $C \in \mathbb R^H$，作为输入序列的聚合表征。额外增加的分类层是一个 fc 层和 Softmax，fc 层参数 $W \in \mathbb R^{K \times H}$，其中 $K$ 表示分类数量。</p>
+<p><code>batch_size=32</code></p>
+<p>对所有 GLUE 任务 fine-tune <code>epoch=3</code> 轮。</p>
+<p>使用 $5e^{-5}, 5e^{-5}, 4e^{-5}, 3e^{-5}, 2e^{-5}$ 不同的学习率，最终选择在 Dev set 验证数据集上最好的那个。</p>
+<p>BERT 与其他模型在 GLUE 上的性能比较看原论文 Table ，这里不列出来了。</p>
+<h2 id="3-2-SQuAD-v1-1">3.2 SQuAD v1.1</h2>
+<p>这是 Standford 的一个 QA 问答数据集。给定一个问题和一个段落（来自 Wikipedia，且包含了问题的答案），这个任务目标是预测答案在段落中的起始截止位置。</p>
+<p>如图 1，</p>
+<p><img src="/images/transformer/BERT1.png" alt=""></p>
+<center>图 1 </center>
+<p>将问题和段落分别作为输入序列中的 A 和 B。</p>
+<p>引入一个 start 向量 $S \in \mathbb R^H$ 和一个 end 向量 $E \in \mathbb R^H$。这两个向量相当于两个 fc 层的权重参数，将每个 word 的最后的 hidden 向量映射到一个非归一化得分，这两个 fc 层的权重参数均在各个 word 中共享。</p>
+<p>例如向量 $S$，将 word <code>i</code> 的最后一个 Transformer block 的输出向量 $T_i$ 映射为得分 $S \cdot T_i$，那么经 softmax 后可得 word <code>i</code> 为答案的 start 的概率为</p>
+<p>$$P_i=\frac {e^{S \cdot T_i}}{\sum_j e^{S \cdot T_j}} \tag{1}$$</p>
+<p>其中 $j$ 的范围是输入序列中 $B$ 的下标范围（or 整个输入序列范围？）。</p>
+<p>对于 $E$ 同样处理，即 word <code>j</code> 作为答案 end 的得分为 $E\cdot T_j$。于是，word <code>i</code> 和 word <code>j</code> 构成一个答案 span 的得分为 $S \cdot T_i+E\cdot T_j$，具有最大得分的 word pair，且 $j \ge i$ 就是最终预测的答案 span。</p>
+<p>训练的目标函数是正确的 start 和 end 的对数似然之和，即最大化下式的值（梯度上升）</p>
+<p>$$\log (P_s \cdot P_e)=\log P_s + \log P_e \tag{2}$$</p>
+<p>其中 $s, \ e$ 分别是 gt start 和 gt end 的下标。</p>
+<p>fine-tune <code>3</code> 个 epoch，<code>batch_size=32</code>，学习率为 $5e-5$。</p>
+<h2 id="3-3-SQuAD-v2-0">3.3 SQuAD v2.0</h2>
+<p>SQuAD v2.0 任务是对 SQuAD v1.0 的扩展，使得对应的段落中有可能不存在答案，这更加接近现实。</p>
+<p>若段落中没有问题的答案，那么答案的 start 和 end 均在 <code>[CLS]</code> 这一位置，于是答案 start 和 end 的概率空间需要包含 <code>[CLS]</code> 的位置。</p>
+<p>预测时，gt 对应的得分为 $s_{null}=S\cdot C+E\cdot C$，其中 $C$ 是 <code>[CLS]</code> 对应的最后一个 Transformer block 的输出特征向量，同时计算出最佳 non-null 的得分 $\hat s_{ij}=\max_{j \ge i} S\cdot T_i+E\cdot T_j$，那么当</p>
+<p>$$\hat s_{ij} &gt; s_{null}+\tau$$</p>
+<p>时，预测为这个最佳 non-null 的答案 span，否则，预测为 null 答案（即不存在答案）。这里 $\tau$ 给出几个值，选择其中某个值使得 F1 最大。增加 $\tau$ 这个阈值是为了使预测更加准确。</p>
+<p>训练阶段，依然使用 (2) 式进行训练，其中没有答案的情况下， gt label $s, \ e$ 均为 <code>[CLS]</code> 的位置。（1）式中分母的求和项，也需要包含 <code>[CLS]</code> 的得分。</p>
+<h2 id="3-4-SWAG">3.4 SWAG</h2>
+<p>SWAG 数据集介绍：</p>
+<p>给定一个部分描述，例如 “她打开汽车引擎盖”，那我们可以想到下一个场景可能是 “然后她检查了引擎”。SWAG 就是用于常识性推断这样一类任务的数据集，包含 113k 的问题描述，每个问题有四个选项，任务就是从中选择一个可能下个场景出现的。</p>
+<p>在 SWAG 上 fine-tune  BERT 时，构造一个四输入序列，每个序列包含问题（序列A）和选项（序列B），对应的 Transformer 输入 Tensor 的 shape 为 <code>(batch_size, 4, max_length, embedding_dim)</code>，输出 Tensor 的 shape 为 <code>(batch_size, 4, max_length, H)</code>，其中 $H$ 就是上文所提的模型宽度，四个序列的 <code>[CLS]</code> token 对应的输出向量分别乘以一个权重向量（这就是任务相关的额外添加的 fc 层），得到这四个序列的得分，然后使用 softmax 进行分类。</p>
+<p>训练 <code>3</code> 个 epoch，学习率为 $2e-5$，<code>batch_size=16</code>。</p>
+<p>每个数据集上 BERT 与其他 models 的性能，详见论文，这里不再说明。</p>
+<h1>4. 下游任务</h1>
+<p>由于 BERT 在通用语料上训练时间太长，我们可以直接利用别人预训练好的模型，然后对我们的有监督训练任务进行 fine tuning。</p>
+<h2 id="4-1-文本分类">4.1 文本分类</h2>
+<p>对句子（一条文本）进行处理：</p>
+<ol>
+<li>去掉 stop words</li>
+<li>（可选）分词</li>
+<li>根据词汇表将 word 转为 word id</li>
+<li>根据设置的长度 <code>pad_size</code>，对短句子进行 padding，对长句子进行截断</li>
+<li>记录句子的长度，短句子记录其 padding 之前的长度，长句子则记录长度为 <code>pad_size</code> 即截断之后的长度。</li>
+<li>记录句子的 mask 向量，长度为 <code>pad_size</code>，mask 向量中元素为 1 表示使用句子中的 token，元素值为 0，表示是一个填充 token。</li>
+<li>记录句子的分类标签 id</li>
+</ol>
+<p><strong>训练阶段</strong></p>
+<p>DataLoader，每次 iteration 返回一批数据，格式为</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># x: (batch_size, pad_size)，一批句子，每个句子是 word_id 组成的 list</span>
+<span class="token comment"># word_id：[0,len(V))，这里 V 是词汇表，第一个词汇必须是 [PAD]，表示填充</span>
+<span class="token comment"># seq_len: (batch_size,) 句子实际长度</span>
+<span class="token comment"># mask: (batch_size, pad_size)，记录哪些 word_id 是填充的</span>
+<span class="token comment"># y: (batch_size,) 句子分类 id，与 word_id 一样，都是整型</span>
+<span class="token punctuation">(</span>x<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> mask<span class="token punctuation">)</span><span class="token punctuation">,</span> y<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>原生 bert 输出为序列中各个 token 的特征，shape 为 <code>(batch_size, pad_size, embed_dim)</code>，文本分类取序列第一个 token 即 <code>[CLS]</code> 的特征，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># ======== BertPooler: start =========</span>
+first_token_feat <span class="token operator">=</span> hidded_states<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">]</span>   <span class="token comment"># (batch_size, embed_dim)</span>
+output <span class="token operator">=</span> dense<span class="token punctuation">(</span>first_token_feat<span class="token punctuation">)</span>        <span class="token comment"># 使用一个 fc layer，调整特征，以适应下游任务，</span>
+                                        <span class="token comment"># output_dim 不变，shape 依然为 (batch_size, embed_dim)</span>
+output <span class="token operator">=</span> act<span class="token punctuation">(</span>output<span class="token punctuation">)</span>                    <span class="token comment"># 使用 Tanh 激活</span>
+<span class="token comment"># ======== BertPooler:   end =========</span>
+
+output <span class="token operator">=</span> dense2<span class="token punctuation">(</span>output<span class="token punctuation">)</span>                 <span class="token comment"># 最后使用一个 fc layer，输出 units 为 分类数量</span>
+<span class="token comment"># 最后这个 output 就是各分类的非归一化概率，(batch_size, num_classes)</span>
+<span class="token comment"># 使用 F.softmax(output) 即可得到归一化概率</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1>5. BERT 代码说明</h1>
+<p>以下内容来源 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/dogecheng/p/11907036.html">Pytorch-Transformers——源码解读</a>，为了防止文章不见了，这里转载一下。</p>
+<h2 id="5-1-Model相关">5.1 Model相关</h2>
+<h3 id="5-1-1-BertConfig">5.1.1 BertConfig</h3>
+<p>BertConfig 是一个配置类，存放了 BertModel 的配置。比如：</p>
+<ul>
+<li>vocab_size_or_config_json_file：字典大小，默认30522</li>
+<li>hidden_size：Encoder 和 Pooler 层的大小，默认768</li>
+<li>num_hidden_layers：Encoder 的隐藏层数，默认12</li>
+<li>num_attention_heads：每个 Encoder 中 attention 层的 head 数，默认12</li>
+</ul>
+<p>完整内容可以参考：<a target="_blank" rel="noopener" href="https://huggingface.co/transformers/v2.1.1/model_doc/bert.html#bertconfig">https://huggingface.co/transformers/v2.1.1/model_doc/bert.html#bertconfig</a></p>
+<h3 id="5-1-2-BertModel">5.1.2 BertModel</h3>
+<p>实现了基本的Bert模型，从构造函数可以看到用到了embeddings，encoder和pooler。</p>
+<p><strong>BERT 模型的输入</strong>：</p>
+<p>下面是允许输入到模型中的参数，模型至少需要有1个输入： input_ids 或 input_embeds。</p>
+<ol>
+<li><code>input_ids</code> token id sequence，包括 <code>[CLS]</code> 和 <code>[SEP]</code> 的 id。(batch_size, pad_size)</li>
+<li><code>token_type_ids</code> 就是上面所说的 segment embedding，表示 token 对应的句子 id，值为 0（第一个句子） 或 1（第二个句子）。(batch_size, pad_size)</li>
+</ol>
+<p>Bert 的输入需要用 [CLS] 和 [SEP] 进行标记，开头用 [CLS]，句子结尾用 [SEP]</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 两个句子：</span>
+tokens：<span class="token punctuation">[</span>CLS<span class="token punctuation">]</span> is this jack <span class="token comment">##son ##ville ? [SEP] no it is not . [SEP]</span>
+token_type_ids：0   <span class="token number">0</span>  <span class="token number">0</span>    <span class="token number">0</span>    <span class="token number">0</span>     <span class="token number">0</span>       <span class="token number">0</span>   <span class="token number">0</span>   <span class="token number">1</span>  <span class="token number">1</span>  <span class="token number">1</span>  <span class="token number">1</span>   <span class="token number">1</span>   <span class="token number">1</span>
+
+<span class="token comment"># 一个句子：</span>
+tokens：<span class="token punctuation">[</span>CLS<span class="token punctuation">]</span> the dog is hairy <span class="token builtin class-name">.</span> <span class="token punctuation">[</span>SEP<span class="token punctuation">]</span>
+token_type_ids：0   <span class="token number">0</span>   <span class="token number">0</span>   <span class="token number">0</span>  <span class="token number">0</span>     <span class="token number">0</span>   <span class="token number">0</span>
+
+<span class="token comment"># 经过 PAD</span>
+tokens：<span class="token punctuation">[</span>CLS<span class="token punctuation">]</span> the dog is hairy <span class="token builtin class-name">.</span> <span class="token punctuation">[</span>SEP<span class="token punctuation">]</span> <span class="token punctuation">[</span>PAD<span class="token punctuation">]</span> <span class="token punctuation">[</span>PAD<span class="token punctuation">]</span> <span class="token punctuation">[</span>PAD<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ul>
+<li>attention_mask 可选。各元素的值为 0 或 1 ，避免在 padding 的 token 上计算 attention（1不进行masked，0则masked）。形状为(batch_size, sequence_length)。</li>
+<li>position_ids 可选。表示 token 在句子中的位置id。形状为(batch_size, sequence_length)。形状为(batch_size, sequence_length)。</li>
+<li>head_mask 可选。各元素的值为 0 或 1 ，1 表示 head 有效，0无效。形状为(num_heads,)或(num_layers, num_heads)。</li>
+<li>input_embeds 可选。替代 input_ids，我们可以直接输入 Embedding 后的 Tensor。形状为(batch_size, sequence_length, embedding_dim)。</li>
+<li>encoder_hidden_states 可选。encoder 最后一层输出的隐藏状态序列，模型配置为 decoder 时使用。形状为(batch_size, sequence_length, hidden_size)。</li>
+<li>encoder_attention_mask 可选。避免在 padding 的 token 上计算 attention，模型配置为 decoder 时使用。形状为(batch_size, sequence_length)。</li>
+<li>encoder_hidden_states 和 encoder_attention_mask 可以结合论文中的Figure 1理解，左边为 encoder，右边为 decoder。</li>
+</ul>
+<p>论文《Attention Is All You Need》：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1706.03762.pdf">https://arxiv.org/pdf/1706.03762.pdf</a></p>
+<blockquote>
+<p>如果要作为 decoder ，模型需要通过 BertConfig 设置 is_decoder 为 True</p>
+</blockquote>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> config<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token builtin">super</span><span class="token punctuation">(</span>BertModel<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>config <span class="token operator">=</span> config
+
+    self<span class="token punctuation">.</span>embeddings <span class="token operator">=</span> BertEmbeddings<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>encoder <span class="token operator">=</span> BertEncoder<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>pooler <span class="token operator">=</span> BertPooler<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+
+    self<span class="token punctuation">.</span>init_weights<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> input_ids<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> attention_mask<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> token_type_ids<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> position_ids<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span>
+            head_mask<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> inputs_embeds<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> encoder_hidden_states<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> encoder_attention_mask<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">)</span><span class="token punctuation">:</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="5-1-3-BertPooler">5.1.3 BertPooler</h3>
+<p>在Bert中，pool的作用是，输出的时候，用一个全连接层 <font color="red">将整个句子的信息用第一个token来表示</font>，源码如下</p>
+<p>每个 token 上的输出大小都是  hidden_size (在BERT Base中是768)</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">BertPooler</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> config<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span>BertPooler<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>dense <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>config<span class="token punctuation">.</span>hidden_size<span class="token punctuation">,</span> config<span class="token punctuation">.</span>hidden_size<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>activation <span class="token operator">=</span> nn<span class="token punctuation">.</span>Tanh<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> hidden_states<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># We "pool" the model by simply taking the hidden state corresponding</span>
+        <span class="token comment"># to the first token.</span>
+        first_token_tensor <span class="token operator">=</span> hidden_states<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span>
+        pooled_output <span class="token operator">=</span> self<span class="token punctuation">.</span>dense<span class="token punctuation">(</span>first_token_tensor<span class="token punctuation">)</span>
+        pooled_output <span class="token operator">=</span> self<span class="token punctuation">.</span>activation<span class="token punctuation">(</span>pooled_output<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> pooled_output<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>所以在分类任务中，Bert只取出第一个token的输出再经过一个网络进行分类就可以了，就像之前的文章中谈到的垃圾邮件识别</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dogecheng/p/11615750.html#_lab2_2_1">https://www.cnblogs.com/dogecheng/p/11615750.html#_lab2_2_1</a></p>
+<h3 id="5-1-4-BertForSequenceClassification">5.1.4 BertForSequenceClassification</h3>
+<p>BertForSequenceClassification 是一个已经实现好的用来进行文本分类的类，一般用来进行文本分类任务。构造函数如下</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> config<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token builtin">super</span><span class="token punctuation">(</span>BertForSequenceClassification<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>num_labels <span class="token operator">=</span> config<span class="token punctuation">.</span>num_labels
+
+    self<span class="token punctuation">.</span>bert <span class="token operator">=</span> BertModel<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>config<span class="token punctuation">.</span>hidden_dropout_prob<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>classifier <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>config<span class="token punctuation">.</span>hidden_size<span class="token punctuation">,</span> self<span class="token punctuation">.</span>config<span class="token punctuation">.</span>num_labels<span class="token punctuation">)</span>
+
+    self<span class="token punctuation">.</span>init_weights<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>我们可以通过 num_labels 传递分类的类别数，从构造函数可以看出这个类大致由3部分组成，1个是Bert，1个是Dropout，1个是用于分类的线性分类器Linear。</p>
+<p>Bert用于提取文本特征进行Embedding，Dropout防止过拟合，Linear是一个弱分类器，进行分类，如果需要用更复杂的网络结构进行分类可以参考它进行改写。</p>
+<p>他的 forward() 函数里面已经定义了损失函数，训练时可以不用自己额外实现，返回值包括4个内容</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token keyword">if</span> labels <span class="token keyword">is</span> <span class="token keyword">not</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> self<span class="token punctuation">.</span>num_labels <span class="token operator">==</span> <span class="token number">1</span><span class="token punctuation">:</span>
+            <span class="token comment">#  We are doing regression</span>
+            loss_fct <span class="token operator">=</span> MSELoss<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            loss <span class="token operator">=</span> loss_fct<span class="token punctuation">(</span>logits<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> labels<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            loss_fct <span class="token operator">=</span> CrossEntropyLoss<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            loss <span class="token operator">=</span> loss_fct<span class="token punctuation">(</span>logits<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> self<span class="token punctuation">.</span>num_labels<span class="token punctuation">)</span><span class="token punctuation">,</span> labels<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        outputs <span class="token operator">=</span> <span class="token punctuation">(</span>loss<span class="token punctuation">,</span><span class="token punctuation">)</span> <span class="token operator">+</span> outputs
+    <span class="token keyword">return</span> outputs  <span class="token comment"># (loss), logits, (hidden_states), (attentions)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中 hidden-states 和 attentions 不一定存在</p>
+<h3 id="5-1-5-BertForTokenClassification">5.1.5 BertForTokenClassification</h3>
+<p>BertForSequenceClassification 是一个已经实现好的在 token 级别上进行文本分类的类，一般用来进行序列标注任务。构造函数如下。</p>
+<p>代码基本和 BertForSequenceClassification 是一样的</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> config<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token builtin">super</span><span class="token punctuation">(</span>BertForTokenClassification<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>num_labels <span class="token operator">=</span> config<span class="token punctuation">.</span>num_labels
+
+    self<span class="token punctuation">.</span>bert <span class="token operator">=</span> BertModel<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>config<span class="token punctuation">.</span>hidden_dropout_prob<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>classifier <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>config<span class="token punctuation">.</span>hidden_size<span class="token punctuation">,</span> config<span class="token punctuation">.</span>num_labels<span class="token punctuation">)</span>
+
+    self<span class="token punctuation">.</span>init_weights<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>不同点在于 BertForSequenceClassification 我们只用到了第一个 token 的输出（经过 pooler 包含了整个句子的信息）</p>
+<p>下面是 BertForSequenceClassification 的中 forward() 函数的部分代码</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">outputs <span class="token operator">=</span> self<span class="token punctuation">.</span>bert<span class="token punctuation">(</span>input_ids<span class="token punctuation">,</span>
+                            attention_mask<span class="token operator">=</span>attention_mask<span class="token punctuation">,</span>
+                            token_type_ids<span class="token operator">=</span>token_type_ids<span class="token punctuation">,</span>
+                            position_ids<span class="token operator">=</span>position_ids<span class="token punctuation">,</span>
+                            head_mask<span class="token operator">=</span>head_mask<span class="token punctuation">,</span>
+                            inputs_embeds<span class="token operator">=</span>inputs_embeds<span class="token punctuation">)</span>
+
+pooled_output <span class="token operator">=</span> outputs<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>bert 是一个 BertModel 的实例，它的输出有4个部分，如下所示</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token keyword">return</span> outputs  <span class="token comment"># sequence_output, pooled_output, (hidden_states), (attentions)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>从上面可以看到 BertForSequenceClassification 用到的是 pooled_output，即用1个位置上的输出表示整个句子的含义</p>
+<p>下面是 BertForTokenClassification 的中 forward() 函数的部分代码，它用到的是全部 token 上的输出。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">outputs <span class="token operator">=</span> self<span class="token punctuation">.</span>bert<span class="token punctuation">(</span>input_ids<span class="token punctuation">,</span>
+                            attention_mask<span class="token operator">=</span>attention_mask<span class="token punctuation">,</span>
+                            token_type_ids<span class="token operator">=</span>token_type_ids<span class="token punctuation">,</span>
+                            position_ids<span class="token operator">=</span>position_ids<span class="token punctuation">,</span>
+                            head_mask<span class="token operator">=</span>head_mask<span class="token punctuation">,</span>
+                            inputs_embeds<span class="token operator">=</span>inputs_embeds<span class="token punctuation">)</span>
+
+sequence_output <span class="token operator">=</span> outputs<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="5-1-6-BertForQuestionAnswering">5.1.6 BertForQuestionAnswering</h3>
+<p>实现好的用来做QA（span extraction，片段提取）任务的类。</p>
+<p>有多种方法可以根据文本回答问题，一个简单的情况就是将任务简化为片段提取</p>
+<p>这种任务，输入以 上下文+问题 的形式出现。输出是一对整数，表示答案在文本中的开头和结束位置</p>
+<p><img src="/images/transformers/BERT3.png" alt=""></p>
+<p>图片来自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_37923278/article/details/103006269">https://blog.csdn.net/weixin_37923278/article/details/103006269</a></p>
+<p>参考文章：<a target="_blank" rel="noopener" href="https://blog.scaleway.com/2019/understanding-text-with-bert/">https://blog.scaleway.com/2019/understanding-text-with-bert/</a></p>
+<p>example：</p>
+<pre><code>    文本：
+
+    Architecturally, the school has a Catholic character. Atop the Main Building's gold dome is a golden statue of the Virgin Mary. Immediately in front of the                Main Building and facing it, is a copper statue of Christ with arms upraised with the legend &quot;Venite Ad Me Omnes&quot;. Next to the Main Building is the Basilica          of the Sacred Heart. Immediately behind the basilica is the Grotto, a Marian place of prayer and reflection. It is a replica of the grotto at Lourdes, France              where the Virgin Mary reputedly appeared to Saint Bernadette Soubirous in 1858. At the end of the main drive (and in a direct line that connects through 3          statues and the Gold Dome), is a simple, modern stone statue of Mary.
+
+    问题：
+    The Basilica of the Sacred heart at Notre Dame is beside to which structure?
+    答案：
+    start_position: 49，end_position: 51（按单词计算的）
+
+    49-51 是 the Main Building 这3个单词在句中的索引
+</code></pre>
+<p>下面是它的构造函数，和 Classification 相比，这里没有 Dropout 层</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> config<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token builtin">super</span><span class="token punctuation">(</span>BertForQuestionAnswering<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>num_labels <span class="token operator">=</span> config<span class="token punctuation">.</span>num_labels
+
+    self<span class="token punctuation">.</span>bert <span class="token operator">=</span> BertModel<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>qa_outputs <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>config<span class="token punctuation">.</span>hidden_size<span class="token punctuation">,</span> config<span class="token punctuation">.</span>num_labels<span class="token punctuation">)</span>
+
+    self<span class="token punctuation">.</span>init_weights<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>模型的输入多了两个，start_positions 和 end_positions ，它们的形状都是 (batch_size,)</p>
+<p>start_positions 标记 span 的开始位置（索引），end_positions 标记 span 的结束位置（索引），被标记的 token 用于计算损失</p>
+<blockquote>
+<p>即答案在文本中开始的位置和结束的位置，如果答案不在文本中，应设为0</p>
+</blockquote>
+<p>除了 start 和 end 标记的那段序列外，其他位置上的 token 不会被用来计算损失。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> input_ids<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> attention_mask<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> token_type_ids<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> position_ids<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> head_mask<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> 
+            inputs_embeds<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> start_positions<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> end_positions<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>可以参考下图帮助理解</p>
+<p><img src="/images/transformers/BERT4.png" alt=""></p>
+<blockquote>
+<p>图片来自Bert原论文：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1810.04805.pdf">https://arxiv.org/pdf/1810.04805.pdf</a></p>
+</blockquote>
+<p>从图中可以看到，QA 任务的输入是两个句子，用 [SEP] 分隔，第一个句子是问题（Question），第二个句子是含有答案的上下文（Paragraph）</p>
+<p>输出是作为答案开始和结束的可能性（Start/End Span）</p>
+<h3 id="5-1-7-BertForMultipleChoice">5.1.7 BertForMultipleChoice</h3>
+<p>实现好的用来做多选任务的，比如SWAG和MRPC等，用来句子对判断语义、情感等是否相同</p>
+<p>下面是它的构造函数，可以到看到只有1个输出，用来输出情感、语义相同的概率</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> config<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token builtin">super</span><span class="token punctuation">(</span>BertForMultipleChoice<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+
+    self<span class="token punctuation">.</span>bert <span class="token operator">=</span> BertModel<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>config<span class="token punctuation">.</span>hidden_dropout_prob<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>classifier <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>config<span class="token punctuation">.</span>hidden_size<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+
+    self<span class="token punctuation">.</span>init_weights<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>一个简单的例子</p>
+<p>example：</p>
+<pre><code>    tokenizer = BertTokenizer(&quot;vocab.txt&quot;)
+
+    model = BertForMultipleChoice.from_pretrained(&quot;bert-base-uncased&quot;)
+
+    choices = [&quot;Hello, my dog is cute&quot;, &quot;Hello, my cat is pretty&quot;]
+
+    input_ids = torch.tensor([tokenizer.encode(s) for s in choices]).unsqueeze(0)         # 形状为[1, 2, 7]
+
+    labels = torch.tensor(1).unsqueeze(0)
+
+    outputs = model(input_ids, labels=labels)
+</code></pre>
+<p>BertForMultipleChoice 也是用到经过 Pooled 的 Bert 输出，forward() 函数同样返回 4 个内容</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> input_ids<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> attention_mask<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> token_type_ids<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span>
+                position_ids<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> head_mask<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> inputs_embeds<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> labels<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    pooled_output <span class="token operator">=</span> outputs<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token keyword">return</span> outputs  <span class="token comment"># (loss), reshaped_logits, (hidden_states), (attentions)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="5-1-8-tokenization">5.1.8 tokenization</h3>
+<p>对于文本，常见的操作是分词然后将 词-id 用字典保存，再将分词后的词用 id 表示，然后经过 Embedding 输入到模型中。</p>
+<p>Bert 也不例外，但是 Bert 能以 字级别 作为输入，在处理中文文本时我们可以不用先分词，直接用 Bert 将文本转换为 token，然后用相应的 id 表示。</p>
+<p>tokenization 库就是用来将文本切割成为 字或词 的，下面对其进行简单的介绍</p>
+<h3 id="5-1-9-BasicTokenizer">5.1.9 BasicTokenizer</h3>
+<p>基本的 tokenization 类，构造函数可以接收以下3个参数</p>
+<ul>
+<li>do_lower_case：是否将输入转换为小写，默认True</li>
+<li>never_split：可选。输入一个列表，列表内容为不进行 tokenization 的单词</li>
+<li>tokenize_chinese_chars：可选。是否对中文进行 tokenization，默认True</li>
+</ul>
+<p>tokenize() 函数是用来 tokenization 的，这里的 tokenize 仅仅使用空格作为分隔符，输入的文本会先进行一些数据处理，处理掉无效字符并将空白符（“\t”，“\n”等）统一替换为空格。如果 tokenize_chinese_chars 为 True，则会在每个中文“字”的前后增加空格，然后用 whitespace_tokenize() 进行 tokenization，因为增加了空格，空白符又都统一换成了空格，实际上 whitespace_tokenize() 就是用了 Python 自带的 split() 函数，处理前用先 strip() 去除了文本前后的空白符。whitespace_tokenize() 的函数内容如下：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">whitespace_tokenize</span><span class="token punctuation">(</span>text<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Runs basic whitespace cleaning and splitting on a piece of text."""</span>
+    text <span class="token operator">=</span> text<span class="token punctuation">.</span>strip<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token keyword">not</span> text<span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    tokens <span class="token operator">=</span> text<span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> tokens<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>用 split() 进行拆分后，还会将 标点符号 从文本中拆分出来（不是去除）</p>
+<p>example：① → ② → ③</p>
+<pre><code>      ① &quot;Hello, Marry!&quot;
+      ② [&quot;Hello,&quot;, &quot;Marry!&quot;]
+      ③ [&quot;Hello&quot;, &quot;,&quot;, &quot;Marry&quot;, &quot;!&quot;]
+</code></pre>
+<h3 id="5-1-10-WordpieceTokenizer">5.1.10 WordpieceTokenizer</h3>
+<p>WordpieceTokenizer 对文本进行 wordpiece tokenization，接收的文本最好先经过 BasicTokenizer 处理</p>
+<blockquote>
+<p>wordpiece简介：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/60fc9253a0bf">https://www.jianshu.com/p/60fc9253a0bf</a></p>
+</blockquote>
+<p>简单说就是把 单词 变成一片一片的，在BERT实战——基于Keras一文中，2.1节我们使用的 tokenizer 就是这样的：</p>
+<p>它将 “unaffable” 分割成了 “un”, “##aff” 和 “##able”</p>
+<p>他的构造函数可以接收下面的 3 个参数</p>
+<ul>
+<li>vocab：给定一个字典用来 wordpiece tokenization</li>
+<li>unk_token：碰到字典中没有的字，用来表示未知字符，比如用 “[UNK]” 表示未知字符</li>
+<li>max_input_chars_per_word：每个单词最大的字符数，如果超过这个长度用 unk_token 对应的 字符 表示，默认100</li>
+</ul>
+<p><strong>tokenize()函数</strong></p>
+<p>这个类的 tokenize() 函数使用 贪婪最长匹配优先算法（greedy longest-match-first algorithm） 将一段文本进行 tokenization ，变成相应的 wordpiece，一般针对英文</p>
+<p>example ：</p>
+<pre><code>      input = &quot;unaffable&quot;  → output = [&quot;un&quot;, &quot;##aff&quot;, &quot;##able&quot;]
+</code></pre>
+<h3 id="5-1-11-BertTokenizer">5.1.11 BertTokenizer</h3>
+<p>一个专为 Bert 使用的 tokenization 类，使用 Bert 的时候一般情况下用这个就可以了，构造函数可以传入以下参数</p>
+<ul>
+<li>vocab_file：一个字典文件，每一行对应一个 wordpiece</li>
+<li>do_lower_case：是否将输入统一用小写表示，默认True</li>
+<li>do_basic_tokenize：在使用 WordPiece 之前是否先用 BasicTokenize</li>
+<li>max_len：序列的最大长度</li>
+<li>never_split：一个列表，传入不进行 tokenization 的单词，只有在 do_wordpiece_only 为 False 时有效</li>
+</ul>
+<p>我们可以使用 <code>tokenize()</code> 函数对文本进行 tokenization，也可以通过 <code>encode()</code> 函数对 文本 进行 tokenization 并将 token 用相应的 id 表示，然后输入到 Bert 模型中</p>
+<p>BertTokenizer 的 <code>tokenize()</code> 函数会用到 WordpieceTokenizer 和 BasicTokenizer 进行 tokenization（实际上由 <code>_tokenize()</code> 函数调用）</p>
+<p><code>_tokenize()</code> 函数的代码如下，其中basic_tokenizer 和 wordpiece_tokenizer 分别是 BasicTokenizer 和 WordpieceTokenizer 的实例。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">_tokenize</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> text<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    split_tokens <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token keyword">if</span> self<span class="token punctuation">.</span>do_basic_tokenize<span class="token punctuation">:</span>
+        <span class="token keyword">for</span> token <span class="token keyword">in</span> self<span class="token punctuation">.</span>basic_tokenizer<span class="token punctuation">.</span>tokenize<span class="token punctuation">(</span>text<span class="token punctuation">,</span> never_split<span class="token operator">=</span>self<span class="token punctuation">.</span>all_special_tokens<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">for</span> sub_token <span class="token keyword">in</span> self<span class="token punctuation">.</span>wordpiece_tokenizer<span class="token punctuation">.</span>tokenize<span class="token punctuation">(</span>token<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                split_tokens<span class="token punctuation">.</span>append<span class="token punctuation">(</span>sub_token<span class="token punctuation">)</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        split_tokens <span class="token operator">=</span> self<span class="token punctuation">.</span>wordpiece_tokenizer<span class="token punctuation">.</span>tokenize<span class="token punctuation">(</span>text<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> split_tokens<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>使用 <code>encode()</code> 函数将 tokenization 后的内容用相应的 id 表示，主要由以下参数：</p>
+<ul>
+<li>text：要编码的一个文本（第一句话）</li>
+<li>text_pair：可选。要编码的另一个文本（第二句话）</li>
+<li>add_special_tokens：编码后，序列前后是否添上特殊符号的id，比如前面添加[CLS]，结尾添加[SEP]</li>
+<li>max_length：可选。序列的最大长度</li>
+<li>truncation_strategy：与 max_length 结合使用的，采取的截断策略。
+<ul>
+<li>‘longest_first’：迭代减少序列长度，直到小于 max_length，适用于输入两个文本的情况，处理后两个文本的序列长度之和是 max_length</li>
+<li>‘only_first’：仅截断第一个文本</li>
+<li>‘only_second’：仅截断第二个文本</li>
+<li>‘do_not_truncate’：不截断，如果输入序列大于 max_length 则会报错</li>
+</ul>
+</li>
+<li>return_tensors：可选。返回 TensorFlow （传入’tf’）还是 PyTorch（传入’pt’） 中的 Tensor，而不是返回 Python 列表，前提是已经装好 TensorFlow 或 PyTorch</li>
+</ul>
+<p>注意 encode 只会返回 token id，Bert 我们还需要输入句子 id，这时候我们可以使用 <code>encode_plus()</code>，它返回 token id 和 句子 id</p>
+<p><code>encode()</code> 实际上就是用了 encode_plus，但是只选择返回 token_id，代码如下</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+encoded_inputs <span class="token operator">=</span> self<span class="token punctuation">.</span>encode_plus<span class="token punctuation">(</span>text<span class="token punctuation">,</span>
+                                  text_pair<span class="token operator">=</span>text_pair<span class="token punctuation">,</span>
+                                  max_length<span class="token operator">=</span>max_length<span class="token punctuation">,</span>
+                                  add_special_tokens<span class="token operator">=</span>add_special_tokens<span class="token punctuation">,</span>
+                                  stride<span class="token operator">=</span>stride<span class="token punctuation">,</span>
+                                  truncation_strategy<span class="token operator">=</span>truncation_strategy<span class="token punctuation">,</span>
+                                  return_tensors<span class="token operator">=</span>return_tensors<span class="token punctuation">,</span>
+                                  <span class="token operator">**</span>kwargs<span class="token punctuation">)</span>
+
+<span class="token keyword">return</span> encoded_inputs<span class="token punctuation">[</span><span class="token string">"input_ids"</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>encode_plus()</code> 的参数与 encode 是一样的，可以根据实际需求来选择需要使用的函数</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2022/03/31/transformer/bert/">https://jianjiansha.github.io/2022/03/31/transformer/bert/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/NLP/">
+                                    <span class="chip bg-color">NLP</span>
+                                </a>
+                            
+                                <a href="/tags/transformer/">
+                                    <span class="chip bg-color">transformer</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/04/08/dip/edge_det/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="边缘检测">
+                        
+                        <span class="card-title">边缘检测</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            图像中边界点通常是图像像素值不连续的点
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-04-08
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" class="post-category">
+                                    数字图像处理
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/DIP/">
+                        <span class="chip bg-color">DIP</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/03/04/obj_det/efficient_det/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="EfficientDet 论文总结">
+                        
+                        <span class="card-title">EfficientDet 论文总结</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            EfficentDet 论文分析与总结
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-04
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/" class="post-category">
+                                    目标检测
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/object-detection/">
+                        <span class="chip bg-color">object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

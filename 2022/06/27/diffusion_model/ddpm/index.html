@@ -1,0 +1,1429 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Denoising diffusion probabilistic models, SJJ">
+    <meta name="description" content="降噪的扩散模型">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Denoising diffusion probabilistic models | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/12.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Denoising diffusion probabilistic models</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/diffusion-model/">
+                                <span class="chip bg-color">diffusion model</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-06-27
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2006.11239">Denoising Diffusion Probabilistic Models</a></p>
+<h1>1. 原理</h1>
+<p>作者使用扩散模型实现了一种高质量图像的合成方法。扩散模型是一种参数化的马尔科夫链，马尔科夫链的每一步转移均表示在当前数据中增加噪声，如图 1 的 $q(\mathbf x_t|\mathbf x_{t-1})$，这称为前向过程，也称作扩散过程，训练模型以学习反向过程 $p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)$，即从噪声中逐步恢复数据。</p>
+<p><img src="/images/diffusion_model/denoising_diffusion_model_1.png" alt=""></p>
+<center>图 1</center>
+<p>$\mathbf x_0$ 是图像数据，$\mathbf x_0 \sim q(\mathbf x_0)$</p>
+<p>$\mathbf x_T$ 是高斯噪声，$p(\mathbf x_T)= \mathcal N(\mathbf x_T;\mathbf 0, I)$</p>
+<p>马尔科夫链上每次转移均采用高斯分布（高斯转移），于是</p>
+<p><strong>反向过程：</strong></p>
+<p>$$p_{\theta}(\mathbf x_{0:T})=p(\mathbf x_T) \prod_{t=1}^T p_{\theta}(\mathbf x_{t-1}|\mathbf x_t), \quad p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)=\mathcal N(\mathbf x_{t-1}; \mu_{\theta}(\mathbf x_t,t), \Sigma_{\theta}(\mathbf x_t, t)) \tag{1}$$</p>
+<p>$p(\mathbf x_T)$ 使用一个简单的分布如高斯分布。</p>
+<p><strong>前向过程：</strong></p>
+<p>前向过程中，引入方差 $\beta_1, \ldots, \beta_T$ 以控制噪声，</p>
+<p>$$q(\mathbf x_{1:T}|\mathbf x_0)=\prod_{t=1}^T q(\mathbf x_t|\mathbf x_{t-1}), \quad  q(\mathbf x_t|\mathbf x_{t-1})=\mathcal N(\mathbf x_t;\sqrt{1-\beta_t} \mathbf x_{t-1}, \beta_t I) \tag{2}$$</p>
+<p>步数 $T$ 足够大，使得 $\mathbf x_T$ 为高斯噪声。</p>
+<p><strong>方差 $\beta_t$ 既可以通过学习得到，也可以预设为一组固定的值</strong>。</p>
+<h2 id="1-1-前向过程">1.1 前向过程</h2>
+<p>前向过程的一个显著特性是可以得到 $\mathbf x_t$ 的分布的解析形式，根据 (2) 式，</p>
+<p>$$q(\mathbf x_1|\mathbf x_0)=\mathcal N(\mathbf x_1;\sqrt {1-\beta_1} \mathbf x_0, \beta_1 I) \tag{3-1}$$</p>
+<p>$$q(\mathbf x_2|\mathbf x_1)=\mathcal N(\mathbf x_2; \sqrt{1-\beta_2}\mathbf x_1, \beta_2 I)$$</p>
+<p>对于两个随机向量 $\mathbf x_1, \mathbf x_2$，记联合概率密度分布的参数如下，</p>
+<p>$$\mu = (\mu_1, \mu_2)$$</p>
+<p>$$\Sigma=\begin{bmatrix} \sigma_1^2 &amp; \rho \sigma_1 \sigma_2 \\ \rho \sigma_1 \sigma_2 &amp; \sigma_2^2 \end{bmatrix}$$</p>
+<p>那么条件分布为（这部分知识可参考相关教材），</p>
+<p>$$p(x_1|x_2) = \mathcal N(\mu_1 + \rho \sigma_1 / \sigma_2 (x_2 - \mu_2), (1 - \rho^2) \sigma_1 ^2)$$</p>
+<p>$$p(x_2|x_1) = \mathcal N(\mu_2 + \rho \sigma_2 / \sigma_1(x_1 - \mu_1), (1 - \rho^2) \sigma_2^2)$$</p>
+<p>于是得到如下等式：</p>
+<p>$$\sigma_1^2=\beta_1<br>
+\\ (1-\rho^2) \sigma_2^2=\beta_2<br>
+\\ \mu_1=\sqrt {1-\beta_1} \mathbf x_0<br>
+\\ \mu_2+ \rho \frac {\sigma_2}{\sigma_1} (\mathbf x_1-\sqrt{1-\beta_1}\mathbf x_0)=\sqrt {1-\beta_2}\mathbf x_1$$</p>
+<p>其中，$\mathbf x_0$ 看作常量，所以 $q(\mathbf x_1|\mathbf x_0)$ 是 $\mathbf x_1$ 的 PDF，得到上述方程组的第一和第三个等式；$q(\mathbf x_2|\mathbf x_1)$ 是 $\mathbf x_2$ 的条件 PDF。</p>
+<p>解上述方程组得，</p>
+<p>$$\rho^2=\frac {\beta_1-\beta_1\beta_2}{\beta_1+\beta_2-\beta_1\beta_2}<br>
+\\ \sigma_2^2=\beta_1+\beta_2-\beta_1\beta_2=1-(1-\beta_1)(1-\beta_2)<br>
+\\ \mu_2=\rho \frac {\sigma_2}{\sigma_1} \sqrt{1-\beta_1} \mathbf x_0=\sqrt {(1-\beta_1)(1-\beta_2)}\mathbf x_0$$</p>
+<p>记 $\alpha_t :=1 -\beta_t$，${\overline \alpha} _ t := \prod _ {s=1}^t \alpha_s$，于是 $\mathbf x_2$ 的分布可写为</p>
+<p>$$q(\mathbf x_2|\mathbf x_0)=\mathcal N(\mathbf x_2;\sqrt{\overline \alpha_2}\mathbf x_0, (1-\overline \alpha_2)I) \tag{3-2}$$</p>
+<p>根据归纳法，可得</p>
+<p>$$q(\mathbf x_t|\mathbf x_0)=\mathcal N(\mathbf x_t; \sqrt {\overline \alpha_t}\mathbf x_0, (1-\overline \alpha_t)I) \tag{3}$$</p>
+<p>注： $\mathbf x_0$ 在图像空间中也是一个随机变量，但是在选定一个图像 $\mathbf x_0$ 后，在前向过程和反向过程中的每个 step 中，$\mathbf x_0$ 均保持不变，而 $\mathbf x_t, \ t&gt;0$ 是随机变量。</p>
+<h2 id="1-2-训练目标">1.2 训练目标</h2>
+<p>学习的 <strong>目标</strong> 是使得通过模型预测得到的 $p_{\theta}(\mathbf x_0)$ 尽可能的大，这里 $\mathbf x_0$ 可看作是训练 target，来自训练集中的真实图片。</p>
+<p>负对数似然为</p>
+<p>$$\mathbb E_{q(\mathbf x_0)}[-\log p_{\theta}(\mathbf x_0)] \tag{4}$$</p>
+<p>于是训练的目标变成 <strong>最小化负对数似然</strong>。</p>
+<p>这里是 <strong>针对真实图片的分布 $q(\mathbf x_0)$ 求期望</strong>，当然图片的真实分布不可得，只有基于训练集的经验分布。</p>
+<p>为了计算负对数似然，首先要计算 $p_{\theta}(\mathbf x_0)$ ，下面的推导过程省略了模型参数 $\theta$，目的是为了看起来简洁，</p>
+<p>$$\begin{aligned}p(\mathbf x_0)&amp;=\int p(\mathbf x_{0:T}) d \mathbf x_{1:T}<br>
+\\ &amp;=\int p(\mathbf x_{0:T}) \frac {q(\mathbf x_{1:T}|\mathbf x_0)}{q(\mathbf x_{1:T}|\mathbf x_0)} d \mathbf x_{1:T}<br>
+\end{aligned} \tag{5}$$</p>
+<p>$$\begin{aligned}\mathbb E[-\log p(\mathbf x_0)]&amp;=-\int q(\mathbf x_0) \log p(\mathbf x_0) d\mathbf x_0<br>
+\\ &amp;= -\int d\mathbf x_0 q(\mathbf x_0) \log \left[\int q(\mathbf x_{1:T}|\mathbf x_0) d \mathbf x_{1:T} \frac {p(\mathbf x_{0:T})}{q(\mathbf x_{1:T}|\mathbf x_0)}\right]<br>
+\end{aligned} \tag{6}$$</p>
+<p>根据 Jensen 不等式，上式 $\log [\cdot]$ 部分存在不等式关系</p>
+<p>$$\log [\cdot] \ge \int q(\mathbf x_{1:T}|\mathbf x_0) d \mathbf x_{1:T} \cdot \log \frac {p(\mathbf x_{0:T})}{q(\mathbf x_{1:T}|\mathbf x_0)} \tag{7}$$</p>
+<p>将 (7) 式代入 (6) 式，得</p>
+<p>$$\mathbb E[-\log p(\mathbf x_0)] \le -\int d \mathbf x_{0:T} q(\mathbf x_{0:T}) \cdot \log \frac {p(\mathbf x_{0:T})}{q(\mathbf x_{1:T}|\mathbf x_0)}=\mathbb E_q \left[-\log \frac {p(\mathbf x_{0:T})}{q(\mathbf x_{1:T}|\mathbf x_0)}\right]:=L \tag{8}$$</p>
+<p>(8) 式就是训练目标，即 <strong>最小化 $L$</strong> 。(8) 式中 $L$ 是 <strong>针对联合概率密度 $q(\mathbf x_{0:T})$ 求期望</strong> 。</p>
+<p>下面分析目标 $L$ 。</p>
+<p>$$\begin{aligned}L&amp;=\mathbb E_q \left[-\log \frac {p_{\theta}(\mathbf x_{0:T})}{q(\mathbf x_{1:T}|\mathbf x_0)}\right]<br>
+\\ &amp;=\mathbb E_q \left[-\log p(\mathbf x_T)-\sum_{t\ge 1} \log \frac {p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)}{q(\mathbf x_t|\mathbf x_{t-1})}\right]<br>
+\\ &amp;=\mathbb E_q \left[-\log p(\mathbf x_T)-\sum_{t&gt; 1} \log \frac {p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)}{q(\mathbf x_t|\mathbf x_{t-1})}-\log \frac {p_{\theta}(\mathbf x_0|\mathbf x_1)} {q(\mathbf x_1|\mathbf x_0)}\right]<br>
+\\ &amp;=\mathbb E_q \left[-\log p(\mathbf x_T)-\sum_{t&gt; 1} \log \frac {p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)}{q(\mathbf x_{t-1}|\mathbf x_t, \mathbf x_0)} \cdot \frac {q(\mathbf x_{t-1}|\mathbf x_0)}{q(\mathbf x_t|\mathbf x_0)}-\log \frac {p_{\theta}(\mathbf x_0|\mathbf x_1)} {q(\mathbf x_1|\mathbf x_0)}\right]<br>
+\end{aligned} \tag{9}$$</p>
+<p>上式最后一步推导利用了贝叶斯定理，</p>
+<p>$$q(\mathbf x_t|\mathbf x_{t-1})=\frac {q(\mathbf x_{t-1}, \mathbf x_t|\mathbf x_0)}{q(\mathbf x_{t-1}|\mathbf x_0)}=\frac {q(\mathbf x_{t-1}|\mathbf x_t, \mathbf x_0)q(\mathbf x_t|\mathbf x_0)}{q(\mathbf x_{t-1}|\mathbf x_0)}$$</p>
+<p>继续分析 $L$，求和项中的</p>
+<p>$$\sum_{t&gt;1} \log \frac {q(\mathbf x_{t-1}|\mathbf x_0)}{q(\mathbf x_t|\mathbf x_0)}=\log q(\mathbf x_1|\mathbf x_0)-\log q(\mathbf x_T|\mathbf x_0)$$</p>
+<p>于是 (9) 进一步转为</p>
+<p>$$\begin{aligned}L=\mathbb E_q \left[-\log \frac {p(\mathbf x_T)}{q(\mathbf x_T|\mathbf x_0)}-\sum_{t&gt;1} \log \frac {p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)}{q(\mathbf x_{t-1}|\mathbf x_t, \mathbf x_0)}-\log p_{\theta}(\mathbf x_0|\mathbf x_1) \right]<br>
+\end{aligned} \tag{9}$$</p>
+<p>一方面我们已知 KL 散度为</p>
+<p>$$D_{KL}(p_1(x)||p_2(x))=\int p_1(x) \log \frac {p_1(x)}{p_2(x)}dx = E_{p_1} \left[\log \frac {p_1(x)}{p_2(x)} \right]= E_{p_1} \left[-\log \frac {p_2(x)}{p_1(x)} \right]$$</p>
+<p>另一方面，</p>
+<p>$$\begin{aligned}\mathbb E_q \left[-\log \frac {p(\mathbf x_T)}{q(\mathbf x_T|\mathbf x_0)}\right]&amp;=\int q(\mathbf x_{0:T}) d \mathbf x_{0:T}\left[-\log \frac {p(\mathbf x_T)}{q(\mathbf x_T|\mathbf x_0)}\right]<br>
+\\ &amp;=\int q(\mathbf x_0,\mathbf x_T) d\mathbf x_0 d\mathbf x_T \left[-\log \frac {p(\mathbf x_T)}{q(\mathbf x_T|\mathbf x_0)}\right]<br>
+\\ &amp;=D_{KL}(q(\mathbf x_T|\mathbf x_0)||p(\mathbf x_T))<br>
+\end{aligned}$$</p>
+<p>注意条件熵表达式为 $H(Y|X)=-\int p(x,y) \log p(y|x)$ 。</p>
+<p>于是 (9) 式最终可转变为</p>
+<p>$$L = \underbrace {D_{KL}(q(\mathbf x_T | \mathbf x_0) | p(\mathbf x_T))}_ {L_T} + \sum_{t&gt;1}\underbrace {D_{KL}(q(\mathbf x_{t-1} | \mathbf x_t, \mathbf x_0) || p_{\theta}(\mathbf x_{t-1} | \mathbf x_t))}_ {L_{t-1}} - \underbrace {\mathbb E_q[\log p_{\theta}(\mathbf x_0 | \mathbf x_1)]}_{L_0} \tag{10}$$</p>
+<p>上式使用 KL 距离来比较 $p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)$ 与 前向后验分布 $q(\mathbf x_{t-1}|\mathbf x_t, \mathbf x_0)$ 之间的差距，这个前向后验分布是可以计算的，</p>
+<p>$$q(\mathbf x_{t-1}|\mathbf x_t, \mathbf x_0)=\mathcal N(\mathbf x_{t-1}; \tilde {\mu}_t(\mathbf x_t, \mathbf x_0), \tilde {\beta}_t I) \tag {11}$$</p>
+<p>其中</p>
+<p>$$\tilde \mu_t (\mathbf x_t, \mathbf x_0) = \frac {\sqrt {\overline \alpha_{t-1}} \beta_t} {1 - \overline \alpha_t} \mathbf x_0 + \frac {\sqrt {\alpha_t} (1 - \overline \alpha_{t-1})} {1 - \overline \alpha_t} \mathbf x_t, \quad \tilde \beta_t = \frac {1 - \overline \alpha_{t-1}} {1 - \overline \alpha_t} \beta_t \tag{12}$$</p>
+<p>解：</p>
+<p>根据 (2) 和 (3) 式知，</p>
+<p>$$q(\mathbf x_t|\mathbf x_{t-1}) = \mathcal N(\mathbf x_t; \sqrt {1-\beta_t}\mathbf x_{t-1}, \beta_t I)<br>
+\\ q(\mathbf x_{t-1}|\mathbf x_0) = \mathcal N(\mathbf x_{t-1}; \sqrt {\overline \alpha_{t-1}} \mathbf x_0, (1 -\overline \alpha_{t-1})I)<br>
+\\ q(\mathbf x_t|\mathbf x_0) = \mathcal N(\mathbf x_t; \sqrt {\overline \alpha_t} \mathbf x_0, (1 -\overline \alpha_t)I)$$</p>
+<p>以及解 (3-2) 过程中用到的等式关系</p>
+<p>$$p(x_1 |x_2)=\mathcal N(\mu_1 +\rho \sigma_1 /\sigma_2 (x_2 -\mu_2), (1 -\rho^2) \sigma_1^2)<br>
+\\ p(x_2 |x_1)=\mathcal N(\mu_2 +\rho \sigma_2 /\sigma_1(x_1 -\mu_1), (1 -\rho^2) \sigma_2^2)$$</p>
+<p>可得</p>
+<p>$$(1 - \rho^2 ) (1 -\overline \alpha_t) = \beta_t<br>
+\\ \tilde \mu_t (\mathbf x_t, \mathbf x_0) = \rho \sqrt{ \frac {1 - \overline \alpha_{t-1} }{ 1 - \overline \alpha_t } }(\mathbf x_t -\sqrt {\overline \alpha_t}\mathbf x_0)<br>
+\\ \tilde \beta_t = (1 - \rho^2)  (1 - \overline \alpha_{t-1})$$</p>
+<p>解上述方程组可得最终结果。</p>
+<h3 id="1-2-1-前向过程和-L-T">1.2.1 前向过程和 $L_T$</h3>
+<p>我们固定方差 $\beta_t$，通过一个事先已知的规则来确定所有 $\beta_t$ 值，那么 $\overline {\alpha}_t$ 也全部确定，根据 (3) 式，$q(\mathbf x_t|\mathbf x_0)$ 是一个确定的概率分布，而 $p(\mathbf x_T)=\mathcal N(\mathbf x_T; \mathbf 0, I)$ 是高斯噪声，于是 $L_T$ 则与所要学习的参数 $\theta$ 无关，可将 $L_T$ 看作常量。</p>
+<p>我们需要确保 $\beta_t$ 的值足够小，以便前向过程和反向过程有相同的函数形式，这样反向过程也可以使用高斯分布。</p>
+<p>$\beta_t$ 选择方案如：</p>
+<ol>
+<li>$\beta_1=10^{-4}$ 线性增加到 $\beta_T=0.02$</li>
+</ol>
+<h3 id="1-2-2-反向过程和-L-1-T-1">1.2.2 反向过程和 $L_{1:T-1}$</h3>
+<p>反向过程</p>
+<p>$$p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)=\mathcal N(\mathbf x_{t-1}; \mu_{\theta}(\mathbf x_t, t), \Sigma_{\theta}(\mathbf x_t, t)), \quad 1 &lt; t \le T$$</p>
+<p>注意上式指明了 $1&lt;t \le T$，这点与 (1) 式不同，实际上 $t=1$ 时，$\mathbf x_0$ 是离散变量（因为像素值是整型），具体见下文，(1) 式为了简单起见，没有对这个离散区别处理。</p>
+<p>为了简单起见，令高斯分布各向同性，于是</p>
+<p>$$\Sigma_{\theta}(\mathbf x_t, t)=\sigma_t^2 I$$</p>
+<p>$$p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)=\mathcal N(\mathbf x_{t-1}; \mu_{\theta}(\mathbf x_t, t), \sigma_t^2I) \tag{13}$$</p>
+<p>实验中，可以设置 $\sigma_t^2=\beta_t$ 或 $\sigma_t^2=\tilde \beta_t$ ，这两种方法有着相似的实验结果。</p>
+<p>于是 $\Sigma_{\theta}(\mathbf x_t, t)$ 也不需要学习。我们接着看如何得到期望 $\mu_{\theta}(\mathbf x_t, t)$ 。</p>
+<p>根据 (9) 式可知，</p>
+<p>$$L_{t-1}=\mathbb E_q\left[-\log \frac {p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)}{q(\mathbf x_{t-1}|\mathbf x_t, \mathbf x_0)}\right]$$</p>
+<p>将 (13) 式和 (11) 式代入到上式中有，</p>
+<p>$$\begin{aligned}L_{t-1}&amp;=\mathbb E_q \left[\frac 1 {2\sigma_t^2} ( | \mathbf x_{t-1} -\mu_{\theta}(\mathbf x_t, t) | ^2 - | \mathbf x_{t-1} -\tilde \mu_t(\mathbf x_t, \mathbf x_0) | ^2)\right]+C<br>
+\\ &amp;=\mathbb E_q \left[\frac 1 {2\sigma_t ^2} (\mu_{\theta}^{\top} \mu_{\theta} - 2\mu_{\theta}^{\top} \mathbf x_{t-1} - \tilde \mu_t^{\top}\tilde \mu_t +2\tilde \mu_t^{\top} \mathbf x_{t-1})\right]+C<br>
+\end{aligned}$$</p>
+<p>这里使用了等式 $\sigma_t^2=\tilde \beta_t$，且 $\tilde \beta_t$ 与学习参数 $\theta$ 无关，训练过程中看作常数。</p>
+<p>由于 $\tilde \mu_t$ 是 $\mathbf x_0, \mathbf x_t$ 的函数，$\mu_{\theta}$ 是 $\mathbf x_t, t$ 的函数，反向过程中，$\mathbf x_t$ 是模型的一个输入，$\mathbf x_0$ 是真实图像数据， $\mathbf x_{t-1}$ 是生成模型最终得到的输出，所以将 $\mathbf x_{t-1}$ 的期望提取到内部并计算，</p>
+<p>$$\begin{aligned}L_{t-1}&amp;=\mathbb E_{q(\mathbf x_0, \mathbf x_t)} \left[\mathbb E_{q(\mathbf x_{t-1}|\mathbf x_t, \mathbf x_0)} [\frac 1 {2\sigma_t ^2 }(\mu_{\theta}^{\top} \mu_{\theta} - 2\mu_{\theta}^{\top} \mathbf x_{t-1} -\tilde \mu_t^{\top}\tilde \mu_t+2\tilde \mu_t^{\top} \mathbf x_{t-1})]\right] +C<br>
+\\ &amp;=\mathbb E_{q(\mathbf x_0, \mathbf x_t)} \left[\frac 1 {2\sigma_t ^2 }(\mu_{\theta}^{\top} \mu_{\theta} - 2\mu_{\theta}^{\top} \tilde \mu_t -\tilde \mu_t^{\top}\tilde \mu_t+2\tilde \mu_t^{\top} \tilde \mu_t)\right] +C<br>
+\\ &amp;=\mathbb E_{q(\mathbf x_0, \mathbf x_t)} \left[\frac 1 {2 \sigma_t ^2 } |\tilde \mu_t(\mathbf x_t, \mathbf x_0) - \mu_{\theta}(\mathbf x_t, t)|^2\right]+C<br>
+\end{aligned}$$</p>
+<p>上式中， $C$ 是常量，根据 (11,12) 式可知 $\mathbb E_{q(\mathbf x_{t-1}|\mathbf x_t, \mathbf x_0)}[\mathbf x_{t-1}]=\tilde \mu_t$ 。</p>
+<p>根据上式可知，要使得 $L_{t-1}$ 最小，那么对于任意的一组训练数据 $(\mathbf x_0, \mathbf x_t)$，损失函数$|\tilde \mu_t(\mathbf x_t, \mathbf x_0) - \mu_{\theta}(\mathbf x_t, t)|^2$ 都需要最小。</p>
+<p>总结一下:</p>
+<ol>
+<li>我们的初衷是使得生成模型生成的图像数据的似然最大，或负对数似然最小。</li>
+<li>要使得负对数似然最小，那就需要令 $L$ 最小，从而 $L_{t-1}$ 也需要最小。</li>
+<li>生成模型对应马尔科夫链的反向过程（的一次转移过程）。</li>
+</ol>
+<p>训练时，模型输入为 $\mathbf x_t$（通过 (3) 式采样得到），target 为 $\epsilon$，即训练 data pair 为 $(\mathbf x_t, \epsilon)$，注意 $\mathbf x_t$ 是与 $\epsilon$ 成对的，而不是 $\mathbf x_0$。同一个 $\mathbf x_0$，不同的 $t$ 会生成不同的 $\mathbf x_t$ 。模型最终得到 $\mathbf x_{t-1}$ 的概率为 $p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)$，要使得 $L_{t-1}$ 最小，那么需要使得 $|\tilde \mu_t(\mathbf x_t, \mathbf x_0) - \mu_{\theta}(\mathbf x_t, t)|^2$ 最小 。</p>
+<p><strong>计算 $\tilde \mu_t(\mathbf x_t, \mathbf x_0)$</strong></p>
+<p>根据 (3) 式采样得到 $\mathbf x_t=\sqrt {\overline \alpha_t} \mathbf x_0+\sqrt {1-\overline \alpha_t} \epsilon, \quad \epsilon \sim \mathcal N(\mathbf 0, I)$ ，</p>
+<p>变换得 $\mathbf x_0=1/\sqrt {\overline \alpha_t} (\mathbf x_t-\sqrt {1-\overline \alpha_t} \epsilon)$，代入 (12) 式得，</p>
+<p>$$\tilde \mu_t(\mathbf x_t, \mathbf x_0)=\frac 1 {\sqrt {\alpha_t}} (\mathbf x_t-\frac {\beta_t}{\sqrt {1-\overline \alpha_t}} \epsilon) \tag{14}$$</p>
+<p>由于模型并不直接输出 $\mu_{\theta}$，使用重参数技巧，</p>
+<p>$$\mu_{\theta}(\mathbf x_t, t)=\frac 1 {\sqrt {\alpha_t}} (\mathbf x_t-\frac {\beta_t}{\sqrt {1-\overline \alpha_t}} \epsilon_{\theta}(\mathbf x_t, t)) \tag{15}$$</p>
+<p>这里 <strong>$\epsilon$ 是 target，模型的输出记为 $\epsilon_{\theta}(\mathbf x_t, t)$</strong> 。</p>
+<p>$\mathbf x_{t-1}$ 不是模型的直接输出，而是根据模型的直接输出 $\epsilon_{\theta}(\mathbf x_t, t)$ 间接采样得到。</p>
+<p>于是，只要 $|\epsilon - \epsilon_{\theta}(\mathbf x_t, t)|^2$ 最小，就能使得 $|\tilde \mu_t(\mathbf x_t, \mathbf x_0) - \mu_{\theta}(\mathbf x_t, t)|^2$ 最小，从而 $L_{t-1}$ 最小，将 (14) (15) 两式代入 $L_{t-1}$ 表达式得，</p>
+<p>$$L_{t-1}=\mathbb E_{\mathbf x_0, \epsilon} \left[\frac {\beta_t^2}{2 \sigma_t^2 \alpha_t (1-\overline \alpha_t)}|\epsilon-\epsilon_{\theta}(\mathbf x_t, t)|^2\right]$$</p>
+<p>上式 $L_{t-1}$ 是 variational bound，即变分上边界，这可以从 (8) 式中知道。然而作者发现使用这个 variational bound 的一个变体形式更简单且训练有效，如下</p>
+<p>$$L_{simple}(\theta)=\mathbb E_{t,\mathbf x_0, \epsilon} \left[|\epsilon-\epsilon_{\theta}(\mathbf x_t, t)|^2\right]$$</p>
+<p>采样 $\mathbf x_{t-1} \sim p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)$，可得</p>
+<p>$$\mathbf x_{t-1}=\mu_{\theta}(\mathbf x_t, t)+\sigma_t \mathbf z=\frac 1 {\sqrt {\alpha_t}} (\mathbf x_t-\frac {\beta_t}{\sqrt {1-\overline \alpha_t}} \epsilon_{\theta}(\mathbf x_t, t))+\sigma_t \mathbf z \tag{16}$$</p>
+<p>其中 $\mathbf z \sim \mathcal N(\mathbf 0, I)$ ，$1&lt;t\le T$。</p>
+<p>下面给出算法，</p>
+<p><img src="/images/diffusion_model/denoising_diffusion_model_2.png" alt=""></p>
+<center>图 2</center>
+<p><strong>模型总结</strong></p>
+<p>训练阶段，模型的输入是 $\mathbf x_t=\sqrt {\overline \alpha_t} \mathbf x_0+\sqrt {1-\overline \alpha_t} \epsilon$，其中 $\epsilon$ 取样自 $\mathcal N(\mathbf 0, I)$ 且作为 target，$t$ 从 $1,\ldots, T$ 中均匀随机选取，模型的输出为 $\epsilon_{\theta}(\mathbf x_t, t)$ ，模型输入是 $\mathbf x_t$，训练目标是最小化 $|\epsilon-\epsilon_{\theta}|^2$ ，使得反向过程的转移分布 $p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)$ 尽量逼近前向过程的后验分布 $q(\mathbf x_{t-1}|\mathbf x_t)$ 。这样训练好后，就可以根据 $\mathbf x_t$ 以及模型输出 $\epsilon_{\theta}(\mathbf x_t, t)$ 采样得到 $\mathbf x_{t-1}$ （即 (16) 式）。</p>
+<p>采样阶段，初始时从高斯噪声中采样得到 $\mathbf x_T$，然后模型的输入是上一轮计算的 $\mathbf x_t$（初始为 $\mathbf x_T$），输出是 $\boldsymbol \epsilon_{\theta}(\mathbf x_t, t)$，根据模型的输出可以计算出本轮的 $\mathbf x_{t-1}$ 。注意 $t=1$ 时，$\mathbf z=\mathbf 0$，原因见下方关于 $L_0$ 的说明。</p>
+<p>由于 $\epsilon_{\theta}$ ，$\epsilon$ 与 $\mathbf x_0$ shape 相同，所以模型可以选择 segmentation 任务中的模型，例如 UNet （参考 文章<a href="#refer-anchor-1"><sup>1</sup></a> 中的 UNet 结构图）。</p>
+<p><strong>$\sigma_t^2$ 的选择</strong></p>
+<p>论文中有这么一句话：</p>
+<blockquote>
+<p>The first choice is optimal for $x_0 ∼ \mathcal N (0, I)$, and the second is optimal for $x_0$ deterministically set to one point. These are the two extreme choices corresponding to upper and lower bounds on reverse process entropy for data with coordinatewise unit variance.</p>
+</blockquote>
+<p>如何理解？</p>
+<p>根据论文 《Deep Unsupervised Learning using Nonequilibrium Thermodynamics》<a href="#refer-anchor-2"><sup>2</sup></a> 中的推导结论，反向路径的条件熵 $H_q ( X^{(t-1)} | X^{(t)} )$ 满足</p>
+<p>$$H_q( X^{(t)} | X^{(t-1)}) \ge H_q( X^{(t-1)} | X^{(t)}) \ge H_q( X^{(t)} | X^{(t-1)}) + H_q( X^{(t-1)} | X^{(0)}) - H_q( X ^{(t)} | X^{(0)})$$</p>
+<ol>
+<li>
+<p>条件熵上限为</p>
+<p>$$H_q(X^{(t-1)} | X^{(t)}) = H_q( X ^{(t)} | X^{(t-1)})$$</p>
+<p>前向过程转为概率为</p>
+<p>$$q(\mathbf x_t|\mathbf x_{t-1})=\mathcal N(\sqrt {1-\beta_t} \mathbf x_{t-1}, \beta_t I)$$</p>
+<p>反向过程的转换概率为</p>
+<p>$$p_{\theta}(\mathbf x_{t-1}|\mathbf x_t)=\mathcal N(\mu_{\theta}(\mathbf x_t, t), \Sigma_{\theta}(\mathbf x_t, t))=\mathcal N(\mu_{\theta}(\mathbf x_t, t), \sigma_t^2I)$$</p>
+<p>再根据高斯分布的熵</p>
+<p>$$H[\mathcal N(\mu, \sigma^2I)]=\frac D 2 (\log 2\pi +1)+\frac 1 2\log \sigma^2$$</p>
+<p>也就是说熵与方差的对数成正线性关系，综上四个等式可得，</p>
+<p>$$\sigma_t^2=\beta_t$$</p>
+<p>根据论文 <a href="#refer-anchor-2">2</a> 的推导，条件熵取上限的条件是 $H_q(X^{(t)}) = H_q(X^{(t-1)})$ ，根据 $\mathbf x_t=\sqrt {\overline \alpha_t} \mathbf x_0+\sqrt {1-\overline \alpha_t} \epsilon$，可知方差</p>
+<p>$$V(X^{(t)})=\overline \alpha_t V(X^{(0)})+1-\overline \alpha_t=\overline \alpha_{t-1} V(X^{(0)})+1-\overline \alpha_{t-1} \Rightarrow V(X^{(0)})=1$$</p>
+</li>
+<li>
+<p>条件熵下限为</p>
+<p>$$H_q(X^{(t-1)} | X^{(t)}) = H_q(X^{(t)} | X^{(t-1)}) +H_q(X^{(t-1)} |X ^{(0)} ) - H_q(X^{(t)} |X^{(0)})$$</p>
+<p>前向过程转为概率为</p>
+<p>$$q(\mathbf x_t |\mathbf x_{t-1})=\mathcal N(\sqrt {1-\beta_t} \mathbf x_{t-1}, \beta_t I)<br>
+\\ q(\mathbf x_t |\mathbf x_0)=\mathcal N(\sqrt {\overline \alpha_t}\mathbf x_0, (1-\overline \alpha_t)I)$$</p>
+<p>反向过程的转换概率为</p>
+<p>$$p_{\theta}(\mathbf x_{t-1} |\mathbf x_t)=\mathcal N(\mu_{\theta}(\mathbf x_t, t), \Sigma_{\theta}(\mathbf x_t, t))=\mathcal N(\mu_{\theta}(\mathbf x_t, t), \sigma_t^2I)$$</p>
+<p>再根据高斯分布的熵</p>
+<p>$$H[\mathcal N(\mu, \sigma^2I)]=\frac D 2 (\log 2\pi +1)+\frac 1 2\log \sigma^2$$</p>
+<p>也就是说熵与方差的对数成正线性关系，综上五个等式可得，</p>
+<p>$$\log \sigma_t^2=\log \beta_t+ \log (1-\overline \alpha_{t-1}) - \log(1-\overline \alpha_t)$$</p>
+<p>即<br>
+$$\sigma_t^2=\frac {1-\overline \alpha_{t-1}}{1-\overline \alpha_{t}} \beta_t$$</p>
+<p>根据论文 <a href="#refer-anchor-2">2</a> 的推导，条件熵取下限的条件是 $H_q(X ^{(0)} | X^{(t)}) = H_q(X ^{(0)} | X^{(t-1)})$ ，即</p>
+<p>$$H_q(X ^{(t-1)}) - H_q(X ^{(t)})=H_q(X ^{(t-1)} | X ^{(0)})-H_q(X ^{(t)} | X ^{(0)})$$</p>
+<p>于是，</p>
+<p>$$\log \frac {\overline \alpha_{t-1}V(X^{(0)})+1-\overline \alpha_{t-1}}{\overline \alpha_t V(X^{(0)})+1-\overline \alpha_t}=\log \frac {1-\alpha_{t-1}} {1-\overline \alpha_t}$$</p>
+<p>解得 $V(X^{(0)})=0$，即 $x_0$ is deterministically set to one point。</p>
+</li>
+</ol>
+<h3 id="1-2-3-L-0">1.2.3 $L_0$</h3>
+<p>要最小化 $L$，还需要考虑最小化 $L_0$ 。</p>
+<p><strong>数据缩放</strong></p>
+<p>将图片数据归一化到 $[-1,1]$ 范围内，这样处理与反向过程中 $\mathbf x_T$ 使用标准正态分布 $p(\mathbf x_T)$ 在数据尺度上保持一致。</p>
+<p>由于图像像素值为整数 ${0, 1, \ldots, 255}$，通过</p>
+<p>$$\mathbf x_0:=\frac 2 {255} \mathbf x_0 - 1 \tag{17}$$</p>
+<p>缩放到 $[-1, 1]$ 范围内仍是离散值，我们从高斯分布 $\mathcal N(\mathbf x_0; \mu_{\theta}(\mathbf x_1, 1), \sigma_1^2 I)$ 中推导出一个各像素独立的离散分布，</p>
+<p>$$p_{\theta}(\mathbf x_0|\mathbf x_1)=\prod_{i=1}^D \int_{\sigma_-(x_0 ^i )} ^{\sigma_+(x_0 ^i )} \mathcal N(x; \mu_{\theta}^i(\mathbf x_1, 1), \sigma_1^2) dx \tag{18}$$</p>
+<p>其中 $D$ 为图像数据的维度，$i$ 表示图中像素 index，且</p>
+<p>$$\sigma_+(x)=\begin{cases}\infty &amp; x=1 \\ x+1/255 &amp; x &lt; 1\end{cases}, \quad \sigma_-(x)=\begin{cases}-\infty &amp; x=-1 \\ x-1/255 &amp; x &gt;- 1\end{cases}$$</p>
+<p>映射到 $[-1,1]$ 范围后，像素值 $x_0$ 的取值范围为 ${-1, -\frac {253}{255}, \ldots, \frac {253}{255}, 1}$，相邻值相差 $2/255$，故以 $x_0$ 为中心，$x \in [x_0-\frac 1 {255}, x_0+\frac 1 {255}]$，对于边界值 $x_0=-1, 1$ ，则将 $x$ 的范围向外延伸到使得能覆盖整个实数范围，就得到 $\sigma_+(x), \ \sigma_-(x)$ 的表达式，展开如下表所示，</p>
+<p>$$\begin{array} {c|cc}<br>
+像素值 \ x_0 &amp; 归一化像素值 \ x_0 &amp; 积分变量 \ x \\<br>
+\hline<br>
+0 &amp; -1 &amp; (-\infty, -\frac {254}{255}] \\<br>
+1 &amp; -\frac {253}{255} &amp; [-\frac {254}{255}, - \frac {252}{255}] \\<br>
+\vdots &amp; \vdots &amp; \vdots \\<br>
+254 &amp; \frac {253}{255} &amp; [\frac {252}{255}, \frac {254}{255}] \\<br>
+255 &amp; 1 &amp; [\frac {254}{255}, +\infty)<br>
+\end{array}$$</p>
+<p>根据 (18) 式可以计算 $L_0$ 如下，</p>
+<p>$$L_0=\mathbb E_q [-\log p_{\theta}(\mathbf x_0|\mathbf x_1)]=\mathbb E_{q(\mathbf x_1)} [\mathbb E_{q(\mathbf x_0|\mathbf x_1)} [-\log p_{\theta}(\mathbf x_0|\mathbf x_1)]]$$</p>
+<p>注意 $\mathbb E_q$ 是针对 $q(\mathbf x_{0:T})$ 求期望，这在上文推导中已经说明。去除不相关的 $\mathbf x_{2:T}$ 得到上式最后的表达式。</p>
+<p>这里 $\mathbf x_1$ 作为模型输入，使用经验分布（即训练样本集，根据 (3) 式和 $\mathbf x_0$ 采样得到 $\mathbf x_1$）作为真实分布 $q(\mathbf x_1)$ 来计算 $\mathbb E_{q(\mathbf x_1)}[\cdot]$ 。</p>
+<p>$\mathbb E_{q(\mathbf x_0|\mathbf x_1)} [-\log p_{\theta}(\mathbf x_0|\mathbf x_1)]$ 是交叉熵 $H(q(\mathbf x_0|\mathbf x_1),p_{\theta}(\mathbf x_0|\mathbf x_1))$，故 $L_0$ 其实就是以 $\mathbf x_1$ 作为输入时模型输出的交叉熵损失，当 $p_{\theta}(\mathbf x_0|\mathbf x_1)=q(\mathbf x_0|\mathbf x_1)$ 时交叉熵损失取得最小值。</p>
+<p>前向过程的后验分布 $q(\mathbf x_0|\mathbf x_1)$ 其实也应该是一个离散分布，离散化处理过程与 (18) 式完全一致，故根据 $p_{\theta}(\mathbf x_0|\mathbf x_1)=q(\mathbf x_0|\mathbf x_1)$，同样可以得到</p>
+<p>$$\mu_{\theta}(\mathbf x_1, 1)=\frac 1 {\sqrt {\alpha_1}} (\mathbf x_1-\frac {\beta_1}{\sqrt {1-\overline \alpha_1}} \epsilon_{\theta}(\mathbf x_1, 1))$$</p>
+<p>与 (15) 式保持一致，即 (15) 式的适用范围是 $1 \le t \le T$ 。</p>
+<p>采样时，根据 $\mathcal N(\mathbf x_0; \mu_{\theta}(\mathbf x_1,1), \sigma_1^2I)$ 分布进行采样，这是最后一步采样，所以不增加噪声，即采样过程为</p>
+<p>$$\mathbf x_0=\mu_{\theta}(\mathbf x_1, 1)=\frac 1 {\sqrt {\alpha_1}} (\mathbf x_1-\frac {\beta_1}{\sqrt {1-\overline \alpha_1}} \epsilon_{\theta}(\mathbf x_1, 1))$$</p>
+<p>还需要对 $\mathbf x_0$ 进行离散化处理，</p>
+<p>$$(-\infty, -\frac {254} {255}) \rightarrow 0<br>
+\\<br>
+[-\frac {254} {255}, -\frac {252} {255} ) \rightarrow 1<br>
+\\<br>
+\vdots<br>
+\\<br>
+[\frac {252} {255}, \frac {254} {255} ) \rightarrow 254<br>
+\\<br>
+[\frac {254} {255}, \infty) \rightarrow 255$$</p>
+<p>这种离散化处理使得离散概率遵循 (18) 式 。</p>
+<p>这里有个小技巧。直接查找 $x_0^i$ 值落于哪个区间效率太低，可以使用另一种等价高效的离散化方法，根据 (17) 式的逆过程得</p>
+<p>$$\mathbf x_0 := \frac {255} 2 (\mathbf x_0 + 1)$$</p>
+<p>经过上式变换后，像素值 $x$ 对应的区间为 $[x-\frac 1 2, x+\frac 1 2)$，$x=0, 1, \ldots 255$</p>
+<p>然后做以下变换</p>
+<p>$$\mathbf x_0:= \lfloor \mathbf x_0+\frac 1 2 \rfloor$$</p>
+<p>这样时间复杂度就从 $O(n)$ 降为 $O(1)$ 。最后需要注意对 $[0,255]$ 区间之外的值进行截断，</p>
+<p>$$\mathbf x_0^i:=\begin{cases} 0 &amp; x_0^i &lt; 0 \\ 255 &amp; x_0^i &gt; 255 \\ x_0^i &amp; \text{o.w.}\end{cases}$$</p>
+<h2 id="1-3-算法总结">1.3 算法总结</h2>
+<hr>
+<p><strong>算法 1</strong> 训练</p>
+<p><strong>repeat</strong></p>
+<p>  $\mathbf x_0 \sim q(\mathbf x_0)$</p>
+<p>  $t \sim \text{Uniform}({1,\ldots, T})$</p>
+<p>  $\epsilon \sim \mathcal N(\mathbf 0, I)$</p>
+<p>  求梯度<br>
+$$\nabla_{\theta} |\epsilon - \epsilon_{\theta}(\sqrt {\overline \alpha_t} \mathbf x_0+\sqrt {1-\overline \alpha_t} \epsilon, t)|^2$$</p>
+<p><strong>until converged</strong></p>
+<hr>
+<hr>
+<p><strong>算法 2</strong> 采样</p>
+<p>$\mathbf x_T \sim \mathcal N(\mathbf 0, I)$</p>
+<p><strong>for</strong> $t=T,\ldots, 1$</p>
+<p>  $\mathbf z \sim \mathcal N(\mathbf 0, I)$ if $t &gt; 0$ else $\mathbf z = \mathbf 0$</p>
+<p>$\mathbf x_{t-1}=\frac 1 {\sqrt \alpha_t} \left(\mathbf x_t - \frac {1-\alpha_t}{\sqrt {1-\overline \alpha_t}} \epsilon_{\theta}(\mathbf x_t, t) \right) + \sigma_t \mathbf z$</p>
+<p><strong>end for</strong></p>
+<p><strong>return</strong> $\mathbf x_0$</p>
+<hr>
+<h1>2. 参考</h1>
+<div id="refer-anchor-1"></div>
+<ul>
+<li>[1] <a target="_blank" rel="noopener" href="https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction">diffusion-models-for-machine-learning-introduction</a></li>
+</ul>
+<div id="refer-anchor-2"></div>
+<ul>
+<li>[2] <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1503.03585">Deep Unsupervised Learning using Nonequilibrium Thermodynamics</a></li>
+</ul>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2022/06/27/diffusion_model/ddpm/">https://jianjiansha.github.io/2022/06/27/diffusion_model/ddpm/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/diffusion-model/">
+                                    <span class="chip bg-color">diffusion model</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/06/29/math/gaussian/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="高斯分布">
+                        
+                        <span class="card-title">高斯分布</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-06-29
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/math/">
+                        <span class="chip bg-color">math</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/06/10/ml/sampling/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/3.jpg" class="responsive-img" alt="随机采样">
+                        
+                        <span class="card-title">随机采样</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-06-10
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/machine-learning/">
+                        <span class="chip bg-color">machine learning</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

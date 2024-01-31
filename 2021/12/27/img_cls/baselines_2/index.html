@@ -1,0 +1,1274 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="图像分类网络（二）, SJJ">
+    <meta name="description" content="总结 图像分类网络的结构，包括 ResNeXt, ShuffleNet, ShuffleNetV2, SENet， 以及 Res2Net 。
+
+1. ResNeXt
+论文地址：Aggregated Residual Transformati">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>图像分类网络（二） | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/20.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">图像分类网络（二）</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/image-classification/">
+                                <span class="chip bg-color">image classification</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2021-12-27
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p><strong>总结</strong> 图像分类网络的结构，包括 <code>ResNeXt</code>, <code>ShuffleNet</code>, <code>ShuffleNetV2</code>, <code>SENet</code>， 以及 <code>Res2Net</code> 。</p>
+<span id="more"></span>
+<h1>1. ResNeXt</h1>
+<p>论文地址：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1611.05431">Aggregated Residual Transformations for Deep Neural Networks</a></p>
+<p>主要思路：<strong>分组卷积</strong>，改造 ResNet 中的 Bottleneck block，如图 1，<br>
+<img src="/images/img_cls/baselines2_1.png" alt=""><br>
+图 1. 左：ResNet 中的 block；右：ResNeXt 中的 block，称 path 的数量为 <code>cardinality</code>，图中 <code>cardinality=32</code>。（每一 layer 的标注顺序：<code>in_channels, filter size, out_channels</code>）</p>
+<blockquote>
+<p>图 1 中多路分支的 <code>3x3</code> 卷积实际上就是 <code>128, 3x3, 128</code> 的分组卷积。</p>
+</blockquote>
+<p>除了图 1 中的这种划分方法，还有其他两种方法，如图 2，<br>
+<img src="/images/img_cls/baselines2_2.png" alt=""><br>
+图 2. ResNeXt 可用的三种 block 结构。</p>
+<p>整个 ResNeXt 结构如图 3，从图中可见，大体框架相同，只是 block 不同。<br>
+<img src="/images/img_cls/baselines2_3.png" alt=""><br>
+图 3. ResNet 与 ResNeXt 结构对比。<code>C</code> 表示 <code>cardinality</code> 。</p>
+<p>说明：</p>
+<ol>
+<li>ResNeXt 就是在 ResNet 基础之上，对 block 加以改进，即 <code>3x3 conv</code> 变为分组卷积，其他则几乎保持不变，故：</li>
+<li><code>stage 3/4/5</code> 的第一个 block（内的 <code>3x3 conv group</code>）有 <code>stride=2</code>。</li>
+<li>整个网络的 down sampling rate 为 $2^5=32$。</li>
+<li>在 <code>stride=2</code> 的 block 上的 shortcut 分支需要一个 <code>downsample</code> 映射函数，将 <code>x</code> 的 channel 增加一倍，feature size 缩小原来的到 $1/2 \times 1/ 2$。</li>
+</ol>
+<h1>2. ShuffleNet</h1>
+<p>论文地址：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1707.01083">ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile Devices</a></p>
+<h2 id="2-1-Channel-Shuffle">2.1 Channel Shuffle</h2>
+<p>MobileNet 中采用了对 <code>3x3 conv</code> 采用了 depthwise seprable conv，导致在一个 block 中， <code>1x1 conv</code> 计算量占比非常高，ShuffleNet 对 <code>1x1 conv</code> 也采用分组卷积，但是连续的分组卷积，导致某个输出 channel 只能从一部分输入通道中获取信息，如图 4，于是 ShuffleNet 在 <code>1x1 conv</code> 分组卷积之前，将 channel 顺序重组，降低连续分组卷积导致的 side effect，<br>
+<img src="/images/img_cls/baselines2_4.png" alt=""><br>
+图 4. 分组数量为 <code>3</code>。左：连续两次分组卷积；中：第一次分组卷积之后，将 channel 重组，使得重组后每个分组具有所有原来分组中的部分 channel；右：使用 channel shuffle 实现 channel 重组，与（中）等效。</p>
+<blockquote>
+<p>channel shuffle 操作：记 channel 数量为 <code>g x n</code>，<code>g</code> 为分组数量，<code>n</code> 为每个分组内的 channel 数量；reshape channel 为 <code>(g,n)</code>，然后转置为 <code>(n, g)</code>，然后再 flatten 为 <code>n x g</code>，即可。</p>
+</blockquote>
+<h2 id="2-2-ShuffleNet-网络结构">2.2 ShuffleNet 网络结构</h2>
+<p>ShuffleNet Unit 如图 5，<br>
+<img src="/images/img_cls/baselines2_5.png" alt=""><br>
+图 5. 左：ResNet 中的 bottleneck block。中：第一个 <code>1x1 conv</code> 后使用了 channel shuffle，第二个 <code>1x1 conv</code> 后没有 channel shuffle（实验验证说明使用了也没有什么改善）；右：stride=2 的 block。</p>
+<p>图 5 的说明：</p>
+<ol>
+<li><code>GConv</code> 表示分组卷积。<code>DWConv</code> 表示深度可分离卷积。</li>
+<li><code>DWConv</code> 后没有 <code>ReLU</code>。</li>
+<li><code>stride=2</code> 时，shortcut 采用 <code>(3x3 avg pool stride=2)</code> 进行降采样，然后使用 <code>concat</code> 进行 <strong>特征融合</strong>。</li>
+</ol>
+<p>ShuffleNet 总体结构如图 6 所示，<br>
+<img src="/images/img_cls/baselines2_6.png" alt=""><br>
+图 6. ShuffleNet 网络。<code>Stage 2</code> 的第一个 <code>1x1 conv</code> 没有应用 <code>group conv</code>，这是因为其输入 channel 太小（为 <code>24</code>）。</p>
+<p>图 6 的补充说明：</p>
+<ol>
+<li>三个 <code>stage</code>，每个 <code>stage</code> 的第一个 <code>block</code> 具有 <code>stride=2</code>，具有 <code>stride=2</code> 的 block 结构参见图 5 右。</li>
+<li>ShuffleNet Unit 的各 layer 参数为 <code>c, 1x1, m, g</code> -&gt; <code>channel shuffle</code> -&gt; <code>m, 3x3, m, dwConv</code> -&gt; <code>m, 1x1, c,g</code>，其中 <code>c</code> 为 block 的输入 channel，<code>m</code> 为 bottleneck 的 channel。</li>
+<li><code>block</code> 的内部 bottleneck 的 channel （参见图 5 中间 block 的第一个 <code>1x1 GConv</code> 的输出 channel）为 block 输出 channel 的 <code>1/4</code>，例如，<code>stage 2</code> 的每个 block 的输出 channel 为 <code>200</code>（对应 <code>g=2</code> 这个 case），那么 bottleneck channel 为 <code>50</code>。</li>
+<li>整个网络的 down sampling rate 为 $2^5=32$。</li>
+<li>为进一步控制网络的复杂度，对各 layer 的输出 channel，乘以一个因子， <code>s</code>，图 6 中则对应 <code>s=1</code> 的情况，记为 <code>ShuffleNet 1x</code>，那么 <code>ShuffleNet sx</code> 则大约是 <code>ShuffleNet 1x</code> 复杂度的 $s^2$ 倍。</li>
+</ol>
+<h1>3. ShuffleNetV2</h1>
+<p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1807.11164">ShuffleNet V2: Practical Guidelines for Efficient CNN Architecture Design</a></p>
+<p>本文所考虑的点：</p>
+<ol>
+<li>FLOP 是间接指标，network 运行速度才是直接指标，而影响速度的除了 FLOP，还有 memory access cost（<strong>MAC</strong>）等。此外，CUDNN 库中，<code>3x3</code> 卷积并不比 <code>1x1</code> 卷积慢 <code>9</code> 倍。</li>
+<li>network 运行在不同的设备上，其速度也不同，例如 GPU 和 ARM，过去声称为了 移动设备 而设计的网络如 MobileNet 和 ShuffleNet 并没有真正在移动设备上测试。</li>
+</ol>
+<p>分析（以下结论的前提是 <code>FLOP</code> 保持不变）：</p>
+<ol>
+<li>输入输出 channel 相等时 MAC 最小。</li>
+<li>分组卷积中，分组数量越大, MAC 也越大。</li>
+<li>增加网络分支数量会降低计算的并行度。</li>
+<li>Element-wise 计算不可忽略。</li>
+</ol>
+<h2 id="3-1-ShuffleNetV2-网络设计">3.1 ShuffleNetV2 网络设计</h2>
+<p>在 ShuffleNetV1 基础上进行修改，如图 7 所示，<br>
+<img src="/images/img_cls/baselines2_7.png" alt=""></p>
+<p>图 7. 左一： basic ShuffleNet block；左二：具有 down sampling(2x) 的 ShuffleNet block；左三：basic ShuffleNetV2 block；右一：具有 down sampling(2x) 的 ShuffleNetV2 block。</p>
+<p>ShuffleNetV2 的说明：</p>
+<ol>
+<li>block 的输入沿 channel 方向 split 成两部分（通常是 <code>二等分</code>）：一部分作为 identity shortcut；另一部分经过<strong>三个卷积层</strong>，输入输出 channel 均相同。</li>
+<li>block 中的两个 <code>1x1 conv</code> 不是 group Conv，而是普通 Conv（分组数量大会增加 MAC）。另外 channel split 可视作一种分组。</li>
+<li>最后两个分支 concatenate，使得 block 的输入输出 channel 保持相等。</li>
+<li>block 的最后使用 <code>channel shuffle</code>，这样是为了使得两个分组之间实现信息交流。</li>
+<li>down sampling rate 为 <code>2</code> 时，去掉 <code>channel split</code> 这个操作，故 block 的输出 channel 变为 <code>2</code> 倍。</li>
+</ol>
+<p>整个网络的结构如图 8，</p>
+<p><img src="/images/img_cls/baselines2_8.png" alt=""><br>
+图 8. ShuffleNetV2 的网络结构。分别取四种不同的 channel。</p>
+<p>说明：</p>
+<ol>
+<li>Global Pool 之前增加了一个 <code>1x1 conv</code>，用于 mix up features。</li>
+</ol>
+<h1>4. SENet</h1>
+<p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1709.01507">Squeeze-and-Excitation Networks</a></p>
+<p>思路：上一 layer 的输出经过 channel 加权后再输入到下一 layer。如图 9 所示，<br>
+<img src="/images/img_cls/baselines2_9.png" alt=""></p>
+<h2 id="4-1-squeeze">4.1 squeeze</h2>
+<p>$$z_c=\mathbf F_{sq}(\mathbf u_c)=\frac 1 {H \times W} \sum_{i=1}^H \sum_{j=1}^W u_c(i,j)$$</p>
+<h2 id="4-2-Excitation">4.2 Excitation</h2>
+<p>$$\mathbf s = \mathbf F_{ex}(\mathbf z, \mathbf W)=\sigma(g(\mathbf z, \mathbf W)) = \sigma(\mathbf W_2 \cdot \delta(\mathbf W_1 \cdot \mathbf z))$$</p>
+<p>其中 $\mathbf W_1 \in \mathbb R^{\frac C r \times C}$，$\mathbf W_2 \in \mathbb R^{C \times \frac C r}$。$\delta$ 是 ReLU 函数， $\sigma$ 是 sigmoid 函数。</p>
+<p>最终的输出则为</p>
+<p>$$\hat {\mathbf x_c} = \mathbf F_{scale} (\mathbf u_c, s_c) = s_c \mathbf u_c$$</p>
+<p>$c$ 为 channel 编号。</p>
+<p>整个过程如图 10 所示，</p>
+<p><img src="/images/img_cls/baselines2_10.png" alt=""></p>
+<p>图 10. 左：在 Inception 上使用 SE block；右：在 Residual 上使用 SE block</p>
+<p><img src="/images/img_cls/baselines2_11.png" alt=""><br>
+图 11. 左：ResNet-50；中：SE-ResNet-50；右：SE-ResNeXt-50</p>
+<h1>5. Res2Net</h1>
+<p>论文：Res2Net: <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1904.01169">A New Multi-scale Backbone Architecture</a></p>
+<p>设计一个具有 multi-scale 特征的网络，以前的网络为了达到这一目的，均依赖于多个 layer，每个 layer 的输出 feature 的空间 size 不同，这是从 layer 层面实现，本文在 layer 内部实现 multi-scale 特征，具有更细粒度的级别，如图 12，</p>
+<p><img src="/images/img_cls/baselines2_12.png" alt=""></p>
+<p>图 12. 左：普通的 bottleneck block；右：Res2Net 模块，图中 scale dimension <code>s=4</code>。</p>
+<p>说明：</p>
+<ol>
+<li>将 <code>3x3 conv</code> 输出 channel 为 <code>n</code> 的 filters 替换为若干组小的 filters，每组 filters 的输出 channel 为 <code>w</code> （即，每组 <code>w</code> 个 filter）。</li>
+<li>将输入 feature maps 分成若干组。取第一组 filters，对一组 input feature maps 抽取特征，然后与另一组 input feature maps 一起（elementwise add?）送入第二组 filters，直到用完所有 filters。</li>
+<li>每次引入一个 <code>3x3 conv</code>，感受野就增大，从而得到 multi-scale 的特征。</li>
+</ol>
+<h2 id="5-1-Res2Net-模块">5.1 Res2Net 模块</h2>
+<p>Res2Net 模块中，<code>1x1 conv</code> 之后，feature maps 被等分成 <code>s</code> 份，记 $\mathbf x_i, \ i \in {1,2,\ldots , s}$，每个 $\mathbf x_i$ 空间 size 相等，但是 channel 为原来的  $1/s$，除 $\mathbf x_1$ 之外，每个 $\mathbf x_i$ 对应一组 <code>3x3 conv</code> filters，记为 $\mathbf K_i$，显然有 $i &gt; 1$，这组 filters 的输出为 $\mathbf y_i$，$\mathbf x_i$ 与 $\mathbf K_{i-1}$ 的输出相加，然后作为 $\mathbf K_i$ 的输入，于是</p>
+<p>$$\mathbf y_i = \begin{cases}\mathbf x_i &amp; i=1 \ \mathbf K_i(\mathbf x_i) &amp; i=2 \ \mathbf K_i(\mathbf x_i + \mathbf y_{i-1}) &amp; 2 &lt; i \le s \end{cases}$$</p>
+<p>所有的 $\mathbf y_i$ concatenate，然后通过 <code>1x1 conv</code> 进行特征融合。</p>
+<p>如图 13，还可以结合 SE block（先 squeeze 得到 <code>1x1xC</code> 的特征，然后 excite 得到 <code>1x1xC</code> 的 channel 权重） 和 cardinality dimension（分组卷积），</p>
+<p><img src="/images/img_cls/baselines2_13.png" alt=""></p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2021/12/27/img_cls/baselines_2/">https://jianjiansha.github.io/2021/12/27/img_cls/baselines_2/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/image-classification/">
+                                    <span class="chip bg-color">image classification</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/01/12/obj_det/fpn/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="FPN 回顾">
+                        
+                        <span class="card-title">FPN 回顾</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            论文：Feature Pyramid Networks for Object Detection
+本文是对 FPN 的回顾，适用于复习 FPN，或者快速查看 FPN 实现的关键细节。
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-01-12
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/object-detection/">
+                        <span class="chip bg-color">object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2021/12/23/img_cls/baselines_1/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="图像分类网络（一）">
+                        
+                        <span class="card-title">图像分类网络（一）</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            总结 图像分类网络的结构，包括 VGG, ResNet, DenseNet, MobileNet， MobileNetV2 以及 Inception 。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-12-23
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/image-classification/">
+                        <span class="chip bg-color">image classification</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

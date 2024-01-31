@@ -1,0 +1,1392 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Dynamic Programming (1), SJJ">
+    <meta name="description" content="我计划开启一系列动态规划的方法介绍，主要参考 《Dynamic Programming · A Computational Tool》这本书。
+简介
+动态规划用于解决一类优化问题，顺序地做出决策，每一次决策使得问题转变为对一个子问题的优化，">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Dynamic Programming (1) | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/8.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Dynamic Programming (1)</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/math/">
+                                <span class="chip bg-color">math</span>
+                            </a>
+                        
+                            <a href="/tags/DP/">
+                                <span class="chip bg-color">DP</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/math/" class="post-category">
+                                math
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-08-07
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>我计划开启一系列动态规划的方法介绍，主要参考 《Dynamic Programming · A Computational Tool》这本书。</p>
+<h1>简介</h1>
+<p>动态规划用于解决一类优化问题，顺序地做出决策，每一次决策使得问题转变为对一个子问题的优化，直到问题解决，这个决策序列就是原始问题的最优解。我们也可以将 问题/子问题 看作状态，决策就是状态间的转移，问题得到解决就对应着<code>结束状态</code>。</p>
+<span id="more"></span>
+<h2 id="优化原理">优化原理</h2>
+<blockquote>
+<p>一个最优决策满足：无论问题初始状态和初始决策是什么，剩余的决策序列构成做出初始决策之后问题状态的最优解。</p>
+</blockquote>
+<p>以最短路径问题为例说明：在一个指定了起点和终点的有权路径图中，无论之前选择了什么路径，我们必须保证从当前节点起，剩余的路径选择必须是最优的。<s>这是一种递归的处理方式，要解这个问题，直觉告诉我们似乎可以采用逆推法（隐马尔可夫预测问题的求解），这个直觉很重要，因为下文将会用到它。</s></p>
+<h3 id="顺序决策过程">顺序决策过程</h3>
+<p>考虑具有如下形式的优化问题：$opt_{d \in \Delta} {H(d)}$，其中 d 为决策，决策空间为 $\Delta$，H 为目标函数，H(d) 的最优解记为 $d<sup>{\ast}$：$d</sup>{\ast}=\arg opt_d {H(d)}$。动态规划问题则要求寻找有序决策集 ${d_1,…,d_n}$，使得目标函数 $h(d_1,…,h_n)$ 取得最优 $H^{\ast}$。</p>
+<p>我们可以枚举 ${d_1,…,d_n}$ 所有可能的取值，然后代入目标函数进行计算，这就是 “暴力” 解法，但是这只在决策空间较小时有效，在决策空间很大时，这种方法效率非常低不可取，所以此时我们需要按顺序做出决策 $d_1,…,d_n$，使得<br>
+$$\begin{aligned}H^{\ast}&amp;=opt_{(d_1,…,d_n)\in \Delta} {h(d_1,…,d_n)}<br>
+\\ &amp;=opt_{d_1 \in D_1} {opt_{d_2 \in D_2}{…{opt_{d_n \in D_n}{h(d_1,…,d_n)}}…}} \quad(1.1)\end{aligned}$$</p>
+<p>其中 $(d_1,…,d_n) \in \Delta=D_1 \times … \times D_n$。通常，第 i 个决策空间依赖于前面所有的决策：$d_i \in D_i(d_1,…,d_{i-1})$，于是式 (1.1) 可改写为<br>
+$$\begin{aligned}H^{\ast}&amp;=opt_{(d_1,…,d_n)\in \Delta} {h(d_1,…,d_n)}<br>
+\\ &amp;=opt_{d_1 \in D_1} {opt_{d_2 \in D_2(d_1)}{…{opt_{d_n \in D_n(d_1,…,d_{n-1})}{h(d_1,…,d_n)}}…}} \quad(1.2)\end{aligned}$$</p>
+<p>式 (1.2) 的优化操作是一个嵌套结构，可以由内向外解决问题，解最内层的优化问题，此时前序所有决策均看作已知，可得到最优 $d_n$，记作 $d_n^{\ast}(d_1,…,d_{n-1})$，可以将 $d_n^{\ast}$ 看作是其前序决策的函数。向外逆推，直到解出最外层优化问题 $opt_{d_1 \in D_1} {h(d_1,d_2<sup>{\ast},…,d_n</sup>{\ast} }$ 的解 $d_1^{\ast}$。</p>
+<p>如果改变决策顺序目标函数的最优解相同，如<br>
+$$\begin{aligned} &amp;opt_{d_1 \in D_1} {opt_{d_2 \in D_2(d_1)} {… {opt_{d_n \in D_n(d_1,…,d_{n-1})} {h(d_1,…,d_n)}}…}}<br>
+\\ = \ &amp; opt_{d_n \in D_n} {opt_{d_{n-1} \in D_{n-1}(d_n)} {… {opt_{d_1 \in D_n(d_2,…,d_n)} {h(d_1,…,d_n)}}…}} \quad(1.3) \end{aligned}$$</p>
+<p>那么决策空间 $D_i$ 可能会跟之前有所不同，因为此时 $D_i$ 依赖于 $(d_{i+1},…,d_n)$，所以问题求解的效率会随着决策顺序的变化而有所改变。</p>
+<p>回到前面式 (1.2)，假设我们暂时做出最外层决策 $d_1$，此时 $d_1$ 是否是最优决策还尚未可知，但是根据前面所说的优化原理，无论之前做出什么决策，之后的决策需要保证是最优的，所以有<br>
+$$\begin{aligned}H^{\ast}&amp;=opt_{d_1 \in D_1} {opt_{d_2 \in D_2(d_1)}{…{opt_{d_n \in D_n(d_1,…,d_{n-1})}{h(d_1,…,d_n)}}…}}<br>
+\\ &amp;=opt_{d_1 \in D_1}{h(d_1,d_2<sup>{\ast}(d_1),…,d_n</sup>{\ast}(d_1)} \qquad \qquad(1.4) \end{aligned}$$</p>
+<p>其中 $d_i^{\ast}(d_1), \ i&gt;1$ 可以看作是输入参数 $d_1$ 的偏函数（partial function）。最外层决策的最优解则为 $d_1^{\ast}=\arg opt_{d_1 \in D_1} {h(d_1,d_2<sup>{\ast}(d_1),…,d_n</sup>{\ast}(d_1))}$，可以看出，$d_1$ 与其后序的决策互相耦合，要解这样的问题还是有点棘手。</p>
+<h4 id="目标函数可分">目标函数可分</h4>
+<p>一种方法是将 $d_1$ 决策与 $d_2,…,d_n$ 决策独立开来，也就是说通过解决形如 $opt_{d_1 \in D_1}{H’(d_1)}$ 问题的最优解以得到 $d_1$ 的最佳决策，这是一种贪心算法，这种算法在局部最优 $opt_{d_1}{H’(d_1)}$ 与全局最优 $H^{\ast}$ 一致的情况下是有效的。我们先分析这种特殊情况，因为它足够简单：假设目标函数 h 强可分，即<br>
+$$h(d_1,…,d_n)=C_1(d_1) \circ C_2(d_2) \circ … \circ C_n(d_n) \qquad (1.5)$$<br>
+其中 $C_i$ 是决策 $d_i$ 关联的决策损失函数，$\circ$ 是某种关联二元操作（例如 加 或 乘）并具有属性<br>
+$$opt_d{a \circ C(d)}=a \circ opt_d{C(d)}$$<br>
+其中 a 不依赖于决策 d。在序列决策过程中，损失 $C_n$ 不仅依赖于 $d_n$，还依赖于当前问题所处的状态 $(d_1,d_2,…,d_{n-1})$，所以改写上式为<br>
+$$h(d_1,…,d_n)=C_1(d_1|\emptyset) \circ C_2(d_2|d_1) \circ … \circ C_n(d_n|d_1,…,d_{n-1}) \qquad(1.6)$$</p>
+<p>定义如果目标函数 h 满足<br>
+$$h(d_1,…,d_n)=C_1(d_1) \circ C_2(d_1,d_2) \circ … \circ C_n(d_1,…,d_n) \qquad(1.7)$$<br>
+那么称其弱可分（强可分是弱可分的一种特殊情况），此时有<br>
+$$\begin{aligned} &amp; opt_{d_1 \in D_1} {opt_{d_2 \in D_2(d_1)}{…{opt_{d_n \in D_n(d_1,…,d_{n-1})}{h(d_1,…,d_n)}}…}}<br>
+\\ = \ &amp; opt_{d_1 \in D_1} {opt_{d_2 \in D_2(d_1)}{…{opt_{d_n \in D_n(d_1,…,d_{n-1})}{C_1(d_1) \circ C_2(d_1,d_2) \circ … \circ C_n(d_1,…,d_n)}}…}}<br>
+\\ = \ &amp; opt_{d_1 \in D_1} {C_1(d_1|\emptyset) \circ opt_{d_2 \in D_2(d_1)}{C_2(d_1,d_2) \circ … \circ {opt_{d_n \in D_n(d_1,…,d_{n-1})}{C_n(d_1,…,d_n)}…}} \qquad(1.8) \end{aligned}$$<br>
+最后一个等式根据 $\circ$ 操作的属性推导。</p>
+<p>令 $f(d_1,…,d_n)$ 表示序列决策过程在已经做出决策 $d_1,…,d_{i-1}$ 时的最优解，即<br>
+$$f(d_1,…,d_{i-1})=opt_{d_i}{opt_{d_{i+1}}{… {opt_{d_n} {C_i(d_i|d_1,…,d_{i-1}) \circ C_{i+1}(d_{i+1}|d_1,…,d_i) \circ … \circ C_n(d_n|d_1,…,d_{n-1}) }}…}} \ (1.9)$$<br>
+其中因为篇幅起见省略了每个决策的取值空间 $D_i$。现在序列决策过程可表示为<br>
+$$\begin{aligned}f(\emptyset)&amp;=opt_{d_1}{opt_{d_2}{…{opt_{d_n}{C(d_1|\emptyset) \circ C_2(d_2|d_1) \circ … \circ C_n(d_n|d_1,…,d_{n-1})}}…}}<br>
+\\ &amp;opt_{d_1}{C_1(d_1|\emptyset) \circ opt_{d_2}{C(d_2|d_1) \circ…\circ opt_{d_n}{C_n(d_n|d_1,…,d_{n-1})}…}}<br>
+\\ &amp;opt_{d_1}{C_1(d_1|\emptyset) \circ f(d_1)}  \qquad \quad (1.10) \end{aligned}$$<br>
+一般地，我们有<br>
+$$f(d_1,…,d_{i-1})=opt_{d_i \in D_i(d_1,…,d_{i-1})}{C_i(d_i|d_1,…,d_{i-1})\circ f(d_1,…,d_i)} \qquad(1.11)$$</p>
+<p>于是我们得到问题的递归函数形式，这就是优化问题的动态规划函数方程（DPFE）。</p>
+<h3 id="DPFE">DPFE</h3>
+<p>求解 DPFE 中的 $f(d_1,…,d_{i-1})$，定义状态 $S=(d_1,…,d_{i-1})$，那么 $i=|S|+1=|{d_1,…,d_{i-1}}|+1$，于是可以改写 DPFE 为以下形式，<br>
+$$f(S)=opt_{d_i \in D_i(S)}{C_i(d_i|S) \circ f(S’)} \qquad (1.12)$$<br>
+其中 $S’=(d_1,…,d_i)$ 是下一状态，$\emptyset$ 是初始状态。记状态空间为 $\mathcal S$，由于 DPFE 是递归的，要终止递归，则要求具备一些基本情况（或称边界条件），例如 $f(S_0)=b, \ S_0 \in \mathcal S_{base}$，对于某个基本（终止）态 $S_0$，$f(S_0)$ 不使用 DPFE 计算其值，而是有一个给定的常数值 b，这就表示到达基本态时，递归结束。</p>
+<p>值得注意的是决策序列的长度 n 并非固定，当决策使得目标到达基本态时结束决策过程。前面我们定义状态 S 表示已经做过的决策，下一决策 d 则从 D(S) 中进行选择，但实际上为了表示方便，直接定义状态 S 为下一决策 d 的可选决策空间，即 $d \in S$，于是 DPFE 变为<br>
+$$f(S)=opt_{d \in S} {C(d|S) \circ f(S’)} \qquad (1.13)$$</p>
+<p>我们可以使用状态转移系统或者有向图对简单序列决策过程进行建模，状态 S 为节点，决策 d 使得状态从 S 转移到 S’，D(S) 表示处于状态 S 时的决策空间。考虑使用有向图建模，节点表示 DPFE 的状态，边表示状态间的转移，转移对应着决策，边标记为 b(S,S’)，表示决策 d 的损失 C(d|S)，其中下一状态 $S’=T(S,d), \ T: \mathcal S \times D \rightarrow \mathcal S$，T 是转移函数，于是 DPFE 转变为<br>
+$$f(S)=opt_S{b(S,S’) \circ f(S’)} \qquad(1.14) $$</p>
+<p>DPFE 的反转形式为<br>
+$$f’(S)=opt_{S’}{f’(S’) \circ b(S’,S)} \qquad(1.15) $$<br>
+其中 f’(S) 表示从基本态 $S_0$ 到状态 S 的最优解，注意与前面 f(S) 表示从状态 S 到基本态 $S_0$ 的最优解区分开来。式 (1.14) 为后向形式（backward），式 (1.15) 为前向形式（forward）。</p>
+<h3 id="动态规划的基本要素">动态规划的基本要素</h3>
+<p>动态规划的基本形式为<br>
+$$f(S)=opt_{d \in D(S)} {R(S,d) \circ f(T(S,d))}  \quad (1.16)$$<br>
+其中，S 表示状态空间 $\mathcal S$ 中的某个状态，d 是决策空间 D(S) 中的某个决策，R(S,d) 是收益函数（或称损失函数，记为 C(d|S)，收益对应最大化，损失对应最小化），T(S,d) 是转移函数，$\circ$ 是二元操作符。为简单起见，我们只考虑离散情况。</p>
+<h3 id="线性搜索">线性搜索</h3>
+<p>现在我们来看一个实际例子。问题是需要排列一个长度为 N 的数组 A 中的元素，元素 x 具有概率 $p_x$，通过最小化排列的损失来优化线性搜索过程，例如 A={a,b,c}，且 $p_a=0.2,p_b=0.5,p_c=0.3$，于是共有 6 中排列方式 abc,acb,bac,bca,cab,cba（注意：每个排列均代表一种决策序列），其中 bca 排列的损失为 1.7，计算如下：</p>
+<ol>
+<li>Strong separable，方法 S<br>
+$1p_b+2p_c+3p_a$</li>
+<li>Weak separable，方法 W<br>
+$(p_a+p_b+p_c)+(p_a+p_c)+(p_a)$</li>
+</ol>
+<p>最优排列问题可看作是序列决策过程，每个决策用于决定将 A 的元素置于排列后 A’ 的哪个位置上。决策的损失可互相独立（强可分），即方法 S 损失定义为：元素 x 的损失为 $ip_x$，其中 i 为 x 在 A’ 中位置；对于 W 方法，决策的损失依赖于决策的顺序，或者说依赖于决策空间，如果以从 A’ 的开始到最后这样的顺序进行决策，还以 bca 排列为例说明，第一次决策的空间为 {a,b,c}，第一次决策选择 b 置于 A’ 第一个位置，然后第二次决策空间为 {a,c}… 依次类推，决策损失与决策空间相关，定义为决策空间中各元素概率之和 $\sum_{x\in D_i} p_x$。</p>
+<p>假设决策顺序为 i=1,2,3，那么对应的决策空间为 $D_1=A,D_2=A-{d_1},D_3=A-{d_1,d_2}$，方法 S 的目标函数为 $h(d_1,d_2,d_3)=1p_{d_1}+2p_{d_2}+3p_{d_3}$，于是有<br>
+$$\begin{aligned}f(\emptyset)&amp;=\min_{d_1\in A}{\min_{d_2\in A-{d_1}}{\min_{d_3\in A-{d_1,d_2}}{1p_{d_1}+2p_{d_2}+3p_{d_3}}}}<br>
+\\ &amp;=\min_{d_1\in A}{1p_{d_1}+\min_{d_2 \in A-{d_1}}{2p_{d_2}+\min_{d_3\in A-{d_1,d_2}}{3p_{d_3}}}} \end{aligned}$$</p>
+<p>方法 W 的目标函数为 $h(d_1,d_2,d_3)=\sum_{x \in A}p_x+\sum_{x\in A-{d_1}}p_x+\sum_{x \in A-{d_1,d_2}}p_x$，于是有<br>
+$$\begin{aligned}f(\emptyset)&amp;=\min_{d_1\in A}{\min_{d_2\in A-{d_1}}{\min_{d_3\in A-{d_1,d_2}}{\sum_{x \in A}p_x+\sum_{x\in A-{d_1}}p_x+\sum_{x \in A-{d_1,d_2}}p_x}}}<br>
+\\ &amp;=\min_{d_1\in A}{\sum_{x \in A}p_x+\min_{d_2 \in A-{d_1}}{\sum_{x\in A-{d_1}}p_x+\min_{d_3\in A-{d_1,d_2}}{\sum_{x \in A-{d_1,d_2}}p_x}}} \end{aligned}$$</p>
+<p>有了损失的计算方法之后，<strong>线性搜索</strong> 就是依次计算并比较所有排列的损失，具有最小损失的就是最优排列。经过计算发现，bca 就是最佳排列。</p>
+<h3 id="问题的表示和解">问题的表示和解</h3>
+<p>上一小节中的例子可以使用 DP 求解。定义状态 S 为元素的集合，可从中选择决策来确定哪个元素应该放置在 A’ 中的哪个位置。DPFE 的形式如下<br>
+$$f(S)=\min_{x \in S} {C(x|S)+f(S-{x})}     \quad(1.17)$$<br>
+其中 $S \in 2<sup>A$，$2</sup>A$ 是 A 的幂集。基本态 $f(\emptyset)=0$，我们目标是要求出 $f(A)$。</p>
+<p>注意这是前向形式的 DPFE。要写成这是后向形式的 DPFE，则根据式 (1.15) 改写如下<br>
+$$f(S)=\min_{S’} {C(x|S’)+f(S’)}     \quad(1.18)$$<br>
+其中 $S \in 2^A$，此时我们目标是求 $f(\emptyset)$，基本态 $f(A)=0$。S’ 是 S 的前导状态，从前导状态 S’ 经过决策 x 到达状态 S。</p>
+<p>基于方法 W，损失函数为<br>
+$$C_W(x|S)=\sum_{y\in S}p_y$$<br>
+基于上一小节的讨论可知，当前的损失与当前决策 x 无关，而依赖于临决策之前的状态 S 有关，即 S 中各元素的概率和。</p>
+<p>基于方法 S，那么损失函数为<br>
+$$C_S(x|S)=(N+1-|S|)p_x$$<br>
+可见此时损失只与当前决策 x 以及决策的序号有关，其中与序号有关是假定了第一个决策确定某元素置于 A’ 的第一个位置，第二个决策确定 A’ 第二个位置上的元素…依次类推。如果决策顺序反过来，即第一个决策确定 A’ 最后一个位置上的元素，那么损失函数需要修改为 $C_S’(x|S)=|S|p_x$。如果将 S 中元素按概率降序排列，事实表明第一个元素（具有最大概率值）将会最小化 $C(x|S)+f(S-{x})$，这是一种贪心策略，即只求当前状态下的最优解。事实上确实存在一类 DP 问题用贪心策略也可解决，这个我们暂时不讨论。</p>
+<p>现在我们来看下如何解 DP 问题，以式 (1.17) 表示的 DPFE 为例进行说明：<br>
+$$\begin{aligned} f({a,b,c}) &amp;= \min{C(a|{a,b,c})+f({b,c}), C(b|{a,b,c})+f({a,c}), C(c|{a,b,c})+f({a,b})}<br>
+\\ f({b,c}) &amp;= \min{C(b|{b,c}+f({c}),C(c|{b,c}+f({b})}<br>
+\\ f({a,c}) &amp;= \min{C(a|{a,c}+f({c}),C(c|{a,c}+f({a})}<br>
+\\ f({a,b}) &amp;= \min{C(a|{a,b}+f({b}),C(c|{a,b}+f({a})}<br>
+\\ f({c}) &amp;= \min {C(c|{c})+f(\emptyset)}<br>
+\\ f({b}) &amp;= \min {C(b|{b})+f(\emptyset)}<br>
+\\ f({a}) &amp;= \min {C(a|{a})+f(\emptyset)}<br>
+\\ f(\emptyset) &amp;= 0 \end{aligned}$$<br>
+其中损失函数可以分别使用方法 S 和方法 W 进行代入计算，这里略。</p>
+<p>再以式 (1.18) 表示的 DPFE 进行说明：<br>
+$$\begin{aligned} f({a,b,c}) &amp;= 0<br>
+\\ f({b,c}) &amp;= \min{C(a|{a,b,c}+f({a,b,c})}\stackrel W=\min {1.0+0}=1.0<br>
+\\ f({a,c}) &amp;= \min{C(b|{a,a,c}+f({a,b,c})}\stackrel W=\min {1.0+0}=1.0<br>
+\\ f({a,b}) &amp;= \min{C(c|{a,b,c}+f({a,b,c})}\stackrel W=\min {1.0+0}=1.0<br>
+\\ f({c}) &amp;= \min {C(a|{a,c})+f({a,c}), C(b|{b,c})+f({b,c})}\stackrel W = \min {0.5+1.0,0.8+1.0}=1.5<br>
+\\ f({b}) &amp;= \min {C(a|{a,b})+f({a,b}), C(c|{b,c})+f({b,c})}\stackrel W = \min {0.7+1.0,0.8+1.0}=1.7<br>
+\\ f({a}) &amp;= \min {C(b|{a,b})+f({a,b}), C(c|{a,c})+f({a,c})}\stackrel W = \min {0.7+1.0,0.5+1.0}=1.5<br>
+\\ f(\emptyset) &amp;= \min {C(a|a)+f({a}), C(b|b)+f({b}), C(c|c)+f({c})}\stackrel W = \min {0.2+1.5,0.5+1.7,0.3+1.5}=1.7 \end{aligned}$$<br>
+以上式中 $\stackrel W=$ 之后部分均表示使用方法 W 进行计算，这是为了演示，方法 S 的代入计算略。</p>
+<h3 id="带阶决策">带阶决策</h3>
+<p>第一次决策记为阶 1，第二次决策记为阶 2… 依次类推。将阶号包含进状态 S 的定义中有时候会带来方便甚至是非常有必要的。还以前面的例子进行说明，DPFE 形式 (1.17) 可改写为<br>
+$$f(k,S)=\min_{x \in S} {C(x|k,S)+f(k+1,S-{x})} \quad(1.19)$$</p>
+<h3 id="Path-States">Path-States</h3>
+<p>状态 S 可以定义为当前已经做过的决策 $(d_1,…,d_{i-1})$，在有向图中用节点表示状态，状态 S 与初始态 $\emptyset$ 到状态 S 之间的路径有关联（其实这个路径也可以表示为 $(d_1,…,d_{i-1})$），需要特别注意的是，前面的状态 S 是无序的，比如 S={a,b}，表示当前已经做出了决策 a 和 b（或者说做出决策选择了 a 和 b，读者根据具体语境进行调整理解），至于决策 a 和 b 的顺序则未定义，而这里 Path-States 中的状态是有序的，S=(a,b)，表示当前已经做出两个决策，第一个决策是 a 且第二个决策是 b。于是此时 DPFE 的形式可写为<br>
+$$f(S)=\min_{x \notin S} {C(x|S)+f(S + (x))} \qquad(1.20)$$</p>
+<p>前面线性搜索一节中的例子计算过程为<br>
+$$\begin{aligned} f(\emptyset) &amp;= \min {C(a|\emptyset)+f(a),C(b|\emptyset)+f(b),C(c|\emptyset)+f©}\stackrel S= \min{0.2+1.9,0.5+1.2,0.3+1.6}=1.7<br>
+\\ f(a) &amp;= \min {C(b|a)+f(ab), C(c|a)+f(ac)}\stackrel S= \min{2<em>0.5+0.9,2</em>0.3+1.5}=1.9<br>
+\\ f(b) &amp;= \min {C(a|b)+f(ba), C(c|b)+f(bc)}\stackrel S= \min{2<em>0.2+0.9,2</em>0.3+0.6}=1.2<br>
+\\ f© &amp;= \min {C(a|c)+f(ca), C(b|c)+f(cb)}\stackrel S= \min{2<em>0.2+1.5,2</em>0.5+0.6}=1.6<br>
+\\ f(ab) &amp;= \min {C(c|ab)+f(abc)}\stackrel S= 3<em>0.3=0.9<br>
+\\ f(ac) &amp;= \min {C(b|ac)+f(acb)}\stackrel S= 3</em>0.5=1.5<br>
+\\ f(ba) &amp;= \min {C(c|ba)+f(bac)}\stackrel S= 3<em>0.3=0.9<br>
+\\ f(bc) &amp;= \min {C(a|bc)+f(bca)}\stackrel S= 3</em>0.2=0.6<br>
+\\ f(ca) &amp;= \min {C(b|ca)+f(cab)}\stackrel S= 3<em>0.5=1.5<br>
+\\ f(cb) &amp;= \min {C(a|cb)+f(cba)} \stackrel S= 3</em>0.2=0.6<br>
+\\ f(abc) &amp;= f(acb)=f(bac)=f(bca)=f(cab)=f(cba)=0 \end{aligned}$$<br>
+由于状态是有序的，所以共有 $N!$ 个基本态，损失函数依然可以使用方法 S 和方法 W 计算，例如使用方法 S，损失 $C(c|ab)$ 表示第三次决策使用 c，那么根据方法 S 的定义有 $C(c|ab)=3p_c=3*0.3=0.9$。上面计算中 $\stackrel S=$ 之后部分均表示使用方法 S 进行计算。方法 W 的计算略。</p>
+<h3 id="松弛-Relaxation">松弛 Relaxation</h3>
+<p>松弛在数学中指通过某种迭代方法逐步得到更好的近似解。考虑一个有限集合 ${a_1,…,a_N}$，其最小值可以通过计算结对元素最小化来求解<br>
+$$x^{\ast}=\min{\min{…{\min{a_1,a_2},a_3},…},a_N}$$<br>
+偏最小化序列为 $x_1=a_1, x_2=\min{x_1,a_2},…$，为了表示的统一，可以令 $x_1=\min{x_0,a_1}, x_0=\infty$。序列 $x_1,x_2,…$ 逐步逼近并最终达到 $x^{\ast}$。松弛就是刻画这种逐步逼近的特性。借助松弛的思想，动态规划问题的 DPFE 可表示为<br>
+$$\begin{aligned} f(S)&amp;=\min_{x \in S} {C(x|S)+f(S_x’)}<br>
+\\ &amp;=\min{C(x_1|S)+f(S_{x_1}‘), C(x_2|S)+f(S_{x_2}’),…,C(x_m|S)+f(S_{x_m}‘)} \end{aligned}$$<br>
+其中 $S={x_1,x_2,…,x_m}$，$S_x’$ 是选择 x 之后的下一状态，与其计算所有的 $C(x|S)+f(S_x’)$ 值，我们不如逐步逼近最终值<br>
+$$f(S)=\min{\min{…\min{C(x_1|S)+f(S_{x_1}‘), C(x_2|S)+f(S_{x_2}’)},…},C(x_m|S)+f(S_{x_m}‘)} \quad (1.21)$$<br>
+注意 $C(x_i|S)$ 中状态全部是 S，并且所有的 $f(S_{x_i}’)$ 需要提前全部计算出来。</p>
+<p>带阶形式的 DPFE 为<br>
+$$f(k,S)=\min_x {C(x|k,S) + f(k-1,S_x’)} \qquad(1.22)$$<br>
+其中 k 表示阶段，这里 k 可能不太好理解，我们可以想象从状态 S 经过恰好 k 次变换到达终止态 T，下文最短路径问题中会借鉴式 (1.22)，彼时再回过头来理解可能更加容易些。序列 $f(0,S),f(1,S),…$ 近似于 $f(S)$，序列最小值为 $f(S)$，但这个序列不保证单调性（比如振荡逼近），所以 $f(S)=\min_k {f(k,S)}$，注意 $f(k,S)$ 不是 $f(k-1,S)$ 的函数，而是 $f(k-1,S_x’)$ 的函数。既然 $f(k,S)$ 序列不一定单调，我们定义一个新的序列 $F(k,S)$ 来保证单调性，<br>
+$$F(k,S)=\min{F(k-1,S), \min_x {C(x|k,S)+F(k-1,S_x’)}} \quad(1.23)$$<br>
+这里我们可以将 $F(k,S)$ 理解为从状态 S 到终止态 T 最多变换 k 次的损失，与式 (1.22) 中恰好变换 k 次是有区别的。</p>
+<h3 id="最短路径问题">最短路径问题</h3>
+<p>在解决前述的线性搜索问题中，我们使用了状态转换图模型，不难发现解决这种线性搜索问题等价于在图中搜索最短路径。</p>
+<p>考虑到有环图的复杂性，我们先讨论无环图。对于一个无环图，从起点 s 到终点 t 的最短路径使用 DPFE 可表示为<br>
+$$f§=\min_q {b(p,q)+f(q)} \qquad(1.24)$$<br>
+其中 b(p,q) 表示从 p 到 q 的距离，q 是 p 的直接邻点，f§ 表示从 p 到 t 的最短路径，基本态条件为 f(t)=0。如果 q 不是 p 的直接邻点，那么可以认为 $b(p,q)=\infty$。无环图中，要计算 f§ 则需要先计算 f(q)。采用自底向上的方式计算，具体不展开。</p>
+<p>在有环图中，p 和 q 可能互为后继节点，f§ 和 f(q) 互相依赖。为了方便，我们假定有环图中没有自环，这样假设是有原因的，如果有自环，即一条从 p 到 p 的分支，考虑以下三种情况：</p>
+<ol>
+<li>b(p,p) &gt; 0，这条分支会被忽略，因为会增加距离</li>
+<li>b(p,p) &lt; 0，问题本身不是定义良好的，可以不断的向路径中添加这条分支，从而一直缩短距离</li>
+<li>b(p,p) = 0，问题本身不是定义良好的，可以不断的向路径中添加这条分支，却不改变距离</li>
+</ol>
+<p>所以可以忽略掉自环，以下所讨论的有环图中均没有自环。对于一个有环图，DPFE 为<br>
+$$f§ = \min_q {b(p,q)+f(q)} \qquad(1.25)$$<br>
+其中 f(q) 可能依赖于 f§，做特殊处理：初始时令 $f§=\infty, \forall p \ne t; \ f(t)=0$。式 (1.25) 与 (1.24) 一样，因为都是解最短路径模型，只是有环图中进行求解的时候需要做特殊处理。</p>
+<p>举例说明，如图 1.2，<br>
+<img src="/images/DP1_fig1.png" alt=""></p>
+<p>根据式 (1.25) 计算过程如下<br>
+$$\begin{aligned}f(s)&amp;=\min {b(s,x)+f(x),b(s,y)+f(y),b(s,t)+f(t)}=\min {3+f(x),5+f(y),\infty+f(t)}<br>
+\\f(x)&amp;=\min {b(x,y)+f(y),b(x,t)+f(t)}=\min {1+f(y),8+f(t)}<br>
+\\f(y)&amp;=\min {b(y,x)+f(x),b(y,t)+f(t)}=\min {2+f(x),5+f(t)}<br>
+\\f(t)&amp;=0 \end{aligned}$$<br>
+显然 f(x) 与 f(y) 互相依赖。</p>
+<p>初始化时假设 $f(s)=f(x)=f(y)=\infty$，第一次迭代，<br>
+$$\begin{aligned}f(s)&amp;=\min {3+\infty,5+\infty,\infty+f(t)}=\infty<br>
+\\f(x)&amp;=\min {1+\infty,8+0}=8<br>
+\\f(y)&amp;=\min {2+\infty,5+0}=5<br>
+\\f(t)&amp;=0 \end{aligned}$$</p>
+<p>第二次迭代，<br>
+$$\begin{aligned}f(s)&amp;=\min {3+8,5+5,\infty+0}=10<br>
+\\f(x)&amp;=\min {1+5,8+0}=6<br>
+\\f(y)&amp;=\min {2+8,5+0}=5<br>
+\\f(t)&amp;=0 \end{aligned}$$<br>
+第三次迭代，<br>
+$$\begin{aligned}f(s)&amp;=\min {3+6,5+5,\infty+0}=9<br>
+\\f(x)&amp;=\min {1+5,8+0}=6<br>
+\\f(y)&amp;=\min {2+6,5+0}=5<br>
+\\f(t)&amp;=0 \end{aligned}$$<br>
+由于第三次迭代 $f(x),f(y),f(t)$ 均未改变，故第三次迭代后计算到的 f(s) 就是最终 f(s)。</p>
+<p>还可以利用带阶 Relaxation 解决有环图问题，仿照式 (1.22)，我们针对最短路径模型改为 DPFE 为<br>
+$$f(k,p)=\min_q {b(p,q)+f(k-1,q)} \qquad(1.26)$$<br>
+其中 f(k,p) 表示从 p 到 t 的最短距离，k 表示 p 到 t 的某个路径需要走恰好 k 步。于是基本条件为： $f(0,t)=0;f(k,t)=\infty, k&gt;0;f(0,p)=\infty, \forall p \ne t$，这表示 t 到 t 走 0 步，代价为 0，走大于 0 步，代价为 $\infty$，因为既然到了 t 点，我们不希望再继续走下去。p 到 t 走 0 步，代价为 $\infty$，这驱使我们从 p 点走出去。还以上面的例子说明，根据式 (1.26) 计算过程为<br>
+$$\begin{aligned}f(k,s)&amp;=\min {b(s,x)+f(k-1,x),b(s,y)+f(k-1,y),b(s,t)+f(k-1,t)}<br>
+\\f(k,x)&amp;=\min {b(x,y)+f(k-1,y),b(x,t)+f(k-1,t)}<br>
+\\f(k,y)&amp;=\min {b(y,x)+f(k-1,x),b(y,t)+f(k-1,t)}<br>
+\\f(k,t) \end{aligned}$$<br>
+根据基本条件，也就是 k=0 的初始条件，第一次迭代，<br>
+$$\begin{aligned}f(1,s)&amp;=\min {3+f(0,x),5+f(0,y),\infty+f(0,t)}=\infty<br>
+\\f(1,x)&amp;=\min {1+f(0,y),8+f(0,t)}=8<br>
+\\f(1,y)&amp;=\min {2+f(0,x),5+f(0,t)}=5<br>
+\\f(1,t)&amp;=\infty \end{aligned}$$<br>
+第二次迭代，<br>
+$$\begin{aligned}f(2,s)&amp;=\min {3+f(1,x),5+f(1,y),\infty+f(1,t)}=10<br>
+\\f(2,x)&amp;=\min {1+f(1,y),8+f(1,t)}=6<br>
+\\f(2,y)&amp;=\min {2+f(1,x),5+f(1,t)}=10<br>
+\\f(2,t)&amp;=\infty \end{aligned}$$<br>
+第三次迭代，<br>
+$$\begin{aligned}f(3,s)&amp;=\min {3+f(2,x),5+f(2,y),\infty+f(2,t)}=9<br>
+\\f(3,x)&amp;=\min {1+f(2,y),8+f(2,t)}=11<br>
+\\f(3,y)&amp;=\min {2+f(1,x),5+f(2,t)}=8<br>
+\\f(3,t)&amp;=\infty \end{aligned}$$<br>
+假设图中总共有 N 个节点，那么从任意一点 p 到 t 可以走恰好 k 步，k 取值为 {0,1,…,N-1}，k 不能大于等于 N，否则就存在某个节点经过两次，从而路径中存在环 circle，在任意两点路径均大于 0 的情况下，显然有环的路径不可能是最短路径。这里的例子中，N=4，所以 k 最大为 3，经过三次迭代后，就没必要再迭代下去了，否则路径中存在环，迭代下去的 f 值只会越来越大。于是根据 $f§=\min_k {f(k,p)}$ 得<br>
+$$\begin{aligned}f(s)&amp;=\min {\infty,\infty,10,9}=9<br>
+\\f(x)&amp;=\min {\infty,8,6,11}=6<br>
+\\f(y)&amp;=\min {\infty,5,10,8}=5<br>
+\\f(t)&amp;=\min {0,\infty,\infty,\infty}=0 \end{aligned}$$<br>
+从以上求解过程不难发现，迭代计算结果序列并不收敛，这也说明了式 (1.22) 中 $f(k,S)$ 序列不单调性。</p>
+<p>既然 $f(k,S)$ 序列不单调，我们参考式 (1.23) 为最短路径问题改写合适的 DPFE，如下<br>
+$$F(k,p)=\min {F(k-1,p), \ \min_q {b(p,q)+F(k-1,q)}} \qquad(1.27)$$</p>
+<p>其中 $F(k,p)$ 表示从 p 到 t 最多走 k 步的最短路径。显然要获得全局最短路径，我们必须考虑从 p 到 t 最多走 $N-1$ 步的最短路径，即目标是计算 $F(N-1,s)$，k 最大为 $N-1$，超过则路径出现环。基本条件不难得知为 $F(k,t)=0,k\ge 0; F(0,p)=\infty, p \ne t$，这个不用过多解释了，相信现在大家都能理解。</p>
+<p>还有其他形式的 DPFE，由于篇幅有限就不一一介绍，待后面分析具体例子的时候再穿插说明。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2019/08/07/dp/DP1/">https://jianjiansha.github.io/2019/08/07/dp/DP1/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/math/">
+                                    <span class="chip bg-color">math</span>
+                                </a>
+                            
+                                <a href="/tags/DP/">
+                                    <span class="chip bg-color">DP</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/08/14/dp/DP2/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/1.jpg" class="responsive-img" alt="Dynamic Programming (2)">
+                        
+                        <span class="card-title">Dynamic Programming (2)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            上一篇文章 Dynamic Programming (1) 介绍了动态规划的原理，以及几种常见模型的 DPFE。这篇文章则主要介绍一些实际应用。
+最佳分配问题 ALLOT
+最佳分配问题简称为 ALLOT，描述了如何讲有限资源分配给一些用户，
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2019-08-14
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/math/">
+                        <span class="chip bg-color">math</span>
+                    </a>
+                    
+                    <a href="/tags/DP/">
+                        <span class="chip bg-color">DP</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/08/01/gan/ImprovedGAN/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="ImprovedGAN">
+                        
+                        <span class="card-title">ImprovedGAN</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            标题 Improved Techniques for Training GANs
+源码 improved_gan
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-08-01
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/GAN/">
+                        <span class="chip bg-color">GAN</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

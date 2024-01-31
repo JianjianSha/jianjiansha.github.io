@@ -1,0 +1,1366 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Denoising Diffusion Implicit Models, SJJ">
+    <meta name="description" content="DDIM-非马尔可夫转移过程">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Denoising Diffusion Implicit Models | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/8.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Denoising Diffusion Implicit Models</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/diffusion-model/">
+                                <span class="chip bg-color">diffusion model</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-07-21
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2010.02502">Denoising Diffusion Implicit Models</a></p>
+<p>扩散模型 DDPM 可以生成高质量的图像，但是缺点是需要的迭代次数非常多，生成图像的时间较长。作者提出 DDIM 模型，提高扩散模型的生成效率。</p>
+<h1>1. 背景</h1>
+<p>简单回顾一下 DDPM 。</p>
+<p>前向过程是一个马尔科夫链，给定样本 $x_0$ 的分布 $q(x_0)$，那么加噪后的隐变量联合分布为</p>
+<p>$$q(x_{1:T}|x_0)=\prod_{t=1}^T q(x_t|x_{t-1})$$</p>
+<p>其中转移过程为</p>
+<p>$$q(x_t|x_{t-1})=\mathcal N(\sqrt {1-\beta_t}x_{t-1}, \beta_t I)$$</p>
+<p>令 $\alpha_t=1-\beta_t$，$\overline \alpha_t = \prod_{s=1}^t \alpha_s$，经过推导得</p>
+<p>$$q(x_t|x_0)=\int q(x_{1:t}|x_0) dx_{1:(t-1)}=\mathcal N(\sqrt {\overline \alpha_t} x_0, (1-\overline \alpha_t)I)$$</p>
+<p>显然 $\overline \alpha_t$ 是递减的，所以当 $T$ 足够大，$q(x_T|x_0) \rightarrow \mathcal N(0, I)$，这表明加噪最后可以得到近似各向同性的高斯噪声。</p>
+<p>DDPM 则是从一个标准高斯分布 $x_T$ 出发，逐步 denoising，最后得到 $x_0$ 的分布，</p>
+<p>$$p_{\theta}(x_0)=\int p_{\theta}(x_{0:T}) dx_{1:T}$$</p>
+<p>其中</p>
+<p>$$p_{\theta}(x_{0:T})=p_{\theta}(x_T) \prod_{t=1}^T p_{\theta}(x_{t-1}|x_t)$$</p>
+<p>优化目标函数为</p>
+<p>$$\max_{\theta} \mathbb E_{q(x_0)}[\log p_{\theta}(x_0)] \le \max_{\theta} \mathbb E_{q(x_{0:T})} [\log p_{\theta}(x_{0:T})-\log q(x_{1:T}|x_0)]$$</p>
+<details>
+<summary>推导上述不等式的过程</summary>
+<p>为了简洁，省略 $p$ 的下标 $\theta$，</p>
+<p>$$\begin{aligned} \mathbb E_{q(x_0)}[\log p(x_0)] &amp;= \mathbb E_{q(x_{0:T})}[\log p(x_0)]<br>
+\\ &amp;= \mathbb E_{q(x_{0:T})}[\log p(x_0) + \log p(x_{1:T}|x_0) - \log p(x_{1:T}|x_0)]<br>
+\\ &amp;= \mathbb E_{q(x_{0:T})}[\log p(x_{0:T}) - \log q(x_{1:T}|x_0) + \log q(x_{1:T}|x_0) - \log p(x_{1:T}|x_0)]<br>
+\\ &amp;= \mathbb E_{q(x_{0:T})}[\log p(x_{0:T}) - \log q(x_{1:T}|x_0)] + D_{KL}(q(x_{1:T}|x_0) || p(x_{1:T}|x_0))<br>
+\\ &amp; \le \mathbb E_{q(x_{0:T})}[\log p(x_{0:T}) - \log q(x_{1:T}|x_0)]<br>
+\end{aligned}$$</p>
+<p>最后一步推导是因为 KL 散度 $D_{kl}(P||Q) \ge 0$，且 $P=Q$ 时等号成立。</p>
+</details>
+<p>根据推导（推导过程见 <a href="2022/06/27/diffusion_model/ddpm">DDPM</a> 一文），上式等价于对下式求最小，</p>
+<p>$$L_{\gamma}(\epsilon_{\theta})=\sum_{t=1}^T \gamma_t \mathbb E_{x_0 \sim q(x_0), \epsilon_t \sim \mathcal N(0,I)} [|\epsilon_{\theta}^{(t)}(x_t) -\epsilon_t|_2^2]$$</p>
+<p>其中 $\gamma_t$ 是乘积因子，DDPM 中有 $\gamma_t=1$。</p>
+<h1>2. 非马尔可夫过程的变分推断</h1>
+<h2 id="2-1-非马尔可夫前向过程">2.1 非马尔可夫前向过程</h2>
+<p>考虑如下形式的隐变量联合分布</p>
+<p>$$q_{\sigma}(x_{1:T}|x_0)=q_{\sigma}(x_T|x_0) \prod_{t=2}^T q_{\sigma}(x_{t-1}|x_t, x_0)$$</p>
+<p>上式使用 $q_ {\sigma} (x_ {t-1}|x_t, x_0)$ 代替马尔可夫过程 $q_(x_t|x_{t-1})$，故上式不是一个马尔可夫过程。上式中令 $q_{\sigma}(x_T|x_0)=\mathcal N(\sqrt {\overline \alpha_T} x_0, (1-\overline \alpha_T) I)$ ，这样做使得最终变量的分布与 DDPM 中相同。</p>
+<p>对 $t&gt;1$ 有</p>
+<p>$$q_{\sigma}(x_{t-1}|x_t,x_0)=\mathcal N \left (\sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2} \cdot \frac {x_t-\sqrt {\overline \alpha_t} x_0}{\sqrt {1-\overline \alpha_t}} , \sigma_t^2 I\right) \tag{1}$$</p>
+<p>$\sigma_t$ 用于控制前向过程中的随机性强度，当 $\sigma_t \rightarrow 0$ 时，(1) 式高斯分布在期望处变得很陡，变成一个脉冲，那么只要观察到 $x_0, \ x_t$，那么 $x_{t-1}$ 就被固定（在期望处）。$\sigma_t$ 值的选择在下文算法一栏中有介绍。</p>
+<p>选择 (1) 式是为了确保满足 $q_{\sigma}(x_t|x_0)=\mathcal N(\sqrt {\overline \alpha_t} x_0, (1-\overline \alpha_t)I), \ t=1,\ldots, T$，</p>
+<p>证明：</p>
+<p>根据归纳法证明。假设有</p>
+<p>$$q_{\sigma}(x_t|x_0)=\mathcal N(\sqrt {\overline \alpha_t}x_0, (1-\overline \alpha_t)I) \tag{2}$$</p>
+<p>初始条件为 $t=T$ 时，上式成立，那么如果能证明如下 (3) 式成立，那么结论得证。</p>
+<p>$$q_{\sigma}(x_{t-1}|x_0)=\mathcal N(\sqrt {\overline \alpha_{t-1}}x_0, (1-\overline \alpha_{t-1})I) \tag{3}$$</p>
+<p>首先，计算边缘分布</p>
+<p>$$q_{\sigma}(x_{t-1}|x_0)=\int_{x_t} q_{\sigma}(x_t|x_0) q_{\sigma}(x_{t-1}|x_t, x_0) dx_t$$</p>
+<p>积分项中条件分布为 (1) 式，</p>
+<p>以及我们的假设条件</p>
+<p>$$q_{\sigma}(x_ {t-1}|x_0)=\mathcal N(\sqrt {\overline \alpha_t}x_0, (1-\overline \alpha_t)I)$$</p>
+<p>将上式和 (1) 式代入边缘分布，可计算出结果。</p>
+<p>对于两个随机向量 $\mathbf x_1, \mathbf x_2$，记联合概率密度分布的参数如下，</p>
+<p>$$\mu = (\mu_1, \mu_2)$$</p>
+<p>$$\Sigma=\begin{bmatrix} \sigma_1^2 &amp; \rho \sigma_1 \sigma_2 \\ \rho \sigma_1 \sigma_2 &amp; \sigma_2^2 \end{bmatrix}$$</p>
+<p>那么条件分布为（这部分知识可参考相关教材），</p>
+<p>$$p(x_1|x_2) = \mathcal N(\mu_1 + \rho \sigma_1 / \sigma_2 (x_2 - \mu_2), (1 - \rho^2) \sigma_1 ^2)$$</p>
+<p>$$p(x_2|x_1) = \mathcal N(\mu_2 + \rho \sigma_2 / \sigma_1(x_1 - \mu_1), (1 - \rho^2) \sigma_2^2)$$</p>
+<p>根据条件分布公式，令 $x_1, \ x_2$ 分别表示 $x_{t-1}, \ x_t$，可得</p>
+<p>$$\mathbb E[x_{t-1}|x_0]=\mathbb E[x_{t-1}|x_t,x_0]\vert _ {x_1=\sqrt{\overline \alpha _ t}x_0} =\sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2} \cdot \frac {\sqrt {\overline \alpha_t}x_0-\sqrt {\overline \alpha_t} x_0}{\sqrt {1-\overline \alpha_t}}=\sqrt {\overline \alpha_{t-1}} x_0$$</p>
+<p>比较条件分布的期望表达式以及 (1) 式的期望表达式，可知</p>
+<p>$$\rho^2 \mathbb V_{t-1}/\mathbb V_t = (1-\overline \alpha_{t-1} -\sigma_t^2)/(1-\overline \alpha_t)$$</p>
+<p>代入 $\mathbb V_t = (1-\overline \alpha_t)$ 到上式中，化简后可得</p>
+<p>$$\mathbb V_{t-1}= \sigma_t^ 2/(1-\rho^2)= \sigma_t^2 / (1-\frac {1-\overline \alpha_{t-1} -\sigma_t^2}{\mathbb V_{t-1}})$$</p>
+<p>解上式得，</p>
+<p>$$\text{Cov} = \mathbb V_{t-1}I=(1-\overline \alpha_{t-1})I$$</p>
+<p>故 (3) 式得证，于是满足 (1) 式的分布可以确保（3）式成立。证毕。</p>
+<p>结论：<strong>DDIM与DDPM 在每个 time step 上得到的加噪数据的分布其实是相同的，只是每个 time step 转移的过程不同，DDPM 是马尔可夫过程，DDIM 是非马尔可夫过程。</strong></p>
+<p>根据贝叶斯定理，可以得到前向过程为</p>
+<p>$$q_{\sigma}(x_t|x_{t-1}, x_0)= \frac {q_{\sigma}(x_{t-1}|x_t,x_0) q_{\sigma}(x_t|x_0)}{q_{\sigma}(x_{t-1}|x_0)}$$</p>
+<p>于是前向过程不再是马尔科夫过程，因为 $\mathbf x_t$ 同时依赖于 $x_{t-1}, x_0$，如图 1，</p>
+<p><img src="/images/diffusion_model/ddim_1.png" alt=""></p>
+<center>图 1. 左：DDPM；右：非马尔可夫过程</center>
+<h2 id="2-2-生成过程">2.2 生成过程</h2>
+<p>定义一个可训练的生成过程 $p_{\theta}(x_{0:T})$，其中 $p_{\theta}^{(t)}(x_{t-1}|x_t)$ 利用 $q_{\sigma}(x_{t-1}|x_t, x_0)$。</p>
+<p>训练阶段，给定一个样本 $x_0 \sim q(x_0)$，以及一个随机变量 $\epsilon_t \sim \mathcal N(0,I)$，根据 (2) 式可以得到</p>
+<p>$$x_t=\sqrt {\overline \alpha_t} x_0 +\sqrt {1-\overline \alpha_t} \epsilon_t$$</p>
+<p>那么模型输出 $\epsilon_{\theta}^{(t)}(x_t)$ 用于预测 $\epsilon_t$，损失函数为 $L_{\gamma}(\epsilon_{\theta})$ 。</p>
+<p>生成过程（反向过程）中，给定一个带噪观测数据 $x_t$，根据 (2) 式进行变换得到 $x_0$ 的预测，为</p>
+<p>$$f_{\theta}^{(t)}(x_t) = (x_t - \sqrt {1-\overline \alpha_t} \cdot \epsilon_{\theta}^{(t)}(x_t))/\sqrt {\overline \alpha_t} \tag{4}$$</p>
+<p>得到 $x_0$ 的预测后，根据 (1) 式，可以得到 $x_{t-1}$，需要注意 $t=1$ 是特殊情况不使用 (1) 式，反向过程总结如下，</p>
+<p>$$p_{\theta}^{(t)}(x_{t-1}|x_t) = \begin{cases} \mathcal N(f_{\theta}^{(1)}(x_1), \sigma_1^2 I) &amp; t=1 \\ q_{\sigma}(x_{t-1}|x_t, f_{\theta}^{(t)}(x_t)) &amp; \text{o.w.}\end{cases} \tag{5}$$</p>
+<p>上式第二种 case 就是 (1) 式，只是其中可观测数据 $x_0$ 使用 $f_{\theta}^{(t)}(x_t)$ 代替。<br>
+上式第一种 case 就是以 $f_{\theta}^{(1)}(x_1)$ 为中心的高斯分布，毕竟 $f_{\theta}^{(1)}(x_1)$ 就是基于 $x_1$ 对 $x_0$ 的预测，方差 $\sigma_1^2I$ 与 (1) 式保持一致，如果仍用第二种形式，那就变成了 $q_{\sigma} (x _ 0|x _1, f _ {\theta}^{(1)}(x_1))$，这个表达式本身是基于 $x_1$ 预测 $x_0$ 的分布，而其用到的条件变量 $f _ {\theta}^{(1)}(x _1)$ 也是基于 $x_1$ 预测 $x_0$ 的值，引起冲突。</p>
+<p>第 <code>1</code> 节内容也提到过，优化目标函数为最小化下式：</p>
+<p>$$J_{\sigma}(\epsilon_{\theta})=\mathbb E_{q_{\sigma}(x_{0:T})}[\log q_{\sigma}(x_{1:T}|x_0) - \log p_{\theta}(x_{0:T})]<br>
+\\ =\mathbb E_{q_{\sigma}(x_{0:T})}[\log q_{\sigma}(x_T|x_0)+\sum_{t=2}^T \log q_{\sigma}(x_{t-1}|x_t,x_0)-\sum_{t=1}^T \log p_{\theta}^{(t)}(x_{t-1}|x_t)-\log p_{\theta}(x_T)]$$</p>
+<p>这与 DDPM 中相同，因为目标函数均为 $\mathbb E_{q(x_0)} [-\log p_{\theta}(x_0)]$，DDIM 与 DDPM 的区别在于状态转移过程不同（是否是马尔可夫过程），而推导 $\mathbb E_{q(x_0)} [-\log p_{\theta}(x_0)]$ 过程中不涉及到具体的状态转移过程。</p>
+<p>仿照 DDPM，上式目标函数也可以分为 $L_T$、$L_{1:T-1}$ 和 $L_0$，其中 $L_T$ 包含了 $q_{\sigma}(x_T|x_0)$ 和 $p(x_T)=\mathcal N(x_T;\mathbf 0, I)$，这两个分布均与模型参数 $\theta$ 无关，可看作常量。</p>
+<h3 id="2-2-1-L-1-T-1">2.2.1 $L_{1:T-1}$</h3>
+<p>$L_{t-1}$ 的表达式为</p>
+<p>$$L_{t-1}=\mathbb E_q \left[-\log \frac {p_{\theta}(x_{t-1}|x _ t)}{q_{\sigma}(x _ {t-1}|x _ t,x _ 0)} \right]$$</p>
+<p>再次强调这些表达式的形式均与 DDPM 中相同，区别是两者的 $q(x_{t-1}|x _ t, x _ 0)$ 的表达式不同。经过与 DDPM 中相同的推导，</p>
+<p>$$L_{t-1} = \mathbb E_{q(x_0, x _ t)} \left [ \frac 1 {2 \mathbb V_t} ||\tilde \mu_t(x_t, x_0) - \mu_{\theta}(x_t, t)||^2 \right] + C$$</p>
+<p>根据 (1) 式，可知</p>
+<p>$$\tilde \mu_t(x_t, x_0) = \sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2} \cdot \frac {x_t-\sqrt {\overline \alpha_t} x_0}{\sqrt {1-\overline \alpha_t}}$$</p>
+<p>$\mu_{\theta}(x_t, t)$ 是反向过程 $p_{\theta}(x_{t-1}|x_t)$ 分布的期望，我们应该尽量让 $p_{\theta}(x_{t-1}|x_t)$ 逼近 $q_{\sigma}(x_{t-1}|x_t, x _ 0)$，这样才能使得 $L_{t-1}$ 尽可能小。再根据重参数技巧，</p>
+<p>$$\mu_{\theta}(x_t, t) = \sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2} \cdot \frac {x_t-\sqrt {\overline \alpha_t} f_{\theta}^{(t)}(x_t)}{\sqrt {1-\overline \alpha_t}}$$</p>
+<p>于是</p>
+<p>$$\tilde \mu_t(x_t, x_0) - \mu_{\theta}(x_t, t) = \frac { \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2}}{\sqrt {1-\overline \alpha_t}} \cdot \sqrt { \overline \alpha_t} \cdot ( f_{\theta}^{(t)}(x_t)-x_0)$$</p>
+<p>根据 (4) 式，可知 $\sqrt {\overline \alpha_t} \cdot ( f_{\theta}^{(t)}(x_t)-x_0)= \sqrt {1-\overline \alpha _ t} (\epsilon_{\theta}^{(t)}- \epsilon_t)$，于是上式转化为，</p>
+<p>$$\tilde \mu_t(x_t, x_0) - \mu_{\theta}(x_t, t) =\sqrt {1-\overline \alpha_{t-1} -\sigma_t^2}  (\epsilon_{\theta}^{(t)}- \epsilon_t)$$</p>
+<p>故仍然可以等价于求下式最小值，</p>
+<p>$$L_{simple}^{(t-1)}(\theta) = \gamma \mathbb E_{t,x_0,\epsilon, \sigma^2} \left[||\epsilon_{\theta}^{(t)}- \epsilon_t||^2 \right]$$</p>
+<p>上式中，$\gamma$ 是权重因子。</p>
+<p>从上式看出对于不同的 $\sigma$ 值，实际上都会训练出相同的模型，即，$\theta$ 参数相同，而得到的目标函数的差值是与 $\theta$ 无关的值，实际上对于某确定的 $\alpha$ 值，$J_{\sigma}$ 均等价于 $J_{\alpha}$ ，所谓等价是指模型参数 $\theta$ 保持不变 。</p>
+<p><strong>定理 1</strong> 对于任意 $\sigma &gt; 0$，存在 $\alpha \in \mathbb R_{\ge 0}^T$ 以及 $C \in \mathbb R$，使得 $J_{\sigma} = J_{\alpha} + C$</p>
+<h3 id="2-2-2-模型训练">2.2.2 模型训练</h3>
+<p>训练过程与 DDPM 的训练相同。</p>
+<h1>3. 通用生成过程的采样</h1>
+<h2 id="3-1-DDIM">3.1 DDIM</h2>
+<p>根据 (1) (4) (5) 式，可知从 $x_t$ 生成 $x_{t-1}$ 为</p>
+<p>$$x_{t-1}=\sqrt {\overline \alpha_{t-1}} \left(\frac {x_t-\sqrt {1-\overline \alpha_t} \epsilon_{\theta}^{(t)}(x_t)}{\sqrt {\overline \alpha_t}}\right)+\sqrt {1-\overline \alpha_{t-1} - \sigma_t^2}\cdot \epsilon_{\theta}^{(t)}(x_t) + \sigma_t \epsilon_t’ \tag{6}$$</p>
+<p>其中 $\epsilon_t’ \sim \mathcal N(0, 1)$ 是反向过程中的随机噪声。注意使用上标 <code>'</code> 标注用于区别前向过程中的噪声 $\epsilon_t$，$\epsilon_t$ 表示 $x_t=\sqrt {\overline \alpha_t} x_0 +\sqrt {1-\overline \alpha_t} \epsilon_t$，而 $\epsilon_{\theta}^{(t)}(x_t)$ 就是模拟逼近 $\epsilon_t$ 。</p>
+<p>注意 $t=1$ 时应该使用 (5) 式的第一个 case，得到</p>
+<p>$$x_0=\frac {x_1 - \sqrt {1-\overline \alpha_1} \cdot \epsilon_{\theta}^{(1)}(x_1)} {\sqrt {\overline \alpha_1}} + \sigma_1 \epsilon_1’$$</p>
+<p>不同的 $\sigma$ 值会导致生成结果不同，当然模型输出 $\epsilon_{\theta}$ 是相同的，所以不需要重新训练模型。一种特殊情况是，当</p>
+<p>$$\sigma_t = \sqrt {\frac {1-\overline \alpha_{t-1}}{1-\overline \alpha_t}} \sqrt {1-\frac {\overline \alpha_t}{\overline \alpha_{t-1}}} \tag{7}$$</p>
+<p>时，前向过程变成马尔可夫过程，生成过程则变成 DDPM。</p>
+<p>证明如下：</p>
+<p>根据贝叶斯定理，可以得到前向过程为</p>
+<p>$$q_{\sigma}(x_t|x_{t-1}, x_0)= \frac {q_{\sigma}(x_{t-1}|x_t,x_0) q_{\sigma}(x_t|x_0)}{q_{\sigma}(x_{t-1}|x_0)} \tag{8}$$</p>
+<p>将 (1) (2) (3) 式代入 (8) 式，</p>
+<p>$$q_{\sigma}(x_t|x_{t-1}, x_0) \propto \exp {-\frac 1 {2\sigma_t^2} |x_{t-1} - (\sqrt {\overline \alpha_{t-1}} x_0 + \sqrt {1-\overline \alpha_{t-1} -\sigma_t^2} \cdot \frac {x_t-\sqrt {\overline \alpha_t} x_0}{\sqrt {1-\overline \alpha_t}})|^2<br>
+\\ - \frac 1 {2(1-\overline \alpha_t)}|x_t-\sqrt {\overline \alpha_t}x_0|^2 + \frac 1 {2(1-\overline \alpha_{t-1})}|x_{t-1} - \sqrt {\overline \alpha_{t-1}}x_0|^2} \tag{9}$$</p>
+<p>根据第 <code>1</code> 节内容，有 $\alpha_t=1-\beta_t$，$\overline \alpha_t = \prod_{s=1}^t \alpha_s$，再根据 (7) 式有</p>
+<p>$$\sigma_t^2 = \frac {1-\overline \alpha_{t-1}}{1-\overline \alpha_t}(1-\alpha_t)=\frac {1-\overline \alpha_{t-1}}{1-\overline \alpha_t}\beta_t$$</p>
+<p>$$\sqrt {1-\overline \alpha_{t-1} -\sigma_t^2}/\sqrt {1-\overline \alpha_t}=\frac {1-\overline \alpha_{t-1}}{1-\overline \alpha_t} \sqrt {\alpha_t}$$</p>
+<p>于是</p>
+<p>$$\sqrt {\overline \alpha_{t-1}} - \frac {\sqrt {1-\overline \alpha_{t-1} -\sigma_t^2}}{\sqrt {1-\overline \alpha_t}} \sqrt {\overline \alpha_t}=\frac {\sqrt {\overline \alpha_{t-1}}}{1-\overline \alpha_t} \beta_t$$</p>
+<p>考虑 (9) 式中 $x_0^2$ 的因子，统一忽略常数因子 $1/2$ ，那么有</p>
+<p>$$-\frac 1 {\sigma_t^2} \frac {\overline \alpha_{t-1}}{(1-\overline \alpha_t)^2} \beta_t^2-\frac {\overline \alpha_t}{1-\overline \alpha_t}+ \frac {\overline \alpha_{t-1}}{1-\overline \alpha_{t-1}}=0$$</p>
+<p>即，没有 $x_0^2$ 项，同样的可知没有 $x_0$ 项，所以 $q_{\sigma}(x_t|x_{t-1}, x_0)$ 展开式中不含 $x_0$ 和 $x_0^2$，这表明此时 $x_t$ 仅依赖于 $x_{t-1}$ ，退化为 马尔可夫过程 / DDPM 。</p>
+<h2 id="3-2-加速生成过程">3.2 加速生成过程</h2>
+<p>生成过程通常被认为是对反向过程的近似，故前向过程有 $T$ steps，那么生成过程也是 $T$ steps。</p>
+<p>降噪目标函数 $L_{\mathbf 1}$ （即损失项权重因子 $\gamma= \mathbf 1$）在 $q_{\sigma}(x_t|x_0)$ 固定（固定为 (2) 式）的情况下不依赖于具体的前向过程，故考虑 steps 小于 $T$ 的前向过程。</p>
+<p>加速情况下，推断过程（即前向过程）为</p>
+<p>$$q_{\sigma,\tau}(x_{1:T}|x_0)=q_{\sigma,\tau}(x_{\tau_S}|x_0) \prod_{i=1}^S q_{\sigma,\tau}(x_{\tau_{i-1}}|x_{\tau_i}, x_0) \prod_{t \in \overline \tau} q_{\sigma,\tau}(x_t|x_0) \tag{10}$$</p>
+<p>其中 $\tau$ 是长度为 $S$ 的 $[1,\ldots, T]$ 的递增子序列，且 $\tau_S=T$ 。$\overline \tau$ 是补集。</p>
+<p>(10) 式的乘积项为</p>
+<p>$$q_{\sigma,\tau}(x_t|x_0)=\mathcal N(\sqrt {\overline \alpha_t} x_0, (1-\overline \alpha_t) I), \quad \forall t \in \overline \tau \cup {T} \tag{11}$$</p>
+<p>$$q_{\sigma,\tau}(x_{\tau_{i-1}}|x_{\tau_i},x_0)=\mathcal N\left(\sqrt {\overline \alpha_{\tau_{i-1}}} x_0 + \sqrt {1-\overline \alpha_{\tau_{i-1}} - \sigma_{\tau_i}^2} \frac {x_{\tau_i}-\sqrt {\overline \alpha_{\tau_i}}x_0}{\sqrt {1-\overline \alpha_{\tau_i}}} , \sigma_{\tau_i}^2I\right), \quad \forall i \in [S] \tag{12}$$</p>
+<p>设计为 (12) 式，这样就保证了</p>
+<p>$$q_{\sigma,\tau}(x_{\tau_i}|x_0) = \mathcal N(\sqrt {\overline \alpha_{\tau_i}}x_0, (1-\overline \alpha_{\tau_i})I), \quad \forall i \in [S] \tag{13}$$</p>
+<p>(11) (13) 两式就保证了对所有的 $t \in [T]$，边缘分布均满足 (2) 式。</p>
+<hr>
+<p><strong>算法 1：</strong> 加速生成过程</p>
+<p>输入：前向过程的 step 总数 $N$，$\beta_i, \ i=1,\ldots,N$，特别地令 $\beta_0=0$<br>
+  子序列长度 $S$</p>
+<p>步骤：</p>
+<p>根据规则（如 linear，等间隔）生成子序列 $\tau_1,\ldots, \tau_S$，确保 $\tau_S=N$</p>
+<p>采样 $x_N \sim \mathcal N(\mathbf 0, I)$</p>
+<p><strong>for</strong> $t=S,\ldots, 1$</p>
+<p>  $x_0’=(x_{\tau_t} - \sqrt {1-\overline \alpha_{\tau_t}} \cdot \epsilon_{\theta}^{(\tau_t)}(x_{\tau_t}))/\sqrt {\overline \alpha_{\tau_t}}$</p>
+<p>  $\mu_{\theta}(\tau_{t-1})=\begin{cases}\frac {\sqrt {\overline \alpha_{\tau_{t-1}}}(1-\overline \alpha_{\tau_t}/\overline \alpha_{\tau_{t-1}})}{1-\overline \alpha_{\tau_t}} x_0’+\frac {\sqrt {\overline \alpha_{\tau_t}/ \overline \alpha_{\tau_{t-1}}}(1-\overline \alpha_{t-1})}{1-\overline \alpha_{\tau_t}}  x_{\tau_t} &amp; DDPM \\ \sqrt {\overline \alpha_{\tau_{t-1}}} x_0’ + \sqrt {1-\overline \alpha_{\tau_{t-1}} - \sigma_{\tau_t}^2} \frac {x_{\tau_t}-\sqrt {\overline \alpha_{\tau_t}}x_0’}{\sqrt {1-\overline \alpha_{\tau_t}}} &amp; DDIM\end{cases}$</p>
+<p>  <strong>if</strong> $t&gt;1$</p>
+<p>    采样 $z \sim \mathcal N(\mathbf 0, I)$</p>
+<p>    $\sigma_{\tau_t}=\begin{cases} \sqrt {1-\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}} &amp; DDPM（具体看下方解释） \\ \eta\sqrt {\frac {1-\overline \alpha_{\tau_{t-1}}}{1-\overline \alpha_{\tau_t}}}\cdot \sqrt {1-\frac {\overline \alpha_{\tau_t}}{\overline \alpha_{\tau_{t-1}}}} &amp; DDIM（具体看下方解释） \end{cases}$</p>
+<p>    $x_{\tau_{t-1}}=\mu_{\theta}(\tau_{t-1})+ \sigma_{\tau_t} z$</p>
+<p>  <strong>else</strong></p>
+<p>    $x_{\tau_{t-1}}=\mu_{\theta}(\tau_{t-1})$</p>
+<hr>
+<p><font color="red">注意：</font></p>
+<ol>
+<li>
+<p>以上算法中，不能直接使用 $\alpha_{\tau_t}$ 和 $\beta_{\tau_t}$，而是要根据 $\alpha_t = \overline \alpha_t / \overline \alpha_{t-1}$<br>
+使用 $\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}$ 来代替 $\alpha_{\tau_t}$，同样地使用 $1-\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}$ 代替 $\beta_{\tau_t}$。需要搞清楚的是，通常</p>
+<p>$$\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}} \ne \alpha_{\tau_t}=\overline \alpha_{\tau_t} / \overline \alpha_{\tau_t -1}$$</p>
+<p>这是因为 $\tau_{t-1} \ne \tau_t -1$ 。</p>
+</li>
+<li>
+<p>DDPM 中 $\mu_{\theta}(\tau_{t-1})$ 其实就是 <a href="2022/06/27/diffusion_model/ddpm">DDPM</a> 一文中的 (12) 式，但是要将 $\alpha_{\tau_t}$ 替换为 $\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}$，将 $\beta_{\tau_t}$ 替换为 $1-\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}$ 。</p>
+</li>
+<li>
+<p>$\sigma_{\tau_t}(\eta)=\eta\sqrt {\frac {1-\overline \alpha_{\tau_{t-1}}}{1-\overline \alpha_{\tau_t}}}\cdot \sqrt {1-\frac {\overline \alpha_{\tau_t}}{\overline \alpha_{\tau_{t-1}}}}$</p>
+<p>当 $\eta=1$ 时，DDIM 转变为 DDPM，当 $\eta=0$ 时转变为  deterministic DDIM。作者在 cifar10 数据集上还使用了 $\hat \sigma_{\tau_t}=\sqrt {1-\frac {\overline \alpha_{\tau_t}}{\overline \alpha_{\tau_{t-1}}}} &gt; \sigma_{\tau_t}(\eta=1)$</p>
+</li>
+<li>
+<p>上面算法中，DDPM 的反向过程中的噪声方差 $\sigma_{\tau_t}^2=1-\overline \alpha_{\tau_t} / \overline \alpha_{\tau_{t-1}}$，对应于 $\sigma_t^2=\beta_t$，实际上 DDPM 还有另一个方差选择 $\sigma_t^2=\tilde \beta_t$，对应于反向过程中噪声方差的上下限，如果选择下限，那么 $\sigma_{\tau_t}=\sqrt {\frac {1-\overline \alpha_{\tau_{t-1}}}{1-\overline \alpha_{\tau_t}}}\cdot \sqrt {1-\frac {\overline \alpha_{\tau_t}}{\overline \alpha_{\tau_{t-1}}}}$</p>
+</li>
+</ol>
+<p>生成过程定义为</p>
+<p>$$p_{\theta}(x_{0:T})=\underbrace {p_ {\theta}(x_T) \prod_{i=1}^S p_{\theta}^{(\tau_i)}(x_{\tau_{i-1}}|x_{\tau_i})}_ {\text{use to produce samples}} \times \prod_{t \in \overline \tau} p_ {\theta}^{(t)}(x_0|x_t) \tag{14}$$</p>
+<p>其中</p>
+<p>$$p_{\theta}^{(\tau_i)}(x_{\tau_{i-1}}|x_{\tau_i})=q_{\sigma,\tau}(x_{\tau_{i-1}}|x_{\tau_i}, f_{\theta}^{(\tau_i)}(x_{\tau_i})) \quad  i \in [S], i &gt; 1$$</p>
+<p>$$p_{\theta}^{(t)}(x_0|x_t)=\mathcal N(f_{\theta}^{(t)}(x_t), \sigma_t^2I) \quad \text{o.w.}$$</p>
+<p>训练时还跟之前一样训练，生成样本时，则使用 $\text{reversed}(\tau)$ 生成，如图 2</p>
+<p><img src="/images/diffusion_model/ddim_2.png" alt=""></p>
+<center>图 2. 加速生成样本的示意图</center>
+<h1>4. 实验</h1>
+<p>每个数据集均使用相同的训练模型，$T=1000$，训练目标为 $L_{\mathbf 1}$。生成样本使用子序列 $\tau$，方差 $\sigma$ 从随机 DDPM 和确定 $DDIM$ 中插值获得。$\sigma$ 形式如下</p>
+<p>$$\sigma_{\tau_i}(\eta)=\eta \sqrt {(1-\overline \alpha_{\tau_{i-1}})/(1-\overline \alpha_{\tau_i})} \sqrt {1-\overline \alpha_{\tau_i}/\overline \alpha_{\tau_{i-1}}} \tag{15}$$</p>
+<p>其中 $\eta \in \mathbb R_{\ge 0}$ 用于控制。当 $\eta=1$ 时，如 (7) 式所示，模型退化为 DDPM，如果 $\eta=0$，那么模型为确定 DDIM（随机性消失）。</p>
+<p>作者也考虑了 $\sigma &gt; \sigma(\eta=1)$ 情况，方差取值为</p>
+<p>$$\hat \sigma_{\tau_i} = \sqrt {1-\overline \alpha_{\tau_i}/\overline \alpha_{\tau_{i-1}}} \tag{16}$$</p>
+<p>由于 $1-\overline \alpha_{\tau_{i-1}} &lt; 1- \overline \alpha_{\tau_i}$ ，故 $\hat \sigma_{\tau_i} &gt; \sigma_{\tau_i}(\eta=1)$ 。</p>
+<h1>5. ODE</h1>
+<p>根据 (6) 式，当噪声标准差 $\sigma_t=0$ 时，可以改写为</p>
+<p>$$\frac {x_{t-1}}{\sqrt {\overline \alpha_{t-1}}}=\frac {x_t} {\sqrt {\overline \alpha_t}}+ \left(\sqrt {\frac {1-\overline \alpha_{t-1}}{\overline \alpha_{t-1}}}- \sqrt {\frac {1-\overline \alpha_t}{\overline \alpha_t}}\right) \epsilon_{\theta}(x_t,t) \tag{17}$$</p>
+<p>当 $T$ 足够大，将 (17) 式看作某个常微分方程的欧拉积分形式，令 $\overline x = x/\sqrt {\overline \alpha}$，且令</p>
+<p>$$\sigma(t)=\sqrt {\frac {1-\overline \alpha_t}{\overline \alpha_t}} \tag{18}$$</p>
+<p>注意，这里的 $\sigma(t)$ 与前面 (1) 式中标准差 $\sigma_t$ 是两个不同的概念，本节 $\sigma(t)$ 仅仅是一个符号，由 (18) 式定义。</p>
+<p>于是 (17) 式变为</p>
+<p>$$\overline x(t-\Delta t)=\overline x(t) + (\sigma(t-\Delta t)-\sigma(t)) \cdot \epsilon_{\theta}\left(\frac {\overline x(t)}{\sqrt {\sigma^2(t)+1}}, t\right)$$</p>
+<p>令 $\Delta t \rightarrow 0$ ，于是上式变为</p>
+<p>$$\frac {d\overline x(t)}{dt}=\frac {d \sigma(t)}{dt} \cdot \epsilon_{\theta} \left(\frac {\overline x(t)}{\sqrt {\sigma^2(t)+1}}, t \right) \tag{19}$$</p>
+<p>给定 $\beta_t, t=1,\ldots, T$，就可以得到 ${\alpha_t}<em>{t=1}^T$ 和 ${\overline \alpha_t}</em>{t=1}^T$ 。</p>
+<p>例如 $T=1000$，$\beta_1=10^{-4}$ 线性增加到 $\beta_T=0.02$ 为例，那么</p>
+<p>$$\beta_t=\frac {t-1} {T-1} (\beta_T-\beta_1) + \beta_1 \approx \frac {t\beta_T}{T}\tag{20}$$</p>
+<p>上式对 $t \in [0, T]$ 范围内的所有实数均有效。根据已知条件 $x(T) \sim \mathcal N(\mathbf 0,I)$ 以及根据 (20) 式可以计算出 $\overline \alpha(t), \ \sigma(t)$ 的值， 计算 $\overline x(0)$，从而得到 $x(0)$ 。解 (19) 式就是解常微分方程。</p>
+<p>计算 $\overline \alpha(t)$ 过程如下：</p>
+<p>$$\log \overline \alpha(t)=\sum_{i=1}^t \log \alpha_i=\sum_{i=1}^t \log (1-\beta_i)\approx \sum_{i=1}^t \log (1-\frac {0.02i}T)<br>
+\ \approx -\sum_{i=1}^t \frac {0.02i}T=-\frac {0.01t(t+1)}T \approx - \frac {10t ^ 2}{T^ 2}$$</p>
+<p>于是</p>
+<p>$$\overline \alpha(t)=e^ {-10t ^ 2/T^2}$$</p>
+<p>再根据 (18) 式得到</p>
+<p>$$\sigma(t) = e ^ {5 t^2 / T ^ 2} \sqrt {1-e^{-10t ^ 2/T ^ 2}}$$</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2022/07/21/diffusion_model/ddim/">https://jianjiansha.github.io/2022/07/21/diffusion_model/ddim/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/diffusion-model/">
+                                    <span class="chip bg-color">diffusion model</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/07/22/diffusion_model/analytic_dpm/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/23.jpg" class="responsive-img" alt="Analytic-DPM">
+                        
+                        <span class="card-title">Analytic-DPM</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-07-22
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/diffusion-model/">
+                        <span class="chip bg-color">diffusion model</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/07/14/ml/ICA/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="独立成分分析">
+                        
+                        <span class="card-title">独立成分分析</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-07-14
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/machine-learning/">
+                        <span class="chip bg-color">machine learning</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

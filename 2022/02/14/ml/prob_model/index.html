@@ -1,0 +1,1384 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="概率模型, SJJ">
+    <meta name="description" content="总结概率和概率图模型。
+
+1. 参数估计
+MLE
+最大似然估计
+$$\mathcal L(\boldsymbol \theta)=-\log p(\mathbf x|\boldsymbol \theta)$$
+监督学习中，每个数据 $\ma">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>概率模型 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/7.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">概率模型</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/machine-learning/">
+                                <span class="chip bg-color">machine learning</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-02-14
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>总结概率和概率图模型。</p>
+<span id="more"></span>
+<h1>1. 参数估计</h1>
+<p><strong>MLE</strong></p>
+<p>最大似然估计</p>
+<p>$$\mathcal L(\boldsymbol \theta)=-\log p(\mathbf x|\boldsymbol \theta)$$</p>
+<p>监督学习中，每个数据 $\mathbf x_i$ 均有对应的 label 为 $y_i$，那么对于 size 为 $N$ 的数据集，负对数似然为<br>
+$$\mathcal L(\boldsymbol \theta)=-\sum_{i=1}^N \log p(y_n|\mathbf x_i, \boldsymbol \theta)$$</p>
+<p>MLE 的一个缺点：容易过拟合。</p>
+<p><strong>MAE</strong></p>
+<p>最大后验估计</p>
+<p>MLE 中将参数 $\boldsymbol \theta$ 看作一个未知但是确定不变的量，MAE 中将 $\boldsymbol \theta$ 看作一个随机变量，其有一个先验分布 $p(\boldsymbol \theta)$，那么后验概率为<br>
+$$p(\boldsymbol \theta|\mathbf x)=\frac {p(\mathbf x|\boldsymbol \theta)p(\boldsymbol \theta)} {p(\mathbf x)}$$</p>
+<p>最大化后验概率求参数估计，</p>
+<p>$$\max_{\boldsymbol \theta} \ p(\boldsymbol \theta|\mathbf x)=\max_{\boldsymbol \theta} p(\mathbf x|\boldsymbol \theta) \ p(\boldsymbol \theta)$$</p>
+<p>其中，$\mathbf x$ 是给定的已知观察量，在 MAE 过程中，$p(\mathbf x)$ 为一个确定不变的量。</p>
+<h1>2. 概率模型</h1>
+<p>上一节内容为参数估计的两种常用方法，其中要求似然概率，就需要确定模型。</p>
+<h2 id="2-1-贝叶斯推断">2.1 贝叶斯推断</h2>
+<p>数据集 $\mathcal X$，参数先验 $p(\boldsymbol \theta)$，后验为<br>
+$$p(\boldsymbol \theta|\mathcal X)=\frac {p(\mathcal X|\boldsymbol \theta)p(\boldsymbol \theta)}{p(\mathcal X)} \tag{1}$$</p>
+<p>数据集似然为<br>
+$$p(\mathcal X)=\int p(\mathcal X|\boldsymbol \theta)p(\boldsymbol \theta)d \boldsymbol \theta \tag{2}$$</p>
+<p>单个数据样本的概率</p>
+<p>$$p(\mathbf x)=\int p(\mathbf x|\boldsymbol \theta)p(\boldsymbol \theta) d \boldsymbol \theta =\mathbb E_{\boldsymbol \theta}[p(\mathbf x|\boldsymbol \theta)] \tag{3}$$</p>
+<p>贝叶斯推断与 MLE 和 MAP 的区别：</p>
+<ol>
+<li>MLE 和 MAP 是点估计，求 $\boldsymbol \theta$ 的最可能的值 $\boldsymbol \theta^{\star}$，推断阶段计算 $p(\mathbf x^{new}|\boldsymbol \theta^{\star})$ 。</li>
+<li>贝叶斯推断，根据 (1) 和 (2) 式（这两个等式中 $p(\boldsymbol \theta)$ 为先验）求后验概率分布 $p(\boldsymbol \theta|\mathcal X)$，然后将后验概率代入 (3) 式进行推断</li>
+</ol>
+<p>贝叶斯推断的难点：</p>
+<ol>
+<li>(2) 式的积分比较难处理。如果先验不是共轭于似然函数，那么后验分布类型与先验分布类型不同，那么 (2) 式的积分难以得到解析解，只能使用数值近似，例如 Markov chain Monte Carlo 等。</li>
+<li>$p(\mathbf x|\boldsymbol \theta)p(\boldsymbol \theta)$ 与后验分布 $p(\boldsymbol \theta|\mathbf x)$ 类型相同，前者未归一化，后者归一化（相差了一个常数归一化因子）。</li>
+</ol>
+<h2 id="2-2-隐变量模型">2.2 隐变量模型</h2>
+<p>有隐变量的生成过程</p>
+<p>$$p(\mathbf x|\mathbf z, \boldsymbol \theta)$$</p>
+<p>其中 $\mathbf x$ 是可观测变量，$\mathbf z$ 是隐变量。对隐变量我们有先验概率 $p(\mathbf z)$。</p>
+<p>数据的不带隐变量的似然概率</p>
+<p>$$p(\mathbf x|\boldsymbol \theta)=\int p(\mathbf x|\mathbf z, \boldsymbol \theta) p(\mathbf z) d \mathbf z$$</p>
+<p>根据上式似然函数，可以进行参数 $\boldsymbol \theta$ 的估计，但是上式中，如果先验 $p(\mathbf z)$ 共轭与似然 $p(\mathbf x|\mathbf z, \boldsymbol \theta)$，那么上式有解析解，否则难分析其解析解。</p>
+<p>我们也可以计算隐变量的后验分布<br>
+$$p(\mathbf z|\mathcal X)=\frac {p(\mathcal X|\mathbf z)p(\mathbf z)}{p(\mathcal X)}$$</p>
+<p>其中数据集的似然为 $p(\mathcal X|\mathbf z)=\int p(\mathcal X|\mathbf z, \boldsymbol \theta)p(\boldsymbol \theta)d\boldsymbol \theta$，这里需要知道模型以及模型参数 $\boldsymbol \theta$ 的先验分布。</p>
+<h2 id="2-3-有向图模型">2.3 有向图模型</h2>
+<p>有向图也称贝叶斯网络，用于表示有依赖条件的概率模型。</p>
+<pre class="mermaid">graph LR
+A(a) -->B(b)
+B --> C(c)
+A --> C(c)</pre>
+<p>上面图示表示的概率满足 $p(a,b,c)=p(c|a,b)p(b|a)p(a)$</p>
+<p>有向图的联合概率分布为</p>
+<p>$$p(\mathbf x)=p(x_1,\ldots,x_K)=\prod_{k=1}^K p(x_k|\text{Pa}_k)$$<br>
+其中 $\text{Pa}_k$ 表示 $x_k$ 节点的所有父节点。</p>
+<h3 id="2-3-1-条件独立">2.3.1 条件独立</h3>
+<p>给定 $\mathcal C$，$\mathcal A$ 条件独立于 $\mathcal B$，记作 $\mathcal A \perp !!! \perp \mathcal B|\mathcal C$。</p>
+<p>考虑所有可能的路径（忽略箭头方向）：从 $\mathcal A$ 中节点出发到达 $\mathcal B$ 中节点。如果路径上某节点满足以下任何一点，那么称这个路径被阻塞：</p>
+<ol>
+<li>箭头到箭尾或者箭尾到箭尾汇合于 $\mathcal C$ 中的某节点</li>
+<li>箭头到箭头交汇于某节点，而此节点和其所有后代节点均不在 $\mathcal C$ 中</li>
+</ol>
+<p>如果 $\mathcal A$ 到 $\mathcal B$ 的所有路径均被阻塞，那么 $\mathcal A \bot \mathcal B|\mathcal C$</p>
+<p>例：</p>
+<pre class="mermaid">graph LR
+A(a) -->B(b) --> C(c)
+C --> D(d)
+A --> D(d)
+D --> E(e)</pre>
+<p>本例中，</p>
+<ol>
+<li>
+<p>$$b \perp !!! \perp d|a,c$$</p>
+<p>$b$ 到 $d$ 的两条路径分别经过 $a, c$，这两条路径均满足条件 <code>1</code>，故被阻塞，条件独立成立</p>
+</li>
+<li>
+<p>$$a \perp !!! \perp c|b$$</p>
+<p>$a$ 到 $c$ 的两条路径分别经过 $b, d$，前者满足条件 <code>1</code>，被阻塞，后者满足条件 <code>2</code>，故均被阻塞，条件独立成立</p>
+</li>
+<li>
+<p>$b \not ! \perp !!! \perp d | c$</p>
+<p>$b$ 到 $d$ 的两条路径分别经过 $a, c$，后者满足条件 <code>1</code>，前者不满足 <code>1,2</code> 任何一条，故未被阻塞，条件独立不成立</p>
+</li>
+<li>
+<p>$a \not ! \perp !!! \perp c|b,e$</p>
+<p>$a$ 到 $c$ 的两条路径分别经过 $b, d$，前者满足条件 <code>1</code>，后者 $d$ 虽然有箭头到箭头的交汇，但是 $d$ 有子节点 $e$，不满足条件 <code>2</code>，条件独立不成立</p>
+</li>
+</ol>
+<p><strong>三节点图</strong></p>
+<p>下面使用三节点图帮助分析条件独立。下列三种情况涵盖了所有的是否条件独立的情况。</p>
+<p><strong>1. case1</strong></p>
+<pre class="mermaid">graph TD
+C(c) --> A(a)
+C(c) --> B(b)</pre>
+<p>易知联合概率分布为 $p(a,b,c)=p(a|c)p(b|c)p©$</p>
+<p><code>(a,b)</code> 的边缘分布为 $p(a,b)=\sum_c p(a|c)p(b|c)p©$<br>
+<code>a</code> 的边缘分布 $p(a)=\sum_c p(a|c)p©$<br>
+<code>b</code> 的边缘分布 $p(b)=\sum_c p(b|c)p©$</p>
+<p>显然 $p(a,b) \not \equiv p(a)p(b)$，故一般而言</p>
+<p>$$a \not ! \perp !!! \perp b |\emptyset$$</p>
+<p>除非巧妙的设计各条件概率，使得 $p(a,b) = p(a)p(b)$，但是这里的有向图考虑的是一般情况，而非特殊情况。</p>
+<p>考虑给定条件 <code>c</code> ，那么</p>
+<p>$$p(a,b|c)=\frac {p(a,b,c)}{p©}=p(a|c)p(b|c)$$</p>
+<p>于是下面结论成立：</p>
+<p>$$a \perp !!! \perp b|c$$</p>
+<p><strong>2. case2</strong></p>
+<pre class="mermaid">graph LR
+A(a) --> C(c) --> B(b)</pre>
+<p>写出联合概率分布 $p(a,b,c)=p(a)p(c|a)p(b|c)$，</p>
+<p>没有前提条件时，</p>
+<p>$p(a,b)=\sum_c p(a)p(c|a)p(b|c)=p(a)\sum_c p(c|a)p(b|c)=p(a)p(b|a)$</p>
+<p>$p(b)=\sum_a p(a) p(b|a)$</p>
+<p>显然 $p(a,b) \not \equiv p(a)p(b)$，故</p>
+<p>$$a \not ! \perp !!! \perp b|\emptyset$$</p>
+<p>给定条件 <code>c</code> 时，</p>
+<p>$$\begin{aligned}p(a,b|c)&amp;=\frac {p(a,b,c)}{p©}<br>
+\&amp;=\frac {p(a)p(c|a)p(b|c)}{p©}<br>
+\&amp;=\frac {p(a,c)p(b|c)}{p©}<br>
+\&amp;=p(a|c)p(b|c) \end{aligned}$$</p>
+<p>于是有</p>
+<p>$$a \perp !!! \perp b|c$$</p>
+<p><strong>3. case3</strong></p>
+<pre class="mermaid">graph TD
+A((a)) --> C((c))
+B((b)) --> C((c))</pre>
+<p>写出联合概率分布 $p(a,b,c)=p(a)p(b)p(c|a,b)$，</p>
+<p>没有前提条件 <code>c</code> 时，</p>
+<p>$p(a,b)=\sum_c p(a)p(b)p(c|a,b)=p(a)p(b)$</p>
+<p>显然</p>
+<p>$$a \perp !!! \perp b|\emptyset$$</p>
+<p>给定条件 <code>c</code> 时，</p>
+<p>$$\begin{aligned}p(a,b|c)&amp;=\frac {p(a,b,c)}{p©}<br>
+\&amp;=\frac {p(a)p(b)p(c|a,b)}{p©}<br>
+\&amp;=\frac {p(a|c)p(b|c)p(c|a,b)}{\sum_{a’,b’}p(c|a’,b’)}<br>
+\&amp;\not \equiv p(a|c)p(b|c) \end{aligned}$$</p>
+<p>于是有</p>
+<p>$$a \not \perp !!! \perp b|c$$</p>
+<h2 id="2-4-Markov-随机场">2.4 Markov 随机场</h2>
+<p>也称 Markov 网络或无向图模型。</p>
+<p>假设无向图中的三个节点集 $A,B,C$，考虑以下条件独立性：</p>
+<p>$$A \perp !!! \perp B|C$$</p>
+<p>上述条件独立成立的条件是：</p>
+<ol>
+<li>从 $A$ 中节点到 $B$ 中节点的所有路径，均通过 $C$ 中节点，那么所有路径均被阻塞，上述条件独立性成立。</li>
+</ol>
+<p>从另一个角度来理解这个条件独立：将 $C$ 中所有节点（以及关联的边）均移除，那么 $A$ 中节点到 $B$ 中节点不存在任何一条路径。</p>
+<p>无向图中引入“团”的概念：由一组节点构成，这组节点中任意两个节点之间均有连接，那么这组节点构成一个团。</p>
+<p>最大团：向一个团中增加任何节点，都不再构成一个新的团，那么原来的团就是最大团。</p>
+<p>例如下图中，有两个最大团 <code>(x1,x2,x3)</code> 和 <code>(x2,x3,4)</code>。</p>
+<pre class="mermaid">graph LR
+LT((x1)) --- RT((x2))
+LT --- LB((x3))
+RT --- RB((x4))
+LB --- RB
+RT --- LB</pre>
+<p>假设我们有一个团，记为 $C$，团中所有节点（随机变量）记为 $\mathbf x_C$，团的势函数为 $\psi_C(\mathbf x_C)$，那么无向图的联合概率分布为其中所有最大团的势函数连乘，</p>
+<p>$$p(\mathbf x)=\frac 1 Z \prod_C \psi_C(\mathbf x_C)$$</p>
+<p>其中 $Z$ 用于归一化，即 $Z=\sum_{\mathbf x} \prod_C \psi_C(\mathbf x_C)$。</p>
+<p>势函数必须满足 $\psi_C(\mathbf x_C) \ge 0$。一个很自然的选择是</p>
+<p>$$\psi_C(\mathbf x_C)=\exp{-E(\mathbf x_C)}$$</p>
+<p>其中 $E(\mathbf x_C)$ 称作能量函数。能量函数越大，对于的势越小，概率也越小。势函数的指数形式，使得上式中势函数的相乘变成能量函数的相加。</p>
+<h3 id="2-4-1-例子：图像降噪">2.4.1 例子：图像降噪</h3>
+<p>如图 1，</p>
+<p><img src="/images/ml/prob_model_1.png" alt=""></p>
+<p>图 1. 左侧是原图，右侧是加噪后图片</p>
+<p>原图是二值图像（图 1 中采样 蓝色和黄色两种颜色表示），像素值 ${-1,1}$，以 <code>10%</code> 的概率反转像素值的符号，原图像素值记为 $x_i$，加噪后像素值为 $y_i$，由于噪声等级较低（10% 的概率）， $x_i, \ y_i$ 之间的关联性较强，且 $x_i, \ x_j$ 的关联性也较强，于是可用下图表示，</p>
+<p><img src="/images/ml/prob_model_2.png" alt=""></p>
+<p>图 2. 图像降噪的无向图</p>
+<p>无向图中有两类团：</p>
+<ol>
+<li>
+<p>${x_i,y_i}$</p>
+<p>这类团的能量函数使用 $E=-\eta x_i y_i, \ \eta &gt; 0$。当 $y_i=x_i$ 时（表示未被噪声污染），$E$ 较小，对应的概率较大。由于噪声等级较低，这种假设是合理的。</p>
+</li>
+<li>
+<p>${x_i, x_j}$，其中 $i,j$ 表示相邻的像素的位置。</p>
+<p>如果 $x_i=x_j$，我们希望这个团具有较低的能量，从而具有较高的概率，观察图 1，这样的期望是合理的，因为大多数时候相邻的像素值相等。故能量函数设为 $E=-\beta x_i x_j$</p>
+</li>
+</ol>
+<p>此外还需要增加一项 $hx_i$，表示像素自身对符号（或对 <code>1,-1</code>中哪个值）的偏好，prior，即 $x_i$ 的先验，即更偏向于 $-1$ 还是 $1$，令背景像素值为 <code>-1</code>，那么显然背景像素的这一项能量较低，其概率较大。</p>
+<p><strong>再来理清上面所说的能量与概率的具体含义：</strong></p>
+<ol>
+<li>
+<p>$hx_i$。我们希望背景像素值 $-1$ 的概率较大，即 $p(x=-1)&gt;p(x=1)$，那么能量值则有 $h \cdot -1 &lt; h \cdot 1 \Rightarrow h&gt;0$。</p>
+<p>假设使用 $p(x_i)$ 来生成随机像素值，显然 $x=-1$ 出现的次数通常要比 $x=1$ 出现的次数多，即背景像素比前景像素多。$hx_i, h &gt;0$ 的假设是合理的</p>
+</li>
+<li>
+<p>$-\eta x_iy_i$ 。由于噪声概率较小，所以符号相反的概率较小，对应的能量值较大。<br>
+令 $f(x,y)=-\eta xy, \ \eta&gt;0$ 表示此类型能量函数，于是 $f(1,-1)&gt;f(1,1)$，且 $f(-1,1)&gt;f(-1,-1)$，故满足符号相反的能量值较大。假设合理。</p>
+</li>
+<li>
+<p>$-\beta x_i x_j$。与 <code>2</code> 类似。</p>
+</li>
+</ol>
+<p>于是整个能量函数为</p>
+<p>$$E(\mathbf x, \mathbf y)=h\sum_i x_i -\beta \sum_{i,j}x_i x_j -\eta \sum_i x_i y_i$$</p>
+<p>联合概率分布为</p>
+<p>$$p(\mathbf x, \mathbf y)=\frac 1 Z \exp {-E(\mathbf x,\mathbf y))}$$</p>
+<p>降噪时，来自带噪图像的像素值 $y_i$ 是以观察值，$x_i$ 是隐变量（不可观察），求条件分布 $p(\mathbf x|\mathbf y)$。这是一个 Ising model，在统计物理中已经被广泛研究。对于这个图像恢复问题，我们要求的是具有最大概率的 $\mathbf x$ 值，下面采样 ICM（iterated condition models）法求解。</p>
+<p><strong>方法1：ICM</strong></p>
+<pre class="line-numbers language-flow" data-language="flow"><code class="language-flow">st<span class="token operator">=></span>start<span class="token operator">:</span> Init <span class="token constant">X</span><span class="token operator">=</span><span class="token constant">Y</span>
+iter<span class="token operator">=></span>condition<span class="token operator">:</span> <span class="token constant">X</span><span class="token operator">-</span><span class="token operator">></span>Xi
+dispatch<span class="token operator">=></span>condition<span class="token operator">:</span> Xi<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span>
+energy<span class="token operator">=></span>operation<span class="token operator">:</span> <span class="token constant">E</span><span class="token punctuation">&#123;</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">&#125;</span><span class="token punctuation">(</span><span class="token constant">X</span><span class="token punctuation">,</span><span class="token constant">Y</span><span class="token punctuation">)</span>
+reenergy<span class="token operator">=></span>operation<span class="token operator">:</span> <span class="token constant">E</span><span class="token punctuation">&#123;</span><span class="token number">1</span><span class="token punctuation">&#125;</span><span class="token punctuation">(</span><span class="token constant">X</span><span class="token punctuation">,</span><span class="token constant">Y</span><span class="token punctuation">)</span>
+reverse<span class="token operator">=></span>operation<span class="token operator">:</span> Xi<span class="token operator">:</span><span class="token operator">=</span><span class="token operator">-</span>Xi
+max<span class="token operator">=></span>operation<span class="token operator">:</span> Xi<span class="token operator">=</span><span class="token constant">E</span><span class="token punctuation">&#123;</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">&#125;</span><span class="token punctuation">(</span><span class="token constant">X</span><span class="token punctuation">,</span><span class="token constant">Y</span><span class="token punctuation">)</span>
+argmax<span class="token operator">=></span>subroutine<span class="token operator">:</span> xx
+cond<span class="token operator">=></span>condition<span class="token operator">:</span> end iter<span class="token operator">?</span>
+e<span class="token operator">=></span>end<span class="token operator">:</span> 输出 <span class="token constant">X</span>
+
+<span class="token function">st</span><span class="token punctuation">(</span>right<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">></span>iter
+<span class="token function">iter</span><span class="token punctuation">(</span>yes<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">></span>dispatch
+<span class="token function">iter</span><span class="token punctuation">(</span>no<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">></span>iter
+<span class="token function">dispatch</span><span class="token punctuation">(</span>yes<span class="token punctuation">,</span>right<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">></span>reenergy
+reenergy<span class="token operator">-</span><span class="token operator">></span>max
+<span class="token function">cond</span><span class="token punctuation">(</span>no<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">></span>iter
+<span class="token function">cond</span><span class="token punctuation">(</span>yes<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">></span>e
+<span class="token function">dispatch</span><span class="token punctuation">(</span>no<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">></span>energy<span class="token operator">-</span><span class="token operator">></span><span class="token function">max</span><span class="token punctuation">(</span>right<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">></span>cond<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>迭代图像 $\mathbf x$，既可以按光栅扫描，也可以随机取点。退出标准可以是人为设定总迭代次数，或者设定一个概率目标值，或者说在每个点都参与计算的前提下，$\mathbf x$ 连续两次迭代不发生概率（局部最大）。</p>
+<p>这种迭代方法不一定得到全局最优解，很有可能是局部最优解。</p>
+<p>本例中，$\beta=1.0, \eta=2.1, h=0$，其中 $h=0$ 表示不考虑先验。另外，如果 $\beta=0$，那么表示不考虑相邻像素的关系，那么很有可能迭代的最终结果与带噪图像相同。</p>
+<p><strong>方法2：graph cuts</strong></p>
+<p>基于图割的方法（Greig et al., 1989; Boykov et al., 2001; Kolmogorov and  Zabih, 2004），求后验 $p(\mathbf x|\mathbf z)$ 全局最优解。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2022/02/14/ml/prob_model/">https://jianjiansha.github.io/2022/02/14/ml/prob_model/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/machine-learning/">
+                                    <span class="chip bg-color">machine learning</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/02/14/ml/PCA/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/19.jpg" class="responsive-img" alt="主成分分析">
+                        
+                        <span class="card-title">主成分分析</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            主成分分析用于数据降维
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-02-14
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/machine-learning/">
+                        <span class="chip bg-color">machine learning</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/02/12/math/statistic_concepts/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/4.jpg" class="responsive-img" alt="概率统计基本概念">
+                        
+                        <span class="card-title">概率统计基本概念</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            总结概率统计的一些知识点。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-02-12
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/math/">
+                        <span class="chip bg-color">math</span>
+                    </a>
+                    
+                    <a href="/tags/machine-learning/">
+                        <span class="chip bg-color">machine learning</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

@@ -1,0 +1,1534 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="PyTorch-3, SJJ">
+    <meta name="description" content="在 PyTorch-2 我们已经了解了 torch 包的初始化过程，接下来便可以愉快查看这个 package 包含哪些字段（包含函数和类）了，再参照 PyTorch 的官方文档，了解其中各个函数的具体实现。
+
+torch 包
+从 torch">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>PyTorch-3 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/7.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">PyTorch-3</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/PyTorch/">
+                                <span class="chip bg-color">PyTorch</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/DL-Framework/" class="post-category">
+                                DL Framework
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-06-18
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>在 <a href="PyTorch-2">PyTorch-2</a> 我们已经了解了 torch 包的初始化过程，接下来便可以愉快查看这个 package 包含哪些字段（包含函数和类）了，再参照 PyTorch 的<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/torch.html">官方文档</a>，了解其中各个函数的具体实现。</p>
+<span id="more"></span>
+<h1>torch 包</h1>
+<p>从 <code>torch/__init__.py</code> 中可以查看所有的 torch 包的所有字段，包括：</p>
+<ol>
+<li>直接在此文件中定义的函数/字段，如 typename, is_tensor, is_storage, _storage_classes 等</li>
+<li>从 torch 包的模块中导入的函数/类，如<pre class="line-numbers language-none"><code class="language-none">from .random import set_rng_state, get_rng_state, manual_seed, initial_seed
+...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+</li>
+<li>从 torch._C 中导入的字段/函数/类</li>
+<li>从 torch._C._VariableFunctions 导入的字段/函数</li>
+</ol>
+<p>PyTorch 官方文档中 torch 包有很多函数。这里举几个例子进行说明。</p>
+<h2 id="torch-empty">torch.empty</h2>
+<p>这个函数实际上来自于 torch._C._VariableFunctions 这个类。文件 torch/csrc/Module.cpp 中调用函数 THPVariable_initModule，跳转到 torch/csrc/autograd/python_variable.cpp 查看函数定义，其定义体中调用 torch::autograd::initTorchFunctions，而这个函数定义位于 torch/csrc/autograd/generated/python_torch_functions.cpp，这个文件是安装 PyTorch 过程中生成的，按以下步骤查看这个文件的生成过程：</p>
+<ol>
+<li>caffe2/CMakeLists.txt 中的文件生成语句为<pre class="line-numbers language-none"><code class="language-none">set(GENERATED_CXX_PYTHON
+  ...
+  &quot;$&#123;TORCH_SRC_DIR&#125;&#x2F;csrc&#x2F;autograd&#x2F;generated&#x2F;python_torch_functions.cpp&quot;
+  ...)
+...
+add_custom_command(
+    OUTPUT
+    $&#123;TORCH_GENERATED_CODE&#125;
+    COMMAND
+    &quot;$&#123;PYTHON_EXECUTABLE&#125;&quot; tools&#x2F;setup_helpers&#x2F;generate_code.py
+     ...
+    DEPENDS
+    ...)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li>执行 tools/setup_helpers/generate_code.py。在函数 generate_code 中调用了以下四个函数生成文件，<pre class="line-numbers language-none"><code class="language-none">generate_nn_wrappers
+gen_autograd_python
+gen_autograd
+gen_jit_dispatch<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+</ol>
+<p>这四个函数的实现都是非常繁琐的，这里以生成 torch/csrc/autograd/generated/python_torch_functions.cpp 为例，实际上是将模板文件 tools/autograd/templates/python_torch_functions.cpp 中的 ${py_methods} 和 ${py_method_defs} 分别替换为对应的方法实现和方法签名，这些方法来自于 torch/share/ATen/Declarations.yaml, tools/autograd/deprecated.yaml, tools/autograd/derivatives.yaml，其中第一个文件又需要动态生成，过程为：</p>
+<ol>
+<li>在 caffe2/CMakeLists.txt 中有语句<pre class="line-numbers language-none"><code class="language-none">include(..&#x2F;cmake&#x2F;Codegen.cmake)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li>在文件 cmake/Codegen.cmake 中调用 <code>gen.py</code><pre class="line-numbers language-none"><code class="language-none">SET(GEN_COMMAND
+    &quot;$&#123;PYTHON_EXECUTABLE&#125;&quot; $&#123;CMAKE_CURRENT_LIST_DIR&#125;&#x2F;..&#x2F;aten&#x2F;src&#x2F;ATen&#x2F;gen.py
+    --source-path $&#123;CMAKE_CURRENT_LIST_DIR&#125;&#x2F;..&#x2F;aten&#x2F;src&#x2F;ATen
+    --install_dir $&#123;CMAKE_BINARY_DIR&#125;&#x2F;aten&#x2F;src&#x2F;ATen
+    $&#123;GEN_ROCM_FLAG&#125;
+    $&#123;cwrap_files&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+（在 aten/src/ATen/native/native_functions.yaml 找到 <code>empty</code> 的函数签名）</li>
+<li>aten/src/ATen/gen.py 中的 generate_outputs 函数生成 Declarations.yaml 文件<pre class="line-numbers language-none"><code class="language-none">file_manager.write(&quot;Declarations.yaml&quot;, format_yaml(output_declarations))<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li>根据第 2 点，install_dir 为 build/aten/src/ATen，所以 Declarations.yaml 生成路径此时为 build/aten/src/ATen，根据以下步骤安装此文件
+<ul>
+<li>CMakeLists.txt 中的 add_subdirectory(caffe2)</li>
+<li>caffe2/CMakeLists.txt 中的 add_subdirectory(…/aten aten)</li>
+<li>aten/CMakeLists.txt 中的 add_subdirectory(src/ATen)</li>
+<li>aten/src/ATen/CMakeLists.txt 中有，<pre class="line-numbers language-none"><code class="language-none">INSTALL(FILES $&#123;CMAKE_BINARY_DIR&#125;&#x2F;aten&#x2F;src&#x2F;ATen&#x2F;Declarations.yaml
+  DESTINATION $&#123;AT_INSTALL_SHARE_DIR&#125;&#x2F;ATen)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+</li>
+</ul>
+事实上，除了这里的 Declarations.yaml，在 aten/src/ATen/CMakeLists.txt 中还安装了很多头文件，其中就包括下文将提到的 build/aten/src/ATen/Functions.h，具体参见 aten/src/ATen/CMakeLists.txt 中其他 INSTALL 指令调用。</li>
+</ol>
+<p>找到这些函数来源后，通过 tools/autograd/gen_python_functions.py 中的函数 create_python_bindings 生成 ${py_methods} 和 ${py_method_defs} 的内容，</p>
+<pre class="line-numbers language-none"><code class="language-none">PY_VARIABLE_METHOD_VARARGS &#x3D; CodeTemplate(&quot;&quot;&quot;\
+static PyObject * $&#123;pycname&#125;(PyObject* self_, PyObject* args, PyObject* kwargs)
+&#123;
+    HANDLE_TH_ERRORS
+    static PythonArgsParser parser(&#123;
+        $&#123;signatures&#125;
+    &#125;, &#x2F;*traceable&#x3D;*&#x2F;$&#123;traceable&#125;);
+    $&#123;unpack_self&#125;
+    ParserArgs&lt;$&#123;max_args&#125;&gt; parsed_args;
+    auto r &#x3D; parser.parse(args, kwargs, parsed_args);
+    $&#123;declare_namedtuple_return_types&#125;
+    $&#123;dispatch&#125;
+    Py_RETURN_NONE;
+    END_HANDLE_TH_ERRORS
+&#125;
+&quot;&quot;&quot;)
+...
+def create_python_bindings(python_functions, has_self, is_module&#x3D;False):
+    def process_function(name, declarations):
+        ...
+        env &#x3D; &#123;
+            &#39;name&#39;: name,
+            &#39;dispatch_name&#39;: &#39;dispatch_&#123;&#125;&#39;.format(name),
+            &#39;pycname&#39;: &#39;THPVariable_&#123;&#125;&#39;.format(name),
+            &#39;signature&#39;: [],
+            &#39;max_args&#39;: max(len(o[&#39;arguments&#39;])+len(o[&#39;python_binding_arguments&#39;]) for o in declarations),
+            &#39;unpack_self&#39;: [],
+            &#39;dispatch&#39;: [],
+            &#39;declare_namedtuple_return_types&#39;: &#39;&#39;,
+        &#125;
+        ... &#x2F;&#x2F; 向 env 增加 key-value pair or 更新 env 中已有 key 的 value
+        if len(declarations) &#x3D;&#x3D; 1 and len(declarations[0][&#39;args&#39;]) &#x3D;&#x3D; 1 and has_self:
+            ...
+        else:
+            tmpl &#x3D; PY_VARIABLE_METHOD_VARARGS
+            env[&#39;flags&#39;] &#x3D; &#39;METH_VARARGS | METH_KEYWORDS&#39;
+        if not is_module and not has_self:
+            env[&#39;flags&#39;] +&#x3D; &#39; | METH_STATIC&#39;
+        
+        py_methods.append(tmpl.substitute(env))
+        py_methods_defs.append(PY_VARIABLE_METHOD_DEF.substitute(env))<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>通过以上代码片段可知，对于函数定义的生成，使用一个函数定义模板 PY_VARIABLE_METHOD_VARARGS，然后对每个函数，来自于 Declarations.yaml, deprecated.yaml, derivatives.yaml，抽取有关字段的值存储到 env 字典中，然后将 PY_VARIABLE_METHOD_VARARGS 中的占位符使用 env 中相应 key 的值替换，就得到这个函数的定义。</p>
+<h2 id="empty-定义">empty 定义</h2>
+<p>我们看生成后的 empty 函数定义（位于文件 torch/csrc/autograd/generated/python_torch_function.cpp）</p>
+<pre class="line-numbers language-none"><code class="language-none">static PyObject * THPVariable_empty(PyObject* self_, PyObject* args, PyObject* kwargs)
+&#123;
+    HANDLE_TH_ERRORS
+    static PythonArgParser parser(&#123;
+        &quot;empty(IntList size, *, Tensor out&#x3D;None, ScalarType dtype&#x3D;None, Layout layout&#x3D;torch.strided, Device device&#x3D;None, bool requires_grad&#x3D;False)&quot;,
+    &#125;, &#x2F;*tracebalbe*&#x2F;true); &#x2F;&#x2F; 大括号初始化器，得到函数签名的vector
+    ParseArgs&lt;6&gt; parsed_args;
+    auto r &#x3D; parser.parse(args, kwargs, parseed_args);
+    if (r.idx &#x3D;&#x3D; 0) &#123;       &#x2F;&#x2F; 函数签名在vector中的下标
+        if (r.isNone(1)) &#123;  &#x2F;&#x2F; parameter &#39;out&#39; is None
+            auto size &#x3D; r.intlist(0);
+            auto dtype &#x3D; r.scalartype(2);
+            auto device &#x3D; r.device(4);
+            const auto options &#x3D; TensorOptions()
+                .dtype(dtype)
+                .device(device)
+                .layout(r.layout(3).layout)
+                .requires_grad(r.toBool(5));
+            return wrap(dispatch_empty(size, options));
+        &#125; else &#123;
+            check_out_type_matches(r.tensor(1), r.scalartype(2), r.isNone(2),
+                                   r.layout(3), r.isNone(3),
+                                   r.device(4), r.isNone(4));
+            return wrap(dispatch_empty(r.intlist(0), r.tensor(1)).set_requires_grad(r.toBool(5)));
+        &#125;
+    &#125;
+    Py_RETURN_NONE;
+    END_HANDLE_TH_ERRORS
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>从以上代码中可见，要创建一个 empty 的 Tensor，首先检查调用者是否提供了一个 Tensor，如未提供，则先创建一个 Tensor：</p>
+<ol>
+<li><code>out</code> 参数为None，则需要根据参数 dtype, device, layout 和 requires_grad 创建 Tensor</li>
+<li><code>out</code> 参数不为None, 则检查 <code>out</code> 这个 Tensor 与参数 dtype, layout, device 是否匹配，如果匹配，还需要将 <code>out</code> 的 requires_grad 属性重置为参数 requires_grad</li>
+</ol>
+<p>然后调用函数 dispatch_empty，这个函数总共有两个重载版本，位于 torch/csrc/autograd/generated/python_torch_functions_dispatch.h，这个文件与同目录下的 python_torch_function.cpp 一样也是动态生成的，生成逻辑也是一样的，将 tools/autograd/templates/python_torch_functions_dispatch.h 中的占位符替换掉，不再具体展开，可参见 tools/autograd/gen_python_functions.py 中的函数 gen_py_torch_functions。dispatch_empty 的两个重载版本为，</p>
+<pre class="line-numbers language-none"><code class="language-none">&#x2F;&#x2F; empty 函数调用者提供了 Tensor &#39;out&#39;
+inline Tensor dispatch_empty(IntList size, Tensor result) &#123;
+    AutoNoGIL no_gil;
+    return at::empty_out(result, size);
+&#125;
+&#x2F;&#x2F; empty 函数调用者未提供 Tensor &#39;out&#39;，需要根据参数 options 创建
+inline Tensor dispatch_empty(IntList size, const TensorOptions &amp; options) &#123;
+    maybe_initialize_cuda(options);
+    AutoNoGIL no_gil;
+    return torch::empty(size, options);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="有输出-Tensor">有输出 Tensor</h3>
+<p>我们看第一个重置版本的定义体，即，调用者提供了输出 Tensor，首先构造一个结构实例 AutoNoGIL，这个结构的构造函数为</p>
+<pre class="line-numbers language-none"><code class="language-none">AutoNoGIL() : save(PyEval_SaveThread()) &#123;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>可以看出，先释放 GIL，因为下一句执行的 at::empty_out 可能会慢很多，为了防止程序使用多线程，但仍然被阻塞在这里，所以释放 GIL，待 at::empty_out 执行完毕，再重新获取 GIL，</p>
+<pre class="line-numbers language-none"><code class="language-none">~AutoNoGIL() &#123;
+    PyEval_RestoreThread(save);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>然后 at::empty_out 函数位于 torch/lib/include/Aten/Functions.h，</p>
+<pre class="line-numbers language-none"><code class="language-none">static inline Tensor &amp; empty_out(Tensor &amp; result, IntList size) &#123;
+    return detail::infer_type(result).empty_out(result, size);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>在分析 at::empty_out 函数之前，我们需要知道这里的 Functions.h 也是动态生成的，在项目源码中稍作查询便知，在 aten/src/ATen/gen.py 中的 generate_outputs 函数中使用如下语句生成（与前面的 Declarations.yaml 文件的生成在同一处地方），</p>
+<pre class="line-numbers language-none"><code class="language-none">file_manager.write(&#39;Functions.h&#39;, FUNCTIONS_H, top_env)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>现在回到 at::empty_out 函数定义上来，首先 detail::infer_type(result) 根据调用用传入的 Tensor 实例 result 得到 TypeExtendedInference 类型实例，然后调用实例函数 empty_out。这里相关的结构、类为 TypeExtendedInferface，TypeDefault，位于文件 torch/lib/include/ATen/TypeExtendedInferface.h， torch/lib/include/ATen/TypeDefault.h，此外，TypeDefault类方法实现源文件为 build/aten/src/ATen/TypeDefault.cpp，接口方法 empty_out 的实现正是位于此文件中，</p>
+<pre class="line-numbers language-none"><code class="language-none">Tensor &amp; TypeDefault::empty_out(Tensor &amp; result, IntList size) const &#123;
+    return at::native::empty_out(&#x2F;* native_actuals *&#x2F; result, size);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>首先这三个文件是动态生成的（与 Declarations.yaml 相同）。然后我们看方法定义体中，直接调用另一个同名函数 at::native::empty_out 下，函数声明位于文件 torch/lib/include/ATen/NativeFunctions.h，此文件动态生成（与 Declarations.yaml 相同），函数实现位于 aten/src/ATen/native/TensorFactories.cpp，这个文件不是动态生成的（终于来了一个非动态生成的了），在此文件中查看函数定义，</p>
+<pre class="line-numbers language-none"><code class="language-none">namespace at &#123;
+namespace native &#123;
+...
+Tensor&amp; empty_out(Tensor&amp; result, IntList size) &#123;
+    if (result.is_sparse()) &#123;
+        result.sparse_resize_and_clear_(size, size.size(), 0);
+    &#125; else &#123;
+        result.resize_(size);
+    &#125;
+    return result;
+&#125;
+...
+&#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>显然，根据输出 Tensor 是否是稀疏的进行不同的处理。</p>
+<ol>
+<li>
+<p>输出 Tensor 是稀疏的</p>
+<p>对输出 Tensor 调用方法 sparse_resize_and_clear_，声明位于 torch/lib/include/ATen/core/Tensor.h，此文件动态生成，与 Declarations.yaml 相同，见于 aten/src/ATen/gen.py，但是实际上源码中存在 aten/src/ATen/core/Tensor.h，并且这俩文件完全一样，还有 TensorMethods.h 和 Type.h 均存在这个现象，这里暂时不清楚为啥会这样。sparse_resize_and_clear_ 的函数实现位于 torch/lib/include/ATen/core/TensorMethods.h，</p>
+<pre class="line-numbers language-none"><code class="language-none">inline Tensor &amp; Tensor::sparse_resize_and_clear_(IntList size, int64_t sparse_dim, int64_t dense_dim) &#123;
+    return type().sparse_resize_and_clear_(*this, size, sparse_dim, dense_dim);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>先根据当前 Tensor 获取对应的 Type，然后调用 Type 类型的 sparse_resize_and_clear_ 方法，Type 这个结构是一个接口，其接口函数的具体实现见各个具体 Type 的 .cpp 文件，Type 是由数值类型（如 int,float,double 等）和 Backend（CPU,CUDA,SparseCPU, SparseCUDA 等）组合而成，比如 SparseCPUByteType.h 和 SparseCPUByteType.cpp，此函数的的定义为</p>
+<pre class="line-numbers language-none"><code class="language-none">Tensor &amp; SparseCPUByteType::sparse_resize_and_clear_(Tensor &amp; self, IntList size, int64_t sparse_dim, int64_t dense_dim) const &#123;
+    const OptionalDeviceGuard device_guard(device_of(self));
+    return at::native::sparse_resize_and_clear_(&#x2F;* actuals *&#x2F; self, size, sparse_dim, dense_dim);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中 at::native::sparse_resize_and_clear_ 函数声明位于 torch/lib/include/ATen/NativeFunctions.h，函数实现位于 aten/src/ATen/native/sparse/SparseTensor.cpp，</p>
+<pre class="line-numbers language-none"><code class="language-none">SparseTensor&amp; sparse_resize_and_clear_(SparseTensor&amp; self, ArrayRef&lt;int64_t&gt; size, int64_t sparse_dim, int64_t dense_dim) &#123;
+    get_sparse_impl(self)-&gt;resize_and_clear_(sparse_dim, dense_dim, size);
+    return self;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>根据 Tensor 获取其底层实现 SparseTensorImpl 类对象，然后调用 SparseTensorImpl 的方法 resize_and_clear_。</p>
+</li>
+<li>
+<p>输出 Tensor 是密集的</p>
+<p>Tensor 的 resize_ 方法定义见 TensorMethods.h，为</p>
+<pre class="line-numbers language-none"><code class="language-none">inline Tensor &amp; Tensor::resize_(IntList size) &#123;
+    return type().resize_(*this, size);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>调用这个 Tensor 的类型方法 resize_，以 CPUByteType.cpp 为例，定义如下</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">Tensor &amp; CPUByteType::resize_(Tensor &amp; self, IntList size) const &#123;
+    return at::native::resize_cpu_(&#x2F;* actuals *&#x2F; self, size);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>可见，对 Tensor 按给定 size 进行 resize 操作，这个位于 aten/src/ATen/native/Resize.cpp 中的 resize_cpu_ 方法定义为，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">Tensor&amp; resize_cpu_(Tensor&amp; self, IntList size) &#123;
+    auto* self &#x3D; self.unsafeGetTensorImpl();         &#x2F;&#x2F; 获取 Tensor 的底层实现类对象
+    &#x2F;&#x2F; 按给定 size 大小对 Tensor 进行 resize，当 size 大小比 Tensor size 大时，才分配一个更大的内存块
+    resize_impl_cpu_(self_, size, c10::nullopt);     
+    self_-&gt;maybe_zero_dim(size.size()&#x3D;&#x3D;0);
+    return self;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上面这个代码片段中，resize_impl_cpu_ 表示以 cpu 实现方式进行内存 resize 操作，此函数定义位于 aten/src/ATen/native/Resize.h 下，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">inline TensorImpl* resize_impl_cpu_(
+    TensorImpl* self,
+    IntList size,
+    c10::optional&lt;IntList&gt; stride) &#123;
+    if (self-&gt;sizes() &#x3D;&#x3D; size &amp;&amp; (!stride || self-&gt;strides() &#x3D;&#x3D; stride)) &#123;
+        &#x2F;&#x2F; 如果当前 size 与将要重新分配 size 相等，且未指定新的步幅，或者当前数据步幅与新的步幅相等，那么无需重新分配内存
+        &#x2F;&#x2F; size 是整型列表，size 相等意味着列表元素数量相等，且对应位置的元素均相等
+        return self;
+    &#125;
+    int64_t storage_size &#x3D; 1;
+    ...
+    if(!stride)&#123;     &#x2F;&#x2F; 未指定步幅，则数据布局是近邻的，连续的，即，stride&#x3D;1
+        self-&gt;set_sizes_contiguous(size);    &#x2F;&#x2F; 设置当前 size 为新的 size
+        storage_size &#x3D; self-&gt;numel();        &#x2F;&#x2F; 设置 size 之后，计算元素数量，例如 size 为 (n1,n2,n3)，那么元素数量为 n1 * n2 * n3
+    &#125;
+    maybe_resize_storage_cpu(self, storage_size);    &#x2F;&#x2F; resize 操作
+&#125;
+
+static inline void maybe_resize_storage_cpu(TensorImpl* self, int64_t new_size) &#123;
+    ...
+    if (new_size+self-&gt;storage_offset() &gt; self-&gt;storage().numel()) &#123;
+        &#x2F;&#x2F; self-&gt;storage_offset() 通常返回 0
+        &#x2F;&#x2F; 只有需要更多的元素数量时，才重新分配内存
+        THStorage_resize(THTensor_getStoragePtr(self), new_size+self-&gt;storage_offset());
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>我们再来看位于 aten/src/TH/THStorageFunctions.cpp 中的 THStorage_resize 函数定义，</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">void THStorage_resize(THStorage* storage, ptrdiff_t size) &#123;
+    if (storage-&gt;resizable()) &#123;
+        at::DataPtr new_data;
+        if (size !&#x3D; 0) &#123;
+            new_data &#x3D; storage-&gt;allocator()-&gt;allocate(storage-&gt;itemsize()*size);
+        &#125;
+        &#x2F;&#x2F; 旧数据为 Tensor 已经存储的数据，新数据为上一步新分配的内存
+        &#x2F;&#x2F; 设置 Tensor 内部存储指向新数据，同时返回旧数据
+        at::DataPtr old_data &#x3D; storage-&gt;set_data_ptr(std::move(new_data));
+        ptrdiff_t old_size &#x3D; storage-&gt;numel();   &#x2F;&#x2F; 旧数据 size，元素数量
+        storage-&gt;set_numel(size);                &#x2F;&#x2F; 设置新的元素熟路
+        if (old_data !&#x3D; nullptr) &#123;
+            ptrdiff_t copy_size &#x3D; old_size;
+            if (storage-&gt;numel() &lt; copy_size) &#123;
+                copy_size &#x3D; storage_numel();
+            &#125;
+            if (copy_size &gt; 0) &#123;                 &#x2F;&#x2F; 内存数据考虑
+                memcpy(
+                    storage-&gt;data(),
+                    old_data.get(),
+                    storage-&gt;itemsize() * copy_size);
+            &#125;
+        &#125;
+    &#125;
+    ...
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>从上面的代码片段可见整个 resize 过程，假设原先元素数量为 N1，resize 后的元素数量为 N2，那么</p>
+<ol>
+<li>N1 &gt;= N2，不重新分配内存，仅仅设置新的 size，标记原来 N1 个元素中前 N2 个元素处于当前使用中</li>
+<li>N1 &lt; N2，重新分配内存，并将原来 N1 个元素值拷贝到新内存中前 N1 个位置上，剩余的元素值由 Tensor 内部存储的内存分配器 allocator 决定。</li>
+</ol>
+</li>
+</ol>
+<p>实验验证上述 torch.empty 过程，代码如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> torch
+
+x<span class="token operator">=</span>torch<span class="token punctuation">.</span>rand<span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+torch<span class="token punctuation">.</span>empty<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">,</span>out<span class="token operator">=</span>x<span class="token punctuation">)</span>  <span class="token comment"># resize 到一个较大的 size</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+torch<span class="token punctuation">.</span>empty<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span>out<span class="token operator">=</span>x<span class="token punctuation">)</span>  <span class="token comment"># resize 到一个较小的 size</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+torch<span class="token punctuation">.</span>empty<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span>out<span class="token operator">=</span>x<span class="token punctuation">)</span>  <span class="token comment"># 再次 resize 到一个较大的 size</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>本次输出如下，从以下结果可以看出是符合上述过程的。</p>
+<pre class="line-numbers language-none"><code class="language-none">tensor([[0.0446, 0.1545, 0.5059, 0.6027],
+        [0.4872, 0.4557, 0.1010, 0.2962],
+        [0.0576, 0.1087, 0.3033, 0.4694]])
+tensor([[4.4638e-02, 1.5454e-01, 5.0591e-01, 6.0266e-01, 4.8720e-01],
+        [4.5573e-01, 1.0103e-01, 2.9619e-01, 5.7569e-02, 1.0874e-01],
+        [3.0331e-01, 4.6944e-01, 0.0000e+00, 0.0000e+00,        nan],
+        [0.0000e+00, 1.4013e-45, 0.0000e+00, 1.4013e-45, 0.0000e+00]])
+tensor([[0.0446, 0.1545]])
+tensor([[0.0446, 0.1545, 0.5059, 0.6027],
+        [0.4872, 0.4557, 0.1010, 0.2962],
+        [0.0576, 0.1087, 0.3033, 0.4694],
+        [0.0000, 0.0000,    nan, 0.0000]])<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="无输出-Tensor">无输出 Tensor</h3>
+<p>回到 torch/csrc/autograd/generated/python_torch_functions_dispatch.h 这个文件，无输出 tensor 的 dispatch_empty 函数直接调用 torch::empty，此函数位于 torch/csrc/autograd/generated/variable_factories.h，在此函数定义中，我们暂且忽略 jit 跟踪部分的代码（用于跟踪记录有关 Tensor 的操作），核心的实现代码为</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">inline at::Tensor empty(at::IntList size, const at::TensorOptions &amp; options&#x3D;&#123;&#125;) &#123;
+    ...     &#x2F;&#x2F; jit tracing
+    at::Tensor tensor &#x3D; at::empty(size, at::TensorOptions(options).is_variable(false));
+    auto result &#x3D; autograd::make_variable(tensor, options.requires_grad()); &#x2F;&#x2F; 将 Tensor 转为 Variable
+    ...     &#x2F;&#x2F; jit tracing
+    return result
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中 at::empty 位于安装时动态生成的源文件 Functions.h（见上文分析），这个函数定义为</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">static inline Tensor empty(IntList size, const TensorOptions &amp; options) &#123;
+    return at::getType(options).empty(size, options);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>与有输出 Tensor 的 empty 函数实现逻辑类似，这里 at::getType(options) 根据给定的 options 构造出 TypeExtendedInterface 接口的具体实现类的 instance，具体而言，根据 options.backend(), options.dtype() 和 options.is_variable() 获取具体类型实例，而类型实例是事先注册好的，以 CPU 为 backend 为例说明，在 aten/src/ATen/Context.cpp 中 Context 的构造函数中，执行函数 register_cpu_types(this) 进行注册，而 register_cpu_type(Context* context) 函数位于 build/aten/src/ATen/RegisterCPU.cpp 文件，此文件由 aten/src/ATen/gen.py 中的 generate_outputs 函数生成（关于 <a target="_blank" rel="noopener" href="http://gen.py">gen.py</a> 文件，上文也有介绍），现在我们来看看 register_cpu_types 中注册哪些类型</p>
+<pre class="line-numbers language-none"><code class="language-none">CPUByteType
+CPUCharType
+CPUDoubleType
+CPUFloatType
+CPUIntType
+CPULongType
+CPUShortType
+...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>我们随便选择一个类型，比如 CPUByteType，查看其中 empty 函数实现，</p>
+<pre class="line-numbers language-none"><code class="language-none">Tensor CPUByteType::empty(IntList size, const TensorOptions &amp; options) const &#123;
+    const DeviceGuard device_guard(options.device());   &#x2F;&#x2F; 准备在指定 device 上构造 Tensor
+    return at::native::empty_cpu(size, options);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>以上 at::native::empty_cpu 函数位于 aten/src/ATen/native/TensorFactories.cpp 中，函数实现体的部分为</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">auto* allocator &#x3D; at::getCPUAllocator();
+int64_t nelements &#x3D; prod_intlist(size); &#x2F;&#x2F; 连乘（各维度值），得到总元素数量
+auto dtype &#x3D; options.dtype();
+auto storage_impl &#x3D; c10::make_intrusive&lt;StorageImpl&gt;(
+    dtype,
+    nelements,
+    allocator-&gt;allocate(nelements*dtype.itemsize()),
+    allocator,
+    &#x2F;*resizeable&#x3D;*&#x2F;true
+);
+auto tensor &#x3D; detail::make_tensor&lt;TensorImpl&gt;(storage_impl, at::CPUTensorId(), false);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>继续查看 c10::make_intrusive<StorageImpl> 函数定义，不难得知先进行 new StorageImpl(…)，然后 wrap 为 intrusive_ptr，在 <a href="2019/06/13/PyTorch-2">PyTorch-2</a> 中，我们讨论过各种 Tensor 的底层实现都是 StorageImpl，所以 StorageImpl 对象可以通过 detail::make_tensor 转为对应的 Tensor。根据 at::getCPUAllocator 查看其定义得知获得的是 THDefaultAllocator 实例，其 allocate 方法调用 THAlloc 分配内存，THAlloc 内部调用 THAllocInternal 分配内存，而这个函数又使用 malloc（某些情况下也会使用 posix_memalign 申请对齐内存） 申请一块未初始化的内存。</p>
+<p>示例：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> torch
+torch<span class="token punctuation">.</span>empty<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>结果为（每次执行结果可能不同，不固定）</p>
+<pre class="line-numbers language-none"><code class="language-none">tensor([[1.6504e-12,3.0637e-41,1.6588e-12],
+        [3.0637e-41,4.4842e-44,0.0000e+00]])<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h3 id="Tensor-的由来">Tensor 的由来</h3>
+<p>这里我们讨论 torch.empty 函数是如何返回得到 torch.Tensor 对象的。一开始，在 <code>torch/__init__.py</code> 中 <code>import autograd</code>，继而查看 <code>torch/autograd/__init__.py</code>，发现如下调用</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">if</span> <span class="token keyword">not</span> torch<span class="token punctuation">.</span>_C<span class="token punctuation">.</span>_autograd_init<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>_autograd_init 这个 python 函数在 torch/csrc/Module.cpp 中注册，其底层实现是由 THPAutograd_initExtension 完成，这个 c++ 函数声明位于头文件 torch/csrc/autograd/autograd.h 中，函数实现位于 torch/csrc/autograd/init.cpp 中，看下这个函数的部分定义</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 加载 torch&#x2F;tensor.py 模块
+auto tensor_module &#x3D; THPObjectPtr(PyImport_ImportModule(&quot;torch.tensor&quot;));
+&#x2F;&#x2F; 获取 torch&#x2F;tensor.py 中的 Tensor 类型
+THPVariableClass &#x3D; PyObject_GetAttrString(tensor_module, &quot;Tensor&quot;);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>要知道 <code>THPVariableClass</code> 这个类型对象声明位于 torch/csrc/autograd/python_variable.h 中</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">THP_API PyObject *THPVariableClass;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>嗯，这是一个 extern 声明，其原本定义位于 torch/csrc/autograd/python_variable.cpp 中。好，现在回到 torch.empty 的底层 c++ 实现部分，即上文 THPVariable_empty 函数定义，在 dispatch_empty 返回一个 Variable 对象后，经过 wrap 包装为 PyObject，来看 wrap 的定义，位于 torch/csrc/autograd/utils/wrap_outputs.h 中，其内部调用 THPVariable_Wrap，这个函数也位于 torch/csrc/autograd/python_variable.cpp，与 THPVariableClass 定义在同一个文件中，前面我们已经知道 THPVariableClass 就是 torch/tensor.py 中的 Tensor 类型，而这里 THPVariable_Wrap 通过调用 THPVariable_NewWithVar 将 Variable 对象包装为 THPVariableClass 对象，即 Tensor 实例。THPVariable_NewWithVar 函数定义的部分代码为</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">static PyObject* THPVariable_NewWithVar(PyTypeObject* type, Variable var) &#123;
+PyObject *obj&#x3D;type-&gt;tp_alloc(type, 0);      &#x2F;&#x2F; 申请 torch.Tensor 所需要的内存
+if(obj) &#123;
+    auto v &#x3D; (THPVariable*)obj; &#x2F;&#x2F; cast 为 THPVariable 类型指针，即 torch.Tensor 的基类 torch._C._TensorBase 的指针
+    new(&amp;v-&gt;cdata) Variable(std::move(var));    &#x2F;&#x2F; 指定内存中，移动构造 Variable（C++ 版本的 Tensor）
+    v-&gt;cdata.set_pyobj(obj);
+    ...
+&#125;
+return obj;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>示例</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token operator">>></span><span class="token operator">></span> <span class="token builtin">type</span><span class="token punctuation">(</span>torch<span class="token punctuation">.</span>empty<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token string">'torch.Tensor'</span><span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h1>PS</h1>
+<p>好吧，主要是因为内容太多了，樯橹灰飞烟灭，先到此为止吧，就当是梳理了一下方法调用过程，等以后熟悉了整个代码框架，再回头重新整理一番。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2019/06/18/pytorch/PyTorch-3/">https://jianjiansha.github.io/2019/06/18/pytorch/PyTorch-3/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/PyTorch/">
+                                    <span class="chip bg-color">PyTorch</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/06/21/obj_det/TridentNet/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="TridentNet">
+                        
+                        <span class="card-title">TridentNet</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            论文：Scale-Aware Trident Networks for Object Detection
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2019-06-21
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/object-detection/">
+                        <span class="chip bg-color">object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/06/16/obj_det/mAP/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="mAP">
+                        
+                        <span class="card-title">mAP</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            mAP
+目标检测中，不同比赛的评估指标通常也不相同，我们先以 PASCAL VOC 为例进行说明。
+-目标检测中常用的评价标准是 mAP（mean Average Precision），入坑目标检测的应该都知道 mAP 是 AP 的平均，即
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-06-16
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/object-detection/">
+                        <span class="chip bg-color">object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>
