@@ -285,6 +285,9 @@ DIV2K/
         |-- X4/         # 0801x4.png, ..., 1000x4.png LR images
 ```
 
+## 1.6 CCPD
+
+ccpd 数据集是车牌识别数据集
 
 # 2. MultiModal
 

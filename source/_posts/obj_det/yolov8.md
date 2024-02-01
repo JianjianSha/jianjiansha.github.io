@@ -11,7 +11,7 @@ mathjax: true
 
 yolov8 与 yolov5 一样，不仅用于检测，还可以用于分类，分割等任务。本文主要讨论目标检测任务。
 
-yolov8 有 5 个 size 不同的模型，结构相似，在模型 depth，widht，max_channels 三个维度上不同，所有模型配置位于文件 `ROOT/cfg/models/v8/yolov8.yaml` 。
+yolov8 有 5 个 size 不同的模型，结构相似，在模型 depth，width，max_channels 三个维度上不同，所有模型配置位于文件 `ROOT/cfg/models/v8/yolov8.yaml` 。
 
 目标检测模型类位于文件 `nn/tasks.py`，为 `DetectionModel`，其他任务如分割，分类，姿态估计等模型类也位于文件 `nn/tasks.py` 中。
 
@@ -54,6 +54,10 @@ head:
 
 网络的整体结构与 yolov5 类似，其中 `C3` 换成了 `C2f` 模块，并且去掉了 head 中 upsample 前面的 conv 。
 
+**几个特殊的 模块**
+
+**C2f**
+
 ```sh
     +-------+                               +-------+
 --->| Conv =+==+--------------------------->|       |
@@ -70,10 +74,63 @@ head:
                         +-------------+     +-------+       (C2f)
 ```
 
+```python
+class C2f(nn.Module):
+    """Faster Implementation of CSP Bottleneck with 2 convolutions."""
+
+    def __init__(self, c1, c2, n=1, shortcut=False, g=1, e=0.5):  # ch_in, ch_out, number, shortcut, groups, expansion
+        super().__init__()
+        self.c = int(c2 * e)  # hidden channels
+        self.cv1 = Conv(c1, 2 * self.c, 1, 1)
+        self.cv2 = Conv((2 + n) * self.c, c2, 1)  # optional act=FReLU(c2)
+        self.m = nn.ModuleList(Bottleneck(self.c, self.c, shortcut, g, k=((3, 3), (3, 3)), e=1.0) for _ in range(n))
+
+    def forward(self, x):
+        """Forward pass through C2f layer."""
+        y = list(self.cv1(x).chunk(2, 1))
+        y.extend(m(y[-1]) for m in self.m)
+        return self.cv2(torch.cat(y, 1))
+```
+
+**SPPF**
+
+```sh
+-> conv -+-> maxpool -+-> maxpool -+-> maxpool -> c
+         |            |            +------------> o ->
+         |            +-------------------------> n
+         +--------------------------------------> v         (SPPF)
+```
+
+```python
+class SPPF(nn.Module):
+    """Spatial Pyramid Pooling - Fast (SPPF) layer for YOLOv5 by Glenn Jocher."""
+
+    def __init__(self, c1, c2, k=5):  # equivalent to SPP(k=(5, 9, 13))
+        super().__init__()
+        c_ = c1 // 2  # hidden channels
+        self.cv1 = Conv(c1, c_, 1, 1)
+        self.cv2 = Conv(c_ * 4, c2, 1, 1)
+        self.m = nn.MaxPool2d(kernel_size=k, stride=1, padding=k // 2)
+
+    def forward(self, x):
+        """Forward pass through Ghost Convolution block."""
+        x = self.cv1(x)
+        y1 = self.m(x)
+        y2 = self.m(y1)
+        return self.cv2(torch.cat((x, y1, y2, self.m(y2)), 1))
+```
+
+整个网络结构的关键部分如图 2 所示，
+
+![](/images/obj_det/yolov8_2.png)
+<center>图 2. </center>
+
+图 2 中浅蓝色的特征为网络的输出特征，与 FPN 的主要区别是：每个 scale 的输出特征既有高层语义又有低层语义，而 FPN 通过自上而下的融合，使得小 scale 的输出特征仅有高层语义。
+
 预测包含了 3 个 scale 的特征
 
 ```sh
-# name  ds_rate
+# name  下采样率
 P3      8
 P4      16
 P5      32
@@ -87,7 +144,23 @@ P5      32
 
 > 本文参考了文章 https://mmyolo.readthedocs.io/zh_CN/latest/recommended_topics/algorithm_descriptions/yolov8_description.html，记为参考文章
 
-训练阶段，`Detect` 对 3 个 scale 的预测特征平面分别处理，每个 scale 均有一个分类分支和一个回归分支，分类输出 shape 为 `(b, nc, h, w)`，回归输出 shape 为 `(b, 4 * reg_max, h, w)`，其中 `reg_max=16` ，两者 concat 为 shape  `(b, 4 * reg_max + nc, h, w)`。
+训练阶段，`Detect` 对 3 个 scale 的预测特征平面分别处理，每个 scale 特征均经过图 1 下方所示的检测头，检测头有一个分类分支和一个回归分支，分别经过 3 个 conv，得到分类输出 shape 为 `(b, nc, h, w)`，其中 `nc` 表示前景分类数量。回归输出 shape 为 `(b, 4 * reg_max, h, w)`，其中 `reg_max=16` ，两者 concat 为 shape  `(b, 4 * reg_max + nc, h, w)` ，这就是某个 scale 对应的预测输出。 
+
+相关代码如下，
+
+```python
+def forward(self, x):
+    """x: A list of 3 tensors, and each tensor's shape is (b, c, h, w)"""
+    shape = x[0].shape  # BCHW
+    for i in range(self.nl):
+        # cv2 output is for box regression: (b, 4*reg_max, h, w)
+        # cv3 output is for classification: (b, nc, h, w)
+        x[i] = torch.cat((self.cv2[i](x[i]), self.cv3[i](x[i])), 1)
+    if self.training:
+        return x # x 是一个list，包含 3 个 tensor，每个 tensor 形如 (b,4*reg_max+nc,h,w)
+```
+
+我们需要知道：yolov8 是 anchor free 模型，所以每个 anchor point 处均需要预测 4 个坐标值以及分类得分。yolov8 预测每个坐标的分布而非一个确定的值，将坐标分布离散化，使用 `reg_max=16` 个离散值，每个离散值预测对应的概率，计算分布的期望作为坐标的预测值，参见下文 (2) 式。
 
 # 2. Loss 计算
 
@@ -97,16 +170,33 @@ yolov8 使用动态分配策略：TOOD 的 TaskAlignedAssigner，TaskAlignedAssi
 
 $$t = s ^ {\alpha} \times u ^ {\beta}\tag{1}$$
 
-其中 $s$ 表示标注类别对应的预测得分，$u$ 是预测 box 与 gt box 的 IoU。$\alpha, \beta$ 为两个控制参数，分别控制 $s$ 和 $u$ 对 t 值指标的影响。
+其中 $s$ 表示标注类别对应的预测得分，即，每个 anchor point 取所在 gt box 的分类得分，如果 anchor point 不在任何 gt box 内部，那么 $s=0$。
+
+如果 anchor point 在 n 个 gt box 内部，那么保留这 n 个 gt box 对应的分类得分，因为实现过程中，使用一个得分矩阵，矩阵行数为 gt box 数量，矩阵列数为 anchor point 数量，故这个 anchor point 所在列将有 n 个值非零。
+
+$u$ 是预测 box 与 gt box 的 IoU。$\alpha, \beta$ 为两个控制参数，分别控制 $s$ 和 $u$ 对 t 值指标的影响。
 
 这里 $t$ 是一个指标，用于衡量分类任务的 anchor point 和定位任务的 anchor point 对齐程度，一个 anchor，如果既能有大的分类得分预测，又能有精确的定位，那么这个 anchor 就是很好对齐的。
 
-基于 $t$ 指标，选择 top-K 大的 t 值对应的 anchor points 作为正样本，其他 anchor points 作为负样本。
+基于 $t$ 指标，为每个 gt box 选择 top-K 大的 t 值对应的 anchor points 作为正样本，其他 anchor points 作为负样本。
+
+代码中相关超参数选择为，
+
+```python
+self.assigner = TaskAlignedAssigner(topk=10, num_classes=self.nc, alpha=0.5, beta=6.0)
+```
 
 **损失** 包含分类损失和回归损失，没有置信度（objectness）损失。
 
-1. 分类损失使用 BCE 损失（二值交叉熵损失）
+1. 分类损失使用 BCE 损失（二值交叉熵损失），计算对象：所有 anchor points
 2. 回归损失使用  DFL 损失（distribution focal loss），还使用了 CIoU 损失。
+
+**问题**
+
+1. 为什么取消了置信度预测之和，分类数量没有包含背景，即，为什么不使用 `nc+1`?
+2. 为什么 `reg_max` 取值 16，即，如何选择合适的 `reg_max` 值？
+
+这两个问题等下文介绍了损失如何计算之后再来解答。
 
 ## 2.1 动态分配样本
 
@@ -122,21 +212,33 @@ gt boxes 的分类 labels 的 shape 为 `(b, max_obj_num, 1)` ，前景分类 in
 
 $$\hat y = \sum _ {x=0} ^ {reg\_max} p(x) x \tag{2}$$
 
-距离其余三个边的 distance 类似处理，处理后得到预测 boxes 的 x1y1x2y2 坐标，shape 为 `(b, 3hw, 4)` 。
+距离其余三个边的 distance 类似处理，处理后得到预测 boxes 的 x1y1x2y2 坐标，shape 为 `(b, 3hw, 4)` ，即，每个 anchor point 处有一个预测 box，需要注意，这里得到的预测 box 的坐标是基于各个 scale 特征平面的，也就是说，相对于原输入 image size，box 的坐标缩小到 `1/stride` 。
 
 <font color="magenta">模型预测分类得分 `pd_scores` 的 shape 为 `(b, 3hw, nc)`</font> 。
 
-有了以上数据说明，接下来看如何动态分配样本：
+**# 动态分配**
 
-1. 根据 gt boxes 的 x1y1x2y2 和 `3hw` 个 anchor points，筛选出位于 gt boxes 内部的 anchor points，得到筛选掩码 `mask_in_gt`，其 shape 为 `(b, max_obj_num, 3hw)`，再与 `mask_gt` 相乘，得到最终掩码（即，位于有效非填充 gt boxes 内部的 anchor points），shape 依然为 `(b, max_obj_num, 3hw)`
+有了以上数据说明，接下来看如何动态分配样本。调用语句为
+
+```python
+# pred_scores: 所有锚点处的预测分类得分，(b, 3*hw, nc)
+# pred_bboxes: 所有锚点处的预测 box 坐标，基于相应 scale 特征平面，(b, 3*hw, 4)
+# anchor_points: 所有锚点坐标，基于相应 scale 特征平面，(3*hw, 2) y-x 坐标
+# gt_labels: gt box 的分类 id，(b, max_obj_num, 1)
+# gt_bboxes: gt box 的坐标，基于 image size，(b, max_obj_num, 4)
+# mask_gt: gt box 的 mask，因为部分 gt box 是填充的，(b, max_obj_num, 1)
+_, target_bboxes, target_scores, fg_mask, _ = self.assigner(
+    pred_scores.detach().sigmoid(), (pred_bboxes.detach() * stride_tensor).type(gt_bboxes.dtype),
+    anchor_points * stride_tensor, gt_labels, gt_bboxes, mask_gt)
+```
+
+1. 根据 gt boxes 的 x1y1x2y2 和 `3hw` 个 anchor points，筛选出位于 gt boxes 内部的 anchor points，得到筛选掩码 `mask_in_gt`，其 shape 为 `(b, max_obj_num, 3hw)`，再与 `mask_gt` 相乘，得到 <font color="magenta">最终掩码</font>（即，位于有效非填充 gt boxes 内部的 anchor points），shape 依然为 `(b, max_obj_num, 3hw)`
 
 2. 从预测得分中根据 gt 分类 label 取值，然后使用最终掩码提取有效 anchor points 的预测分类得分。
 
-    对 batch 中某个 image 其预测得分矩阵 shape 为 `(3hw, nc)`，这个 image 有 `max_obj_num` 个 gt boxes，每个 gt box 有一个分类 index，可以取得 `(3hw,)` 的预测分类，那么取得这个 image 的所有 gt boxes 一共取得预测得分 的 shape 为 `(max_obj_num, 3hw)`，`b` 个 images 一共取得的预测得分为 `(b, max_obj_num, 3hw)` 。
-    
-    也就是说 batch 数据中，每个 gt box 都对应 `3hw` 长度的预测得分向量，每个 gt box 通过掩码提取其内部 anchor points 的预测分类得分。
+    对 batch 中某个 image 其预测得分矩阵 shape 为 `(3hw, nc)`，这个 image 有 `max_obj_num` 个 gt boxes，每个 gt box 有一个分类 index，可以取得 `(3hw,)` 的预测分类，那么取得这个 image 的所有 gt boxes 一共取得预测得分 的 shape 为 `(max_obj_num, 3hw)`，`b` 个 images 一共取得的预测得分为 `(b, max_obj_num, 3hw)` 。当然了，只有最终掩码为 True 的位置上的预测得分有效，其他位置上无效值使用 `0` 表示。
 
-    预测分类得分提取结果记为 `bbox_scores`，其 shape 为 `(b, max_obj_max, 3hw)` ，其中最终掩码为 false 的位置处得分设置为 0 ，保留了最终掩码为 true 的位置处得分。这个 `bbox_scores` 就是 (1) 式中的 $s$ 。
+    预测分类得分提取结果记为 `bbox_scores`，这个 `bbox_scores` 就是 (1) 式中的 $s$ 。
 
 3. 类似第 `2` 步，提取预测 boxes 坐标，然后再根据最终掩码提取有效位置处的预测坐标，其 shape 为 `(N, 4)`，N 为最终掩码中 true 元素数量。
 
@@ -157,26 +259,27 @@ $$\hat y = \sum _ {x=0} ^ {reg\_max} p(x) x \tag{2}$$
 
 7. 将 `align_metric` 沿着 `dim=-1` 取 topK 大的值，以及对应的位置，即，每个 gt box 取 topK 大 $t$ 值对应的 anchor points 作为正样本。
 
-    取出来的 topK 大 anchor points 实际上还需要使用 `~mask_gt` 做掩码过滤，因为 `align_metric` 有 `(b, max_obj_num)` 个 gt boxes，显然要过滤掉填充的假 gt boxes 。最后所选择的 topK 的 anchor points 也使用掩码表示，记为 `mask_topk`，其 shape 为 `(b, max_obj_num, 3hw)`，一共 `b * max_obj_num` 个 gt boxes，每个 gt box 的 `3hw` 长度向量 mask 中，有 K 个 元素为 true 或者全部为 false（这种对应填充的假 gt box）。
+    取出来的 topK 大 anchor points 实际上还需要使用 `mask_gt` 做掩码过滤，因为 `align_metric` 有 `(b, max_obj_num)` 个 gt boxes，显然要过滤掉填充的假 gt boxes 。最后所选择的 topK 的 anchor points 也使用掩码表示，记为 `mask_topk`，其 shape 为 `(b, max_obj_num, 3hw)`，一共 `b * max_obj_num` 个 gt boxes，每个 gt box 的 `3hw` 长度向量 mask 中，有 K 个 元素为 true 或者全部为 false（这种对应填充的假 gt box）。
 
 8. `mask_topk` 与上述 `mask_in_gt` 和 `mask_gt` 三者按 elementwise 相乘，得到用于提取 **正样本** 的掩码，记为 `mask_pos`，其 shape 为 `(b, max_obj_num, 3hw)` 。
 
-    以某一个 image 为例，那么正样本掩码 shape 为 `(max_obj_num, 3hw)`，这是一个矩阵，按行求和，那么得到每个 gt boxes 所对应的正样本数量。按列求和，那么能判断每个 anchor point 被用作了几次正样本，或者是，有几个 gt boxes 将这个 anchor point 作为正样本，如果某个 anchor point 被不止 1 个 gt boxes 看作正样本，那么这个 anchor point 只选择具有最大 CIoU 的那个 gt box，也就是说其余 gt box 不再将这个 anchor point 看作正样本，经过这样的调整后的正样本掩码仍用变量 `mask_pos` 存储 。
+    **某个 anchor point 被多个 gt boxes 包含，那么与这个 anchor point 的预测 box 有最大 CIoU 的 gt box 被选中**。以某一个 image 为例，那么正样本掩码 shape 为 `(max_obj_num, 3hw)`，这是一个矩阵，按行求和，那么得到每个 gt boxes 所对应的正样本数量。按列求和，那么能判断每个 anchor point 被用作了几次正样本，或者是，有几个 gt boxes 将这个 anchor point 作为正样本，如果某个 anchor point 被不止 1 个 gt boxes 看作正样本，那么这个 anchor point 只选择具有最大 CIoU 的那个 gt box，也就是说其余 gt box 不再将这个 anchor point 看作正样本，经过这样的调整后的正样本掩码仍用变量 `mask_pos` 存储 。
 
 
 ## 2.2 计算损失
 
 有了以上说明，我们来看如何计算损失：
 
-1. 分类损失为所有样本（包括正负样本，所有 anchor points）的 BCE 损失。因为取消了置信度损失，所以这里分类损失除了考虑正样本，还需要考虑负样本。
+1. 分类损失为所有样本（**包括正负样本，所有 anchor points**）的 BCE 损失。因为取消了置信度损失，所以这里分类损失除了考虑正样本，还需要考虑负样本。
     
-    `target_scores`: shape 为 `(b, 3*hw, nc)`，只有正样本 anchor points 处有 one-hot 向量，此向量长度为 `nc`，向量中 正样本对应的 gt box 分类 id 处的元素值为 1，但是这里实际上不使用 `1` 作为 target 值，而是 
+    `target_scores`: shape 为 `(b, 3*hw, nc)`，为每个 anchor point 设置 gt label。只有正样本 anchor points 处有 one-hot 向量，此向量长度为 `nc`，向量中 正样本对应的 gt box 分类 id 处的元素值为 1，但是这里实际上不使用 `1` 作为 target 值，而是 
 
     $$\hat t _ {ij} \cdot \max(CIoU _ i) = \frac {t _ {ij}}{\max (\mathbf t _ i)} \cdot \max (CIoU _ i)\tag{3}$$
 
     以单个 image 为例理解上式更容易些，$t$ 值矩阵 shape 为 `(max_obj_num, 3*hw)`，对于每一个 gt box 编号为 `i` 分布进行归一化得到 $\hat t$ 。然后 CIoU 矩阵 shape 也是 `(max_obj_num, 3*hw)`，一个 gt box 对应多个正样本 anchor points，自然就有多个 CIoU 值，求出最大的 CIoU ，记为 $CIoU _ i$ ，以此值为这个 gt box 的分类得分基准，那么与这个 gt box 匹配的正样本 anchor points 的分类得分 target 就是这个基准乘上 $\hat t$ 。
 
-
+    负样本 anchor point 则是全 0 向量。
+    
     分类损失使用 BCE，正负样本均参与计算，相关代码为，
 
     ```python
