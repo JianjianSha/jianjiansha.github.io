@@ -1,0 +1,1445 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Dynamic Programming (2), SJJ">
+    <meta name="description" content="上一篇文章 Dynamic Programming (1) 介绍了动态规划的原理，以及几种常见模型的 DPFE。这篇文章则主要介绍一些实际应用。
+最佳分配问题 ALLOT
+最佳分配问题简称为 ALLOT，描述了如何讲有限资源分配给一些用户，">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Dynamic Programming (2) | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/1.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Dynamic Programming (2)</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/math/">
+                                <span class="chip bg-color">math</span>
+                            </a>
+                        
+                            <a href="/tags/DP/">
+                                <span class="chip bg-color">DP</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-08-14
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>上一篇文章 <a href="2019/08/07/DP1">Dynamic Programming (1)</a> 介绍了动态规划的原理，以及几种常见模型的 DPFE。这篇文章则主要介绍一些实际应用。</p>
+<h2 id="最佳分配问题-ALLOT">最佳分配问题 ALLOT</h2>
+<p>最佳分配问题简称为 ALLOT，描述了如何讲有限资源分配给一些用户，损失（或者利益，损失对应最小化，利益对应最大化）与用户以及分配到的资源量有关。ALLOT 也可以看作是背包问题 KSINT 的一个变种。</p>
+<span id="more"></span>
+<p>假设有 M 单位的资源要分配给 N 个用户，记 C(k,d) 表示分配 d 单位资源给用户 k 时的损失，分配决策按阶段进行，即第一阶段分配 $d_1$ 单位资源给用户 1，第二阶段分配 $d_2$ 单位资源给用户 2，依次进行，定义状态 (k,m) 为阶段 k 时剩余 m 单位资源，阶段 k 分配之前的资源量为 m，阶段 k 的分配损失为 C(k,d)，下一阶段状态为 (k+1,m-d)，于是根据 <a href="2019/08/07/DP1">Dynamic Programming (1)</a> 中式 (1.19) 可知 DPFE 为<br>
+$$f(k,m)=\min_{d \in \{0,…,m\}} {C(k,d)+f(k+1,m-d)} \quad (2.1)$$<br>
+目标是求 f(1,M)，基本条件为 f(N+1,m)=0，其中 $m \ge 0$，这表示资源可以不用全部瓜分完。</p>
+<p>现在假设有 M=4，N=3，且<br>
+$$(C_{k,d})_{k\in {1,2,3};d\in {0,…,4}}=\begin{pmatrix}\infty &amp; 1.0 &amp; 0.8&amp; 0.4 &amp; 0.0 \\ \infty &amp; 1.0&amp; 0.5 &amp; 0.0 &amp; 0.0 \\ \infty &amp; 1.0 &amp; 0.6 &amp; 0.3 &amp; 0.0 \end{pmatrix}$$<br>
+那么，f(1,M)=1.0+0.5+1.0=2.5，最佳分配序列为 $d_1=1,d_2=2,d_3=1$。我们可以根据式 (2.1) 逐步展开计算，下面是代码实现，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">allot</span><span class="token punctuation">(</span>cache<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    M<span class="token operator">=</span><span class="token number">4</span>
+    N<span class="token operator">=</span><span class="token number">3</span>
+    max_float<span class="token operator">=</span><span class="token number">1e8</span>
+    cost<span class="token operator">=</span><span class="token punctuation">[</span><span class="token punctuation">[</span>max_float<span class="token punctuation">,</span> <span class="token number">1.0</span><span class="token punctuation">,</span> <span class="token number">0.8</span><span class="token punctuation">,</span> <span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+          <span class="token punctuation">[</span>max_float<span class="token punctuation">,</span> <span class="token number">1.0</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+          <span class="token punctuation">[</span>max_float<span class="token punctuation">,</span> <span class="token number">1.0</span><span class="token punctuation">,</span> <span class="token number">0.6</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+    
+    <span class="token keyword">if</span> cache<span class="token punctuation">:</span>
+        cache_dict <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+    <span class="token keyword">def</span> <span class="token function">allot_inner</span><span class="token punctuation">(</span>k<span class="token punctuation">,</span>m<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> cache <span class="token keyword">and</span> <span class="token punctuation">(</span>k<span class="token punctuation">,</span>m<span class="token punctuation">)</span> <span class="token keyword">in</span> cache_dict<span class="token punctuation">:</span>
+            <span class="token keyword">return</span> cache_dict<span class="token punctuation">[</span><span class="token punctuation">(</span>k<span class="token punctuation">,</span>m<span class="token punctuation">)</span><span class="token punctuation">]</span>
+        <span class="token keyword">if</span> k<span class="token operator">>=</span> N<span class="token punctuation">:</span> <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">0</span>
+
+        min_f<span class="token operator">=</span>max_float
+        min_ds <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> d <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>m<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            ds<span class="token punctuation">,</span>f<span class="token operator">=</span>allot_inner<span class="token punctuation">(</span>k<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span>m<span class="token operator">-</span>d<span class="token punctuation">)</span>
+            temp<span class="token operator">=</span>cost<span class="token punctuation">[</span>k<span class="token punctuation">]</span><span class="token punctuation">[</span>d<span class="token punctuation">]</span><span class="token operator">+</span>f
+            <span class="token keyword">if</span> min_f <span class="token operator">></span> temp<span class="token punctuation">:</span>
+                min_f <span class="token operator">=</span> temp
+                min_ds <span class="token operator">=</span> <span class="token punctuation">[</span>d<span class="token punctuation">]</span><span class="token operator">+</span>ds
+        <span class="token keyword">if</span> cache <span class="token keyword">and</span> k <span class="token operator">></span> <span class="token number">1</span><span class="token punctuation">:</span>
+            cache_dict<span class="token punctuation">[</span><span class="token punctuation">(</span>k<span class="token punctuation">,</span>m<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">=</span><span class="token punctuation">(</span>min_ds<span class="token punctuation">,</span>min_f<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> min_ds<span class="token punctuation">,</span> min_f
+    ds<span class="token punctuation">,</span> f<span class="token operator">=</span>allot_inner<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>M<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"min cost:"</span><span class="token punctuation">,</span>f<span class="token punctuation">,</span><span class="token string">"opt allotments:"</span><span class="token punctuation">,</span> ds<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="所有结点对的最短路径问题-APSP">所有结点对的最短路径问题 APSP</h2>
+<p>在图中寻找从任一起点 s 到任一终点 t 之间的最短路径，记图中结点数量为 N，为简单起见，我们假设任意结点对之间没有非正长度的环，并且没有自环（self-loop）。</p>
+<p>可以利用 <a href="2019/08/07/DP1">Dynamic Programming (1)</a> 中的最短路径模型，将 (s,t) 看作变量，求得一系列的最短路径值，然后再求最小值即可，但是这其中肯定存在一些重复计算，所以这里我们讨论更高效率的计算方法。</p>
+<p><strong>Relaxation</strong></p>
+<p>定义 F(k,p,q) 为从 p 到 q 之间的最短路径长度，k 表示从 p 到 q 最多走 k 步（从一个节点到下一个节点为一步）。借助 <a href="2019/08/07/DP1">Dynamic Programming (1)</a> 中式 (1.27)，DPFE 为<br>
+$$F(k,p,q)=\min {F(k-1,p,q), \min_{r \in succ§} {b(p,r)+F(k-1,r,q)}} \quad(2.2)$$<br>
+其中 r 是 p 的直接后继节点。基本条件为:</p>
+<ol>
+<li>$F(k,p,q)=0, k \ge 0, p=q$，表示当 p 就是 q 时，最多走 k 步，最短路径长度为 0。</li>
+<li>$F(0,p,q)=\infty, p \ne q$， 表示当 p 不为 q 时，最多走 0 步，最短路径长度为无穷大。</li>
+</ol>
+<p>虽然我们假定没有自环，但是我们依然可以令 $b(p,p)=0$（实际路径中我们可以去掉环即可），那么式 (2.2) 可简化为<br>
+$$\begin{aligned}F(k,p,q)&amp;=\min {F(k-1,p,q)+b(p,p), \min_{r \in succ§} {b(p,r)+F(k-1,r,q)}} \\ &amp;=\min_{r \in succ§\cup {p}} {b(p,r)+F(k-1,r,q)} \qquad(2.3) \end{aligned}$$</p>
+<p><strong>Floyd-Warshall</strong></p>
+<p>式 (2.2) 这个 DPFE 是一种分而治之的思想：从 p 到 q 最多走 k 步的路径，可以分为从 p 走一步到 r 以及从 r 最多走 k-1 步到 q 两个子路径。还有一种替代方案是从 p 到 r 并且从 r 到 q，其中 p 到 r 的步数不再固定为 1，但是从 p 出发，到达 q 总共最多经过 k 个点，r 就是这 k 个中间点，不妨记这 k 个点为 ${1,2,…,k}$，那么求从 p 到 q 并使用 ${1,2,…,N}$ 作为可能的中间点的最短路径就是 p 到 q 的全局最短路径。DPFE 为<br>
+$$F(k,p,q)=\min {F(k-1,p,q), F(k-1,p,k)+F(k-1,k,q)} \qquad(2.4)$$</p>
+<p>为了便于理解，我们作如下说明：</p>
+<ol>
+<li>将 N 个节点编号为 $V={1,2,…,N}$，$p,q \in V$</li>
+<li>$F(k,p,q)$ 表示从 p 到 q 且以 ${1,2,…,k}$ 作为可能的中间节点</li>
+<li>问题的求解目标为 $F(N,p,q)$</li>
+<li>如何理解式 $(2.4)$？
+<ul>
+<li>p 到 q 的路径不经过中间点 k，即，使用 ${1,2,…,k-1}$ 作为可能的中间节点</li>
+<li>或者 p 到 q 的路径经过中间点 k，即，分为两个子路径 p 到 k 和 k 到 q，这两个子路径均使用 ${1,2,…,k-1}$ 作为可能的中间节点</li>
+</ul>
+</li>
+<li>式 $(2.4)$ 这个递归操作需要条件 k&gt;0。k=0 时为基本条件 $F(0,p,q)=0, p=q$，以及 $F(0,p,q)=b(p,q), p\ne q$。前者表示当 p q 为同一节点时，不使用任何中间节点，损失为 0；后者表示当 p q 不同时，不使用任何中间节点，损失为 $b(p,q)$，需要注意这里 q 是 p 的直接后继，如果不是，那么有 $F(0,p,q)=\infty, p \notin succ§ \cup {p}$</li>
+<li>中间点序列 ${1,2,…,k}$ 可能会包含 p 和 q，如果包含了的话，由于我们假定所有的环都是正的，所以再求序列最小值的，带环的路径均会被过滤掉，而自环 $b(p,p)=0$，不会影响最短路径的长度，如果路径中出现自环，去掉即可（去掉连续重复的节点，只保留一个）。</li>
+</ol>
+<p>式 (2.2) 中 r 是 p 的后继节点，最多可取 $N-1$ 个节点（假设图中其他节点均为 p 的后继节点，就对应 $N-1$），k 最大为 $N-1$ 步，p 和 q 均各有 N 个取值，所以式 (2.2) 的时间复杂度为 $O(N^4)$，类似地，式 (2.4) 的时间复杂度为 $O(N^3)$。</p>
+<p>实际中要解决 APSP 问题，可以根据式 (2.2) 求出矩阵序列 ${F<sup>{(1)},F</sup>{(2)},…,F^{(N-1)}}$，任一矩阵 $F^{(k)}$ 维度为 $N \times N$，$F_{p,q}^{k}$ 表示从 p 到 q 最多走 k 步的最短路径长度，然后求 $\min_{p,q} F_{p,q}^{(N-1)}$ 就是 APSP 的解。</p>
+<p><strong>矩阵乘法</strong></p>
+<p>为了借鉴矩阵乘法的思想，我们首先将式 (2.2) 作变换，<br>
+$$\begin{aligned} F(k,p,q)&amp;=\min {F(k-1,p,q), \min_{r \in succ§} {b(p,r)+F(k-1,r,q)}}<br>
+\\ &amp;= \min_{r \in succ§} {b(p,p)+F(k-1,p,q), b(p,r)+F(k-1,r,q)}<br>
+\\ &amp;= \min_{r \in succ§ \cup {p}} {b(p,r)+F(k-1,r,q)}<br>
+\\ &amp;= \min_{r \in {1,2,…,N}} {b(p,r)+F(k-1,r,q)} \qquad(2.5) \end{aligned}$$<br>
+其中，$b(p,r)$ 是事先给定的任意两节点之间的距离，若两节点之间没有边 edge 相连，则距离为 $\infty$，这里称所有节点对之间的距离组成的矩阵为权重矩阵 $W_{N \times N}$。根据式 (2.2) 的基本条件，不难得知 $F^{(0)}$ 矩阵对角线全 0，其余元素均为 $\infty$：</p>
+<p>$$F^{(0)}=\begin{bmatrix}0 &amp; \infty &amp; \cdots &amp; \infty<br>
+\\                    \infty &amp; 0  &amp; \cdots &amp; \infty<br>
+\\                    \vdots &amp; \vdots &amp; \ddots &amp; \vdots<br>
+\\                    \infty &amp; \infty &amp; \cdots &amp; 0 \end{bmatrix}_{N \times N}$$</p>
+<p>$$W=\begin{bmatrix}0 &amp; w_{12} &amp; \cdots &amp; w_{1N}<br>
+\\                    w_{21} &amp; 0  &amp; \cdots &amp; w_{2N}<br>
+\\                    \vdots &amp; \vdots &amp; \ddots &amp; \vdots<br>
+\\                    w_{N1} &amp; w_{N2} &amp; \cdots &amp; 0 \end{bmatrix}_{N \times N}$$</p>
+<p>根据式 (2.5)，已知 $F^{(k-1)}$ 求 $F^{(k)}$ 的代码为</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> sys
+F_k<span class="token operator">=</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token boolean">None</span><span class="token punctuation">]</span><span class="token operator">*</span>N<span class="token punctuation">]</span><span class="token operator">*</span>N
+<span class="token keyword">for</span> p <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>N<span class="token punctuation">)</span><span class="token punctuation">:</span>
+  <span class="token keyword">for</span> q <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>N<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    F_k<span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">[</span>q<span class="token punctuation">]</span><span class="token operator">=</span>sys<span class="token punctuation">.</span>info<span class="token punctuation">.</span>float_max
+    <span class="token comment"># F_k[p][q]=0</span>
+    <span class="token keyword">for</span> r <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>N<span class="token punctuation">)</span><span class="token punctuation">:</span>
+      F_k<span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">[</span>q<span class="token punctuation">]</span><span class="token operator">=</span><span class="token builtin">min</span><span class="token punctuation">(</span>F_k<span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">[</span>q<span class="token punctuation">]</span><span class="token punctuation">,</span>W<span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">[</span>r<span class="token punctuation">]</span><span class="token operator">+</span>F_k_1<span class="token punctuation">[</span>r<span class="token punctuation">]</span><span class="token punctuation">[</span>q<span class="token punctuation">]</span><span class="token punctuation">)</span>
+      <span class="token comment"># F_k[p][q]=F_k[p][q]+W[p][r]*F_k_1[r][q])</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>从上面代码片段可见，与矩阵乘法（注释部分）完全一个模样，而我们的目的是为了计算 $F^{(N-1)}$，中间的其他 $F^{(k)}$ 矩阵如无必要，可以不用计算出来，比如下面，<br>
+$$\begin{aligned} F^{(1)}&amp;=W \circ F^{(0)}=W<br>
+\\ F^{(2)}&amp;=W \circ F ^ {(1)}=W ^ 2<br>
+\\ F^{(3)}&amp;=W \circ F ^ {(2)}=W ^ 3<br>
+\\ &amp;\vdots<br>
+\\ F^{(N-1)}&amp;=W \circ F ^ {(N-2)}=W ^ {(N-1)} \end{aligned} \quad(2.6)$$</p>
+<p>$\circ$ 表示某种运算符，比如矩阵乘法或者这里的最小值计算，我们改为如下序列计算，<br>
+$$\begin{aligned} F^{(1)}&amp;=W<br>
+\\ F ^ {(2)}&amp;=W ^ 2=W \circ W<br>
+\\ F ^ {(4)}&amp;=W ^ 4=W ^ 2 \circ W ^ 2<br>
+\\ &amp;\vdots<br>
+\\ F^{2 ^ {\lceil log(N-1) \rceil}}&amp;=W ^ {2^{\lceil log(N-1) \rceil}} =W ^ {2^{\lceil log(N-1) \rceil-1}} \circ W ^ {2 ^ {\lceil log(N-1) \rceil-1}} \end{aligned} \quad(2.7)$$<br>
+注意上面 $2^{\lceil log(N-1) \rceil}$ 中的向上取整 $\lceil \cdot \rceil$ 很重要，这保证了 $2 ^ {\lceil log(N-1) \rceil} \ge N-1$，从而 $F ^ {2 ^ {\lceil log(N-1) \rceil}} \le F^{(N-1)}$ （element-wise comparison）。</p>
+<p>因为结合顺序无关紧要，才使得我们可以从式 (2.6) 可以改写为式 (2.7)，例如<br>
+$$\begin{aligned}F^{(4)} &amp;=W \circ F^{(3)}<br>
+\\ &amp;=W \circ (W \circ F^{(2)})<br>
+\\ &amp;=\cdots<br>
+\\ &amp;=W \circ(W \circ (W \circ W))<br>
+\\ &amp;\stackrel{*}=(W \circ W) \circ (W \circ W)<br>
+\\ &amp;=W^2 \circ W^2<br>
+\end{aligned}$$<br>
+将 $\circ$ 替换为 $\min$，即 $\min (W, \min(W, \min(W,W)))=\min(\min(W,W), \min(W,W))$，注意这里的 $\min$ 不是 element-wise operator，就跟矩阵乘法不是矩阵点乘一样。当然，以上内容只是帮助理解，不是式 (2.6) 可以变换为式 (2.7) 的严格证明。</p>
+<p>好了，有了式 (2.7) 就可以更快的计算出 $F^{(M)}, M \ge N-1$，由于 $F^{(k)}$ 单调减，并收敛于 $F^{(N-1)}$，于是 $F^{(M)}$ 就是全局最短路径长度矩阵。</p>
+<p>使用矩阵乘法加速的算法代码为</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> sys
+
+<span class="token keyword">def</span> <span class="token function">fast_apsp</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+  k<span class="token operator">=</span><span class="token number">1</span>
+  F_prev<span class="token operator">=</span>W
+  <span class="token keyword">while</span> k<span class="token operator">&lt;</span>N<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">:</span>
+    F_next<span class="token operator">=</span><span class="token punctuation">[</span><span class="token punctuation">[</span>sys<span class="token punctuation">.</span>info<span class="token punctuation">.</span>float_max<span class="token punctuation">]</span><span class="token operator">*</span>N<span class="token punctuation">]</span><span class="token operator">*</span>N
+    <span class="token keyword">for</span> p <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>N<span class="token punctuation">)</span><span class="token punctuation">:</span>
+      <span class="token keyword">for</span> q <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>N<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">for</span> r <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>N<span class="token punctuation">)</span><span class="token punctuation">:</span>
+          F_next<span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">[</span>q<span class="token punctuation">]</span><span class="token operator">=</span><span class="token builtin">min</span><span class="token punctuation">(</span>F_next<span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">[</span>q<span class="token punctuation">]</span><span class="token punctuation">,</span> F_prev<span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">[</span>r<span class="token punctuation">]</span><span class="token operator">+</span>F_prev<span class="token punctuation">[</span>r<span class="token punctuation">]</span><span class="token punctuation">[</span>q<span class="token punctuation">]</span><span class="token punctuation">)</span>
+    F_prev<span class="token operator">=</span>F_next
+    k<span class="token operator">*=</span><span class="token number">2</span>
+  <span class="token keyword">return</span> F_prev<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>Floyd-Warshall</strong> 的代码</p>
+<p>考虑式 (2.4)，注意 $F^{(k)}$ 中的 k 表示路径可以经过中间节点 ${1,2,…,k}$，所以 $F^{(0)}$ 表示不经过任何中间节点的两点之间最短路径长度矩阵，所以根据基本条件不难得到<br>
+$$F^{(0)}=W=\begin{bmatrix}0 &amp; w_{12} &amp; \cdots &amp; w_{1N}<br>
+\\                    w_{21} &amp; 0  &amp; \cdots &amp; w_{2N}<br>
+\\                    \vdots &amp; \vdots &amp; \ddots &amp; \vdots<br>
+\\                    w_{N1} &amp; w_{N2} &amp; \cdots &amp; 0 \end{bmatrix}_{N \times N}$$</p>
+<p>根据式 (2.4)，不难写出原始的 <strong>Floyd-Warshall</strong> 算法的代码为</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">F_prev<span class="token operator">=</span>F_0
+<span class="token keyword">def</span> <span class="token function">floyd_warshall</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+  <span class="token keyword">for</span> k <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>N<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    F_next<span class="token operator">=</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token boolean">None</span><span class="token punctuation">]</span><span class="token operator">*</span>N<span class="token punctuation">]</span><span class="token operator">*</span>N
+    <span class="token keyword">for</span> p <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>N<span class="token punctuation">)</span><span class="token punctuation">:</span>
+      <span class="token keyword">for</span> q <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>N<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        F_next<span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">[</span>q<span class="token punctuation">]</span><span class="token operator">=</span><span class="token builtin">min</span><span class="token punctuation">(</span>F_prev<span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">[</span>q<span class="token punctuation">]</span><span class="token punctuation">,</span> F_prev<span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">[</span>k<span class="token punctuation">]</span><span class="token operator">+</span>F_prev<span class="token punctuation">[</span>k<span class="token punctuation">]</span><span class="token punctuation">[</span>q<span class="token punctuation">]</span><span class="token punctuation">)</span>
+    F_prev<span class="token operator">=</span>F_next
+  <span class="token keyword">return</span> F_prev<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="最优字母基数编码树问题-ARC">最优字母基数编码树问题 ARC</h2>
+<p>ARC 是霍夫曼编码树问题的一个变体。霍夫曼树要满足的条件是节点权值*路径长度，求和最小。比如常见的霍夫曼编码，节点权值对应词频，路径对应单个词的编码长度，加权求和就是编码后的序列总长度最小。构造霍夫曼树可以直接使用贪心算法，给定一个具有权值的节点序列，找出具有最小权值的两个节点，构造出一个子树，这两个节点为子树的子节点，子树的父节点权值为这两个子节点的权值之和，然后将这两个字节点从节点序列中移除，并插入新构造的父节点到节点序列，重复这个过程，直到节点序列中只剩一个节点。这是一个自底向上的构造过程。</p>
+<p>ARC为，给定一个具有构造成本（权值）的节点序列，目标是构造一棵成本最小的树，整棵树的总成本为所有内部节点（internal nodes，包括 root）的成本之和，内部节点的损失为以此内部节点为根节点的子树中所有叶节点的成本之和。给定 $S=(w_0,w_1,…,w_{n-1})$ 为有序序列表示叶节点的权值，定义 $(i,j)$ 的态为 $(w_i,…,w_j)$，那么<br>
+$$f(i,j)=\min_{}{c(i,j,d)+f(i,d)+f(d+1,j)}, \quad i&lt;j \qquad(2.8)$$<br>
+其中 $f(i,j)$ 表示以节点 $(i,…,j)$ 为叶节点的子树总成本， $c(i,j,d)=\sum_{k=i}^j w_k$ 表示这个子树的根节点的成本，这里我们限制为二叉树，所以不难理解式 (2.8)，树的总成本为左子树的总成本与右子树的总成本以及树根节点成本三者之和。d 用于划分，其中 $(i,…,d)$ 为左子树的叶节点，$(d+1,…,j)$ 为右子树的叶节点，无论怎么划分（即选择任何 d 的有效值），以 $(i,…,j)$ 为叶节点的子树的根节点成本 $c(i,j,d)$ 均保持不变。</p>
+<p>最后，目标是计算 $f(0,n-1)$，基本条件为 $f(i,i)=0, \ \forall i \in {0,1,…,n-1}$。</p>
+<p>构造 ARC 比构造 Huffman 树多一个限制，那就是给定节点序列后，只能结合两个相邻节点构造一个子树。例如，$S=(1,2,3,4)$，最优树为 $(((1,2),3),4)$，$f(S)=3+6+10=19$（三个内部节点成本之和），再例如 $S=(2,3,3,4)$，那么最优树为 $((2,3),(3,4))$，$f(S)=5+7+12=24$。</p>
+<h2 id="装配线平衡问题-ASMBAL">装配线平衡问题 ASMBAL</h2>
+<p>一个产品装配需要经过一系列的处理，每个处理步骤均有代价/损失，并且从一个处理站到另一个处理站之间也存在代价。这里举一个简单的例子进行说明，一个处理站看作一条处理线，一次处理为一个阶段 stage，转移发生在从 阶段 k，处理线 i 的节点到另一个位于阶段 k+1 处理线 j 的节点上。处理线之间的切换损失为 c(k,i,j)，通常 c(k,i,i)=0，即不切换处理线，那么切换损失应为 0，除了切换损失，每个节点自身还存在损失，初始状态 s 和终止状态 t 处于标记为 0 的处理线上，这只是为了说明初始时刻和终止时刻产品不应该在任何处理线上，初始决策的损失为 c(0,0,j)，最终决策的损失为 c(N,j,0)（j 为某个处理线）。</p>
+<p>某种可行的处理使用一个节点表示，记节点标号为 0~13 共 14 个节点，其中特别地 0 和 13 分别表示起始状态和终止状态，即表示不用处理。假设 14 个节点自身的损失分别为<br>
+$$v=(0,7,8,9,5,3,6,4,8,5,4,7,0)$$<br>
+处理线之间的切换损失如下图，<br>
+<img src="/images/DP2_fig1.png" alt=""></p>
+<p>也可以写成 14x14 的毗邻矩阵。可见，总共有两条处理线。</p>
+<p>在阶段 k，从 i 线到 j 线的损失由两部分组成 $R(k,i,j)=v(k,i)+c(k,i,j)$，DPFE 为<br>
+$$f(k,i)=\min_j {R(k,i,j)+f(k+1,j)}$$<br>
+其中 $f(k,i)$ 表示从阶段 k 并处于线 i 上开始到最终态的损失，问题的目标就是求 $f(0,0)$，基本条件为 $f(k,i)=0, k &gt; N$，N 为总阶段数，图中为 N=6。计算过程如下：<br>
+$$\begin{aligned} f(0,0)=\min {R(0,0,0)+f(1,0), R(0,0,1)+f(1,1)}<br>
+\\ f(1,0)=\min {R(1,0,0)+f(2,0), R(1,0,1)+f(2,1)}<br>
+\\ f(1,1)=\min {R(1,1,0)+f(2,0), R(1,1,1)+f(2,1)}<br>
+\\ \cdots \ (omitted)<br>
+\end{aligned}$$</p>
+<h2 id="最佳分派问题-ASSIGN">最佳分派问题 ASSIGN</h2>
+<p>集合 B 中的每个成员需要唯一地被赋值为集合 A 中的成员，如何 A 是有序的，那么这个过程也可以看作是 A 的一种排列，例如 ${1,2,3}$ 的一种排列为 ${3,2,1}$（总共有 3! 种排列）。集合 $A=(a_0,a_1,…,a_{n-1})$ 的某个排列 $B=(b_0,b_1,…,b_{n-1})$ 可按如下过程得到：在阶段 i，赋值 $a_j$ 给 $b_i$，对应的损失为 $c(i,j)$。由于赋值必须是唯一的，所以每个阶段需要跟踪集合 A 中还有多少尚未使用的成员。具体而言，我们记状态为 $(k,S)$，表示阶段 k 集合 A 中尚未使用的成员集合为 S，阶段 k 时选择成员 d，相应的损失记为 $C(k,S,d)$，下一状态为 $(k+1,S-{d})$，DPFE 为<br>
+$$f(k,S)=\min_{d \in S} {C(k,S,d)+f(k+1,S-{d})}$$<br>
+求解目标为 $f(1,S^{\ast})$，基本条件为 $f(k,S)=0, \ k=n+1 \ or \ S=\emptyset$</p>
+<h2 id="最佳二叉搜索树问题-BST">最佳二叉搜索树问题 BST</h2>
+<p>假设包含 n 个数据的集合 $X={x_0,…,x_{n-1}}$，并且是 <strong>有序</strong> 的，每个数据 $x_i$ 的被访问概率为 $p(x_i)$，或简写为 $p_i$，且有 $\sum_{i=0}^{n-1}p_i=1$，目标是建立一棵最小损失的二叉搜索树，其中树的损失定义为<br>
+$$\sum_{i=0}^{n-1}(p_i \text{level}(x_i))$$<br>
+$\text{level}(x_i)$ 表示 $x_i$ 所在节点的深度。需要注意的是，节点不仅可存储在叶节点中，还可以存储在内部节点中。下面我们讨论如何使用 DP 来解决这个问题。</p>
+<h3 id="方法一">方法一</h3>
+<p>定义状态 S 为待安排到树中的元素集合，由于构造树是一个递归过程，易知 DPFE 为<br>
+$$f(S)=\begin{cases} \min_{\alpha \in S} {f(S_l)+f(S_r)+r(\alpha, S)} &amp; S \ne \emptyset<br>
+\\ 0 &amp; S=\emptyset \end{cases}$$<br>
+其中 $S_l = {x \in S: x &lt; \alpha}, \ S_r = {x \in S: x &gt; \alpha}$，决策代价 $r(\alpha, S)=\sum_{x \in S} p(x)$，根节点深度为 1。这个 DPFE 非常简单，不多说。</p>
+<p>以上 $S_l,\ S_r$ 的划分保证了二叉树是 <strong>有序</strong> 的。（若不需要保持有序，此问题与霍夫曼编码相同）</p>
+<p>上式可改写为<br>
+$$f(S)=\begin{cases} \min_{\alpha \in S} {f(S_l)+f(S_r)+r(\alpha, S)} &amp; |S|&gt;1<br>
+\\ p(x) &amp; S={x} \end{cases}$$</p>
+<h3 id="方法二">方法二</h3>
+<p>定义状态为一对整数 $(i,j)$，分别表示数据的起始下标和截止下标，在此范围内的数据是需要被安排进树的，已知数据集合为 $X={x_0,…,x_{n-1}}$，那么 DPFE 为<br>
+$$f(i,j)=\begin{cases} \min_{k \in {i,…,j}} {f(i,k-1)+f(k+1,j)+\sum_{l=i}^j p_l} &amp; i \le j<br>
+\\ 0 &amp; i &gt; j \end{cases}$$<br>
+$(i,j)$ 表示待安排进树的节点下标的起止范围，即将从此范围中选择下标为 k 的数据作为当前节点，或称子树根节点，这个子树的所有节点对应数据下标范围为 $(i,j)$, 其中$(i,k-1)$ 用于被安排进当前子树的左子树，$(k+1,j)$ 用于被安排进当前子树的右子树，无论当前选择哪个决策 k，$(i,j)$ 范围内的数据的概率在当前层 level 均需被计算一次，因为是从上到下构造树的，所以每到达一个 level，所有到达这个 level 的数据其访问概率需要被计算一次，在 $f(i,j)$ 中，$(i,j)$ 范围内的数据均到达当前 level，属于待安排进树的数据，所以当前决策损失为累加所有到达当前 level 的数据的访问概率，即 $\sum_{l=i}^j p_l$。</p>
+<p>与方法一同样地可改写上式为<br>
+$$f(i,j)=\begin{cases} \min_{k \in {i,…,j}} {f(i,k-1)+f(k+1,j)+\sum_{l=i}^j p_l} &amp; i &lt; j<br>
+\\ p_i &amp; i = j \end{cases}$$</p>
+<h2 id="最佳覆盖问题-COV">最佳覆盖问题 COV</h2>
+<p>假设有 k 个不同大小的灌木需要在严寒中被保护起来，k 个灌木按大小排序，标号为 0 的灌木尺寸最小，假设灌木的保护措施就是制造覆盖，将其覆盖起来进行保护，大小为 i 的覆盖其制造成本为 $c_i$。由于技术限制，只能制造不超过 n 种尺寸的覆盖，且 $n \le k$，已知大的覆盖能用于保护小的灌木，目标是选择 n 种覆盖尺寸，使得能覆盖所有的灌木，且成本最小。</p>
+<p>使用 DP 解决上述问题，为了方便，我们假设灌木尺寸按从小到达排好序，编号为 $0,1,…,k-1$，编号为 $l$ 的灌木尺寸为 $s_l$，其对应的覆盖制造成本为 $c_{s_l}$，简记为 $c_l$，这里为了使问题简单，我们不考虑使用多个较小尺寸的覆盖来保护较大尺寸的灌木，即，每个灌木只使用单个覆盖。一种显然的想法是，从大到小来制造覆盖，因为大尺寸的覆盖总能保护小尺寸的灌木，令 $j$ 表示当前还可以制造多少种尺寸的覆盖，$l$ 表示当前未得到保护的最大尺寸灌木编号，于是 DPFE 为<br>
+$$f(j,l)=\begin{cases} \min_{d \in {j-2,…,l-1}} {(l-d)c_l+f(j-1,d)} &amp; j&gt;1<br>
+\\ (l+1)c_l &amp; j=1 \end{cases}$$<br>
+d 表示灌木尺寸范围的起始下标（exclusive），也就是说当前决策是制造尺寸为 $s_l$ 的覆盖，用于保护 ${d+1,…,l}$ 范围内的灌木。显然 d 最大为 $l-1$，此时当前决策所制造的覆盖只用于保护编号为 $l$ 的灌木，d 最小为 $j-2$，这是因为当前决策所制造的覆盖最多能用于保护灌木的编号为 ${j-1,…,l}$，此时剩余尚未保护的灌木编号 ${0,1,…,j-2}$ 共 $j-1$ 种尺寸，正好剩余可以制造的覆盖尺寸也是 $j-1$ 种，两者一一对应。</p>
+<p>再看基本条件，$f(j,l)=(l+1)c_l, j=1$，表示当前只能制造一种尺寸的覆盖时，那只能制造当前尚未得到保护的最大灌木的尺寸的覆盖，当前最大尺寸的灌木编号为 $l$，由于只有这一种尺寸的覆盖可以制造，其必须保护 $0,…,l$ 范围内的灌木。</p>
+<h2 id="时限调度问题-DEADLINE">时限调度问题 DEADLINE</h2>
+<p>有一个进程集合，其中每个进程的执行时间均为单位时间，同时每个进程也各自有一个最后期限，如果在最后期限之前完成，则具有收益，否则收益为 0，现在要选择一个最优进程子集，放置在单处理器上执行，并且收益要最大。这个问题当然也可以使用贪心算法来解决，那些收益较大的进程我们总希望能被执行，无论是先执行还是后执行，反正只要在其最后期限之前被执行即可，那么不如优先执行这些收益最大的进程，即， <strong>每一步优先执行收益最大的进程</strong>。</p>
+<p>假设进程编号为 $S^{\ast}={0,1,2,3,4}$，对应收益为 $p={10,15,20,1,5}$，截止期限为 $t={1,2,2,3,3}$。贪心算法的代码如下：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> numpy <span class="token keyword">as</span> np
+t<span class="token operator">=</span>np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+p<span class="token operator">=</span>np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">10</span><span class="token punctuation">,</span><span class="token number">15</span><span class="token punctuation">,</span><span class="token number">20</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+m<span class="token operator">=</span><span class="token number">0</span>   <span class="token comment"># 总收益</span>
+n<span class="token operator">=</span>t<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>  <span class="token comment"># 最多决策数</span>
+
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">:</span>
+  idx<span class="token operator">=</span>np<span class="token punctuation">.</span>where<span class="token punctuation">(</span>t<span class="token operator">></span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+  <span class="token keyword">if</span> idx<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">==</span><span class="token number">0</span><span class="token punctuation">:</span>
+    <span class="token keyword">break</span>   <span class="token comment"># 全部超出最后期限，决策结束</span>
+  c<span class="token operator">=</span>np<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span>p<span class="token punctuation">[</span>idx<span class="token punctuation">]</span><span class="token punctuation">)</span>  <span class="token comment"># 尚未超出期限的进程的最大收益，当前最优决策的收益（贪心策略）</span>
+  <span class="token keyword">if</span> c <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">:</span>
+    <span class="token keyword">break</span>
+  m<span class="token operator">+=</span>c
+  idx<span class="token operator">=</span>np<span class="token punctuation">.</span>argmax<span class="token punctuation">(</span>p<span class="token punctuation">[</span>idx<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">+</span>idx<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>  <span class="token comment"># 当前决策的进程的编号</span>
+  p<span class="token punctuation">[</span>idx<span class="token punctuation">]</span><span class="token operator">=</span><span class="token operator">-</span><span class="token number">1e8</span>                   <span class="token comment"># 标记收益为负，表示后续决策不再考虑此进程</span>
+  t<span class="token operator">-=</span><span class="token number">1</span>                          <span class="token comment"># 更新进程的最后期限</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'最大收益为'</span><span class="token punctuation">,</span> sep<span class="token operator">=</span><span class="token string">' '</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>m<span class="token punctuation">)</span>    <span class="token comment"># 40</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>使用 DP 解决这个问题，定义状态为 $(k,S)$，其中 k 为阶段编号，S 为所有尚未执行的进程集合，每一步的决策 d 是从 S 中选出，决策后的下一状态为 $(k+1,S-{d})$，根据最后期限从近到远对进程进行排序，DPFE 为<br>
+$$f(k,S)=\max_{d \in S}{c(d|S)+f(k+1,S-{d})}$$<br>
+其中，当决策 d 的最后期限大于等于阶段 k 时（k 从 1 开始计算）$c(d|S)=w_d$ ，否则 $c(d|S)=0$。目标是求 $f(1,S^{\ast})$，基本条件为 $f(k,S)=0, k=n+1 \ or \ S=\emptyset$，其中 n 为进程数。使用上述例子，代码如下</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">t<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">]</span>
+p<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">10</span><span class="token punctuation">,</span><span class="token number">15</span><span class="token punctuation">,</span><span class="token number">20</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">]</span>
+S<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span>
+n<span class="token operator">=</span><span class="token builtin">len</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">profit</span><span class="token punctuation">(</span>k<span class="token punctuation">,</span>d<span class="token punctuation">)</span><span class="token punctuation">:</span>
+  <span class="token keyword">return</span> p<span class="token punctuation">[</span>d<span class="token punctuation">]</span> <span class="token keyword">if</span> t<span class="token punctuation">[</span>d<span class="token punctuation">]</span><span class="token operator">>=</span>k <span class="token keyword">else</span> <span class="token number">0</span>
+
+<span class="token keyword">def</span> <span class="token function">deadline</span><span class="token punctuation">(</span>k<span class="token punctuation">,</span>S<span class="token punctuation">)</span><span class="token punctuation">:</span>
+  <span class="token keyword">return</span> <span class="token number">0</span> <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>S<span class="token punctuation">)</span><span class="token operator">==</span><span class="token number">0</span> <span class="token keyword">or</span> k<span class="token operator">==</span>n<span class="token operator">+</span><span class="token number">1</span> <span class="token keyword">else</span> \
+    <span class="token builtin">max</span><span class="token punctuation">(</span><span class="token punctuation">[</span>profit<span class="token punctuation">(</span>k<span class="token punctuation">,</span>S<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">+</span>deadline<span class="token punctuation">(</span>k<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span>S<span class="token punctuation">[</span><span class="token punctuation">:</span>i<span class="token punctuation">]</span><span class="token operator">+</span>S<span class="token punctuation">[</span>i<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>S<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>deadline<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> S<span class="token punctuation">)</span><span class="token punctuation">)</span>   <span class="token comment"># 40</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="折现利润问题-DPP">折现利润问题 DPP</h2>
+<p>假设一个湖中第一年开始时有 $b_1$ 条鱼，第 t 年开始时的鱼数为 $b_t$，在第 t 年中售出 $x_t$ 条鱼，收益为 $r(x_t)$，捕鱼成本为 $c(x_t,b_t)$，鱼可以再生，再生长率为 s，表示某一年年初的鱼数量是上一年年底鱼数量的 s 倍，计划展望期为 $1,…,T$，即最多 T 年卖完所有鱼，其中货币年贬值率为 y，决策为 $x_t$ 表示 第 t 年卖出多少鱼，要求最大净收益，状态为 $(t,b)$，其中 t 表示年份，b 表示第 t 年初的鱼数，DPFE 为<br>
+$$f(t,b)=\begin{cases} \max_{x_t \in {0,…,b}} {r(x_t)-c(x_t,b)+\frac 1 {1+y} f(t+1, \lfloor s(b-x_t) \rfloor)} &amp; t \le T<br>
+\\ 0 &amp; t=T+1 \end{cases}$$</p>
+<h2 id="编辑长度问题-EDP">编辑长度问题 EDP</h2>
+<p>编辑长度问题通常用于字符串的非精确匹配问题。记 $\Sigma$ 为一有限字符集，给定两个字符串 $x\in \Sigma^m, \ y \in \Sigma^n$，或者写为 $x=x_1\cdots x_m, \ y=y_1 \cdots y_n$，任务是将 x 转变为 y，并且只能使用如下三种编辑操作：</p>
+<ul>
+<li>删除操作 D。从某字符串中删除一个字符，损失为 $c(D)$</li>
+<li>插入操作 I。向某字符串中插入一个字符，损失为 $c(I)$</li>
+<li>替换操作 R。将某字符串中某个字符替换为另一个字符，损失为 $c®$，如果替换前后字符相同，则 $c®=0$</li>
+</ul>
+<p>要求一个编辑序列，使得 x 转变为 y，且具有最小损失，这里损失为所有操作的损失之和。DPFE 为<br>
+$$f(i,j)=\begin{cases} jI &amp; i=0<br>
+\\ iD &amp; j=0<br>
+\\ \min {f(i-1,j)+c(D),f(i,j-1)+c(I),f(i-1,j-1)+c®} &amp; i&gt;0,j&gt;0 \end{cases}$$<br>
+其中 $f(i,j)$ 表示从 $X_i$ 到 $Y_j$ 需要的操作损失，$X_i$ 为 x 的前 i 个字符形成的子串，$Y_j$ 为 y 的前 j 个字符形成的子串，当 i=0 时，向 $X_i$ 插入 j 个字符得到 $Y_j$，当 j=0 时，将 $X_i$ 删除 i 个字符得到 $Y_j$，当 i&gt;0 且 j&gt;0 时，从 $X_i$ 变换到 $Y_j$，总共可以有以下三种决策/操作，取损失最小的决策：</p>
+<ul>
+<li>删除 $X_i$ 的第 i 个字符，然后从 $X_{i-1}$ 变换到 $Y_j$，两部分损失分别为 $c(D)$ 和 $f(i-1,j)$</li>
+<li>从 $X_i$ 变换到 $Y_{j-1}$，然后再在末尾插入一个字符得到 $Y_j$，两部分的操作损失分别为 $f(i,j-1)$ 和 $c(I)$</li>
+<li>两个子串的最后一个字符，使用替换，$x_i \rightarrow y_j$，然后再从 $X_{i-1}$ 变换到 $Y_{j-1}$ 即可得到 $X_i$ 变换到 $Y_j$ 的过程，两部分的损失分别为 $f(i-1,j-1)$ 和 $c®$</li>
+</ul>
+<p>还可以写成如下形式的 DPFE<br>
+$$f(X_i,Y_j)=\begin{cases} jI &amp; i=0<br>
+\\ iD &amp; j=0<br>
+\\ \min_{d \in {D,I,R}} {f(t(X_i,Y_j,d))+c(d)} &amp; i&gt;0,j&gt;0<br>
+\end{cases}$$<br>
+其中变换定义为<br>
+$$t(X_i,Y_j,D)=(X_{i-1},Y_j)<br>
+\\ t(X_i,Y_j,I)=(X_i,Y_{j-1})<br>
+\\ t(X_i,Y_j,R)=(X_{i-1},Y_{j-1})$$</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2019/08/14/dp/DP2/">https://jianjiansha.github.io/2019/08/14/dp/DP2/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/math/">
+                                    <span class="chip bg-color">math</span>
+                                </a>
+                            
+                                <a href="/tags/DP/">
+                                    <span class="chip bg-color">DP</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/08/22/pytorch/PyTorch-4/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="PyTorch-4">
+                        
+                        <span class="card-title">PyTorch-4</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            Tensor
+torch 模块中包含了各种 Tensor：FloatTensor，DoubleTensor，HalfTensor，ByteTensor 等。这些 Tensor 是怎么来的呢？首先，入口是 torch/__init__.py 
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2019-08-22
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/DL-Framework/" class="post-category">
+                                    DL Framework
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/PyTorch/">
+                        <span class="chip bg-color">PyTorch</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/08/07/dp/DP1/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt="Dynamic Programming (1)">
+                        
+                        <span class="card-title">Dynamic Programming (1)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            我计划开启一系列动态规划的方法介绍，主要参考 《Dynamic Programming · A Computational Tool》这本书。
+简介
+动态规划用于解决一类优化问题，顺序地做出决策，每一次决策使得问题转变为对一个子问题的优化，
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-08-07
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/math/" class="post-category">
+                                    math
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/math/">
+                        <span class="chip bg-color">math</span>
+                    </a>
+                    
+                    <a href="/tags/DP/">
+                        <span class="chip bg-color">DP</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

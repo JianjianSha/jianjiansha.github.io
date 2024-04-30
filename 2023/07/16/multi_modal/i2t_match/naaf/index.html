@@ -1,0 +1,1636 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="NAAF：用于 Image-Text 匹配的负注意力机制, SJJ">
+    <meta name="description" content="1. 简介
+Image=Text 匹配问题，有两种方法：1. global-level matching，也就是将 image 和 text 映射到一个 shared 特征空间，得到 whole image 的特征以及 full text ">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>NAAF：用于 Image-Text 匹配的负注意力机制 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/0.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">NAAF：用于 Image-Text 匹配的负注意力机制</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/image-text-retrieve/">
+                                <span class="chip bg-color">image-text retrieve</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2023-07-16
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1>1. 简介</h1>
+<p>Image=Text 匹配问题，有两种方法：1. global-level matching，也就是将 image 和 text 映射到一个 shared 特征空间，得到 whole image 的特征以及 full text 的特征；2. local-level matching，将图像显著区域和文本单词之间进行匹配，这种匹配比起 global-level matching 更加精细。对于 local-level matching，现有的研究主要考虑到 image 与 text 匹配的部分，而不匹配的部分则直接忽略，例如 图 1 (b)，“boys”，“trees”，“road” 与 image 的某个 region 匹配的很好，而 “football” 则与 image region 不匹配（image 中为篮球），这个不匹配直接被忽视，导致最终的 image-text 匹配得分非常高，这显然不合适，因此，作者认为匹配的部分和不匹配的部分一起决定总的匹配得分，例如图 1 © 中，“football” 不匹配，所以需要扣分，导致最终总的匹配得分有所下降。</p>
+<p><img src="/images/multi_modal/naaf_1.png" alt=""></p>
+<center>图 1. </center>
+<h1>2.方法</h1>
+<p>一个 image-text pair $(U, V)$，text 由单词的文本特征表示 $U=\lbrace u_i | i \in [1,m], u _ i \in \mathbb R ^ d \rbrace$，image 由 region 的视觉特征表示 $V=\lbrace v _ j | j \in [1, n], v _ j \in \mathbb R ^ d \rbrace$ ，$d$ 是特征维度，为了方便计算特新相似度，文本特征和视觉特征维度相同。</p>
+<h2 id="2-1-负注意力">2.1 负注意力</h2>
+<p>给定一个 image-text pair，其中包含了很多 word-region fragment pair，也就是说，将 text 看作多个 words，image 划分为多个 region，那么就得到多个 word-region pairs，这些 fragment pairs 分为 matched 和 mismatched 两种，这两种全部利用可以得到更准确的匹配得分。为此，作者提出了 NAAF（negative-aware attention framework），包含了两个主要的模块：1. 有判别的 mismatch 挖掘；2. Neg-Pos 分支匹配。 下面分别介绍。</p>
+<h3 id="2-1-1-有判别的-mismatch-挖掘">2.1.1 有判别的 mismatch 挖掘</h3>
+<p>存在 mismatched 的相似度分布和 matched 的相似度分布，给定一个 fragment pair 的相似度，需要判断其属于 mismatched 还是 matched。</p>
+<p>mismatched 和 matched 两种 word-region fragment pair 的相似度集合分别记为，</p>
+<p>$$S _ k ^ {-} = [s _ 1 ^ -, s _ 2 ^ -, \ldots, s _ i ^ -] \tag{1}$$</p>
+<p>$$S _ k ^ + = [s _ 1 ^ +, s _ 2 ^ +, \ldots, s _ i ^ +] \tag{2}$$</p>
+<p>在训练过程中，会动态更新这两个集合，每次更新使用不同的 $k$ 表示（即，更新轮次），其中 $s _ i ^ -$ 和 $s _ i ^ +$ 通过采样得到。采样策略后面 <code>### 2.1.3</code> 会介绍。</p>
+<p>（下文很多变量的定义均是从文本的角度出发。）</p>
+<p>根据采样得到的 $S _ k ^ -$ 和 $S _ k ^ +$，对 mismatched 和 matched 的 fragment pair 的相似度分布建模如下，</p>
+<p>$$f _ k ^ - (s) = \frac 1 {\sigma _ k ^ - \sqrt {2 \pi}} \exp \left[- \frac {(s - \mu _ k ^ -) ^ 2} {2 (\sigma _ k ^ -) ^ 2}\right]<br>
+\\ f _ k ^ + (s) = \frac 1 {\sigma _ k ^ + \sqrt {2 \pi}} \exp \left[- \frac {(s - \mu _ k ^ +) ^ 2} {2 (\sigma _ k ^ +) ^ 2}\right]$$</p>
+<p>假设存在一个边界 $t$，用于区分相似度属于 matched 还是 mismatched，如图 2 (b) 所示，</p>
+<p><img src="/images/multi_modal/naaf_2.png" alt=""></p>
+<center>图 2. NAAF 框架图</center>
+<p>判别错误（error）有两种：1. mathced 被判为 mismatched，如图 2 (b) 中红色部分 $E _ 2$；2. mismatched 被判为 matched，如图 2 (b) 中蓝色部分 $E_1$ 。</p>
+<p>通过最小化如下加权错误（error）概率得到最佳边界 $t$，</p>
+<p>$$\min _ t \quad \alpha \int _ t ^ {\infty} f _ k ^ - (s) ds + \int _ {-\infty} ^ t f _ k ^ + (s) ds , \quad s.t. \quad t \ge 0 \tag{3}$$</p>
+<p>其中 $\alpha$ 是 $E _ 1$ 的惩罚权重。</p>
+<p>求 (3) 式导数并令其为 0，可以得到 $t$ 的最优解。</p>
+<p>$$\begin{aligned}\frac {\partial} {\partial t} (\alpha E _ 1 + E _ 2) &amp;=f _ k ^ + (t) - \alpha f _ k ^ - (t)<br>
+\\ &amp;= \frac 1 {\sigma _ k ^ + \sqrt {2 \pi}} \exp \left[- \frac {(t - \mu _ k ^ +) ^ 2} {2 (\sigma _ k ^ +) ^ 2}\right]-\alpha \frac 1 {\sigma _ k ^ - \sqrt {2 \pi}} \exp \left[- \frac {(t - \mu _ k ^ -) ^ 2} {2 (\sigma _ k ^ -) ^ 2}\right]<br>
+\\ &amp;= 0<br>
+\end{aligned}$$</p>
+<p>上式移项，两边取对数，</p>
+<p>$$\frac {(t - \mu _ k ^ +) ^ 2} {2 (\sigma _ k ^ +) ^ 2}= \log \frac {\sigma _ k ^ -}{\alpha \sigma _ k ^ +} + \frac {(t - \mu _ k ^ -) ^ 2} {2 (\sigma _ k ^ -) ^ 2}$$</p>
+<p>变换得，</p>
+<p>$$(\sigma _ k ^ -) ^ 2 (t - \mu _ k ^ +) ^ 2 = 2 (\sigma _ k ^ + \sigma _ k ^ -) ^ 2 \log \frac {\sigma _ k ^ -}{\alpha \sigma _ k ^ +} + (\sigma _ k ^ +) ^ 2 (t - \mu _ k ^ -) ^ 2$$</p>
+<p>这是 $t$ 的二次方程，根据韦达定理 $(-b \pm \sqrt{b ^ 2 - 4ac}) / 2a$，可以最优解为</p>
+<p>$$t _ k = [(((\beta _ 2 ^ k) ^ 2 - 4 \beta _ 1 ^ k \beta _ 3 ^ k ) ^ {1/2} - \beta _ 2 ^ k) / (2 \beta _ 1 ^ k)] _ + \tag{4}$$</p>
+<p>这里，</p>
+<p>$$\begin{aligned}\beta _ 1 ^ k &amp;= (\sigma _ k ^ +) ^ 2 - (\sigma _ k ^ -) ^ 2<br>
+\\ \beta _ 2 ^ k &amp;= 2 [\mu _ k ^ + (\sigma _ k ^ -) ^ 2 -\mu _ k ^ - (\sigma _ k ^ +) ^ 2]<br>
+\\ \beta _ 3 ^ k &amp;= (\sigma _ k ^ + \mu _ k ^ -) ^ 2 - (\sigma _ k ^ - \mu _ k ^ +) ^ 2 + 2 (\sigma _ + \sigma _ k ^ -) ^ 2 \log \frac {\sigma _ k ^ -}{\alpha \sigma _ k ^ +}<br>
+\end{aligned}$$</p>
+<p>训练结束时，我们希望边界值 $t _ k$ 可以最大化挖掘 mismatched fragments，并同时避免 matched fragments 被误判，因为要做到最大化挖掘 mismatched fragments，根据图 2 (b) 不难知道 $t$ 应该较大，然而 $t$ 较大则会带来 matched fragments 被误判，为了兼顾这两个目的，对 mismatched fragments 的错误（error）使用一个惩罚参数 $\alpha$ 。</p>
+<p>根据 (4) 式，$t_k$ 可以看作 $\alpha$ 的函数 $t _ k (\alpha)$ ，那么求 $\alpha$ 最佳值的问题可以转化为，</p>
+<p>$$\begin{aligned} \alpha ^ {\star} = &amp; \max _ {\alpha} \quad \int _ {-\infty} ^ {t _ k (\alpha)} f _ k ^ - (s)ds,<br>
+\\ &amp; s.t. \quad \int _ {t _ k (\alpha)} ^ {\infty} f _ k ^ + (s)ds \approx 1, \ \alpha &gt; 0<br>
+\end{aligned}$$</p>
+<p>上式中 $\max (\cdot)$ 表示最大化挖掘 mismatched fragments，然后约束条件是 matched fragments 被判断正确的概率接近 1，即基本不会误判。</p>
+<p>求解 $\alpha ^ {\star}$ 分两步：1. 求可行解集合（满足约束条件的解的集合）；2. 通过映射求最优解。</p>
+<p>对于第一步，为了满足约束条件，根据概率极限理论，$t _ k (\alpha)$ 应该位于范围 $[0, t ^ {\star}]$，其中 $t ^ {\star}$ 根据经验可以取 $\mu - 3 \sigma$ （使用 $f _ k ^ +$ 分布的期望和标准差），根据 Chebyshev 不等式，有 $P(|X - EX| \ge \epsilon) \le V/ \epsilon ^ 2$，所以 $P(|X-\mu| \ge 3 \sigma) \le \sigma ^ 2 /(3\sigma) ^ 2=1/9$，于是 $P(X\le \mu - 3 \sigma) \le 1/ 18$ 。然后由于目标优化函数随 $t _ k (\alpha)$ 增大而增大，所以最优解取可行解 $[0, t ^ {\star}]$ 的最大值，即</p>
+<p>$$\lim _ {\alpha \rightarrow \alpha ^ {\star}} t _ k (\alpha) = t ^ {\star} = \mu _ k ^ + - 3 \sigma _ k ^ + \tag{4.1}$$</p>
+<p>上式代入 (4) 式之前的一个等式，解出 $\alpha ^ {\star}$，不过与论文 (5) 式给出的 $\alpha ^ {\star}$ 并不相同，笔者没有搞清楚论文 (5) 式如何推导出来。</p>
+<h3 id="2-1-2-负-正-注意力分支">2.1.2 负-正 注意力分支</h3>
+<p>双分支框架同时考虑了 mismatched 和 matched 片段（fragments）。计算 word 和 region 之间的语义关联得分如下，</p>
+<p>$$s _ {ij} = \frac {u _ i v _ j ^ {\top}}{||u _ i|| \ ||v _ j||}, \quad, i \in [1,m], j \in [1,n] \tag{6}$$</p>
+<p><strong># 负注意力</strong></p>
+<p><strong>从文本的角度出发</strong>，文本片段如果没有匹配的图像 region，那么被认为是 mismatched。一个模态（例如文本）的片段与另一个模态（例如图像）的所有片段之间的跨模态相似度最大值，反应了其是匹配的还是未匹配的，因此对文本片段 $u _ i, i \in [1,m]$ 与图像的所有 regions $\lbrace v _ j\rbrace _ {j=1} ^ n$ 之间的相似度做 max-pooling，</p>
+<p>$$s _ i = \max _ j (\lbrace s _ {ij} - t _ k \rbrace _ {j=1} ^ n) \tag{7}$$</p>
+<p>因此第 <code>i</code> 个 word 在 image-text pair $(U, V)$ 中的负效应（即，不相似）可以使用 (8) 式度量，</p>
+<p>$$s _ i ^ {neg} = s _ i \odot \text {Mask} _ {neg}(s _ i) \tag{8}$$</p>
+<p>其中掩码 $\text{Mask} _ {neg}(\cdot)$ 在输入为负时，输出 1，否则输出 0。</p>
+<p>(7) 和 (8) 式表明，两种模态片段之间的相似度与区分边界 $t _ k$ 比较，如果大于等于 $t _ k$，那么被判别为 matched，负效应为 0，当小于 $t _ k$ 时，才被判为 mismatched，负效应为两者差值。</p>
+<p>为了更准确地测量负效应，作者还考虑了文本片段地语义内关系，也就是模态内部 word 之间的匹配度，</p>
+<p>$$\hat s _ i = \sum _ {l=1} ^ m w _ {il} ^ {intra} s _ l, \quad s.t. \ w _ {il} ^ {intra} = \text{softmax} _ {\lambda} (\lbrace \frac {u _ i u _ l ^ {\top}}{||u _ i|| \ ||u _ l||} \rbrace _ {l=1} ^ m) \tag{9}$$</p>
+<p>模态内部的匹配度是 $s _ l$ 的加权求和，权重则使用余弦相关度的 softmax 值（softmax 用于归一化）。$\lambda$ 是 scaling 因子。</p>
+<p>在 inference 阶段，将 (8) 式中 $s _ i$ 替换为 $\hat s _ i$ 。</p>
+<p><strong># 正注意力</strong></p>
+<p>聚合与 query word 匹配的所有 image region，得到这个 word 在图像中的共享语义。聚合权重按如下计算，</p>
+<p>$$w _ {ij} ^ {inter} = \text{softmax} _ {\lambda} (\lbrace \text{Mask} _ {pos} (s _ {ij} - t _ k)\rbrace _ {j=1} ^ n) \tag{10}$$</p>
+<p>其中 $\text{Mask} _ {pos} (\cdot)$ 输入为正时，输出等于输入，否则输出为 $-\infty$，这样使用 softmax 归一化时，$-\infty$ 就变成 0。于是当 $s _ {ij} &lt; t _ k$ 时，pair 被判为 mismatched，其正相关度的聚合权重应当为 0 。$w _ {ij} ^ {inter}$ 表示单词 $u _ i$ 与图像 region $v _ j$ 之间的语义关联。</p>
+<p>于是，对于单词 $w _ i$，其在整个图像的共享语义为 $\hat v _ i = \sum _ {j=1} ^ n w _ {ij} ^ {inter} v _ j$ ，于是相似度计算为</p>
+<p>$$s _ i ^ f = \frac {u _ i \hat v _ i ^ {\top}}{||u _ i|| \ ||\hat v _ i||} \tag{10.1}$$</p>
+<p>word 与 region 之间的关联得分 $s _ {ij}$ 也反映了相似度，所以也计算了基于 $s _ {ij}$ 的加权相似度， $s _ i ^ r = \sum _ {j=1} ^ n w _ {ij} ^ {relev} s _ {ij}$，其中权重为 $w _ {ij} ^ {relev} = \text{softmax} _ {\lambda} (\lbrace \overline s _ {ij} \rbrace _ {j=1} ^ n)$ ，而 $\overline s _ {ij} = [s _ {ij}] _ + \ / \sqrt{\sum _ {i=1} ^ m [s _ {ij}] _ + ^ 2}$ 。</p>
+<p>总的 matched fragment 的正效应为</p>
+<p>$$s _ i ^ {pos} = s _ i ^ f + s _ i ^ r \tag{11}$$</p>
+<p>综合考虑正负效应后，image-text pair $(U, V)$ 的相似度为</p>
+<p>$$S(U,V)=\frac 1 m \sum _ {i=1} ^ m (s _ i ^ {neg} + s _ i ^ {pos}) \tag{12}$$</p>
+<h3 id="2-1-3-采样和更新策略">2.1.3 采样和更新策略</h3>
+<p>本节介绍如何采样得到 (1) 和 (2) 式中的 mismatched 和 matched word-region 片段。</p>
+<p>对于一个匹配的文本，其中任意的单词一定可以在其匹配图像中找到至少一个匹配区域。将单词 $u _ i, i \in [1,m]$ 和正确的图像 region $\lbrace v _ j ^ +\rbrace _ {j=1} ^ n$ 最大相似度的作为 matched 样本，</p>
+<p>$$s _ i ^ + = \max _ j (\lbrace v _ j ^ + u _ i ^ {\top} / (||v _ j ^ +|| \ ||u _ i||) \rbrace _ {j=1} ^ n ) \tag{13}$$</p>
+<p>（这里的 $i$ 是也从文本角度出发。）</p>
+<p>mismatched 的采样。对于单词 $u _ i, i \in [1,m]$，其与不正确的图像中的 region $\lbrace v _ j ^ - \rbrace _ {j=1} ^ n$ 的相似度最大值，作为 mismatched 样本，</p>
+<p>$$s _ i ^ - = \max _ j (\lbrace v _ j ^ - u _ i ^ {\top} / (||v _ j ^ -|| \ ||u _ i ||)\rbrace _ {j=1} ^ n) \tag{14}$$</p>
+<p>mini-batch 中每个文本句子均进行采样，然后用于更新 $S _ k ^ +, S _ k ^ -$ ，$k$ 为训练 epoch。</p>
+<h2 id="2-2-目标函数">2.2 目标函数</h2>
+<p>给定一个 gt image-text pair $(U, V)$，以及其不匹配的 pair $(U, V’)$ 和 $(U’, V)$，后两者使用最难不匹配 pair，通过下式选择，</p>
+<p>$$V’=\argmax _ {p \neq V} S(U, p), \quad U’=\argmax _ {q \neq U} S(q, V)$$</p>
+<p>作者着重优化这些最难不匹配样本，这些样本有着最高损失。使用的目标函数为</p>
+<p>$$L = \sum _ {(U,V)} [\gamma - S(U,V)+S(U, V’)] _ + \ + [\gamma - S(U, V)+S(U’,V)] _ + \tag{15}$$</p>
+<p>其中 $\gamma$ 是超参数边距 。</p>
+<h2 id="2-3-特征提取">2.3 特征提取</h2>
+<p><strong># 视觉表征</strong></p>
+<p>给定一个图像 $V$，其又一系列显著区域的特征 $[v _ 1, v _ 2, \ldots, v _ n]$ 表示，显著目标和区域使用 Faster-RCNN 检测得到（Faster-RCNN 在 Visual Genome 上预训练），然后选择 topK（$K=36$）个 proposals。在图像上检测得到的 regions 通过预训练的 ResNet-101 得到 mean-pooled 的卷据特征，卷积输出特征的 channel 为 $C$，然后通过 GAP（global average pooling）得到长度为 $C$ 的向量，最后使用一个全连接层将每个 region 映射为 1024 长度的特征向量。</p>
+<p><strong># 文本表征</strong></p>
+<p>假设一个文本 $U$，包含 $m$ 个 words，将每个 word 编码为 1024 长度的特征向量，得到 $[u _ 1, u _ 2, \ldots, u _ m]$ ，每个 word 的编码步骤为：</p>
+<ol>
+<li>每个 word 首先编码为 one-hot 向量（根据词典 Vocab 得到）</li>
+<li>然后编码为 GloVe 词嵌入向量</li>
+<li>GloVe 向量通过 BiGRU，整合前向和反向上下文信息，最终的词向量 $u _ i$ 就是双向隐层状态节点值的平均。</li>
+</ol>
+<h1>3. 实验与源码</h1>
+<h2 id="3-1-数据集和实现细节">3.1 数据集和实现细节</h2>
+<p><strong># 数据集</strong></p>
+<ol>
+<li>
+<p>Flickr30k</p>
+<p>包含 31000 个图像和 155000 个文本句子，每个图像有 5 个文本句子。Flickr30k 划分为 <code>1000</code> 个测试图像，<code>1000</code> 个验证图像，以及 <code>29000</code> 训练图像。</p>
+</li>
+<li>
+<p>MS-COCO</p>
+<p>包含 123287 个图像，616435 个文本句子，每个图像有 5 个文本句子。数据集划分为 <code>5000</code> 个测试图像，<code>5000</code> 个验证图像，以及 <code>113287</code> 个训练图像。</p>
+</li>
+</ol>
+<p><strong># 数据集源码</strong></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">PrecompData</span><span class="token punctuation">(</span>data<span class="token punctuation">.</span>Dataset<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token keyword">def</span> <span class="token function">__getitem__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> index<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''index: 句子 index'''</span>
+        img_id <span class="token operator">=</span> index <span class="token operator">//</span> self<span class="token punctuation">.</span>im_div   <span class="token comment"># 句子 index // 5 ，得到图像 index</span>
+        <span class="token comment"># 这里，self.images 就是从文件中读取的图像区域的经过均值池化后的卷积特征</span>
+        <span class="token comment"># 即，图像先经过Faster RCNN 得到目标区域，然后在经过 ResNet-101，得到</span>
+        <span class="token comment"># 最后均值池化的卷积特征</span>
+        image <span class="token operator">=</span> torch<span class="token punctuation">.</span>Tensor<span class="token punctuation">(</span>self<span class="token punctuation">.</span>images<span class="token punctuation">[</span>img_id<span class="token punctuation">]</span><span class="token punctuation">)</span> 
+        caption_non <span class="token operator">=</span> self<span class="token punctuation">.</span>caption_non<span class="token punctuation">[</span>index<span class="token punctuation">]</span>   <span class="token comment"># 句子</span>
+        <span class="token comment"># 将句子分词</span>
+        tokens <span class="token operator">=</span> nltk<span class="token punctuation">.</span>tokenize<span class="token punctuation">.</span>word_tokenize<span class="token punctuation">(</span><span class="token builtin">str</span><span class="token punctuation">(</span>caption_non<span class="token punctuation">)</span><span class="token punctuation">.</span>lower<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        caption_non <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        caption_non<span class="token punctuation">.</span>append<span class="token punctuation">(</span>vocab<span class="token punctuation">(</span><span class="token string">'&lt;start>'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>    <span class="token comment"># 添加 &lt;start> 在词典内的 id</span>
+        caption_non<span class="token punctuation">.</span>extend<span class="token punctuation">(</span><span class="token punctuation">[</span>vocab<span class="token punctuation">(</span>token<span class="token punctuation">)</span> <span class="token keyword">for</span> token <span class="token keyword">in</span> tokens<span class="token punctuation">]</span><span class="token punctuation">)</span>
+        caption_non<span class="token punctuation">.</span>append<span class="token punctuation">(</span>vocab<span class="token punctuation">(</span><span class="token string">'&lt;end>'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+        captions <span class="token operator">=</span> torch<span class="token punctuation">.</span>Tensor<span class="token punctuation">(</span>caption_non<span class="token punctuation">)</span>    <span class="token comment"># word id</span>
+        <span class="token keyword">return</span> image<span class="token punctuation">,</span> captions<span class="token punctuation">,</span> index<span class="token punctuation">,</span> img_id
+    
+<span class="token keyword">def</span> <span class="token function">collate_fn</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token comment"># images: (B, 3, H, W)</span>
+    <span class="token comment"># targets: (B, max_L)</span>
+    <span class="token comment"># lengths: 长度为 B 的列表，元素值表示句子中 token 数量</span>
+    <span class="token comment"># ids: 长度为 B 的列表，句子 id</span>
+    <span class="token keyword">return</span> images<span class="token punctuation">,</span> targets<span class="token punctuation">,</span> lengths<span class="token punctuation">,</span> ids<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong># 训练代码</strong></p>
+<p>模型为 <code>NAAF</code> 类，其中训练代码为，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">NAAF</span><span class="token punctuation">:</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token comment"># 训练方法入口</span>
+    <span class="token keyword">def</span> <span class="token function">train_emb</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> images<span class="token punctuation">,</span> captions<span class="token punctuation">,</span> lengths<span class="token punctuation">,</span> <span class="token operator">*</span>args<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        img_emb<span class="token punctuation">,</span> cap_emb<span class="token punctuation">,</span> cap_lens <span class="token operator">=</span> self<span class="token punctuation">.</span>forward_emb<span class="token punctuation">(</span>
+            images<span class="token punctuation">,</span> captions<span class="token punctuation">,</span> lengths
+        <span class="token punctuation">)</span>
+
+        self<span class="token punctuation">.</span>optimizer<span class="token punctuation">.</span>zero_grad<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        loss <span class="token operator">=</span> self<span class="token punctuation">.</span>forward_loss<span class="token punctuation">(</span>img_emb<span class="token punctuation">,</span> cap_emb<span class="token punctuation">,</span> cap_lens<span class="token punctuation">)</span>
+        loss<span class="token punctuation">.</span>backward<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> self<span class="token punctuation">.</span>grad_clip <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">:</span>
+            clip_grad_norm<span class="token punctuation">(</span>self<span class="token punctuation">.</span>params<span class="token punctuation">,</span> self<span class="token punctuation">.</span>grad_clip<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>optimizer<span class="token punctuation">.</span>step<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token comment"># 前向传播，得到图像和文本的特征</span>
+    <span class="token keyword">def</span> <span class="token function">forward_emb</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> images<span class="token punctuation">,</span> captions<span class="token punctuation">,</span> lengths<span class="token punctuation">,</span> volatile<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+        img_emb <span class="token operator">=</span> self<span class="token punctuation">.</span>img_enc<span class="token punctuation">(</span>images<span class="token punctuation">)</span>
+        cap_emb<span class="token punctuation">,</span> cap_lens <span class="token operator">=</span> self<span class="token punctuation">.</span>txt_enc<span class="token punctuation">(</span>captions<span class="token punctuation">,</span> lengths<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> img_emb<span class="token punctuation">,</span> cap_emb<span class="token punctuation">,</span> cap_lens<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>以上给出了方法的主要实现代码，由于比较简单，不多解释。下面看获取图像和文本特征向量的实现代码，</p>
+<p><strong># 图像特征提取代码</strong></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">EncoderImagePrecomp</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> img_dim<span class="token punctuation">,</span> embed_size<span class="token punctuation">,</span> no_imgnorm<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span>EncoderImagePrecomp<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>embed_size <span class="token operator">=</span> embed_size    <span class="token comment"># 图像和文本的 shared 特征空间维度</span>
+        self<span class="token punctuation">.</span>no_imgnorm <span class="token operator">=</span> no_imgnorm
+        self<span class="token punctuation">.</span>fc <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>img_dim<span class="token punctuation">,</span> embed_size<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>init_weights<span class="token punctuation">(</span><span class="token punctuation">)</span>     <span class="token comment"># 初始化 self.fc 这个 layer 的参数</span>
+    
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> images<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''images: 图像经过均值池化后的卷积输出特征
+                    (batch_size, 36, 2048)
+        '''</span>
+        features <span class="token operator">=</span> self<span class="token punctuation">.</span>fc<span class="token punctuation">(</span>images<span class="token punctuation">)</span>  <span class="token comment"># (batch_size, 36, embed_size)</span>
+        <span class="token keyword">if</span> <span class="token keyword">not</span> self<span class="token punctuation">.</span>no_imgnorm<span class="token punctuation">:</span>     <span class="token comment"># 需要归一化</span>
+            features <span class="token operator">=</span> l2norm<span class="token punctuation">(</span>features<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> features<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上面是提取图像区域特征的代码，实际上就是一个全连接层，其输入也是图像区域特征向量，经过这个全连接层，映射到图像与文本 shared 特征向量空间中（维度变换）。这里的输入 <code>图像区域特征向量</code> 如何得到，可以参考 <a target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content_cvpr_2018/papers/Anderson_Bottom-Up_and_Top-Down_CVPR_2018_paper.pdf">bottom-up Attention</a> 这篇论文，源码为 <a target="_blank" rel="noopener" href="https://github.com/peteanderson80/bottom-up-attention">bottom-up-attention</a> 。</p>
+<p><strong># 文本特征提取代码</strong></p>
+<p>文本特征有两种提取方法：1. 使用自学习嵌入向量（即 pytorch 中的 <code>nn.Embedding</code>）；2. Glove 嵌入向量。以下分别介绍</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">EncoderText</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> vocab_size<span class="token punctuation">,</span> word_dim<span class="token punctuation">,</span> embed_size<span class="token punctuation">,</span> num_layers<span class="token punctuation">,</span>
+                 no_txtnorm<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span>EncoderText<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>embed_size <span class="token operator">=</span> embed_size
+        self<span class="token punctuation">.</span>no_txtnorm <span class="token operator">=</span> no_txtnorm
+
+        self<span class="token punctuation">.</span>embed <span class="token operator">=</span> nn<span class="token punctuation">.</span>Embedding<span class="token punctuation">(</span>vocab_size<span class="token punctuation">,</span> word_dim<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>rnn <span class="token operator">=</span> nn<span class="token punctuation">.</span>GRU<span class="token punctuation">(</span>word_dim<span class="token punctuation">,</span> embed_size<span class="token punctuation">,</span> num_layers<span class="token punctuation">,</span>
+                          batch_first<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> bidirectional<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>init_weights<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment"># 初始化以上 layers 的参数</span>
+    
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">,</span> lengths<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        x: one-hot 向量，实际上是 token 在 vocab 中的 id
+            (batch_size, max_L)
+        参考上文 # 文本表征 的编码步骤 1，2，3
+        '''</span>
+        <span class="token comment"># 将 one-hot 转为嵌入向量</span>
+        x <span class="token operator">=</span> self<span class="token punctuation">.</span>embed<span class="token punctuation">(</span>x<span class="token punctuation">)</span>   <span class="token comment"># (batch_size, max_L, word_dim)</span>
+        <span class="token comment"># 将输入 x 打包成 RNN 要求的形式，batch_first=True 指出 x 第一维为 batch</span>
+        packed <span class="token operator">=</span> pack_padded_sequence<span class="token punctuation">(</span>x<span class="token punctuation">,</span> lengths<span class="token punctuation">,</span> batch_first<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        out<span class="token punctuation">,</span> _ <span class="token operator">=</span> self<span class="token punctuation">.</span>rnn<span class="token punctuation">(</span>packed<span class="token punctuation">)</span>
+
+        <span class="token comment"># 将 RNN 输出再打包成 Tensor 形式</span>
+        padded <span class="token operator">=</span> pad_packedsequence<span class="token punctuation">(</span>out<span class="token punctuation">,</span> batch_first<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        <span class="token comment"># (batch_size, max_L, D * embed_size), D = 2 if bidirectional else 1</span>
+        <span class="token comment"># (batch_size, )</span>
+        cap_emb<span class="token punctuation">,</span> cap_len <span class="token operator">=</span> padded
+        cap_emb <span class="token operator">=</span> <span class="token punctuation">(</span>cap_emb<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span>cap_emb<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token operator">//</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">+</span>
+                   cap_emb<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">,</span> cap_emb<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token operator">//</span><span class="token number">2</span><span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span>
+        <span class="token keyword">if</span> <span class="token keyword">not</span> self<span class="token punctuation">.</span>no_txtnorm<span class="token punctuation">:</span>
+            cap_emb <span class="token operator">=</span> l2norm<span class="token punctuation">(</span>cap_emb<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> cap_emb<span class="token punctuation">,</span> cap_len<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>使用 Glove 嵌入向量的文本特征提取代码如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">GloveEmb</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> num_embeddings<span class="token punctuation">,</span> glove_dim<span class="token punctuation">,</span> glove_path<span class="token punctuation">,</span>
+                 add_rand_embed<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> rand_dim<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span>GloveEmb<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>num_embeddings <span class="token operator">=</span> num_embeddings    <span class="token comment"># 实际是 vocab_size, V</span>
+        self<span class="token punctuation">.</span>add_rand_embed <span class="token operator">=</span> add_rand_embed
+        self<span class="token punctuation">.</span>glove_dim <span class="token operator">=</span> glove_dim              <span class="token comment"># 实际是 embed_dim, d</span>
+        self<span class="token punctuation">.</span>final_word_emb <span class="token operator">=</span> glove_dim
+
+        <span class="token comment"># glove 模型的参数矩阵 W ，shape 为 (V, d)</span>
+        self<span class="token punctuation">.</span>glove <span class="token operator">=</span> nn<span class="token punctuation">.</span>Embedding<span class="token punctuation">(</span>num_embeddings<span class="token punctuation">,</span> glove_dim<span class="token punctuation">)</span>
+        glove <span class="token operator">=</span> nn<span class="token punctuation">.</span>Parameter<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>load<span class="token punctuation">(</span>glove_path<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment"># 从实现训练好的文件中加载 glove 模型参数</span>
+        self<span class="token punctuation">.</span>glove<span class="token punctuation">.</span>weight <span class="token operator">=</span> glove
+        self<span class="token punctuation">.</span>glove<span class="token punctuation">.</span>requires_grad <span class="token operator">=</span> <span class="token boolean">False</span>
+
+        <span class="token keyword">if</span> add_rand_embed<span class="token punctuation">:</span>
+            self<span class="token punctuation">.</span>embed <span class="token operator">=</span> nn<span class="token punctuation">.</span>Embedding<span class="token punctuation">(</span>num_embeddings<span class="token punctuation">,</span> rand_dim<span class="token punctuation">)</span>
+            self<span class="token punctuation">.</span>final_word_emb <span class="token operator">=</span> glove_dim <span class="token operator">+</span> rand_dim
+    
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        x: (batch_size, max_L)
+        return: glove vector of x, (batch_size, max_L, glove_dim)
+        '''</span>
+        emb <span class="token operator">=</span> self<span class="token punctuation">.</span>glove<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> self<span class="token punctuation">.</span>add_rand_embed<span class="token punctuation">:</span>
+            emb2 <span class="token operator">=</span> self<span class="token punctuation">.</span>embed<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+            emb <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span><span class="token punctuation">[</span>emb<span class="token punctuation">,</span> emb2<span class="token punctuation">]</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span>
+
+<span class="token keyword">class</span> <span class="token class-name">GloveRNNEncoder</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> vocab_size<span class="token punctuation">,</span> embed_dim<span class="token punctuation">,</span> latent_size<span class="token punctuation">,</span> num_layers<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span>
+        use_bi_gru<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> no_txtnorm<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> glove_path<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> add_rand_embed<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span>GloveRNNEncoder<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>latent_size <span class="token operator">=</span> latent_size
+        self<span class="token punctuation">.</span>no_txtnorm <span class="token operator">=</span> no_txtnorm
+
+        self<span class="token punctuation">.</span>embed <span class="token operator">=</span> GloveEmb<span class="token punctuation">(</span>
+            vocab_size<span class="token punctuation">,</span>
+            glove_dim<span class="token operator">=</span>embed_dim<span class="token punctuation">,</span>
+            glove_path <span class="token operator">=</span> glove_path<span class="token punctuation">,</span>
+            add_rand_embed<span class="token operator">=</span>add_rand_embed<span class="token punctuation">,</span>
+            rand_dim<span class="token operator">=</span>embed_dim<span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>use_bi_gru <span class="token operator">=</span> use_bi_gru
+        self<span class="token punctuation">.</span>rnn <span class="token operator">=</span> nn<span class="token punctuation">.</span>GRU<span class="token punctuation">(</span>
+            self<span class="token punctuation">.</span>embed<span class="token punctuation">.</span>final_word_embed<span class="token punctuation">,</span>    <span class="token comment"># glove 输出的词向量维度</span>
+            latent_size<span class="token punctuation">,</span> num_layers<span class="token punctuation">,</span>
+            batch_first<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span>
+            bidirectional<span class="token operator">=</span>use_bi_gru
+        <span class="token punctuation">)</span>
+    
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> captions<span class="token punctuation">,</span> lengths<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        captions: (batch_size, max_L)  文本，每个单词的 id
+        lengths: (batch_size, )      每个文本句子的长度
+        '''</span>
+        <span class="token comment"># (batch_size, max_L, glove_dim)</span>
+        emb <span class="token operator">=</span> self<span class="token punctuation">.</span>embed<span class="token punctuation">(</span>captions<span class="token punctuation">)</span>  <span class="token comment"># 得到 glove vectors</span>
+        packed <span class="token operator">=</span> pack_padded_sequence<span class="token punctuation">(</span>emb<span class="token punctuation">,</span> lengths<span class="token punctuation">,</span> batch_first<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        out<span class="token punctuation">,</span> _ <span class="token operator">=</span> self<span class="token punctuation">.</span>rnn<span class="token punctuation">(</span>packed<span class="token punctuation">)</span>   <span class="token comment"># 得到输出单词向量，以及隐层输出</span>
+        padded <span class="token operator">=</span> pad_packed_sequence<span class="token punctuation">(</span>out<span class="token punctuation">,</span> batch_first<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        <span class="token comment"># cap_emb: (batch_size, max_L, D * latent_size), D=2 if bidirectional else 1</span>
+        cap_emb<span class="token punctuation">,</span> cap_len <span class="token operator">=</span> padded
+
+        cap_emb <span class="token operator">=</span> <span class="token punctuation">(</span>cap_emb<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span>cap_emb<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token operator">//</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">+</span>
+                   cap_emb<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">,</span> cap_emb<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token operator">//</span><span class="token number">2</span><span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span>
+        <span class="token keyword">if</span> <span class="token keyword">not</span> self<span class="token punctuation">.</span>no_txtnorm<span class="token punctuation">:</span>     <span class="token comment"># 需要归一化</span>
+            cap_emb <span class="token operator">=</span> l2norm<span class="token punctuation">(</span>cap_emb<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> cap_emb<span class="token punctuation">,</span> cap_len<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong># 损失计算代码</strong></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">NAAF</span><span class="token punctuation">:</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token keyword">def</span> <span class="token function">forward_loss</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> img_emb<span class="token punctuation">,</span> cap_emb<span class="token punctuation">,</span> cap_len<span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># 计算具有正负注意力的相似度得分，参见上文 (12) 式</span>
+        scores <span class="token operator">=</span> xattn_score<span class="token punctuation">(</span>img_emb<span class="token punctuation">,</span> cap_emb<span class="token punctuation">,</span> cap_len<span class="token punctuation">,</span> self<span class="token punctuation">.</span>opt<span class="token punctuation">)</span>
+        loss <span class="token operator">=</span> self<span class="token punctuation">.</span>criterion<span class="token punctuation">(</span>scores<span class="token punctuation">,</span> img_emb<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> loss<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上述代码中，<code>xattn_score</code> 方法计算具有正负注意力的相似度得分 (12) 式，且实现采样正负样本 (13) 和 (14) 式，并得到正负样本的分布，然后根据 (4) 式更新边界值 $t_k$，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">xattn_score</span><span class="token punctuation">(</span>images<span class="token punctuation">,</span> captions<span class="token punctuation">,</span> cap_lens<span class="token punctuation">,</span> opt<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    images: 图像特征，(batch_size, n_regions, d)，d 是图像文本 shared 特征空间维度
+    captions: 文本特征，(batch_size, max_L, d)
+    cap_lens: 文本句子长度 (batch_size, )
+    '''</span>
+    similarities <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    max_pos <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>        <span class="token comment"># (1) 式，S+</span>
+    max_neg <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>        <span class="token comment"># (2) 式，S-</span>
+    max_pos_aggre <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    max_neg_aggre <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    n_image <span class="token operator">=</span> images<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+    n_caption <span class="token operator">=</span> captions<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+    cap_len_i <span class="token operator">=</span> torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> n_caption<span class="token punctuation">)</span>
+    n_region <span class="token operator">=</span> images<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>       <span class="token comment"># 每个图像中的区域数量。K</span>
+    batch_size <span class="token operator">=</span> n_image            <span class="token comment"># mini batch size</span>
+    N_POS_WORD <span class="token operator">=</span> <span class="token number">0</span>
+    A <span class="token operator">=</span> <span class="token number">0</span>
+    B <span class="token operator">=</span> <span class="token number">0</span>
+    mean_pos <span class="token operator">=</span> <span class="token number">0</span>
+    mean_neg <span class="token operator">=</span> <span class="token number">0</span>
+
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>n_caption<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        n_word <span class="token operator">=</span> cap_lens<span class="token punctuation">[</span>i<span class="token punctuation">]</span>    <span class="token comment"># 当前文本句子长度</span>
+        cap_i <span class="token operator">=</span> captions<span class="token punctuation">[</span>i<span class="token punctuation">,</span> <span class="token punctuation">:</span>n_word<span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span>continuous<span class="token punctuation">(</span><span class="token punctuation">)</span>   <span class="token comment"># 提取当前句子中的单词特征</span>
+        cap_len_i<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> i<span class="token punctuation">]</span> <span class="token operator">=</span> n_word
+        cap_i_expand <span class="token operator">=</span> cap_i<span class="token punctuation">.</span>repeat<span class="token punctuation">(</span>n_image<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>  <span class="token comment"># (n_image, n_word, d)</span>
+
+        <span class="token comment"># ======================= 求 (7) 式 ========================</span>
+        <span class="token comment"># text-to-image direction。目的是为了计算得到 (7) 式</span>
+        t2i_sim <span class="token operator">=</span> torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span>batch_size<span class="token operator">*</span>n_word<span class="token punctuation">)</span><span class="token punctuation">.</span>double<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>cuda<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        contextT <span class="token operator">=</span> torch<span class="token punctuation">.</span>transpose<span class="token punctuation">(</span>images<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span>    <span class="token comment"># 图像上下文，(n_image, d, n_regions)</span>
+        <span class="token comment"># do batch matrix multiply operation, (b, n, m) * (b, m, p) -> (b, n, p)</span>
+        <span class="token comment"># attn: (6) 式，由于图像和文本特征均已归一化，所以 (6) 式分母省略了</span>
+        attn <span class="token operator">=</span> torch<span class="token punctuation">.</span>bmm<span class="token punctuation">(</span>cap_i_expand<span class="token punctuation">,</span> contextT<span class="token punctuation">)</span>    <span class="token comment"># (n_image, n_word, n_regions)</span>
+        attn_i <span class="token operator">=</span> torch<span class="token punctuation">.</span>transpose<span class="token punctuation">(</span>attn<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">.</span>contiguous<span class="token punctuation">(</span><span class="token punctuation">)</span>   <span class="token comment"># (n_image, n_regions, n_word)</span>
+        <span class="token comment"># opt.thres: (7) 式中的 tk，</span>
+        attn_thres <span class="token operator">=</span> attn <span class="token operator">-</span> torch<span class="token punctuation">.</span>ones_like<span class="token punctuation">(</span>attn<span class="token punctuation">)</span> <span class="token operator">*</span> opt<span class="token punctuation">.</span>thres   <span class="token comment"># (n_image, n_word, n_regions)</span>
+        <span class="token comment"># n_image, n_word, n_regions</span>
+        batch_size<span class="token punctuation">,</span> queryL<span class="token punctuation">,</span> sourceL <span class="token operator">=</span> images<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">,</span> cap_i_expand<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> images<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+        attn_row <span class="token operator">=</span> attn_thres<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size <span class="token operator">*</span> queryL<span class="token punctuation">,</span> sourceL<span class="token punctuation">)</span>
+        <span class="token comment"># 求 (7) 式，即 max_j</span>
+        Row_max <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span>attn_row<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>   <span class="token comment"># (n_image * n_word, 1)</span>
+        <span class="token comment"># ======================= 求 (7) 式 ========================</span>
+
+        <span class="token comment"># ======================= 求 (8) 式 ========================</span>
+        attn_neg <span class="token operator">=</span> Row_max<span class="token punctuation">.</span>lt<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">float</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        t2i_sim_neg <span class="token operator">=</span> Row_max <span class="token operator">*</span> attn_neg
+        t2i_sim_neg <span class="token operator">=</span> t2i_sim_neg<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> queryL<span class="token punctuation">)</span>  <span class="token comment"># (n_image, n_word)</span>
+        <span class="token comment"># 注意！！！这表示当前句子中的每个单词与 minibatch 内所有图像的负注意力相似度</span>
+        <span class="token comment"># 下同</span>
+        <span class="token comment"># ======================= 求 (8) 式 ========================</span>
+
+        <span class="token comment"># ======================= 求 (11) 式 ========================</span>
+        <span class="token comment"># w_ij^&#123;inter&#125;，参考 (10) 式</span>
+        attn_pos <span class="token operator">=</span> get_mask_attention<span class="token punctuation">(</span>attn_row<span class="token punctuation">,</span> batch_size<span class="token punctuation">,</span> sourceL<span class="token punctuation">,</span> queryL<span class="token punctuation">,</span> opt<span class="token punctuation">.</span>lambda_softmax<span class="token punctuation">)</span>
+        <span class="token comment"># batch matrix multiply</span>
+        <span class="token comment"># 计算 单词 `i` 在整个图像的共享语义 \hat v_i</span>
+        weiContext_pos <span class="token operator">=</span> torch<span class="token punctuation">.</span>bmm<span class="token punctuation">(</span>attn_pos<span class="token punctuation">,</span> images<span class="token punctuation">)</span>    <span class="token comment"># (n_image, n_word, d)</span>
+        <span class="token comment"># 计算 (10.1) 式，(n_image, n_word)</span>
+        t2i_sim_pos_f <span class="token operator">=</span> cosine_similarity<span class="token punctuation">(</span>cap_i_expand<span class="token punctuation">,</span> weiContext_pos<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span>
+        <span class="token comment"># 计算 w_ij^&#123;relev&#125;，(n_image, n_word, n_regions)</span>
+        attn_weight <span class="token operator">=</span> inter_relations<span class="token punctuation">(</span>attn_i<span class="token punctuation">,</span> batch_size<span class="token punctuation">,</span> n_region<span class="token punctuation">,</span> n_word<span class="token punctuation">,</span> opt<span class="token punctuation">.</span>lambda_softmax<span class="token punctuation">)</span>
+        <span class="token comment"># 计算 s_i^r，参考 (11) 式</span>
+        <span class="token comment"># 两个tensor shape 均为 (n_image, n_word, n_regions)，然后沿着 region 维度求和</span>
+        t2i_sim_pos_r <span class="token operator">=</span> attn<span class="token punctuation">.</span>mul<span class="token punctuation">(</span>attn_weight<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>   <span class="token comment"># (n_image, n_word)</span>
+        t2i_sim_pos <span class="token operator">=</span> t2i_sim_pos_f <span class="token operator">+</span> t2i_sim_pos_r     <span class="token comment"># (11) 式，(n_image, n_word)</span>
+        <span class="token comment"># ======================= 求 (11) 式 ========================</span>
+
+        t2i_sim <span class="token operator">=</span> t2i_sim_neg <span class="token operator">+</span> t2i_sim_pos
+        sim <span class="token operator">=</span> t2i_sim<span class="token punctuation">.</span>mean<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span> keepdim<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>         <span class="token comment"># (12) 式，(n_image, )</span>
+        <span class="token comment"># sim 是当前句子与 minibatch 所有图像的综合相似度</span>
+
+        <span class="token comment"># Discriminative Mismatch Mining</span>
+        <span class="token comment"># 倒序排列，取最大值所在的 index，也就是相似度最大的图像在 batch 中的 index</span>
+        wrong_index <span class="token operator">=</span> sim<span class="token punctuation">.</span>sort<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> descending<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>wrong_index <span class="token operator">==</span> i<span class="token punctuation">)</span><span class="token punctuation">:</span>     <span class="token comment"># I, T 匹配</span>
+            <span class="token comment"># attn: s_ij (n_image, n_word, n_regions)</span>
+            <span class="token comment"># (13) 式，(n_image * n_word)</span>
+            attn_max_row <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span>attn<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>batch_size <span class="token operator">*</span> n_word<span class="token punctuation">,</span> n_region<span class="token punctuation">)</span><span class="token punctuation">.</span>squeeze<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>cuda<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token comment"># 获取第 `i` 句子的 n_word 个单词与第 `i` 个图像的某区域最大 s_ij，(n_word, )</span>
+            <span class="token comment"># 正样本</span>
+            attn_max_row_pos <span class="token operator">=</span> attn_max_row<span class="token punctuation">[</span><span class="token punctuation">(</span>i <span class="token operator">*</span> n_word<span class="token punctuation">)</span> <span class="token punctuation">:</span> <span class="token punctuation">(</span>i <span class="token operator">*</span> n_word <span class="token operator">+</span> n_word<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">.</span>cuda<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+            <span class="token comment"># 正序排列，取最小值所在的 index，即最小相似度所关联的图像 index</span>
+            neg_index <span class="token operator">=</span> sim<span class="token punctuation">.</span>sort<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token comment"># 负样本，参考 (14) 式，(n_word, )</span>
+            attn_max_row_neg <span class="token operator">=</span> attn_max_row<span class="token punctuation">[</span><span class="token punctuation">(</span>neg_index <span class="token operator">*</span> n_word<span class="token punctuation">)</span> <span class="token punctuation">:</span> <span class="token punctuation">(</span>nex_index <span class="token operator">*</span> n_word <span class="token operator">+</span> n_word<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">.</span>cuda<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+            max_pos<span class="token punctuation">.</span>append<span class="token punctuation">(</span>attn_max_row_pos<span class="token punctuation">)</span>
+            max_neg<span class="token punctuation">.</span>append<span class="token punctuation">(</span>attn_max_row_neg<span class="token punctuation">)</span>
+            N_POS_WORD <span class="token operator">=</span> N_POS_WORD <span class="token operator">+</span> n_word
+            <span class="token keyword">if</span> N_POS_WORD <span class="token operator">></span> <span class="token number">200</span><span class="token punctuation">:</span>    <span class="token comment"># 样本数超过 200</span>
+                <span class="token comment"># 开始更新 tk，根据 (4) 式</span>
+                max_pos_aggre <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span>max_pos<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+                max_neg_aggre <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span>max_neg<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+                mean_pos <span class="token operator">=</span> max_pos_aggre<span class="token punctuation">.</span>mean<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>cuda<span class="token punctuation">(</span><span class="token punctuation">)</span>
+                mean_neg <span class="token operator">=</span> max_neg_aggre<span class="token punctuation">.</span>mean<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>cuda<span class="token punctuation">(</span><span class="token punctuation">)</span>
+                stnd_pos <span class="token operator">=</span> max_pos_aggre<span class="token punctuation">.</span>std<span class="token punctuation">(</span><span class="token punctuation">)</span>
+                stnd_neg <span class="token operator">=</span> max_neg_aggre<span class="token punctuation">.</span>std<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+                A <span class="token operator">=</span> stnd_pos<span class="token punctuation">.</span><span class="token builtin">pow</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">-</span> stnd_neg<span class="token punctuation">.</span><span class="token builtin">pow</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span>   <span class="token comment"># beta_1^k</span>
+                B <span class="token operator">=</span> <span class="token number">2</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>mean_pos <span class="token operator">*</span> stnd_neg<span class="token punctuation">.</span><span class="token builtin">pow</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token punctuation">(</span>mean_neg <span class="token operator">*</span> stnd_pos<span class="token punctuation">.</span><span class="token builtin">pow</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                C <span class="token operator">=</span> <span class="token punctuation">(</span>mean_neg <span class="token operator">*</span> stnd_pow<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">pow</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token punctuation">(</span>mean_pos <span class="token operator">*</span> stnd_neg<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">pow</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">2</span> <span class="token operator">*</span> <span class="token punctuation">(</span>stnd_pos <span class="token operator">*</span> stnd_neg<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">pow</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">*</span> torch<span class="token punctuation">.</span>log<span class="token punctuation">(</span>stnd_neg<span class="token operator">/</span><span class="token punctuation">(</span>opt<span class="token punctuation">.</span>alpha<span class="token operator">*</span>stnd_pos<span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">1e-8</span><span class="token punctuation">)</span>
+
+                thres <span class="token operator">=</span> opt<span class="token punctuation">.</span>thres
+                thres_safe <span class="token operator">=</span> opt<span class="token punctuation">.</span>thres_safe
+                opt<span class="token punctuation">.</span>stnd_pos <span class="token operator">=</span> stnd_pos<span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span>
+                opt<span class="token punctuation">.</span>stnd_neg <span class="token operator">=</span> stnd_neg<span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span>
+                opt<span class="token punctuation">.</span>mean_pos <span class="token operator">=</span> mean_pos<span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span>
+                opt<span class="token punctuation">.</span>mean_neg <span class="token operator">=</span> mean_neg<span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+                E <span class="token operator">=</span> B<span class="token punctuation">.</span><span class="token builtin">pow</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">4</span> <span class="token operator">*</span> A <span class="token operator">*</span> C
+                <span class="token keyword">if</span> E <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">:</span>
+                    <span class="token comment"># (4) 式更新 tk</span>
+                    opt<span class="token punctuation">.</span>thres <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token operator">-</span>B <span class="token operator">+</span> torch<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>E<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token punctuation">(</span><span class="token number">2</span><span class="token operator">*</span>A <span class="token operator">+</span> <span class="token number">1e-8</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span>
+                    <span class="token comment"># (4.1) 式</span>
+                    opt<span class="token punctuation">.</span>thres_safe <span class="token operator">=</span> <span class="token punctuation">(</span>mean_pos <span class="token operator">-</span> <span class="token number">3</span><span class="token operator">*</span>opt<span class="token punctuation">.</span>stnd_pos<span class="token punctuation">)</span><span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span>
+                <span class="token keyword">if</span> opt<span class="token punctuation">.</span>thres <span class="token operator">&lt;</span> <span class="token number">0</span> <span class="token keyword">or</span> opt<span class="token punctuation">.</span>thres <span class="token operator">></span> <span class="token number">1</span><span class="token punctuation">:</span>
+                    opt<span class="token punctuation">.</span>thres <span class="token operator">=</span> <span class="token number">0</span>
+                <span class="token keyword">if</span> opt<span class="token punctuation">.</span>thres_safe <span class="token operator">&lt;</span> <span class="token number">0</span> <span class="token keyword">or</span> opt<span class="token punctuation">.</span>thres_safe <span class="token operator">></span> <span class="token number">1</span><span class="token punctuation">:</span>
+                    opt<span class="token punctuation">.</span>thres_safe <span class="token operator">=</span> <span class="token number">0</span>
+                
+                opt<span class="token punctuation">.</span>thres <span class="token operator">=</span> <span class="token number">0.7</span> <span class="token operator">*</span> opt<span class="token punctuation">.</span>thres <span class="token operator">+</span> <span class="token number">0.3</span> <span class="token operator">*</span> thres
+                opt<span class="token punctuation">.</span>thres_safe <span class="token operator">=</span> <span class="token number">0.7</span> <span class="token operator">*</span> opt<span class="token punctuation">.</span>thres_safe <span class="token operator">+</span> <span class="token number">0.3</span> <span class="token operator">*</span> thres_safe
+        
+        <span class="token keyword">if</span> N_POS_WORD <span class="token operator">&lt;</span> <span class="token number">200</span><span class="token punctuation">:</span>
+            opt<span class="token punctuation">.</span>thres <span class="token operator">=</span> <span class="token number">0</span>
+            opt<span class="token punctuation">.</span>thres_safe <span class="token operator">=</span> <span class="token number">0</span>
+        similarities<span class="token punctuation">.</span>append<span class="token punctuation">(</span>sim<span class="token punctuation">)</span>
+    similarities <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span>similarities<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>   <span class="token comment"># (n_image, n_caption)</span>
+    <span class="token keyword">return</span> similarities
+
+<span class="token comment"># 计算 单词 `i` 在整个图像的共享语义的权重 w_ij^&#123;inter&#125;，参考 (10) 式</span>
+<span class="token keyword">def</span> <span class="token function">get_mask_attention</span><span class="token punctuation">(</span>attn<span class="token punctuation">,</span> batch_size<span class="token punctuation">,</span> sourceL<span class="token punctuation">,</span> queryL<span class="token punctuation">,</span> lamda<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    attn: s_ij - tk，(n_image * n_word, n_regions)
+    '''</span>
+    mask_positive <span class="token operator">=</span> attn<span class="token punctuation">.</span>le<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+    attn_pos <span class="token operator">=</span> attn<span class="token punctuation">.</span>masked_fill<span class="token punctuation">(</span>mask_positive<span class="token punctuation">,</span> torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1e9</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    attn_pos <span class="token operator">=</span> torch<span class="token punctuation">.</span>exp<span class="token punctuation">(</span>attn_pos <span class="token operator">*</span> lamda<span class="token punctuation">)</span>  <span class="token comment"># (10) 式，</span>
+    attn_pos <span class="token operator">=</span> l1norm<span class="token punctuation">(</span>attn_pos<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>  <span class="token comment"># 取绝对值</span>
+    attn_pos <span class="token operator">=</span> attn_pos<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> queryL<span class="token punctuation">,</span> sourceL<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> attn_pos     <span class="token comment"># (n_image, n_word, n_regions)</span>
+
+<span class="token comment"># word 与 region 之间的关联得分 s_ij 也反映了相似度，计算了基于 s_ij 的加权相似度的权重</span>
+<span class="token comment"># 计算 w_ij^&#123;relev&#125;</span>
+<span class="token keyword">def</span> <span class="token function">inter_relations</span><span class="token punctuation">(</span>attn<span class="token punctuation">,</span> batch_size<span class="token punctuation">,</span> sourceL<span class="token punctuation">,</span> queryL<span class="token punctuation">,</span> xlambda<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    attn: s_ij，(n_image, n_regions, n_word)
+    '''</span>
+    attn <span class="token operator">=</span> nn<span class="token punctuation">.</span>LeakyReLU<span class="token punctuation">(</span><span class="token number">0.1</span><span class="token punctuation">)</span><span class="token punctuation">(</span>attn<span class="token punctuation">)</span>   <span class="token comment"># [s_ij]+</span>
+    attn <span class="token operator">=</span> l2norm<span class="token punctuation">(</span>attn<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span>           <span class="token comment"># \overline s_ij，注意是沿着 word 维度归一化</span>
+    attn <span class="token operator">=</span> torch<span class="token punctuation">.</span>transpose<span class="token punctuation">(</span>attn<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">.</span>contiguous<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment"># (n_image, n_word, n_regions)</span>
+    attn <span class="token operator">=</span> attn<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size <span class="token operator">*</span> queryL<span class="token punctuation">,</span> sourceL<span class="token punctuation">)</span>  <span class="token comment"># (n_image * n_word, n_regions)</span>
+    attn <span class="token operator">=</span> nn<span class="token punctuation">.</span>Softmax<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">(</span>attn <span class="token operator">*</span> xlambda<span class="token punctuation">)</span>        <span class="token comment"># 沿着 region 维度求 softmax</span>
+    attn <span class="token operator">=</span> attn<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> queryL<span class="token punctuation">,</span> sourceL<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> attn <span class="token comment"># (n_image, n_word, n_regions)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>最后计算损失，相关代码如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">ContrativeLoss</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> scores<span class="token punctuation">,</span> length<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        scores: xattn_score 方法的返回值，S(U, V) 参见 (12) 式、
+                shape 为 (n_image, n_caption)
+        length: n_image
+        '''</span>
+        <span class="token comment"># 得到 matched (U, V) 的综合相似度 S(U, V)，参见 (12) 式</span>
+        diagonal <span class="token operator">=</span> scores<span class="token punctuation">.</span>diag<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span>length<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>    <span class="token comment"># (n_image, 1)</span>
+        d1 <span class="token operator">=</span> diagonal<span class="token punctuation">.</span>expand_as<span class="token punctuation">(</span>scores<span class="token punctuation">)</span> <span class="token comment"># (n_image, n_caption)</span>
+        d2 <span class="token operator">=</span> diagonal<span class="token punctuation">.</span>t<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>expand_as<span class="token punctuation">(</span><span class="token punctuation">)</span>   <span class="token comment"># (n_caption, n_image)</span>
+
+        <span class="token comment"># (15) 式第二项，S(U', V)，后缀 s 表示 sentence</span>
+        cost_s <span class="token operator">=</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span>margin <span class="token operator">+</span> scores <span class="token operator">-</span> d1<span class="token punctuation">)</span><span class="token punctuation">.</span>clamp<span class="token punctuation">(</span><span class="token builtin">min</span><span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span>
+        <span class="token comment"># (15) 式第一项，S(U, V')，后缀 im 表示 image</span>
+        cost_im <span class="token operator">=</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span>margin <span class="token operator">+</span> scores <span class="token operator">-</span> d2<span class="token punctuation">)</span><span class="token punctuation">.</span>clamp<span class="token punctuation">(</span><span class="token builtin">min</span><span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span>
+
+        mask <span class="token operator">=</span> torch<span class="token punctuation">.</span>eye<span class="token punctuation">(</span>scores<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">0.5</span>  <span class="token comment"># 对角线为 True</span>
+        I <span class="token operator">=</span> Variable<span class="token punctuation">(</span>mask<span class="token punctuation">)</span><span class="token punctuation">.</span>cuda<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        cost_s <span class="token operator">=</span> cost_s<span class="token punctuation">.</span>masked_fill_<span class="token punctuation">(</span>I<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+        cost_im <span class="token operator">=</span> cost_im<span class="token punctuation">.</span>masked_fill_<span class="token punctuation">(</span>I<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+
+        <span class="token keyword">if</span> self<span class="token punctuation">.</span>max_violation<span class="token punctuation">:</span>
+            <span class="token comment"># 其实是 (15) 第一项还是第二项无所谓，只要</span>
+            <span class="token comment"># 如果第一维 expand，那么这里沿着第一维 max</span>
+            <span class="token comment"># 如果第二维 expand，那么这里沿着第二维 max</span>
+            cost_s <span class="token operator">=</span> cost_s<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+            cost_im <span class="token operator">=</span> cost_im<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+        <span class="token keyword">return</span> cost_s<span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> cost_im<span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2023/07/16/multi_modal/i2t_match/naaf/">https://jianjiansha.github.io/2023/07/16/multi_modal/i2t_match/naaf/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/image-text-retrieve/">
+                                    <span class="chip bg-color">image-text retrieve</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2023/07/17/multi_modal/i2t_match/SCAN/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="SCAN：用于 Image-Text 匹配的堆叠交叉注意力">
+                        
+                        <span class="card-title">SCAN：用于 Image-Text 匹配的堆叠交叉注意力</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-07-17
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/image-text-retrieve/">
+                        <span class="chip bg-color">image-text retrieve</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2023/07/14/math/beta_dist/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/13.jpg" class="responsive-img" alt="Beta 分布">
+                        
+                        <span class="card-title">Beta 分布</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            介绍 Beta 分布
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-07-14
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/math/">
+                        <span class="chip bg-color">math</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

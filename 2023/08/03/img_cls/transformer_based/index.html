@@ -1,0 +1,1487 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="基于 transformer 的图像分类模型, SJJ">
+    <meta name="description" content="1. ViT
+论文名称：AN IMAGE IS WORTH 16X16 WORDS: TRANSFORMERS FOR IMAGE RECOGNITION AT SCALE
+将 size 为 (C, H, W) 的图像切割分成 N=H/pa">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>基于 transformer 的图像分类模型 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/17.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">基于 transformer 的图像分类模型</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/image-classification/">
+                                <span class="chip bg-color">image classification</span>
+                            </a>
+                        
+                            <a href="/tags/transformers/">
+                                <span class="chip bg-color">transformers</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2023-08-03
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1>1. ViT</h1>
+<p>论文名称：<a target="_blank" rel="noopener" href="https://arXiv.org/abs/2010.11929">AN IMAGE IS WORTH 16X16 WORDS: TRANSFORMERS FOR IMAGE RECOGNITION AT SCALE</a></p>
+<p>将 size 为 <code>(C, H, W)</code> 的图像切割分成 <code>N=H/patch_size * W/patch_size</code> 个块，那么一个 batch 的图像经过切割得到 <code>(B, N, patch_size*patch_size*C)</code> 的块序列，经过 learnable 嵌入矩阵，得到嵌入向量 <code>(B, N, D)</code>，然后每个块还需要一个 Position 嵌入向量（可以是正弦位置编码，或者是 learnable 嵌入矩阵），两种嵌入向量相加后送入网络，如下图，</p>
+<p><img src="/images/img_cls/vit_1.png" alt=""></p>
+<p>网络使用 transformer encoder（注意没有 decoder），计算块的位置嵌入向量时，块的位置从第二个开始计算，第一个位置留着给 <code>&lt;class&gt;</code> 的嵌入向量，那么经过 transformer encoder 输出每个位置的特征向量，第一个位置也就是对应 <code>&lt;class&gt;</code> 这个位置的特征向量，用于对图像的分类，分类网络为一个线性变换层。</p>
+<p><code>&lt;class&gt;</code> 位置处嵌入向量也是一个 learnable 向量，shape 为 <code>(D,)</code>，直接将这个向量送入 transformer 即可。transformer encoder 输出特征的 shape 为 <code>(B, N, D)</code> 。</p>
+<h1>2. DeiT</h1>
+<p>论文：<a target="_blank" rel="noopener" href="https://arXiv.org/abs/2012.12877">Training data-efficient image transformers &amp; distillation through attention</a></p>
+<p>ViT 训练需要超大的数据集（size 达到上亿），否则效果不如 CNN based 模型如 EfficentNet 等。为了能使得 transformer based 的模型可使用 ImageNet 训练，作者提出了 Data-effificient image Transformers (DeiT) ，引入了蒸馏学习。</p>
+<p><strong># 知识蒸馏</strong></p>
+<p>一个大的复杂的模型作为 teacher 模型，一个简单的模型作为 student 模型。先在 teacher 模型上预训练，训练完成后，再来训练 student 模型，此时 student 可以利用图像的 soft label，这个 soft label 来自 teacher 模型输出。例如数据集分类共 $C$ 个，teacher 模型（经过 softmax 之后的）输出为 $\psi(Z _ t)$，这是一个 $C$ 维向量，$\psi$ 为 softmax，$Z _ t$ 为模型非归一化得分。那么一个图像的 true label 为 one-hot 向量，或者是向量中 <code>1</code> 的下标 $y$ ，而 soft label 则为 $\psi(Z _ t)$ ，硬指标为 $y _ t = \arg \max _ c \psi(Z _ t)$ 。</p>
+<p><strong># 模型</strong></p>
+<p>DeiT 基于 ViT，增加了一个表示蒸馏的 token ，如下图所示，</p>
+<p><img src="/images/img_cls/deit_1.png" alt=""></p>
+<h2 id="2-1-蒸馏">2.1 蒸馏</h2>
+<p>teacher 模型使用一个已经事先训练好的模型，例如 RegNetY 。</p>
+<p><strong># 软蒸馏</strong></p>
+<p>记 $Z _ t$ 和 $Z _ s$ 分别是 teacher 和 student 模型的输出 logits（非归一化得分）。软蒸馏使用 KL 损失，</p>
+<p>$$L _ {global} = (1-\lambda) L _ {CE}(\psi (Z _ t), y) + \lambda \tau ^ 2 KL( \psi(Z _ s / \tau), \psi ( Z _ t / \tau))$$</p>
+<p>上式中，$\tau$ 为温度。</p>
+<p>损失包含两部分，两者使用 $\lambda$ 平衡，</p>
+<ol>
+<li>student 模型预测概率与 gt label 的交叉熵损失</li>
+<li>student 与 teacher 预测概率的 KL 损失</li>
+</ol>
+<p>上式第二项还有一个 $\tau ^ 2$ 因子，原因如下：</p>
+<details><summary>展开</summary>
+<p>为了简洁起见，记 $q = \psi(Z _ s /\tau), \ p = \psi(Z _ t/ \tau)$，student 模型输出 $z = Z _ s$，交叉熵损失记为 $L=\sum _ j - p _ j \log q _ j$，那么</p>
+<p>$$\begin{aligned} \frac {\partial L} {\partial z _ i} &amp;=\sum _ j -\frac {p _ j}{q _ j} \frac {\partial q _ j}{\partial z _ i}<br>
+\\ &amp;=-\sum _ {j\neq i} \frac {p _ j} {q _ j} \frac { - \exp (z _ j /\tau)\exp (z _ i /\tau) /\tau}{(\sum \exp) ^ 2}-\frac {p _ i}{q _ i}\frac {(\sum \exp)\exp (z _ i /\tau)\tau  - \exp ^ 2(z _ i /\tau) /\tau}{(\sum \exp) ^ 2}<br>
+\\ &amp;= \sum _ {j\neq i} \frac {p _ j} {q _ j} \frac {q _ j q _ i} {\tau} - \frac {p _ i}{q _ i}(q _ i - q _ i ^ 2)/ \tau<br>
+\\ &amp;=\sum _ j \frac {p _ j} {q _ j} \frac {q _ j q _ i} {\tau}- p _ i / \tau<br>
+\\ &amp;= \frac {q _ i} {\tau}\sum _ j  p _ j - p _ i / \tau<br>
+\\ &amp;= \frac 1 {\tau}(q _ i - p _ i)<br>
+\end{aligned}$$</p>
+<p>在温度足够高的情况下，</p>
+<p>$$q _ i = \frac {\exp (z _ i / \tau)}{\sum _ j \exp (z _ j /\tau)}\approx \frac {1+z _ i/\tau}{C + \sum _ j z _ j /\tau}$$</p>
+<p>假设 logits $z$ 是 zero-mean ，那么 $\sum _ j z _ j = 0$，上式转为</p>
+<p>$$q _ i \approx \frac 1 C (1+\frac {z _ i} {\tau})$$</p>
+<p>同理，</p>
+<p>$$p _ i \approx \frac 1 C (1+\frac {v _ i}{\tau})$$</p>
+<p>于是</p>
+<p>$$ \frac {\partial L} {\partial z _ i} \approx \frac 1 {C \tau ^ 2}(z _ i - v _ i)$$</p>
+<p>$q$ 的熵记为 $E$，即 $E=-\sum _ j q _ j \log q _ j$</p>
+<p>$$\begin{aligned}\frac {\partial E}{\partial z _ i} &amp;=-\sum _ j (\log q _ j+ 1)\frac {\partial q _ j}{\partial z _ i}<br>
+\\ &amp;=\sum _ {j\neq i} (1+\log q _ j)\frac {q _ j q _ i} {\tau} - (1+\log q _ i)\frac {q _ i - q _ i ^ 2}{\tau}<br>
+\\ &amp;=\sum _ j (1+\log q _ j)\frac {q _ j q _ i}{\tau} - (1+\log q _ i)\frac {q _ i}{\tau}<br>
+\\ &amp;=\sum _ j \log q _ j \frac {q _ j q _ i}{\tau} - \sum _ j \log q _ i\frac {q _ j q _ i}{\tau}<br>
+\\ &amp;=\sum _ j \log\left(\frac {\exp (z _ j /\tau)}{\exp (z _ i /\tau)}\right)\frac {q _ j q _ i}{\tau}<br>
+\\ &amp;=\sum _ j \frac {1}{\tau ^ 2}(z _ j - z _ i) q _ i q _ j<br>
+\\ &amp;=\frac {q _ i} {\tau ^ 2}\left [ \sum _ j z _ j q _ j - z _ i\right]<br>
+\\ &amp; \approx \frac 1 {C \tau ^ 2}\left(1+ \frac {z _ i}{\tau}\right)\left(\frac 1 {C \tau}\sum _ j z _ j ^ 2 - z _ i\right)<br>
+\end{aligned}$$</p>
+<p>根据</p>
+<p>$$\frac {\partial KL}{\partial z _ i}=\frac {\partial L} {\partial z _ i}+ \frac {\partial E} {\partial z _ i}$$</p>
+<p>上式第二项，分母量级至少是 $\tau ^ 2$ ，综合考虑，KL 损失需要乘以因子 $\tau ^ 2$ 。</p>
+</details>
+<br/>
+<p><strong># 硬蒸馏</strong></p>
+<p>使用 teacher 模型的输出预测分类 $y _ t = \arg \max \psi (Z _ t)$ 作为标签，使用交叉熵，总的损失如下，</p>
+<p>$$L=\frac 1 2 L _ {CE}(\psi (Z _ s),y) + \frac 1 2 L _ {CE}(\psi (Z _ s), y _ t)$$</p>
+<p>hard label 也可以通过平滑处理转为 soft label，此时真实 label 的概率为 $1-\epsilon$，其余 label 的概率之和为 $\epsilon$ 。</p>
+<p><strong># inference</strong></p>
+<p>测试阶段，分类 token 和蒸馏 token 经过 transformer 生成的特征向量，分别经过一个线性 layer，得到两个分类预测得分（非归一化）向量，然后两个向量相加除以 2，得到最终的预测得分向量，</p>
+<p>$$\begin{aligned}\mathbf z _ {cls} &amp;= W _ {cls} ^ {\top} \mathbf h _ {cls} + \mathbf b _ {cls}<br>
+\\ \mathbf z _ {dis} &amp;= W _ {dis} ^ {\top} \mathbf h _ {dis} + \mathbf b _ {dis}<br>
+\\ \mathbf z &amp;= \frac {\mathbf z _ {cls} + \mathbf z _ {dis}} 2 \end{aligned}$$</p>
+<h1>3. Visual Transformer</h1>
+<p>论文：<a target="_blank" rel="noopener" href="https://arXiv.org/abs/2006.03677">Visual Transformers: Token-based Image Representation and Processing for<br>
+Computer Vision</a></p>
+<p>CV 中，将图像表示为一个像素值数组，然后使用卷积得到 local 特征，但是存在以下问题：</p>
+<ol>
+<li>
+<p>像素并非均等地产生</p>
+<p>例如图像分类中，应该优先考虑前景目标；分割模型优先考虑行人而非天空，路面等。卷积则均匀的处理图像中所有的分块（patches），而不考虑其重要性。</p>
+</li>
+<li>
+<p>图像并非拥有全部概念</p>
+<p>图像的角落和边缘存在于所有图像中，故对所有图像使用低层卷积核是合适的。高层特征例如“耳朵”的形状，仅存在于部分图像中，所以对所有图像使用高层卷积核导致计算效率低。</p>
+</li>
+<li>
+<p>卷积难以获取空间距离大的概念</p>
+<p>因为卷积只针对局部区域。</p>
+</li>
+</ol>
+<p>为解决以上问题，作者提出了 Visual Transformer（VT），如下图，使用高层概念表示图像，</p>
+<p><img src="/images/img_cls/vt_1.png" alt=""></p>
+<center>Visual Transformer 结构图</center>
+<p>使用空间注意力机制将特征 map 转为一个小的语义 tokens 集合（16个 tokens），然后送入 transformer 。VT 可用于分类和分割任务。</p>
+<p>如上图，整个过程为：</p>
+<ol>
+<li>
+<p>输入图像经过若干个 conv blocks，得到输出 feature maps，学习得到密集 low-level 样式。</p>
+</li>
+<li>
+<p>将上一步的输出特征送入 VT 模块</p>
+</li>
+</ol>
+<h2 id="3-1-tokenizer">3.1 tokenizer</h2>
+<p>一个图像可以使用若干个视觉 tokens 表示，这与卷积中使用几百上千个卷积 filters 成鲜明对比。使用一个 tokenizer 将 conv 输出特征转为视觉 tokens，记 tokenizer 输入特征为 $X \in \mathbb R ^ {HW \times C}$，视觉 tokens 为 $T \in \mathbb R ^ {L \times C}$，其中 $L \ll HW$ 。</p>
+<p>以下介绍两种 tokenizer 。</p>
+<h3 id="3-1-1-filter-based-tokenizer">3.1.1 filter-based tokenizer</h3>
+<p>对输入特征 map 应用一个 <code>1x1</code> 卷积，卷积核参数为 $W _ A \in \mathbb R ^ {C \times L}$，然后使用 softmax 得到一个 pixel 分配到 $L$ 个语义组中每个组的权重，即，这是一个权重矩阵，表示 $HM$ 个 pixels 与 $L$ 个语义组的关联权重，那么一个语义 token 为所有 pixels 的加权和，</p>
+<p>$$T = [\underbrace {\text{softmax} (X W _ A)} _ {A \in \mathbb R ^ {HW \times L}} ] ^ {\top} \ X$$</p>
+<p>其中 softmax 沿着 $HW$ 方向进行，也就是说其分母是 $HW$ 个项之和。这是因为 $L$ 个 tokens，每个 token 均使用 $HW$ 个特征（即，整个特征 map）加权和来表示一个语义概念。</p>
+<p>过程如下图所示，</p>
+<p><img src="/images/img_cls/vt_2.png" alt=""></p>
+<p>缺点：很多高级语义概率是稀疏的，可能只存在于少数图像中，故使用固定的权重 $W _ A$ 浪费计算。</p>
+<h3 id="3-1-2-recurrent-tokenizer">3.1.2 recurrent tokenizer</h3>
+<p>为解决 filter-based tokenizer 的缺点，提出循环 tokenizer，其中权重与上一层视觉 tokens 相关。</p>
+<p>$$\begin{aligned} W _ R &amp;= T _ {in} W _ {T \rightarrow R}<br>
+\\ T &amp;= [\text{softmax} (X W _ R)] ^ {\top} \ X<br>
+\end{aligned}$$</p>
+<p>其中 $W _ {T \rightarrow R} \in \mathbb R ^ {C \times C}$，$T _ {in} \in \mathbb R ^ {L \times C}$ 。整个过程如下图所示</p>
+<p><img src="/images/img_cls/vt_3.png" alt=""></p>
+<p>问题：$T _ {in}$ 值如何确定？</p>
+<h2 id="3-2-transformer">3.2 transformer</h2>
+<p>这里的 transformer 与标准的相比，做了一些小修改，直接给出计算式如下，</p>
+<p>$$\begin{aligned} T’ _ {out} &amp;= T _ {in} + \text {softmax} ((T _ {in} K)(T _ {in} Q) ^ {\top}) T _ {in}<br>
+\\ T _ {out} &amp;= T’ _ {out} + \text{ReLU}(T ’ _ {out} F _ 1) F _ 2<br>
+\end{aligned}$$</p>
+<p>其中 $T _ {in}, T ’ _ {out}, T _ {out} \in \mathbb R ^ {L \times C}$，$F _ 1 , F _ 2 \in \mathbb R ^ {C \times C}$ 。$T _ {in}, \ T _ {out}$ 为 transformer 的输入输出。</p>
+<p>$(T _ {in} K)(T _ {in} Q) ^ {\top} \in \mathbb R ^ {L \times L}$</p>
+<h2 id="3-3-projecter">3.3 projecter</h2>
+<p>某些视觉任务需要 pixel 细节信息（例如分割任务），但是视觉 tokens 中没有保留 pixel 信息，因此将 transformer 输出与特征 map 进行融合，</p>
+<p>$$X _ {out} = X _ {in} + \text{softmax} ((X _ {in} W _ Q)(T W _ K)^{\top}) T$$</p>
+<p>其中 $X _ {in}, X _ {out} \in \mathbb R ^ {HL \times C}$ 分别是 VT 模块的输入特征和输出特征（例如 ResNet，最后一个 stage 使用 2/3 个 VT 替代）。$T \in \mathbb R ^ {L \times C}$ 是 transformer 的输出。</p>
+<p>$W _ Q, W _ K \in \mathbb R ^ {C \times C}$</p>
+<h2 id="3-4-分类模型">3.4 分类模型</h2>
+<p>backbone 来自 ResNet，使用了 ResNet-{18, 34, 50, 101} 四种，但是将 ResNet 中最后一个 conv stage 换成了 VT 模块。ResNet-{18, 34, 50, 101} 最后一个 conv stage 分别包含了 2 blocks，3 blocks，3 blocks，3 blocks，所以分别使用 (2, 3, ,3, 3) 个 VT 模块替换。</p>
+<p>ResNet-{18, 34} backbone 输出 shape 为 $14 ^ 2 \times 256$，ResNet-{50, 101} backbone 输出 shape 为 $14 ^ 2 \times 1024$，所以设置 VT 的特征 channel size 为 (256, 256, 1024, 1024) （这是 $X _ {in}$ 中的 $C$ ）</p>
+<p>采用 16 个视觉 tokens，即 $L =16$ ，设置 16 个视觉 tokens 的维度为 1024 （这是 $T _ {out}$ 中的 $C$ ）</p>
+<p><strong>最后对 16 个视觉 tokens 使用均值池化，得到 $C$ 维向量，然后使用一个 FC layer，得到分类预测得分</strong>。</p>
+<p>整个网络层结构参数如下表所示</p>
+<p><img src="/images/img_cls/vt_4.png" alt=""></p>
+<p>上表中，stage 5 为 VT 模块组。其中 <code>VT-C512-L16-CT1024 ×2</code> 表示 VT 模块输出特征 channel size 为 <code>512</code>，视觉 token 的 channel size 为 <code>1024</code>，视觉 tokens 数量为 <code>16</code>，stage 5 中使用 <code>2</code> 个 VT 模块。</p>
+<p>疑问：所有的 $C$ 不应该相等吗，否则如何实现 element-wise 相加？应该要相等（或者使用线性映射使的各个 channel 相等）</p>
+<h2 id="3-5-语义分割">3.5 语义分割</h2>
+<p>使用 全景 FPN 作为 baseline。</p>
+<p>全景 FPN 使用 ResNet 作为 backbone 提取图像特征，不同的 stage 得到不同 size 的特征，这些特征使用 feature pyramid 网络进行融合，如下图左边，</p>
+<p><img src="/images/img_cls/vt_5.png" alt=""></p>
+<p>FPN 中 high-level 特征的 channel 非常大，所以卷积计算量也大，使用 VT 代替卷积，修改过的网络称为 VT-FPN，如图右边，</p>
+<ol>
+<li>
+<p>对每个分辨率的特征，VT 抽取 8 个视觉 tokens，每个 token 的 channel 为 <code>1024</code> 。</p>
+</li>
+<li>
+<p>所有 layers 的视觉 tokens 全部送入 transformer，transformer 输入输出 shape 相同</p>
+</li>
+<li>
+<p>将 transformer 输出映射回原来各层特征，这个映射操作就是上面的 projector 子模块</p>
+</li>
+</ol>
+<p>计算量减少，原来 FPN 中各层特征经过卷积（左图中灰色与棕色之间的箭头），现在改为经过 VT。</p>
+<h2 id="3-6-基于聚类的-tokenizer">3.6 基于聚类的 tokenizer</h2>
+<p>这是为了解决 filter-based tokenizer 的局限性，filter-based tokenizer 对每个 image 均使用相同的 filters，这显然不是很合适，所以对一个具体的图像，考虑从图像自身通过对像素聚类以提取概念。</p>
+<p>一个图像的特征 $X$ 视作像素集合 $\lbrace X _ p \rbrace _ {p=1} ^ {HW}$，使用 K-means 找出 $L$ 个中心，这 $L$ 个中心组成矩阵 $W _ K \in \mathbb R ^ {C \times L}$ ，每个中心均表示图像中的一个语义概念。</p>
+<p>将 filter-based tokenizer 中的 $W _ A$ 替换为 $W _ K$，</p>
+<p>$$\begin{aligned} W _ K &amp;= \text{Kmeans}(X)<br>
+\\ T &amp;= [\text{softmax} (X W _ K)] ^ {\top} X<br>
+\end{aligned}$$</p>
+<p><strong>K-means 算法思想：</strong></p>
+<ol>
+<li>
+<p>将所有 pixel 归一化为单位向量（L2 范数为 1）</p>
+</li>
+<li>
+<p>初始化中心的方法：</p>
+<p>将输入特征下采样，<code>(B, C, H, W)</code> -&gt; <code>(B, C, H', W')</code> -&gt; <code>(B, C, L)</code>，其中 <code>H' x W' = L</code></p>
+</li>
+<li>
+<p>使用 Lloyd 算法，生成最终的中心</p>
+</li>
+</ol>
+<p>过程如下图所示，</p>
+<p><img src="/images/img_cls/vt_6.png" alt=""></p>
+<p>伪代码如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">kmeans</span><span class="token punctuation">(</span>X_nchw<span class="token punctuation">,</span> L<span class="token punctuation">,</span> niter<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># Input:</span>
+    <span class="token comment"># X_nchw - feature map</span>
+    <span class="token comment"># L - num token</span>
+    <span class="token comment"># niter - num iters of Lloyd’s</span>
+    N<span class="token punctuation">,</span> C<span class="token punctuation">,</span> H<span class="token punctuation">,</span> W <span class="token operator">=</span> X_nchw<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token comment"># Initialization as down-sampled X， L 个中心</span>
+    U_ncl <span class="token operator">=</span> downsample<span class="token punctuation">(</span>X<span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span>N<span class="token punctuation">,</span> C<span class="token punctuation">,</span> L<span class="token punctuation">)</span> <span class="token comment"># 这里 X 就是 X_nchw 吧？</span>
+
+    X_ncp <span class="token operator">=</span> X_nchw<span class="token punctuation">.</span>view<span class="token punctuation">(</span>N<span class="token punctuation">,</span> C<span class="token punctuation">,</span> H<span class="token operator">*</span>W<span class="token punctuation">)</span> <span class="token comment"># p = h*w</span>
+    <span class="token comment"># Normalize to unit vectors</span>
+    U_ncl <span class="token operator">=</span> U_ncl<span class="token punctuation">.</span>normalize<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>  <span class="token comment"># 每个 pixel 维度为 C</span>
+    X_ncp <span class="token operator">=</span> X_ncp<span class="token punctuation">.</span>normalize<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>  <span class="token comment"># 每个中心维度为 C，全部归一化</span>
+    <span class="token keyword">for</span> _ <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>niter<span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token comment"># Lloyd’s algorithm</span>
+        dist_npl <span class="token operator">=</span> <span class="token punctuation">(</span>
+            X_ncp<span class="token punctuation">[</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">]</span> <span class="token operator">-</span> U_ncl<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">]</span>
+        <span class="token punctuation">)</span><span class="token punctuation">.</span>norm<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>       <span class="token comment"># (N, HW, L)</span>
+        <span class="token comment"># 找出 L 个中心中，与 pixel 距离最小的那个中心，此中心 mask=1，其他中心 mask=0</span>
+        mask_npl <span class="token operator">=</span> <span class="token punctuation">(</span>dist_npl <span class="token operator">==</span> dist_npl<span class="token punctuation">.</span><span class="token builtin">min</span><span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>    <span class="token comment"># (N, HW, L)</span>
+        U_ncl <span class="token operator">=</span> X_ncp<span class="token punctuation">.</span>MatMul<span class="token punctuation">(</span>mask_npl<span class="token punctuation">)</span>          <span class="token comment"># (N, C, L)</span>
+        U_ncl <span class="token operator">=</span> U_ncl <span class="token operator">/</span> mask_npl<span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>     <span class="token comment"># (N, C, L)</span>
+        U_ncl <span class="token operator">=</span> U_ncl<span class="token punctuation">.</span>normalize<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>          <span class="token comment"># 归一化</span>
+    <span class="token keyword">return</span> U_ncl <span class="token comment"># centroids</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上述代码中，<code>dist_npl</code> 的 shape 为 <code>(N, HW, L)</code>，表示图像特征 pixel 与图像特征中心之间的距离矩阵。</p>
+<p><code>mask_npl</code> 表示 N 个 mask 矩阵，每个 mask 矩阵的行表示 pixel 属于哪个中心，列表示属于这个中心有哪些 pixel。</p>
+<p><code>X_ncp</code> 与 <code>mask_npl</code> 矩阵相乘，表示每个 centroid 所包含的那部分 pixels 向量相加</p>
+<p><code>U_ncl / mask_npl.sum(dim=1)</code> 表示再求均值，即，centroid 中所包含的 pixels 向量求平均，得到新的 centroid 向量</p>
+<h1>4. T2T-ViT</h1>
+<p>论文：<a target="_blank" rel="noopener" href="https://arXiv.org/abs/2101.11986">Tokens-to-Token ViT: Training Vision Transformers from Scratch on ImageNet</a></p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/yitu-opensource/T2T-ViT">yitu-opensource/T2T-ViT</a></p>
+<p>ViT 将 transformer 引入到视觉任务中，但是如果使用中等大小数据集如 ImageNet，那么性能不如 CNN。原因为：</p>
+<ol>
+<li>简单的将图像划分为 <code>16x16</code> 个 patches（tokenization）并不能很好地对局部结构如边缘和像素线建模</li>
+<li>attention backbone 设计比较冗余，如果固定计算量和训练集样本数量，那么提取地特征丰富程度将不足</li>
+</ol>
+<p>为解决以上问题，提出了 Tokens-To-Tokens Visual Transformer（T2T-ViT）。</p>
+<h2 id="4-1-Tokens-to-Token-ViT">4.1 Tokens-to-Token ViT</h2>
+<p>这是为了解决 ViT 中简单对图像 tokenize 地局限性。</p>
+<p>T2T-ViT 包含两个组件：</p>
+<ol>
+<li>Tokens-to-Token 模块，对图像地局部结构信息建模</li>
+<li>T2T-ViT backbone 从 tokens 中提取全局注意力</li>
+</ol>
+<p>如下图所示，</p>
+<p><img src="/images/img_cls/t2t_vit_1.png" alt=""></p>
+<h3 id="4-1-1-Tokens-to-Token">4.1.1 Tokens-to-Token</h3>
+<p>T2T 模块逐步对 image 进行 tokenize 并对局部结构信息建模，每一步都可以减少 tokens 数量。T2T 分两步：1. Re-structurization；2. Soft Split (SS)</p>
+<p><strong># Re-structurization</strong></p>
+<p>过程如下图所示，</p>
+<p><img src="/images/img_cls/t2t_vit_2.png" alt=""></p>
+<p>给定从上一个 transformer layer 得到的 tokens $T$，它首先通过 self-attention block （有时也称为一个 transformer layer）转换为</p>
+<p>$$T’ = \text{MLP}(\text{MSA}(T)) \tag{4.1}$$</p>
+<p>其中 MSA 表示 self-attention layer，MLP 表示多次感知机。</p>
+<p>(4.1) 式这个操作称为 T2T transformer，如上图蓝色部分所示。</p>
+<p>然后将 $T’$ reshape 为一个图像（特征），</p>
+<p>$$I = \text{Reshape}(T’) \tag{4.2}$$</p>
+<p>其中 $T’ \in \mathbb R ^ {l \times c}, \ I \in \mathbb R ^ {h \times w \times c}$ ，$c$ 为 channel size，$l$ 为 tokens 数量，$l=h \times w$ 。</p>
+<p>根据 (4.2) 式，可见完成了一次图像的 re-structurization 。</p>
+<p><strong># Soft Split</strong></p>
+<p>对 re-structurized 图像应用 soft split，对图像的局部结构信息建模，并减少 tokens 数量。为了避免信息损失，将图像 split 为具有部分重叠的 patches 。 每个 patch 由周围 patches 校正以建立一个先验：此 patch 与周围 patches 有较强的联系。每次划分出的 tokens 进行 concatenate 操作得到一个大的 token ，如上图所示，称此操作为 soft split 。</p>
+<p>soft split 中，每个 patch 的 size 记为 $k \times k$，overlapping size 为 $s$，图像（特征）使用 $p$ padding 。类比卷积 window 滑动，$k-s$ 类似于 stride，例如</p>
+<ol>
+<li>$s=0$，stride 为 $k$，这样卷积 window 滑动过程中没有重叠</li>
+<li>$s &gt; 0$，那么 stride 就要减小 $s$，即 stride 为 $k-s$</li>
+</ol>
+<p>对于 re-structurized 图像 $I \in \mathbb R ^ {h \times w \times c}$，soft split 之后的输出 tokens 数量为</p>
+<p>$$l _ o = \lfloor \frac {h + 2p - k} {k-s} + 1 \rfloor \times \lfloor \frac {w + 2p - k} {k-s} + 1\rfloor \tag{4.3}$$</p>
+<p>上式其实就是卷积输出平面 size 展开为一维。</p>
+<p>每个 patch size 为 $k \times k \times c$，展开为一维向量，那么 $l _ o$ 个输出 patches 为 $T _ o \in \mathbb R ^ {l _ o \times ck ^ 2}$ ，这个 $T _ o$ 为输出 tokens，由于 stride $k -s &gt; 1$，所有输出 tokens 数量比输入 tokens 数量减少。</p>
+<p><strong># T2T 模块</strong></p>
+<p>结合 Re-structurization 和 Soft Split 两个过程，就是一次迭代过程。T2T 模块逐步减少 tokens 数量，并提取图像的局部信息。整个迭代过程为，</p>
+<p>$$\begin{aligned} T’ _ i &amp;= \text{MLP}(\text{MSA}(T _ i))<br>
+\\ I _ i &amp;= \text{Reshape}(T’ _ i)<br>
+\\ T _ {i+1} &amp;= \text{SS}(I _ i), \quad i =1,\ldots, (n-1)<br>
+\end{aligned} \tag{4.4}$$</p>
+<p>对于输入图像 $I _ 0$，首先应用一个 soft split 生成 $T _ 1 = \text{SS} (I _ 0)$ 。</p>
+<p>由于 T2T 模块操作过程中，tokens 数量（尤其是刚开始迭代过程中的 tokens 数量）比 ViT 中的 <code>16x16</code> 大，所以 MAC（内层访问量）和内存使用量均巨大，为了降低，设置 T2T 模块的 channel size 较小（32 或 64），并可选择地使用高效 transformer 如 Performer。</p>
+<h3 id="4-1-2-T2T-ViT-backbone">4.1.2 T2T-ViT backbone</h3>
+<p>ViT 的 backbone 中很多 channel 都是无效的（原论文中 Fig 2 对中间特征画图分析）。本文设计一个与 ViT 不同的结构，借鉴 CNN 中的一些设计，提高 backbone 的效率以及增加特征的语义丰富性。</p>
+<p>由于 transformer layer 中有一个 skip 连续，与 ResNet 相同，类似地，借鉴 DenseNet 中的网络设计，使用密集连接，增强连接性以及特征语义丰富性，或者借鉴 Wide-ResNets 或 ResNeXt 结构，从而可修改 ViT backbone 中的 channel size 。本文考虑以下 5 中设计：</p>
+<ol>
+<li>
+<p>DenseNet 中的密集连接</p>
+</li>
+<li>
+<p>Wide-ResNets 中的 deep-narrow 以及 shallow-wide</p>
+<p>deep 是说网络 layers 数量，wide 是说网络中每一 layer 的 channel size</p>
+</li>
+<li>
+<p>SENet 中的 channel 注意力（使用一个小网络，提取每个 channel 的权重，作为 channel 注意力）</p>
+</li>
+<li>
+<p>ResNeXt 中，多头 layer，增大 heads 数量</p>
+</li>
+<li>
+<p>GhostNet 的 Ghost 操作</p>
+</li>
+</ol>
+<p>以上框架设计应用到 ViT 中的细节说明见论文附录。</p>
+<p>经过作者系统全面的实验，发现：</p>
+<ol>
+<li>
+<p>使用 deep-narrow 结构，降低了 channel 维度，增加了 layers 层数，可以降低模型大小以及 MAC，并且性能得到提升</p>
+</li>
+<li>
+<p>SE block 中的 channel 注意力也可以提高 ViT 性能，但是不如 deep-narrow 结构那么明显。</p>
+</li>
+</ol>
+<p>于是，作者为 T2T-ViT 设计出 deep-narrow 框架，其中 channel size 和隐层维度 $d$ 较小，但是网络层数 $b$ 变大。T2T 模块最后一步输出的 tokens $T _ f$，与一个 class token 做 concat 操作，然后加上正弦位置编码 $E$，这些操作与 ViT 中相同，</p>
+<p>$$\begin{aligned} T _ {f _ 0} &amp;=[t _ {cls}; T _ f] + E, &amp; E \in \mathbb R ^ {(l+1) \times d}<br>
+\\ T _ {f _ i} &amp;= \text{MLP}(\text{MSA}(T _ {f _ {i-1}})), &amp; i=1,\ldots,b<br>
+\\ y &amp;= \text{fc}(\text{LN}(T _ {f _ b}))<br>
+\end{aligned} \tag{4.5}$$</p>
+<p>其中 $E$ 为正弦位置编码，$l$ 为 T2T 模型最后一步的输出 tokens 数量，LN 表示 layer norm，fc 为线性变换，得到各分类预测得分。</p>
+<h1>5. MAE</h1>
+<p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2111.06377">Masked Autoencoders Are Scalable Vision Learners</a></p>
+<p>本文提出了一个简单有效的 masked autoencoder（MAE），用于视觉表征学习。如图 1，输入图像被划分为很多分块（pathces），并且将大多数 patches mask 掉，然后将剩余 patches 连接起来送入 encoder，encoder 输出一个中间表示，然后再将 masked 的 patches 拼接进来得到一个完整 image size ，再送入 decoder 输出原始图像。注意 encoder 和 decoder 是非对称设计。</p>
+<p><img src="/images/img_cls/mae_1.png" alt=""></p>
+<center>图 1.</center>
+<p><strong>Masking</strong></p>
+<p>与 ViT 相同，将 image 划分为一定数量的 patches，任意两个 patches 之间没有重叠。随机选择一部分 patches，其余 patches 则 maske 掉。</p>
+<p><strong>MAE encoder</strong></p>
+<p>encoder 是一个 ViT 结构，将输入 patches 通过线性映射得到一组嵌入向量。输入 patches 就是随机选择的 patches，称为可见 patches 。</p>
+<p><strong>MAE decoder</strong></p>
+<p>decoder 的输入包含：</p>
+<ol>
+<li>
+<p>encoder 输出的可见 patches 的特征</p>
+</li>
+<li>
+<p>mask tokens</p>
+<p>mask token 是共享的，可学习的向量，用于表征 missing patches，这些缺失的 patches 就是需要被预测出来的。</p>
+</li>
+</ol>
+<p>decoder 也是由一系列 transformer blocks 构成。</p>
+<p>decoder 用于重建 image，而 encoder 用于生成 image 特征表示，所以训练好模型之后，如果需要用于识别任务，那么只需要用到 encoder 。</p>
+<p><strong>重建目标</strong></p>
+<p>MAE 输出为 所有 patches 的像素预测值，即，decoder 为每个 patch 输出一个表示像素值的向量。decoder 的最后一个 layer 为线性映射 layer，其输出的 channel size 应该等于单个 patch 中的像素数 ，输出 units 为所有 patches 数量。</p>
+<p>loss 函数为重建 image 与原始 image 之间的所有像素值的 MSE ，实际上是只计算 masked patches 的像素值的 MSE 。</p>
+<p>作者也研究了一个变体：只输出 masked patches 的像素的归一化值。计算一个 patch 内所有像素值的均值和标准差，然后可以计算出归一化像素值。使用这种归一化像素值可以提高生成质量。</p>
+<p><strong>简单实现</strong></p>
+<p>将 image 切分为若干个 patches，为每个 patches 生成嵌入向量：使用一个线性映射，输出结果再加上位置嵌入向量</p>
+<p>将所有嵌入向量 shuffle，然后取前面的一定比例的 embedding vectors，后面的则全部丢弃。但是需要记住每个 embedding 对应的 patch 在原 image 中的位置。</p>
+<p>上述 embedding vectors 送入 encoder，输出每个 patch 对应的特征表示（也是一个向量）</p>
+<p>上述中间表示与 masked token 向量合并，然后 unshuffle ，即，将中间表示按其在原 image 中的位置进行填充，其余位置则使用 masked token embedding 填充。</p>
+<p>然后加上位置 embedding，然后送入 decoder ，输出每个 patch 的向量（向量表示这个 patch 内所有像素值）。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2023/08/03/img_cls/transformer_based/">https://jianjiansha.github.io/2023/08/03/img_cls/transformer_based/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/image-classification/">
+                                    <span class="chip bg-color">image classification</span>
+                                </a>
+                            
+                                <a href="/tags/transformers/">
+                                    <span class="chip bg-color">transformers</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2023/08/04/generative_model/SwinIR/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="SwinIR: Image Restoration Using Swin Transformer">
+                        
+                        <span class="card-title">SwinIR: Image Restoration Using Swin Transformer</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-08-04
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/super-resolution/">
+                        <span class="chip bg-color">super resolution</span>
+                    </a>
+                    
+                    <a href="/tags/denoising/">
+                        <span class="chip bg-color">denoising</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2023/08/03/nlp/ner/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="命名实体识别">
+                        
+                        <span class="card-title">命名实体识别</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-08-03
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/NLP/">
+                        <span class="chip bg-color">NLP</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

@@ -1,0 +1,1295 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="数字图像处理（一）, SJJ">
+    <meta name="description" content="
+根据教材《数字图像处理》(Gonzalez)
+
+1. 坐标变换
+1.1 仿射变换
+特点：
+
+平直性：原图中的直线段在仿射变换后的图像中依然是直线段。
+平行性：原图中平行的两个线段在仿射变换后的图中依然是平行的
+
+   
+一般形式：
+$$(">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>数字图像处理（一） | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/15.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">数字图像处理（一）</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/DIP/">
+                                <span class="chip bg-color">DIP</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-12-05
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <blockquote>
+<p>根据教材《数字图像处理》(Gonzalez)</p>
+</blockquote>
+<h1>1. 坐标变换</h1>
+<h2 id="1-1-仿射变换">1.1 仿射变换</h2>
+<p>特点：</p>
+<ol>
+<li>平直性：原图中的直线段在仿射变换后的图像中依然是直线段。</li>
+<li>平行性：原图中平行的两个线段在仿射变换后的图中依然是平行的</li>
+</ol>
+<span id="more"></span>   
+<p>一般形式：<br>
+$$(x,y)=\mathbf T[(v,w)]$$<br>
+其中 $(v,w)$ 是原图中的某点坐标，$(x,y)$ 是变换后图像中对应点的坐标<br>
+$$\begin{bmatrix}x &amp; y &amp; 1 \end{bmatrix}=\begin{bmatrix}v &amp; w &amp; 1 \end{bmatrix}\mathbf T=\begin{bmatrix}v &amp; w &amp; 1 \end{bmatrix}\begin{bmatrix}t_{11} &amp; t_{12} &amp; 0 \ t_{21} &amp; t_{22} &amp; 0 \ t_{31} &amp; t_{32} &amp; 1\end{bmatrix}$$</p>
+<p>$$\begin{cases}x=t_{11} v + t_{21} w + t_{31} \<br>
+y=t_{12} v + t_{22} w + t_{32} \end{cases} \qquad(1)$$</p>
+<p>反向映射：<br>
+$$(v,w)=\mathbf T^{-1} [(x,y)]$$</p>
+<h3 id="1-1-1-恒等变换">1.1.1 恒等变换</h3>
+<p>$$\mathbf T = \begin{bmatrix} 1 &amp; 0 &amp; 0 \ 0&amp; 1&amp;0 \ 0&amp;0&amp;1\end{bmatrix}$$</p>
+<h3 id="1-1-2-尺度变换">1.1.2 尺度变换</h3>
+<p>$$\mathbf T = \begin{bmatrix} c_x &amp; 0 &amp; 0 \ 0&amp; c_y&amp;0 \ 0&amp;0&amp;1\end{bmatrix}$$<br>
+x 方向变为原来的 $c_x$ 倍，y 方向变为原来的 $c_y$ 倍。</p>
+<h3 id="1-1-3-旋转变换">1.1.3 旋转变换</h3>
+<p>$$\mathbf T = \begin{bmatrix} cos \theta &amp; sin \theta &amp; 0 \ -sin \theta&amp; cos \theta&amp;0 \ 0&amp;0&amp;1\end{bmatrix}$$<br>
+其中 $\theta$ 为（图像绕左上角顶点）顺时针旋转角度。</p>
+<h3 id="1-1-4-平移变换">1.1.4 平移变换</h3>
+<p>$$\mathbf T = \begin{bmatrix} 1 &amp; 0 &amp; 0 \ 0&amp; 1&amp;0 \ t_x&amp;t_y&amp;1\end{bmatrix}$$</p>
+<h3 id="1-1-5-偏移变换">1.1.5 偏移变换</h3>
+<p>又称错切（shear）变换，分水平错切和垂直错切两种情况。水平错切：将每一点水平移动，移动长度和该点的纵坐标成比例，<br>
+$$(v,w) \rightarrow (v+mw,w)$$<br>
+$m&gt;0$ 时向右移动，$m&lt;0$ 时向左移动。<br>
+类似地可以得到垂直方向变换为，<br>
+$$(v,w) \rightarrow (v, vn+w)$$<br>
+于是错切变换矩阵为<br>
+$$\mathbf T=\begin{bmatrix} 1 &amp; n &amp; 0 \ m &amp; 1 &amp; 0 \ 0 &amp; 0 &amp; 1\end{bmatrix}$$</p>
+<h2 id="1-2-透视变换">1.2 透视变换</h2>
+<p>透视变换是二维 $(x,y)$ 到三维 $(x,y,z)$，然后再到二维 $(x’,y’)$ 的映射，所以也称为投影变换。</p>
+<p>事实上，二维可看作三维上的一个平面 $(x,y,1)$，前面的仿射变换则是将这个平面上的点 $(x,y,1)$ 经过 $3 \times 3$ 变换矩阵后依然位于这个平面内 $(x’,y’,1)$，而透视变换则是先变换到三维空间任意点上，然后从三维空间在变换到 $(x’,y’,1)$，故不难想象变换矩阵具有如下形式，<br>
+$$s[x,y,1]<sup>{\top}=T[v,w,1]</sup>{\top}=\begin{bmatrix} t_{11} &amp; t_{12} &amp; t_{13} \t_{21} &amp; t_{22} &amp; t_{23} \t_{31} &amp; t_{32} &amp; t_{33} \end{bmatrix}[v,w,1]^{\top}$$</p>
+<p>其中 $s$ 是一个 scale factor 。如果两个透视变换仅仅导致 $s$ 不同，那么这两个透视变换等价，因为 $s[x, y, 1]$ 投影到 $z=1$ 平面上就是 $[x,y,1]$。所以为了去掉 $s$，对透视变换矩阵归一化，即 $\sum _ {i,j} t _ {ij} ^ 2 = 1$，或者使用 $t _ {33} = 1$ 作为归一化。</p>
+<p>为了简单起见，使用第二种归一化，即 $t _ {33} = 1$，那么 $1=t _ {31}v + t _ {32} w + 1$，于是</p>
+<p>$$x = \frac {t _ {11} v + t _ {12} w + t _ {13}} 1 = \frac {t _ {11} v + t _ {12} w + t _ {13}} {t _ {31}v + t _ {32} w + 1}$$</p>
+<p>$$y = \frac {t _ {21} v + t _ {22} w + t _ {23}} 1 = \frac {t _ {21} v + t _ {22} w + t _ {23}} {t _ {31}v + t _ {32} w + 1}$$</p>
+<p>从变换矩阵也可以看出，仿射变换是一种特殊的透视变换。</p>
+<p>正如下一节将要讲到的，需要知道输入图像和输出图像中分别 4 个约束点，才能确定透视变换的矩阵参数，这是因为 4 个约束点提供 8 个方程，加上自身的约束方程，共 9 个方程从而解出 9 个参数，可参考 opencv 的 python 教程中关于<a target="_blank" rel="noopener" href="https://docs.opencv.org/4.1.2/da/d6e/tutorial_py_geometric_transformations.html">透视变换的例子</a>。</p>
+<h1>2. 图像配准</h1>
+<p>有时候知道输入图像和经过某种变换后的输出图像，要求变换函数，这就是图像配准。主要方法是使用约束点（控制点），根据输入图像和输出图像上的一组 n 个约束点来估计变换函数，例如已知是仿射变换，那么只需要一组 3 个约束点（6个方程解6个参数），根据式 $(1)$ 即可求出参数；如果变换函数模型是双线性模型，那么有<br>
+$$x=c_1v+ c_2w+c_3vw + c_4 \ y=c_5v+c_6w+c_7vw+c_8$$<br>
+即，需要 4 个约束点得到变换函数参数。</p>
+<p>还有其他更加复杂的策略，略。</p>
+<h1>3. 图像内插</h1>
+<p>假设要求变换后图像中 $(x,y)$ 的像素值，根据反向映射得到原图对应点位置为 $(i+u,j+v)$（整数+小数的形式），$0\le u,v &lt; 1$</p>
+<h2 id="3-1-最近邻内插">3.1 最近邻内插</h2>
+<p>对 $u,v$ 分别采用四舍五入，得到原来图像对应像素位置 $(\lfloor i+u+\frac 1 2\rfloor,\lfloor j+v+\frac 1 2 \rfloor)$</p>
+<h2 id="3-2-双线性内插">3.2 双线性内插</h2>
+<p>使用 4 个最近邻即 $(i,j), (i+1,j),(i,j+1),(i+1,j+1)$ 根据下式进行确定，<br>
+$$f(i+u,j+v)=(1-u)(1-v)f(i,j)+(1-u)v f(i,j+1)+u(1-v)f(i+1,j)+uvf(i+1,j+1)$$</p>
+<h2 id="3-2-双三次内插">3.2 双三次内插</h2>
+<p>使用 16 个最近邻点，一种确定权重因子的方法是使用 BiCubic 函数，<br>
+$$W(x)=\begin{cases} (a+2)|x|^3 - (a+3)|x|^2+1 &amp; |x| \le 1 \ a|x|<sup>3-5a|x|</sup>2+8a|x|-4a &amp; 1 &lt;|x|&lt;2 \ 0 &amp; \text{otherwise} \end{cases}$$<br>
+其中， $x$ 是水平（垂直）方向上的距离，a 通常取 $a=-0.5$。</p>
+<p>为了表示方便，坐标使用 $(x,y)$ 而非前面的 $(i,j)$ 表示。图像上目标点 $(x,y)$ 的 $4\times4$ 邻域的点 $(x_i,y_j), \ i,j=0,1,2,3$，按下式进行双三次插值，<br>
+$$f(x,y)=\sum_{i=0}<sup>3\sum_{j=0}</sup>3 f(x_i,y_j) W(x-x_i) W(y-y_j)$$</p>
+<h1>4. 灰度变换</h1>
+<p>这里仅讨论部分灰度变换的方法。</p>
+<h2 id="4-1-直方图均衡">4.1 直方图均衡</h2>
+<p>假设灰度范围为 $[0,L-1]$，变换形式为<br>
+$$s=T®$$<br>
+表示将灰度 <code>r</code> 变换为 <code>s</code>。<br>
+这里假定变换函数单调增（若非特别说明，不一定是严格单调增），否则灰度变换后产生认为缺陷。</p>
+<p>我们可以将 <code>r</code> 看作输入图像的表示灰度的随机变量，<code>s</code> 为输出图像的表示灰度的随机变量，令 $p_r®, \ p_s(s)$ 分别表示 <code>r</code> 和 <code>s</code> 的概率密度函数，那么<br>
+$$p_s(s)=p_r® \frac {dr} {ds} \qquad(2)$$</p>
+<p>其中 $T®=s, \ r_1 \le r \le r_2$，非严格单调增时 $r_1&lt;r_2$，严格单调增时 $r_1=r_2$。</p>
+<p>使用如下变换函数来实现直方图均衡，<br>
+$$s=T®=(L-1)\int_0^r p_r(w) dw \qquad(3)$$<br>
+其中 积分项是归一化的，所以增加 $(L-1)$ 因子将灰度放大到合适的范围内。</p>
+<p>对 (3) 式求导，<br>
+$$\frac {ds} {dr} = \frac {dT®} {dr} = (L-1) \frac d {dr} \left[\int_0^r p_r(w)dw \right] = (L-1)p_r® \qquad(4)$$</p>
+<p>将 (4) 式代入 (2) 式，<br>
+$$p_s(s)=p_r® \frac {dr} {ds} = \frac 1 {L-1} \qquad(5)$$</p>
+<p>这说明， 随机变量 <code>s</code> 是均匀分布的。</p>
+<p>数字图像处理中常采用离散化处理，此时变换函数为，<br>
+$$s=T®=(L-1) \sum_{0}^r p_r® \qquad(3’)$$<br>
+其中 $p_r®=n_r/N$，$n_r$ 为灰度 <code>r</code> 的像素数量，<code>N</code> 为图像总像素数量。<br>
+此时<br>
+$$1=s - (s-1) = (L-1)\sum_0^{r_2}p_r® - (L-1)\sum_0<sup>{r_1}p_r®=(L-1)\sum_{r_1}</sup>{r_2}p_r®$$<br>
+于是，<br>
+$$p_s(s) = \sum_{r_1}^{r_2}p_r®=\frac 1 {L-1}$$<br>
+注意，上式中由于 $r$ 取不到 $r_1$，故可能会出现近似等于 $1/(L-1)$。</p>
+<h2 id="4-2-直方图匹配">4.2 直方图匹配</h2>
+<p>指定输出图像的直方图的形状。令 <code>r</code>  和 <code>z</code> 分别表示输入和输出图像的灰度随机变量，<code>s</code> 为一个均匀分布的灰度随机变量，有<br>
+$$s=T®=(L-1)\int_0^r p_r® dw \qquad(6)<br>
+\\ s=G(z)=(L-1)\int_0^z p_z(t) dt \qquad(7)$$</p>
+<p>于是，<br>
+$$z=G^{-1}(s)$$<br>
+此时要求变换函数 $G$ 是严格单调增，否则不存在反函数。</p>
+<p>由于输入图像给定，容易计算出 $p_r®$，而指定输出图像的直方图形状，即 $p_z(z)$ 已知，根据 (7) 式可得 $G$（每个 z 到 s 的映射），于是直方图匹配步骤如下：</p>
+<ol>
+<li>计算 $p_r®$，然后计算 <code>s</code></li>
+<li>根据式 (7) 计算 $G(z)$</li>
+<li>求反函数 $G^{-1}(s)$，根据 <code>s</code> 计算出 <code>z</code></li>
+</ol>
+<p>实际处理过程为：对输入图像做直方图均衡得到 <code>s</code> 灰度的图，然后对此图中每个像素执行反映射 $z=G^{-1}(s)$（s 到 z 的映射），得到最终输出图像。</p>
+<h2 id="4-3-局部直方图处理">4.3 局部直方图处理</h2>
+<p>对每个位置的邻域计算直方图，然后进行均衡化或者应用其他匹配变换函数，用于修改这个邻域中心的灰度，然后平移邻域（一个像素位置或者移到另一个非重叠区域）。</p>
+<h2 id="4-4-直方图统计">4.4 直方图统计</h2>
+<p>令 <code>r</code> 为表示灰度的离散随机变量，归一化的直方图为 $p®$，应用概率相关的知识，<code>r</code> 的 n 阶（中心）矩定义为，<br>
+$$\mu_n®=\sum_{i=0}^{L-1} (r_i-m)^n p(r_i)$$<br>
+其中 <code>m</code> 是期望（或称平均灰度）$m=\sum_0^{L-1} r_i p(r_i)$</p>
+<p>二阶矩（灰度方差）为<br>
+$$u_2®=\sum_{i=0}<sup>{L-1}(r_i-m)</sup>2 p(r_i)$$<br>
+通常用 $\sigma^2$ 表示，单独列出二阶矩是因为比较重要。</p>
+<p>实际给定一个图像时，可以直接计算样本均值和样本方差，无需计算直方图，<br>
+$$m=\frac 1 {MN} \sum_{x=0}^{M-1} \sum_{y=0}^{N-1} f(x,y)<br>
+\\ \sigma^2=\frac 1 {MN} \sum_{x=0}^{M-1} \sum_{y=0}^{N-1} [f(x,y)-m]^2$$<br>
+以上方差计算有时候使用 $MN-1$ 作为分母，以获得一个无偏估计，实际中，使用 $MN$ 作为分母的偏差可忽略不计。</p>
+<p>考虑点 $(x,y)$ 的邻域 $S_{xy}$，仿照上面全局统计量可写出局部均值和局部方差如下，<br>
+$$m_{s_{xy}}=\sum_{i=0}^{L-1}r_i p_{s_{xy}} (r_i)<br>
+\\ \sigma_{s_{xy}}^2 = \sum <em>{i=0}^{L-1} (r_i - m</em>{S_{xy}})^2 p_{s_{xy}}(r_i)$$</p>
+<p>有时候只需要对图像上暗区进行增强，亮区保持不变，所以需要先判断当前邻域属于暗区还是亮区，记全局均值为 $m_G$，如果 $m_{s_{xy}} \le k_0 m_G$，其中 $0&lt; k_0 &lt; 1.0$，那么属于暗区，对其进行局部增强。</p>
+<p>如果想增强低对比度的局部区域，那么判断方法为 $\sigma_{s_{xy}} \le k_2 \sigma_G$。当然一般还会设置一个阈值下限，例如对比度为 0 的恒定区域，其实是没必要增强的，所以 $k_1 \sigma_G \le \sigma_{s_{xy}} \le k_2 \sigma_G$。对于满足增强条件的点而言，增强操作可以是将像素值乘以一个常数 <code>E</code> ，这样这个点相对于图像上其他不需要增强的点，像素得以增大（或减小）。</p>
+<p>总结增强方法如下，<br>
+$$g(x,y)=\begin{cases} E \cdot f(x,y) &amp; m_{s_{xy}} \le k_0 m_G, \ k_1 \sigma_G \le \sigma_{s_{xy}} \le k_2 \sigma_G<br>
+\\ f(x,y) &amp; \text{otherwise} \end{cases}$$</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2019/12/05/dip/DIP-1/">https://jianjiansha.github.io/2019/12/05/dip/DIP-1/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/DIP/">
+                                    <span class="chip bg-color">DIP</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/12/07/dip/DIP-2/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="数字图像处理（二）">
+                        
+                        <span class="card-title">数字图像处理（二）</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+参考教材《数字图像处理》(Gonzalez)
+
+1. 空间滤波
+使用空间滤波器（也称空间掩模，核，窗口）直接作用于图像，得到当前位置的像素值，通过平移得到其他位置的像素值。熟悉深度学习中的卷积操作的话，不难理解这个概念。
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2019-12-07
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/DIP/">
+                        <span class="chip bg-color">DIP</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/11/01/pytorch/PyTorch-mtd/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="PyTorch 方法总结">
+                        
+                        <span class="card-title">PyTorch 方法总结</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            1. Fold / Unfold
+Fold
+这是 torch.nn.Fold 类。
+首先我们来复习一下卷积过程，设输入 size 为 (N,C,H,W)，卷积 kernel size 为 (C,h,w)，碰撞系数为 d，padding 为 
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-11-01
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/PyTorch/">
+                        <span class="chip bg-color">PyTorch</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

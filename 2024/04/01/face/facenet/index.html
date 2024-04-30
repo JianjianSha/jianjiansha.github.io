@@ -1,0 +1,1373 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="FaceNet 论文解读, SJJ">
+    <meta name="description" content="论文：FaceNet: A Unified Embedding for Face Recognition and Clustering
+源码：davidsandberg/facenet
+1. 简介
+人脸验证（是否是同一人）
+人脸识别（这是哪">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>FaceNet 论文解读 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/5.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">FaceNet 论文解读</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/face-recognition/">
+                                <span class="chip bg-color">face recognition</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2024-04-01
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1503.03832">FaceNet: A Unified Embedding for Face Recognition and Clustering</a></p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/davidsandberg/facenet">davidsandberg/facenet</a></p>
+<h1>1. 简介</h1>
+<p>人脸验证（是否是同一人）<br>
+人脸识别（这是哪个人）</p>
+<p>训练网络学习人脸的欧氏嵌入向量表示。使用 L2 距离训练网络：同一个人的人脸向量之间距离较小，不同人的人脸向量距离较大。</p>
+<p>本文提出 FaceNet，使用 三元损失函数学习得到 128D 的向量表示。如图 1 所示，其中 L2 层用于归一化向量，</p>
+<p><img src="/images/face/facenet_1.png" alt=""></p>
+<center>图 1. </center>
+<p>通过三元损失的学习，让正例向量之间的距离更近，负例向量之间的距离更远。</p>
+<h1>2. 方法</h1>
+<h2 id="2-1-triplet-loss">2.1 triplet loss</h2>
+<p>人脸图像 $x$ 的向量表示为 $f(x) \in \mathbb R ^ d$，我们限制向量范数为 1，即 $||f(x)|| _ 2 = 1$ 。</p>
+<p>一个人的人脸 anchor $x _ i ^ a$，应该接近这个人的其他人脸图像 $x _ i ^ p$（正例），原理其他人的人脸图像 $x _ i ^ n$（负例），</p>
+<p>$$||f(x _ i ^ a) - f(x _ i ^ p)|| _ 2 ^ 2 + \alpha &lt; ||f(x _ i ^ a) - f(x _ i ^ n)|| _ 2 ^ 2 \tag{1}$$</p>
+<p>其中 $\alpha$ 是一个 margin，$\alpha$ 越大，区分性能越好，根据 (1) 式可得三元损失为</p>
+<p>$$L=\sum _ i ^ N \left[||f(x _ i ^ a) - f(x _ i ^ p)|| _ 2 ^ 2 - ||f(x _ i ^ a) - f(x _ i ^ n) || _ 2 ^ 2+ \alpha \right] _ + \tag{2}$$</p>
+<p>给定一个数据集，可以很容易构建这样的三元组（anchor，正例，负例），但是其中大量的三元组都满足 (1) 式，也就是三元损失 $L=0$，这样的三元组样本对训练没有贡献，我们需要挖掘困难样本。</p>
+<h2 id="2-2-三元组选择">2.2 三元组选择</h2>
+<p>给定 $x _ i ^ a$，选择难正例 $x _ i ^ p$ 满足 $\arg \max _ {x _ i ^ p} ||f(x _ i ^ a) - f(x _ i ^ p)|| _ 2 ^ 2$，类似地，选择难负例满足 $\arg \min _ {x _ i ^ n} ||f(x _ i ^ a) - f(x _ i ^ n)|| _ 2 ^ 2$ 。</p>
+<p>在整个训练集中求 argmax 和 argmin 实现起来计算量太大，训练太慢，另外，由于一些错误标注以及较差质量的图片的存在，导致在整个训练集中求 argmax 和 argmin 必然总是会得到这些错误标注和较差质量的图片，有两种方法可以解决这个问题：</p>
+<ol>
+<li>离线生成三元组。使用最近训练好的网络模型在数据的一个子集上求 argmax 和 argmin</li>
+<li>在线生成三元组。minibatch 前向传播后，得到相应的向量表示，然后在 minibatch 中求 argmin 和 argmax</li>
+</ol>
+<p>本文作者使用在线生成策略，使用一个较大 size 的 minibatch，这个 size 大约是几千。minibatch 的 size 不能太小，否则求得的 argmin 在整个训练集中还是较大的，同样 argmax 在整个训练集中还是较小的。</p>
+<p>实验中，minibatch 中每个人大约有 40 个人脸图片，每个人脸 ID 选择 45 个图片，一共 1800 个图片，没有选择困难正例，使用了所有的 anchor-positive pairs，但是选择了困难负例。作者发现选择所有的 anchor-positive pairs 比选择困难正例，在训练开始解读更加的稳定并且收敛稍快。</p>
+<p>选择难负例在实际训练过程中会导致训练初期收敛到错误的局部最小值点，特殊情况下会导致进入一个坍缩模式即 $f(x)=0$，所有的向量均为 0 。为了解决这个问题，选择负例满足</p>
+<p>$$||f(x _ i ^ a) - f(x _ i ^ p)|| _ 2 ^ 2 &lt; ||f(x _ i ^ a) - f(x _ i ^ n)|| _ 2 ^ 2 \tag{3}$$</p>
+<p>我们称满足 (3) 式的为半难负例 (semi-hard)：负例比正例更加远离 anchor，但是仍在 margin $\alpha$ 之内，即负例距离靠近正例距离，注意我们三元损失是要让负例位于 $\alpha$ 之外。</p>
+<h2 id="2-3-网络">2.3 网络</h2>
+<p>初始学习率设置为 $0.05$，margin $\alpha=0.2$ 。</p>
+<p>使用的第一种网络结构如图 2，第二种网络则是Inception 模型。</p>
+<p><img src="/images/face/facenet_2.png" alt=""></p>
+<center>图 2 Zeiler&Fergus 模型，使用 ReLU 作为非线性层</center>
+<h1>3. 数据集</h1>
+<p><strong># CASIA-WebFace</strong></p>
+<p>CASIA-WebFace 包含 494414 张图片，来自 10575 个人。</p>
+<p>CASIA-WebFace 数据集文件夹结构：</p>
+<ol>
+<li>CASIA-WebFace：根目录</li>
+<li>000001-000200：每个身份对应一个子目录，子目录名为身份编号</li>
+<li>000001_0.jpg：每个图像文件的命名规则为 身份编号_索引.jpg</li>
+</ol>
+<p><strong># LFW</strong></p>
+<p>LFW 共有 13233 张人脸图像，每张图像均给出对应的人名，共有 5749 人。图像尺寸均为 <code>250x250</code> 。</p>
+<h2 id="3-1-评估">3.1 评估</h2>
+<p>给定两个人脸图片的 pair，距离 $D(x _ i, x _ j)$ 是否大于阈值决定是同一个人，还是不同的人。相同 id 的人脸图片 pairs $(i, j)$ 记为 $\mathcal P _ {same}$，不同 id 的所有人脸图片 pairs 记为 $\mathcal P _ {diff}$ 。</p>
+<p>定义 true accept 集合为</p>
+<p>$$TA(d) = \lbrace (i,j) \in \mathcal P _ {same}| D(x _ i, x _ j) \le d \rbrace \tag{4}$$</p>
+<p>类似于 true positive，(4) 式表示正确的分类为 same 的 pairs。类似地，定义 false accept 为</p>
+<p>$$FA(d)=\lbrace (i,j) \in \mathcal P _ {diff} | D(x _ i, x _ j) \le d \rbrace \tag{5}$$</p>
+<p>这表示错误分类为 same 的 pairs，类似于 false positive。</p>
+<p>验证率 VAL 和 false accept rate FAR 定义为</p>
+<p>$$VAL(d) = \frac {|TA(d)|}{|\mathcal P _ {same}|}, \quad FAR(d) = \frac {|FA(d)|}{|\mathcal P _ {diff}|} \tag{7}$$</p>
+<h1>4. 源码分析</h1>
+<h2 id="4-1-train-softmax">4.1 train softmax</h2>
+<p>facenet 源码中提供了 <code>train_softmax.py</code>，也就是将模型看作是一个分类器进行训练，没有使用论文中的 triplet loss，而是使用 softmax loss，这是因为训练一个分类器比较简单且速度较快。</p>
+<p><strong># face alignment</strong></p>
+<p>在进行人脸识别之前，需要先做人脸对齐，使用 MTCNN 进行人脸对齐，项目中也提供了 MTCNN 的源码，使用如下命令，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">python src/align/align_dataset_mtcnn.py <span class="token punctuation">\</span>
+~/datasets/casia/CASIA-maxpy-clean/ <span class="token punctuation">\</span>
+~/datasets/casia/casia-maxpy_mtcnn_182  <span class="token punctuation">\</span>
+<span class="token parameter variable">--image_size</span> <span class="token number">182</span>    <span class="token punctuation">\</span>
+<span class="token parameter variable">--margin</span>    <span class="token number">44</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>人脸对齐之后，我们再看 <code>train_softmax.py</code> 训练代码，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># train_softmax.py</span>
+<span class="token keyword">with</span> tf<span class="token punctuation">.</span>Graph<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>as_default<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    global_step <span class="token operator">=</span> tf<span class="token punctuation">.</span>Variable<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> trainable<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+    <span class="token comment"># image_list: 所有图片的文件路径</span>
+    <span class="token comment"># label_list: 所有图片对应的 id（从 0 开始），一个人名对应一个 id</span>
+    image_list<span class="token punctuation">,</span> label_list <span class="token operator">=</span> facenet<span class="token punctuation">.</span>get_image_paths_and_labels<span class="token punctuation">(</span>train_set<span class="token punctuation">)</span>
+    val_image_list<span class="token punctuation">,</span> val_label_list <span class="token operator">=</span> facenet<span class="token punctuation">.</span>get_image_paths_and_labels<span class="token punctuation">(</span>val_set<span class="token punctuation">)</span>
+
+    labels <span class="token operator">=</span> ops<span class="token punctuation">.</span>convert_to_tensor<span class="token punctuation">(</span>label_list<span class="token punctuation">,</span> dtype<span class="token operator">=</span>tf<span class="token punctuation">.</span>int32<span class="token punctuation">)</span>  <span class="token comment"># (N, )</span>
+    range_size <span class="token operator">=</span> array_ops<span class="token punctuation">.</span>shape<span class="token punctuation">(</span>labels<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token comment"># N，数据集大小</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token comment"># embedding_size: 输出人脸向量的维度</span>
+    <span class="token comment"># prelogits: 非归一化人脸向量表征   (B, 128)</span>
+    prelogits<span class="token punctuation">,</span> _ <span class="token operator">=</span> network<span class="token punctuation">.</span>inference<span class="token punctuation">(</span>image_batch<span class="token punctuation">,</span> args<span class="token punctuation">.</span>keep_probability<span class="token punctuation">,</span>
+        phase_train<span class="token operator">=</span>phase_train_placeholder<span class="token punctuation">,</span> bottleneck_layer_size<span class="token operator">=</span>args<span class="token punctuation">.</span>embedding_size<span class="token punctuation">,</span>
+        weight_decay<span class="token operator">=</span>args<span class="token punctuation">.</span>weight_decay<span class="token punctuation">)</span>
+    <span class="token comment"># 得到每个 分类 的非归一化预测得分, (B, C)</span>
+    logits <span class="token operator">=</span> slim<span class="token punctuation">.</span>fully_connected<span class="token punctuation">(</span>prelogits<span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>train_set<span class="token punctuation">)</span><span class="token punctuation">,</span> activation_fn<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span>
+        weights_initializer<span class="token operator">=</span>slim<span class="token punctuation">.</span>initializers<span class="token punctuation">.</span>xavier_initializer<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        weights_regularizer<span class="token operator">=</span>slim<span class="token punctuation">.</span>l2_regularizer<span class="token punctuation">(</span>args<span class="token punctuation">.</span>weight_decay<span class="token punctuation">)</span><span class="token punctuation">,</span>
+        scope<span class="token operator">=</span><span class="token string">'Logits'</span><span class="token punctuation">,</span> reuse<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+    <span class="token comment"># 归一化之后的人脸向量</span>
+    embedings <span class="token operator">=</span> tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>l2_normalize<span class="token punctuation">(</span>prelogits<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1e-10</span><span class="token punctuation">,</span> name<span class="token operator">=</span><span class="token string">'embeddings'</span><span class="token punctuation">)</span>
+    <span class="token comment"># L1 范数均值</span>
+    prelogits_norm <span class="token operator">=</span> tf<span class="token punctuation">.</span>reduce_mean<span class="token punctuation">(</span>
+        tf<span class="token punctuation">.</span>norm<span class="token punctuation">(</span>tf<span class="token punctuation">.</span><span class="token builtin">abs</span><span class="token punctuation">(</span>prelogits<span class="token punctuation">)</span> <span class="token operator">+</span> eps<span class="token punctuation">,</span> <span class="token builtin">ord</span><span class="token operator">=</span>args<span class="token punctuation">.</span>prelogits_norm_p<span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token punctuation">)</span>
+    <span class="token comment"># 添加第一种正则化损失，L1 范数惩罚项，为 L1 范围 * 正则化损失因子</span>
+    tf<span class="token punctuation">.</span>add_to_collection<span class="token punctuation">(</span>tf<span class="token punctuation">.</span>GraphKeys<span class="token punctuation">.</span>REGULARIZATION_LOSSES<span class="token punctuation">,</span> prelogits_norm <span class="token operator">*</span> args<span class="token punctuation">.</span>prelogits_norm_loss_factor<span class="token punctuation">)</span>
+    <span class="token comment"># 添加第二种正则化损失，中心损失，特征与所在类别特征中心的差的平方，再求均值</span>
+    prelogits_center_loss<span class="token punctuation">,</span> _ <span class="token operator">=</span> facenet<span class="token punctuation">.</span>center_loss<span class="token punctuation">(</span>prelogits<span class="token punctuation">,</span> label_batch<span class="token punctuation">,</span> args<span class="token punctuation">.</span>center_loss_alfa<span class="token punctuation">,</span> nrof_classes<span class="token punctuation">)</span>
+    <span class="token comment"># 添加中心损失</span>
+    tf<span class="token punctuation">.</span>add_to_collection<span class="token punctuation">(</span>tf<span class="token punctuation">.</span>GraphKeys<span class="token punctuation">.</span>REGULARIZATION_LOSSES<span class="token punctuation">,</span> prelogits_center_loss <span class="token operator">*</span> args<span class="token punctuation">.</span>center_loss_factor<span class="token punctuation">)</span>
+
+    cross_entropy <span class="token operator">=</span> tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>sparse_softmax_cross_entropy_with_logits<span class="token punctuation">(</span>
+        labels<span class="token operator">=</span>label_batch<span class="token punctuation">,</span> logits<span class="token operator">=</span>logits<span class="token punctuation">,</span> name<span class="token operator">=</span><span class="token string">'cross_entropy_per_example'</span>
+    <span class="token punctuation">)</span>
+    <span class="token comment"># 交叉熵损失</span>
+    cross_entropy_mean <span class="token operator">=</span> tf<span class="token punctuation">.</span>reduce_mean<span class="token punctuation">(</span>cross_entropy<span class="token punctuation">,</span> name<span class="token operator">=</span><span class="token string">'cross_entropy'</span><span class="token punctuation">)</span>
+    tf<span class="token punctuation">.</span>add_to_collection<span class="token punctuation">(</span><span class="token string">'losses'</span><span class="token punctuation">,</span> cross_entropy_mean<span class="token punctuation">)</span>
+
+    regularization_losses <span class="token operator">=</span> tf<span class="token punctuation">.</span>get_collection<span class="token punctuation">(</span>tf<span class="token punctuation">.</span>GraphKeys<span class="token punctuation">.</span>REGULARIZATION_LOSSES<span class="token punctuation">)</span>
+    <span class="token comment"># 交叉熵损失和正则损失之和</span>
+    total_loss <span class="token operator">=</span> tf<span class="token punctuation">.</span>add_n<span class="token punctuation">(</span><span class="token punctuation">[</span>cross_entropy_mean<span class="token punctuation">]</span> <span class="token operator">+</span> regularization_losses<span class="token punctuation">,</span> name<span class="token operator">=</span><span class="token string">'total_loss'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上述代码中，中心损失参考 “A Discriminative Feature Learning Approach for Deep Face Recognition” 。</p>
+<h2 id="4-2-train-triple-loss">4.2 train triple loss</h2>
+<p>训练入口为 <code>train_tripleloss.py</code> 文件</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># train_tripleloss.py</span>
+<span class="token keyword">with</span> tf<span class="token punctuation">.</span>Graph<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>as_default<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># 创建 batch</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    prelogits<span class="token punctuation">,</span> _ <span class="token operator">=</span> network<span class="token punctuation">.</span>inference<span class="token punctuation">(</span>image_batch<span class="token punctuation">,</span> args<span class="token punctuation">.</span>keep_probability<span class="token punctuation">,</span>
+        phase_train<span class="token operator">=</span>phase_train_placeholder<span class="token punctuation">,</span> bottleneck_layer_size<span class="token operator">=</span>args<span class="token punctuation">.</span>embedding_size<span class="token punctuation">,</span>
+        weight_decay<span class="token operator">=</span>args<span class="token punctuation">.</span>weight_decay<span class="token punctuation">)</span>
+    <span class="token comment"># L2 归一化人脸向量</span>
+    embeddings <span class="token operator">=</span> tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>l2_normalize<span class="token punctuation">(</span>prelogits<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1e-10</span><span class="token punctuation">,</span> name<span class="token operator">=</span><span class="token string">'embeddings'</span><span class="token punctuation">)</span>
+    <span class="token comment"># 将人脸向量分成 anchor，positive，negative，然后计算 tripleloss</span>
+    <span class="token comment"># 输入是 anchor positive 和 negative 三个部分的 stach</span>
+    <span class="token comment"># 故输出向量直接 unstack 即可</span>
+    anchor<span class="token punctuation">,</span> positive<span class="token punctuation">,</span> negative <span class="token operator">=</span> tf<span class="token punctuation">.</span>unstack<span class="token punctuation">(</span>tf<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>embeddings<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> args<span class="token punctuation">.</span>embedding_size<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    triple_loss <span class="token operator">=</span> facenet<span class="token punctuation">.</span>triple_loss<span class="token punctuation">(</span>anchor<span class="token punctuation">,</span> positive<span class="token punctuation">,</span> negative<span class="token punctuation">,</span> args<span class="token punctuation">.</span>alpha<span class="token punctuation">)</span>
+
+    regularization_losses <span class="token operator">=</span> tf<span class="token punctuation">.</span>get_collection<span class="token punctuation">(</span>tf<span class="token punctuation">.</span>GraphKeys<span class="token punctuation">.</span>REGULARIZATION_LOSSES<span class="token punctuation">)</span>
+    total_loss <span class="token operator">=</span> tf<span class="token punctuation">.</span>add_n<span class="token punctuation">(</span><span class="token punctuation">[</span>triple_loss<span class="token punctuation">]</span> <span class="token operator">+</span> regularization_losses<span class="token punctuation">,</span> name<span class="token operator">=</span><span class="token string">'total_loss'</span><span class="token punctuation">)</span>
+
+    train_op <span class="token operator">=</span> facenet<span class="token punctuation">.</span>train<span class="token punctuation">(</span>total_loss<span class="token punctuation">,</span> global_step<span class="token punctuation">,</span> args<span class="token punctuation">.</span>optimizer<span class="token punctuation">,</span> learning_rate<span class="token punctuation">,</span>
+        args<span class="token punctuation">.</span>moving_average_decay<span class="token punctuation">,</span> tf<span class="token punctuation">.</span>global_variable<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中计算梯度和更新模型参数的代码为，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># facenet.py</span>
+<span class="token keyword">def</span> <span class="token function">train</span><span class="token punctuation">(</span>total_loss<span class="token punctuation">,</span> global_step<span class="token punctuation">,</span> optimizer<span class="token punctuation">,</span> learning_rate<span class="token punctuation">,</span> moving_average_decay<span class="token punctuation">,</span>
+    update_gradient_vars<span class="token punctuation">,</span> log_histograms<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    loss_averages_op <span class="token operator">=</span> _add_loss_summaries<span class="token punctuation">(</span>total_loss<span class="token punctuation">)</span>  <span class="token comment"># 计算移动平均</span>
+    <span class="token keyword">with</span> tf<span class="token punctuation">.</span>control_dependecies<span class="token punctuation">(</span><span class="token punctuation">[</span>loss_averages_op<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> optimizer <span class="token operator">==</span> <span class="token string">'ADAGRAD'</span><span class="token punctuation">:</span>
+            opt <span class="token operator">=</span> tf<span class="token punctuation">.</span>train<span class="token punctuation">.</span>AdagradOptimizer<span class="token punctuation">(</span>learning_rate<span class="token punctuation">)</span>
+        <span class="token keyword">elif</span> optimizer <span class="token operator">==</span> <span class="token string">'ADADELTA'</span><span class="token punctuation">:</span>
+            opt <span class="token operator">=</span> tf<span class="token punctuation">.</span>train<span class="token punctuation">.</span>AdadeltaOptimizer<span class="token punctuation">(</span>learning_rate<span class="token punctuation">,</span> rho<span class="token operator">=</span><span class="token number">0.9</span><span class="token punctuation">,</span> epsilon<span class="token operator">=</span><span class="token number">1e-6</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    
+        grads <span class="token operator">=</span> opt<span class="token punctuation">.</span>compute_gradients<span class="token punctuation">(</span>total_loss<span class="token punctuation">,</span> update_gradient_vars<span class="token punctuation">)</span><span class="token comment">#计算梯度</span>
+    <span class="token comment"># 更新梯度</span>
+    applay_gradient_op <span class="token operator">=</span> opt<span class="token punctuation">.</span>apply_gradients<span class="token punctuation">(</span>grads<span class="token punctuation">,</span> global_step<span class="token operator">=</span>global_step<span class="token punctuation">)</span>
+    <span class="token comment"># 创建移动平均方法</span>
+    variable_averages <span class="token operator">=</span> tf<span class="token punctuation">.</span>train<span class="token punctuation">.</span>ExponentialMovingAverage<span class="token punctuation">(</span>
+        moving_average_decay<span class="token punctuation">,</span> global_step
+    <span class="token punctuation">)</span>
+    <span class="token comment"># 对训练参数进行 移动平均</span>
+    variables_averages_op <span class="token operator">=</span> variable_averages<span class="token punctuation">.</span><span class="token builtin">apply</span><span class="token punctuation">(</span>tf<span class="token punctuation">.</span>trainable_variables<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">with</span> tf<span class="token punctuation">.</span>control_dependencies<span class="token punctuation">(</span><span class="token punctuation">[</span>apply_gradient_op<span class="token punctuation">,</span> variables_averages_op<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        train_op <span class="token operator">=</span> tf<span class="token punctuation">.</span>no_op<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">'train'</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> train_op<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上面代码中，移动平均公式为</p>
+<pre class="line-numbers language-none"><code class="language-none">shadow_variable &#x3D; decay * shadow_variable + (1 - decay) * variable<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>衰减值为</p>
+<pre class="line-numbers language-none"><code class="language-none">decay &#x3D; min(decay, (1 + steps) &#x2F; (10 + steps))<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>最后看下输入数据如何构造，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># train_tripletloss.py</span>
+<span class="token comment"># train 方法</span>
+
+<span class="token comment"># 随机选择至少 45 个人，每个人随机选择最多 40 个图片，总图片数量为 45 * 40 = 1800</span>
+image_paths<span class="token punctuation">,</span> num_per_class <span class="token operator">=</span> sample_people<span class="token punctuation">(</span>dataset<span class="token punctuation">,</span> args<span class="token punctuation">.</span>people_per_batch<span class="token punctuation">,</span> args<span class="token punctuation">.</span>images_per_person<span class="token punctuation">)</span>
+nrof_examples <span class="token operator">=</span> args<span class="token punctuation">.</span>people_per_batch <span class="token operator">*</span> args<span class="token punctuation">.</span>images_per_person  <span class="token comment"># 1800</span>
+labels_array <span class="token operator">=</span> np<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>np<span class="token punctuation">.</span>arange<span class="token punctuation">(</span>nrof_examples<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+image_paths_array <span class="token operator">=</span> np<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>np<span class="token punctuation">.</span>expand_dims<span class="token punctuation">(</span>np<span class="token punctuation">.</span>array<span class="token punctuation">(</span>image_paths<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+emb_array <span class="token operator">=</span> np<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span><span class="token punctuation">(</span>nrof_examples<span class="token punctuation">,</span> embedding_size<span class="token punctuation">)</span><span class="token punctuation">)</span>   <span class="token comment"># 保存 1800 个人脸向量</span>
+
+<span class="token comment"># 1800 个图片太多，不能一次性喂给 network，要分 batch</span>
+nrof_batches <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>np<span class="token punctuation">.</span>ceil<span class="token punctuation">(</span>nrof_examples <span class="token operator">/</span> args<span class="token punctuation">.</span>batch_size<span class="token punctuation">)</span><span class="token punctuation">)</span>    <span class="token comment"># batch 数量</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>nrof_batches<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    batch_size <span class="token operator">=</span> <span class="token builtin">min</span><span class="token punctuation">(</span>nrof_examples <span class="token operator">-</span> i<span class="token operator">*</span>args<span class="token punctuation">.</span>batch_size<span class="token punctuation">,</span> args<span class="token punctuation">.</span>batch_size<span class="token punctuation">)</span>
+    <span class="token comment"># 前向传播</span>
+    emb<span class="token punctuation">,</span> lab <span class="token operator">=</span> sess<span class="token punctuation">.</span>run<span class="token punctuation">(</span><span class="token punctuation">[</span>embeddings<span class="token punctuation">,</span> labels_batch<span class="token punctuation">]</span><span class="token punctuation">,</span> feed_dict<span class="token operator">=</span><span class="token punctuation">&#123;</span>batch_size_placeholder<span class="token punctuation">:</span> batch_size<span class="token punctuation">,</span> learning_rate_placeholder<span class="token punctuation">:</span> lr<span class="token punctuation">,</span> phase_train_placeholder<span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+    <span class="token comment"># 将前向传播计算的 人脸向量 更新到数组中</span>
+    emb_array<span class="token punctuation">[</span>lab<span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">]</span> <span class="token operator">=</span> emb
+
+<span class="token comment"># select triplets based on the embeddings</span>
+triplets<span class="token punctuation">,</span> nrof_random_negs<span class="token punctuation">,</span> nrof_triplets <span class="token operator">=</span> select_triplets<span class="token punctuation">(</span>
+    emb_array<span class="token punctuation">,</span> num_per_class<span class="token punctuation">,</span> image_paths<span class="token punctuation">,</span> args<span class="token punctuation">.</span>people_per_batch<span class="token punctuation">,</span> args<span class="token punctuation">.</span>alpha
+<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上面代码中，首先随机选择 <code>45 * 40</code> 个图片进行前向传播，计算出这些人脸向量之后，使用 <code>select_triplets</code> 选择三元组，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">select_triplets</span><span class="token punctuation">(</span>embeddings<span class="token punctuation">,</span> nrof_images_per_class<span class="token punctuation">,</span> image_paths<span class="token punctuation">,</span> people_per_batch<span class="token punctuation">,</span> alpha<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    embeddings: (1800, 128) 1800 个 人脸向量。1800 个图片包含至少 45 个人
+    nrof_images_per_class: 每个人的图片数量，这是一个 list
+    image_paths: 1800 个 图片路径
+    people_per_batch: 人数 45
+    '''</span>
+    emb_start_idx <span class="token operator">=</span> <span class="token number">0</span>
+    num_trips <span class="token operator">=</span> <span class="token number">0</span>
+    triplets <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>   <span class="token comment"># 三元组列表</span>
+
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>people_per_batch<span class="token punctuation">)</span><span class="token punctuation">:</span>   <span class="token comment"># 遍历每个人</span>
+        nrof_images <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>nrof_images_per_class<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token comment"># 第 i 个人的图片数量</span>
+        <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> nrof_images<span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token comment"># 遍历这个人的所有图片</span>
+            a_idx <span class="token operator">=</span> emb_start_idx <span class="token operator">+</span> j <span class="token operator">-</span> <span class="token number">1</span>   <span class="token comment"># anchor 在 1800 图片中的 idx</span>
+            <span class="token comment"># 在 1800 个向量中寻找 argmin 困难负例</span>
+            neg_dists_sqr <span class="token operator">=</span> np<span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span>np<span class="token punctuation">.</span>square<span class="token punctuation">(</span>embeddings<span class="token punctuation">[</span>a_idx<span class="token punctuation">]</span> <span class="token operator">-</span> embeddings<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+            <span class="token keyword">for</span> pair <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>j<span class="token punctuation">,</span> nrof_images<span class="token punctuation">)</span><span class="token punctuation">:</span>  <span class="token comment"># 所有正例，不使用困难正例</span>
+                p_idx <span class="token operator">=</span> emb_start_idx <span class="token operator">+</span> pair    <span class="token comment"># 正例 idx</span>
+                <span class="token comment"># 计算正例与 anchor 的距离平均</span>
+                pos_dist_sqr <span class="token operator">=</span> np<span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span>np<span class="token punctuation">.</span>square<span class="token punctuation">(</span>embeddings<span class="token punctuation">[</span>a_idx<span class="token punctuation">]</span> <span class="token operator">-</span> embeddings<span class="token punctuation">[</span>p_idx<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token comment"># 屏蔽当前 人 对应的图片，这些图片不是负例，这个语句放在这里，其实是重复执行了</span>
+                neg_dists_sqr<span class="token punctuation">[</span>emb_start_idx<span class="token punctuation">:</span>emb_start_idx<span class="token operator">+</span>nrof_images<span class="token punctuation">]</span> <span class="token operator">=</span> np<span class="token punctuation">.</span>NaN
+                <span class="token comment"># 选择负例，不满足以下条件的负例，实际上 tripletloss 为 0，对学习没有贡献</span>
+                all_neg <span class="token operator">=</span> np<span class="token punctuation">.</span>where<span class="token punctuation">(</span>neg_dists_sqr <span class="token operator">-</span> pos_dist_sqr <span class="token operator">&lt;</span> alpha<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+                nrof_random_negs <span class="token operator">=</span> all_neg<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+                <span class="token keyword">if</span> nrof_random_negs <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">:</span>    <span class="token comment"># 存在这样的负例</span>
+                    rnd_idx <span class="token operator">=</span> np<span class="token punctuation">.</span>random<span class="token punctuation">.</span>randint<span class="token punctuation">(</span>nrof_random_negs<span class="token punctuation">)</span>   <span class="token comment"># 随机选择一个</span>
+                    n_idx <span class="token operator">=</span> all_neg<span class="token punctuation">[</span>rnd_idx<span class="token punctuation">]</span>    <span class="token comment"># 随机选择的负例 idx</span>
+                    triples<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">(</span>image_paths<span class="token punctuation">[</span>a_idx<span class="token punctuation">]</span><span class="token punctuation">,</span> image_paths<span class="token punctuation">[</span>p_idx<span class="token punctuation">]</span><span class="token punctuation">,</span> image_paths<span class="token punctuation">[</span>n_idx<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                num_trips <span class="token operator">+=</span> <span class="token number">1</span> <span class="token comment"># 实际上是二元组 anchor positive 数量</span>
+        emb_start_idx <span class="token operator">+=</span> nrof_images
+    np<span class="token punctuation">.</span>random<span class="token punctuation">.</span>shuffle<span class="token punctuation">(</span>triplets<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> triplets<span class="token punctuation">,</span> num_trips<span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>triplets<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>以上代码中，对于第 <code>i</code> 个人，假设其有 <code>n</code> 个图片，那么可得 (anchor, positive) 二元组数量为组合数 $C _ n ^ 2$，根据二元组来构造三元组，即，为每个二元组再构造一个负例。实际上对第 <code>i</code> 个人，有 <code>1800-n</code> 个负例，但是我们筛选不满足 (1) 式的负例，因为满足 (1) 式的负例损失为 0，对学习没有贡献，最后从筛选的负例中随机采样一个负例，构造出三元组。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2024/04/01/face/facenet/">https://jianjiansha.github.io/2024/04/01/face/facenet/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/face-recognition/">
+                                    <span class="chip bg-color">face recognition</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2024/04/02/face/l_softmax/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/22.jpg" class="responsive-img" alt="L-Margin Softmax Loss">
+                        
+                        <span class="card-title">L-Margin Softmax Loss</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2024-04-02
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/face-recognition/">
+                        <span class="chip bg-color">face recognition</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2024/03/23/math/bch/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="BCH编码">
+                        
+                        <span class="card-title">BCH编码</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2024-03-23
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/math/">
+                        <span class="chip bg-color">math</span>
+                    </a>
+                    
+                    <a href="/tags/coding/">
+                        <span class="chip bg-color">coding</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

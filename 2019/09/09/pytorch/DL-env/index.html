@@ -1,0 +1,1434 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="深度学习环境搭建, SJJ">
+    <meta name="description" content="本文仅针对 ubuntu 系统进行讨论。
+
+搭建深度学习环境 tensorflow，pytorch 等，如需要 GPU 加速，一般选择安装
+NVIDIA cuda 工具包，以前通常需要预先安装：
+
+NVIDIA driver
+cuda
+cu">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>深度学习环境搭建 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/0.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">深度学习环境搭建</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/DL/">
+                                <span class="chip bg-color">DL</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-09-09
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>本文仅针对 ubuntu 系统进行讨论。</p>
+<span id="more"></span>
+<p>搭建深度学习环境 tensorflow，pytorch 等，如需要 GPU 加速，一般选择安装</p>
+<p>NVIDIA cuda 工具包，以前通常需要预先安装：</p>
+<ol>
+<li>NVIDIA driver</li>
+<li>cuda</li>
+<li>cudnn</li>
+</ol>
+<h1>1. NVIDIA driver</h1>
+<p>曾经安装 NVIDIA 驱动采取的比较复杂的方法，先是 close nouveau，让系统进入命令行，然后安装事先下载好的驱动安装文件 <code>NVIDIA-Linux-x86_64-xxx.xxx.run</code>，这里使用比较简单的安装方法，打开 ubuntu 的 Software &amp; Updates，点击 Additional Drivers，选择 <code>Using NVIDIA driver metapackage from nvidia-driver-xxx</code> 然后点击 <code>Apply Changes</code> 进行驱动安装。</p>
+<h1>2. cuda &amp; cudnn</h1>
+<p>直接使用 conda 安装 pytorch，安装过程比较简单，执行以下命令即可，</p>
+<pre class="line-numbers language-none"><code class="language-none">conda install pytorch torchvision cudatoolkit&#x3D;10.0 -c pytorch<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>如果下载较慢，可使用清华源，执行命令，</p>
+<pre class="line-numbers language-none"><code class="language-none">conda config
+conda config --set show_channel_urls yes
+
+cd ~
+vi .condarc<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>打开 <code>.condarc</code> 文件并添加</p>
+<pre class="line-numbers language-none"><code class="language-none">channels:
+  - defaults
+show_channel_urls: true
+default_channels:
+  - https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;pkgs&#x2F;main
+  - https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;pkgs&#x2F;r
+custom_channels:
+  conda-forge: https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;cloud
+  msys2: https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;cloud
+  bioconda: https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;cloud
+  menpo: https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;cloud
+  pytorch: https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;anaconda&#x2F;cloud<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>然后执行</p>
+<pre class="line-numbers language-none"><code class="language-none">conda install pytorch torchvision cudatoolkit&#x3D;10.0 -c pytorch<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h1>3. 安装 tensorflow</h1>
+<pre class="line-numbers language-none"><code class="language-none">conda install tensorflow-gpu<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>（注：或者使用 <code>pip install tensorflow</code>）</p>
+<p>这条命令会自动安装合适的 cuda 和 cudnn</p>
+<h2 id="3-1-源码安装">3.1 源码安装</h2>
+<p>源码安装基本参考<a target="_blank" rel="noopener" href="https://www.tensorflow.org/install/source#ubuntu">官方文档</a></p>
+<p>创建虚拟环境 name 为 tf，python 版本 3.10，确保 pip，wheel，numpy 等安装</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">conda create <span class="token parameter variable">-n</span> tf <span class="token assign-left variable">python</span><span class="token operator">=</span><span class="token number">3.10</span>
+pip <span class="token function">install</span> <span class="token parameter variable">-U</span> numpy
+pip <span class="token function">install</span> <span class="token parameter variable">-U</span> keras_preprocessing --no-deps<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>安装 bazel，使用 ubuntu apt 仓库安装（其他安装方式参考<a target="_blank" rel="noopener" href="https://docs.bazel.build/versions/main/install-ubuntu.html">这里</a>）</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">apt</span> <span class="token function">install</span> apt-transport-https <span class="token function">curl</span> gnupg
+<span class="token function">curl</span> <span class="token parameter variable">-fsSL</span> https://bazel.build/bazel-release.pub.gpg <span class="token operator">|</span> gpg <span class="token parameter variable">--dearmor</span> <span class="token operator">></span> bazel.gpg
+<span class="token function">sudo</span> <span class="token function">mv</span> bazel.gpg /etc/apt/trusted.gpg.d/
+<span class="token builtin class-name">echo</span> <span class="token string">"deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8"</span> <span class="token operator">|</span> <span class="token function">sudo</span> <span class="token function">tee</span> /etc/apt/sources.list.d/bazel.list
+<span class="token function">sudo</span> <span class="token function">apt</span> update <span class="token operator">&amp;&amp;</span> <span class="token function">sudo</span> <span class="token function">apt</span> <span class="token function">install</span> bazel<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>我的 ubuntu 中已经安装了 jdk1.8_281，然而上面的最后一条命令中 <code>jdk1.8</code> 仅仅是保持传统惯例，并非表示系统必须安装 <code>jdk1.8</code>，但是我仍然推荐安装一个 jdk，版本随意，不要低于 <code>1.8</code>，安装 jdk 是为了能 Bazel 能 <code>build</code> java 代码。</p>
+<p><strong>GPU支持</strong></p>
+<p>确保安装以下 package</p>
+<ol>
+<li>NVIDIA GPU drivers</li>
+<li>CUDA</li>
+<li>cuDNN</li>
+</ol>
+<p>安装好后，将 CUPTI（包含在 CUDA toolkit 中即，安装了 CUDA 后，CUPTI 也已经安装好）的安装路径附加到 <code>LD_LIBRARY_PATH</code> 环境变量，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">export</span> <span class="token assign-left variable">LD_LIBRARY_PATH</span><span class="token operator">=</span><span class="token variable">$LD_LIBRARY_PATH</span>:/usr/local/cuda/extras/CUPTI/lib64<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>下载 tensorflow 源码，这一步时间较长，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">git</span> clone https://github.com/tensorflow/tensorflow.git
+<span class="token builtin class-name">cd</span> tensorflow<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>配置</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./configure<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>根据提示进行下一步操作。当然这里使用虚拟环境，执行以下命令进行配置而非上面的配置命令，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">python configure.py<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>区别是前者默认使用虚拟环境外部的路径，而后者使用虚拟环境内部的路径，当然无论哪种配置命令，都可以手动修改默认值。</p>
+<p><code>./configure</code> 命令执行结果展示</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./configure
+You have bazel <span class="token number">3.0</span>.0 installed.
+Please specify the location of python. <span class="token punctuation">[</span>Default is /usr/bin/python3<span class="token punctuation">]</span>: 
+
+
+Found possible Python library paths:
+  /usr/lib/python3/dist-packages
+  /usr/local/lib/python3.6/dist-packages
+Please input the desired Python library path to use.  Default is <span class="token punctuation">[</span>/usr/lib/python3/dist-packages<span class="token punctuation">]</span>
+
+Do you wish to build TensorFlow with OpenCL SYCL support? <span class="token punctuation">[</span>y/N<span class="token punctuation">]</span>: 
+No OpenCL SYCL support will be enabled <span class="token keyword">for</span> TensorFlow.
+
+Do you wish to build TensorFlow with ROCm support? <span class="token punctuation">[</span>y/N<span class="token punctuation">]</span>: 
+No ROCm support will be enabled <span class="token keyword">for</span> TensorFlow.
+
+Do you wish to build TensorFlow with CUDA support? <span class="token punctuation">[</span>y/N<span class="token punctuation">]</span>: Y
+CUDA support will be enabled <span class="token keyword">for</span> TensorFlow.
+
+Do you wish to build TensorFlow with TensorRT support? <span class="token punctuation">[</span>y/N<span class="token punctuation">]</span>: 
+No TensorRT support will be enabled <span class="token keyword">for</span> TensorFlow.
+
+Found CUDA <span class="token number">10.1</span> in:
+    /usr/local/cuda-10.1/targets/x86_64-linux/lib
+    /usr/local/cuda-10.1/targets/x86_64-linux/include
+Found cuDNN <span class="token number">7</span> in:
+    /usr/lib/x86_64-linux-gnu
+    /usr/include
+
+
+Please specify a list of comma-separated CUDA compute capabilities you want to build with.
+You can <span class="token function">find</span> the compute capability of your device at: https://developer.nvidia.com/cuda-gpus Each capability can be specified as <span class="token string">"x.y"</span> or <span class="token string">"compute_xy"</span> to include both virtual and binary GPU code, or as <span class="token string">"sm_xy"</span> to only include the binary code.
+Please note that each additional compute capability significantly increases your build <span class="token function">time</span> and binary size, and that TensorFlow only supports compute capabilities <span class="token operator">>=</span> <span class="token number">3.5</span> <span class="token punctuation">[</span>Default is: <span class="token number">3.5</span>,7.0<span class="token punctuation">]</span>: <span class="token number">6.1</span>
+
+
+Do you want to use clang as CUDA compiler? <span class="token punctuation">[</span>y/N<span class="token punctuation">]</span>: 
+nvcc will be used as CUDA compiler.
+
+Please specify <span class="token function">which</span> gcc should be used by nvcc as the <span class="token function">host</span> compiler. <span class="token punctuation">[</span>Default is /usr/bin/gcc<span class="token punctuation">]</span>: 
+
+
+Please specify optimization flags to use during compilation when bazel option <span class="token string">"--config=opt"</span> is specified <span class="token punctuation">[</span>Default is <span class="token parameter variable">-march</span><span class="token operator">=</span>native -Wno-sign-compare<span class="token punctuation">]</span>: 
+
+
+Would you like to interactively configure ./WORKSPACE <span class="token keyword">for</span> Android builds? <span class="token punctuation">[</span>y/N<span class="token punctuation">]</span>: 
+Not configuring the WORKSPACE <span class="token keyword">for</span> Android builds.
+
+Preconfigured Bazel build configs. You can use any of the below by adding <span class="token string">"--config=&lt;>"</span> to your build command. See .bazelrc <span class="token keyword">for</span> <span class="token function">more</span> details.
+    <span class="token parameter variable">--config</span><span class="token operator">=</span>mkl            <span class="token comment"># Build with MKL support.</span>
+    <span class="token parameter variable">--config</span><span class="token operator">=</span>monolithic     <span class="token comment"># Config for mostly static monolithic build.</span>
+    <span class="token parameter variable">--config</span><span class="token operator">=</span>ngraph         <span class="token comment"># Build with Intel nGraph support.</span>
+    <span class="token parameter variable">--config</span><span class="token operator">=</span>numa           <span class="token comment"># Build with NUMA support.</span>
+    <span class="token parameter variable">--config</span><span class="token operator">=</span>dynamic_kernels    <span class="token comment"># (Experimental) Build kernels into separate shared objects.</span>
+    <span class="token parameter variable">--config</span><span class="token operator">=</span>v2             <span class="token comment"># Build TensorFlow 2.x instead of 1.x.</span>
+Preconfigured Bazel build configs to DISABLE default on features:
+    <span class="token parameter variable">--config</span><span class="token operator">=</span>noaws          <span class="token comment"># Disable AWS S3 filesystem support.</span>
+    <span class="token parameter variable">--config</span><span class="token operator">=</span>nogcp          <span class="token comment"># Disable GCP support.</span>
+    <span class="token parameter variable">--config</span><span class="token operator">=</span>nohdfs         <span class="token comment"># Disable HDFS support.</span>
+    <span class="token parameter variable">--config</span><span class="token operator">=</span>nonccl         <span class="token comment"># Disable NVIDIA NCCL support.</span>
+Configuration finished<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>注意配置过程中，设置 <code>cuda=Y</code> 以启用 CUDA，并指定 CUDA 和 cuDNN 的版本，这是因为一台机器上可能装有多个 CUDA 或 cuDNN 版本。指定 CUDA 的计算力，例如我这里是 <code>6.1</code> 。 CUDA 的计算力可以到 <a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-gpus">官网</a> 上查询。</p>
+<p><strong>生成 pip 包</strong></p>
+<p>依然是在 tensorflow 目录下，使用 <code>bazel build</code> 生成 TensorFlow 2.x 包，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">bazel build <span class="token punctuation">[</span>--config<span class="token operator">=</span>option<span class="token punctuation">]</span> //tensorflow/tools/pip_package:build_pip_package<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>由于在 <code>./configure</code> 中启用了 <code>cuda</code>，故生成的包支持 GPU，当然也可以特别指定支持 GPU，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">bazel build <span class="token parameter variable">--config</span><span class="token operator">=</span>cuda <span class="token punctuation">[</span>--config<span class="token operator">=</span>option<span class="token punctuation">]</span> //tensorflow/tools/pip_package:build_pip_package<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>如果想生成 TensorFlow 1.x 版本，那么执行，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">bazel build <span class="token parameter variable">--config</span><span class="token operator">=</span>v1 <span class="token punctuation">[</span>--config<span class="token operator">=</span>option<span class="token punctuation">]</span> //tensorflow/tools/pip_package:build_pip_package<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>由于 bazel 生成 tensorflow 过程中会使用大量内存，如果内存不够大，那么为 <code>bazel build</code> 添加选项 <code>--local_ram_resources=2048</code></p>
+<p><code>GCC</code> 版本使用 <code>7.3</code>。</p>
+<p>bazel build 会生成名为 <code>build_pip_package</code> 的可执行文件，运行这个可执行文件会生成一个位于 <code>/tmp/tensorflow_pkg</code> 目录下的 <code>.whl</code> 包</p>
+<p>从发行版本分支生成：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>从 master 分支生成，使用 <code>--nightly_flag</code> 以便获取正确的依赖，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./bazel-bin/tensorflow/tools/pip_package/build_pip_package <span class="token parameter variable">--nightly_flag</span> /tmp/tensorflow_pkg<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>重新生成时，建议先执行 <code>bazel clean</code>。</p>
+<p>最后，安装包，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> /tmp/tensorflow_pkg/tensorflow-version-tags.whl<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>测试是否支持 GPU</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> tensorflow <span class="token keyword">as</span> tf
+tf<span class="token punctuation">.</span>config<span class="token punctuation">.</span>list_physical_devices<span class="token punctuation">(</span><span class="token string">'GPU'</span><span class="token punctuation">)</span>
+
+<span class="token comment"># successful NUMA node read from SysFS had negative value (-1), </span>
+<span class="token comment"># but there must be at least one NUMA node, so returning NUMA node zero</span>
+<span class="token comment"># [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>会出现上述 NUMA node 值为 -1 的警告，这个可以忽略，不用管它。代码中逻辑为，如果 NUMA node 读取值为负，那么返回 0。一种修改 NUMA node 的方法为（<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/44232898/memoryerror-in-tensorflow-and-successful-numa-node-read-from-sysfs-had-negativ">原帖</a>），</p>
+<p>Annoyingly, the numa_node setting is reset (to the value -1) for every time the system is rebooted. To fix this more persistently, you can create a crontab (as root).</p>
+<p>The following steps worked for me:</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 1) Identify the PCI-ID (with domain) of your GPU</span>
+<span class="token comment">#    For example: PCI_ID="0000.81:00.0"</span>
+lspci <span class="token parameter variable">-D</span> <span class="token operator">|</span> <span class="token function">grep</span> NVIDIA
+<span class="token comment"># 2) Add a crontab for root</span>
+<span class="token function">sudo</span> <span class="token function">crontab</span> <span class="token parameter variable">-e</span>
+<span class="token comment">#    Add the following line</span>
+@reboot <span class="token punctuation">(</span>echo <span class="token number">0</span> <span class="token operator">|</span> <span class="token function">tee</span> <span class="token parameter variable">-a</span> <span class="token string">"/sys/bus/pci/devices/&lt;PCI_ID>/numa_node"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1>4. PyTorch</h1>
+<p>下载源码</p>
+<pre class="line-numbers language-none"><code class="language-none">git clone https:&#x2F;&#x2F;github.com&#x2F;pytorch&#x2F;pytorch.git<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>更新源码</p>
+<pre class="line-numbers language-none"><code class="language-none">git reset --hard
+git pull origin master
+git submodule sync
+git submodule update --init --recursive<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>安装</p>
+<pre class="line-numbers language-none"><code class="language-none">python setup.py install<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>如果不想安装，仅仅编译生成，那么执行</p>
+<pre class="line-numbers language-none"><code class="language-none">python setup.py build<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>由于我这里安装了 Clang 和 llvm，设置了 <code>CPLUS_INCLUDE_PATH</code>，导致生成的过程中 include 到 llvm 的头文件，所以可以临时屏蔽 llvm 的头文件路径，</p>
+<pre class="line-numbers language-none"><code class="language-none">export CPLUS_INCLUDE_PATH&#x3D;&#39;&#39; &amp;&amp; python setup.py build<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>现在增加了 develop 模式，conda 环境下执行</p>
+<pre class="line-numbers language-none"><code class="language-none">cd [pytorch github project root path]
+python setup.py develop<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>这样只会生成一个位于 site-packages 中的 torch 的 egg-link，可以随时修改 pytorch 源码，而不用重装 pytorch。</p>
+<p>容器运行 pytorch-gpu</p>
+<pre class="line-numbers language-none"><code class="language-none">docker pull pytorch&#x2F;pytorch:1.7.1-cuda11.0-cudnn8-level
+docker run -p 9527:22 --gpus all -rm -itd --ipc&#x3D;host -v &#x2F;home&#x2F;xx&#x2F;xx:&#x2F;home&#x2F;xx&#x2F;xx --name pytorch pytorch&#x2F;pytorch:1.7.1-cuda11.0-cudnn8-level<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h2 id="4-1-安装-caffe2">4.1 安装 caffe2</h2>
+<p>安装 pytorch 时默认是不安装 caffe2 的，如要安装 caffe2，执行下述指令（linux）</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token assign-left variable">BUILD_CAFFE2</span><span class="token operator">=</span><span class="token number">1</span>
+python setup.py develop<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h2 id="4-2-安装问题">4.2 安装问题</h2>
+<p>问题 1：<strong>internal compiler error: Segmentation fault</strong></p>
+<p>可能是内存不够，降低线程数量，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token assign-left variable">MAX_JOB</span><span class="token operator">=</span><span class="token number">2</span> <span class="token comment"># 电脑性能越好，值可以越大。如果 2 也不行，就设置为 1</span>
+python setup.py develop<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>问题 2：<strong>最大打开文件的句柄数量不够</strong></p>
+<p>执行以下指令查看最大打开文件的句柄数量，通常是 1024</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">ulimit</span> <span class="token parameter variable">-a</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>pytorch 项目编译过程中，会有较大数量的文件，所以修改这个数值，打开 /etc/security/limits.conf 文件，加入如下两行</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">*                hard    nofile          <span class="token number">65535</span>
+*                soft    nofile          <span class="token number">65535</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>重启系统后再次执行 <code>ulimit -a</code> 查看。</p>
+<p>有时候重启系统，仍然未能修改成功，此时需要重新登录，</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">su</span> <span class="token operator">&lt;</span>username<span class="token operator">></span>
+<span class="token operator">&lt;</span>输入 password<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h1>5. 安装 mmdetection</h1>
+<p>以 conda 虚拟环境名称 <code>base</code> 为例，其中已经安装了 PyTorch，cudatoolkit 等包，还有一些包如<code>matplotlib, pillow, opencv</code> 等图像处理相关的包也需要安装，可以使用</p>
+<pre class="line-numbers language-none"><code class="language-none">conda list<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>查看。现在要安装 mmdetection，</p>
+<ol>
+<li>安装 mmcv，这是 open-mmlab 一众库的基础，</li>
+</ol>
+<pre class="line-numbers language-none"><code class="language-none">git clone https:&#x2F;&#x2F;github.com&#x2F;open-mmlab&#x2F;mmcv.git<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>进入根目录</p>
+<pre class="line-numbers language-none"><code class="language-none">cd mmcv<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>以开发模式安装，</p>
+<pre class="line-numbers language-none"><code class="language-none">MMCV_WITH_OPS&#x3D;1 pip install -e .<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>其中，MMCV_WITH_OPS 默认为 0，表示 cpu 模式下运行 mmcv（轻量级模式），为 1 时 启用 cuda 加速。<code>pip install -e .</code> 表示可编辑模型安装当前目录的库，等同于 <code>python setup.py develop</code>。</p>
+<p>下载 mmdetection 源码，</p>
+<pre class="line-numbers language-none"><code class="language-none">git clone https:&#x2F;&#x2F;github.com&#x2F;open-mmlab&#x2F;mmdetection.git<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>同样地，以开发模式安装，</p>
+<pre class="line-numbers language-none"><code class="language-none">cd mmdetection
+pip install -r requirements&#x2F;build.txt
+python setup.py develop<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<h1>6. JAX</h1>
+<p><a target="_blank" rel="noopener" href="https://jax.readthedocs.io/en/latest/">JAX 文档</a></p>
+<p><strong>pip installation: CPU</strong></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> <span class="token parameter variable">--upgrade</span> pip
+pip <span class="token function">install</span> <span class="token parameter variable">--upgrade</span> <span class="token string">"jax[cpu]"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p><strong>pip installation: GPU(CUDA)</strong></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> <span class="token parameter variable">--upgrade</span> pip
+<span class="token comment"># Installs the wheel compatible with CUDA 11 and cuDNN 8.2 or newer.</span>
+<span class="token comment"># Note: wheels only available on linux.</span>
+pip <span class="token function">install</span> <span class="token parameter variable">--upgrade</span> <span class="token string">"jax[cuda]"</span> <span class="token parameter variable">-f</span> https://storage.googleapis.com/jax-releases/jax_cuda_releases.html<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>注意，windows 下 pip 无法正常安装。</p>
+<p>JAX 的 GPU 支持要求：</p>
+<ol>
+<li>
+<p>CUDA 11.1 或者更新</p>
+</li>
+<li>
+<p>安装 JAX 预编译 wheels 需要的 cuDNN 版本：</p>
+<ul>
+<li>cuDNN 8.2 或更新</li>
+<li>cuDNN 8.0.5 或更新</li>
+</ul>
+</li>
+<li>
+<p>NVIDIA driver 需要是 CUDA 支持的最低版本以上</p>
+</li>
+</ol>
+<p>如果需要指定 JAX 所支持的 CUDA 版本，那么</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> <span class="token parameter variable">--upgrade</span> pip
+
+<span class="token comment"># Installs the wheel compatible with Cuda >= 11.4 and cudnn >= 8.2</span>
+pip <span class="token function">install</span> <span class="token string">"jax[cuda11_cudnn82]"</span> <span class="token parameter variable">-f</span> https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+<span class="token comment"># Installs the wheel compatible with Cuda >= 11.1 and cudnn >= 8.0.5</span>
+pip <span class="token function">install</span> <span class="token string">"jax[cuda11_cudnn805]"</span> <span class="token parameter variable">-f</span> https://storage.googleapis.com/jax-releases/jax_cuda_releases.html<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>请参考原文档以获取 JAX 的 CUDA 支持的最新版本！</p>
+<p>我本人是将 JAX 安装在与 tensorflow 同一个虚拟环境下，因为使用 JAX 时，图像的加载和预处理等还需要用到 tensorflow 丰富的功能。</p>
+<h1>7. 在线 GPU 环境</h1>
+<h2 id="7-1-google-colab">7.1 google colab</h2>
+<p><a target="_blank" rel="noopener" href="https://colab.research.google.com/">https://colab.research.google.com/</a></p>
+<h2 id="7-2-kaggle">7.2 kaggle</h2>
+<p><a target="_blank" rel="noopener" href="https://www.kaggle.com/code">https://www.kaggle.com/code</a></p>
+<h2 id="7-3-天池">7.3 天池</h2>
+<p><a target="_blank" rel="noopener" href="https://tianchi.aliyun.com/notebook-ai">https://tianchi.aliyun.com/notebook-ai</a></p>
+<h2 id="7-4-百度-AI-Studio">7.4 百度 AI Studio</h2>
+<p><a target="_blank" rel="noopener" href="https://aistudio.baidu.com/aistudio/projectoverview/public">https://aistudio.baidu.com/aistudio/projectoverview/public</a></p>
+<p>创建项目 -&gt; 启动环境 -&gt; 进入</p>
+<p>进入后可通过左侧 <code>环境</code> 选项进行切换环境</p>
+<h2 id="7-5-其他">7.5 其他</h2>
+<p>九天毕昇 <a target="_blank" rel="noopener" href="https://jiutian.10086.cn/edu/web#/home">https://jiutian.10086.cn/edu/web#/home</a></p>
+<p>启智 <a target="_blank" rel="noopener" href="https://www.openi.org.cn/">https://www.openi.org.cn/</a></p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2019/09/09/pytorch/DL-env/">https://jianjiansha.github.io/2019/09/09/pytorch/DL-env/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/DL/">
+                                    <span class="chip bg-color">DL</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/11/01/pytorch/PyTorch-mtd/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="PyTorch 方法总结">
+                        
+                        <span class="card-title">PyTorch 方法总结</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            1. Fold / Unfold
+Fold
+这是 torch.nn.Fold 类。
+首先我们来复习一下卷积过程，设输入 size 为 (N,C,H,W)，卷积 kernel size 为 (C,h,w)，碰撞系数为 d，padding 为 
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2019-11-01
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/PyTorch/">
+                        <span class="chip bg-color">PyTorch</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/08/27/dp/DP3/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/18.jpg" class="responsive-img" alt="Dynamic Programming (3)">
+                        
+                        <span class="card-title">Dynamic Programming (3)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            本篇接上一篇 DP2 讨论各种 DP 问题模型。
+流水作业问题 FLOWSHOP
+这是一个进程调度问题，每个进程有两个任务 A 和 B，B 必须在 A 完成之后才能执行。任务置于独立的处理器上执行，选择进程执行顺序，使得总执行时间（损失）最
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-08-27
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/math/">
+                        <span class="chip bg-color">math</span>
+                    </a>
+                    
+                    <a href="/tags/DP/">
+                        <span class="chip bg-color">DP</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

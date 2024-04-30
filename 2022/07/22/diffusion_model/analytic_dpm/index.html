@@ -1,0 +1,1455 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Analytic-DPM, SJJ">
+    <meta name="description" content="论文：Analytic-DPM: An analytic estimate of the optimal reverse variance in diffusion probabilistic models
+源码：baofff/Analyt">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Analytic-DPM | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/23.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Analytic-DPM</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/diffusion-model/">
+                                <span class="chip bg-color">diffusion model</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-07-22
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2201.06503">Analytic-DPM: An analytic estimate of the optimal reverse variance in diffusion probabilistic models</a></p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/baofff/Analytic-DPM">baofff/Analytic-DPM</a></p>
+<h1>1. 简介</h1>
+<p>这篇论文作者得到 DPM 的最佳反向过程方差以及相应的最佳 KL 散度的解析解形式，基于此，提出 Analytic-DPM，提高一个预训练 DPM 的采样效率，而不用进行额外训练。</p>
+<p>优点：提高 log-likelihood，生成高质量样本，采样速度提升 20x ~ 80x 。</p>
+<h1>2. 背景</h1>
+<p>本文的 $x_n$ 表示向量。</p>
+<p>DDPM 的前向过程是马尔科夫链，</p>
+<p>$$q_M(x_{1:N}|x_0)=\prod_{n=1}^N q_M(x_n|x_{n-1}), \quad q_M(x_n|x_{n-1})=\mathcal N(x_n|\sqrt {\alpha_n} x_{n-1}, \beta_n I) \tag{1}$$</p>
+<p>其中 $\beta_n \in (0, 1)$ 是 step $n$ 中噪声方差，且 $\alpha_n=1-\beta_n$。<a href="/2022/07/21/diffusion_model/ddim">DDIM</a> 中介绍了一种更为一般化的非马尔可夫过程，$\lambda_{1:N}\in \mathbb R_{\ge 0}^N$ 表示反向过程的噪声方差，这里为了方便简要列出非马尔可夫过程，不用再翻看 DDIM 论文，</p>
+<p>$$q_{\lambda}(x_{1:N}|x_0)=q_{\lambda} (x_N|x_0) \prod_{n=2}^N q_{\lambda}(x_{n-1}|x_n, x_0)<br>
+\\ q_{\lambda}(x_N|x_0)=\mathcal N(x_N|\sqrt {\overline \alpha_N} x_0, \overline \beta_N I)<br>
+\\ q_{\lambda}(x_{n-1}|x_n,x_0)=\mathcal N(x_{n-1}|\tilde \mu_n(x_n, x_0), \lambda_n^2 I)<br>
+\\ \tilde \mu_n(x_n,x_0)=\sqrt {\overline \alpha_{n-1}} x_0 + \sqrt {\overline \beta_{n-1}-\lambda_n^2} \cdot \frac {x_n - \sqrt {\overline \alpha_n}x_0}{\sqrt {\overline \beta_n}} \tag{2}$$</p>
+<p>其中 $\overline \alpha_n = \prod_{i=1}^n \alpha_i, \ \overline \beta_n = 1-\overline \alpha_n$。</p>
+<p>DDIM 中非马尔可夫过程：$\mathbf x_{n-1}$ 依赖于 $\mathbf x_0$ 和 $\mathbf x_n$，与 DDPM 中 $\mathbf x_n$ 依赖 $\mathbf x_{n-1}$ 不同，故给定训练样本数据 $\mathbf x_0$ 后，还需要事先确定 $\mathbf x_N|\mathbf x_0$ 的分布，如 (2) 中第二个等式所示。</p>
+<p><a href="/2022/07/21/diffusion_model/ddim">DDIM</a> 中已经讨论过，当</p>
+<p>$$\lambda_n^2 = \frac {\overline \beta_{n-1}}{\overline \beta_n} \beta_n \tag{2.1}$$</p>
+<p>时，非马尔可夫过程退化为 DDPM。</p>
+<p>另一种特殊情况是 $\lambda_n=0$ 时，为确定性 DDIM。</p>
+<p>(2) 式可推导出 $q_{\lambda}(x_n|x_0)=\mathcal N(x_n|\sqrt {\overline \alpha_n} x_0, \overline \beta_n I)$，与 $\lambda$ 无关，这表明模型对于不同的 $\lambda$ 不需要重新训练，因为训练扩散模型，只是为了能得到 $\epsilon _ {\theta}$，这是模型对 $\epsilon$ 的预测，而根据前向过程 $x _ n=\sqrt {\overline \alpha _ n} x _ 0 + \sqrt {1-\overline \alpha _ n} \epsilon$，所以训练扩散模型时，训练输入为 $x _ n$，target 为 $\epsilon$，输出为 $\epsilon _ {\theta}$，均与 $\lambda$ 无关。</p>
+<p>下文为了表述简单，忽略下标 $\lambda$。</p>
+<p>(2) 式的反向过程定义为一个马尔可夫过程，反向过程为</p>
+<p>$$p(x_{0:N})=p(x_N) \prod_{n=1}^N p(x_{n-1}|x_n), \quad p(x_{n-1}|x_n)=\mathcal N(x_{n-1}|\mu_n(x_n), \sigma_n^2I) \tag{3}$$</p>
+<p>根据 <a href="/2022/06/27/diffusion_model/ddpm">DDPM</a> 分析，令 $p(x_{n-1}|x_n)$ 逼近 $q(x_{n-1}|x_n,x_0)$，</p>
+<p>$$q( x_{n-1}| x_n,  x_0)=\mathcal N( x_{n-1}; \tilde {\mu}_n( x_n,  x_0), \tilde {\beta}_n I) \tag {4}$$</p>
+<p>其中期望经过贝叶斯定理计算为</p>
+<p>$$\tilde {\mu} _ t(\mathbf x_t, \mathbf x_0)=\frac {\sqrt {\overline \alpha_{t-1}}\beta_t}{1-\overline \alpha_t}\mathbf x_0+\frac {\sqrt {\alpha_t}(1-\overline \alpha_{t-1})}{1-\overline \alpha_t} \mathbf x_t \tag{5}$$</p>
+<p>事实上，当满足 (2.1) 式时，(2) 式具例化为 (5) 式。</p>
+<p>根据 <a href="diffusion_model/2022/07/26/score_based_SDE">Score-based SDE</a> 中的 (9) 式可知（注意 $q_{\lambda}(x_n|x_0)=\mathcal N(x_n|\sqrt {\overline \alpha_n} x_0, \overline \beta_n I)$ 就是前向过程），</p>
+<p>$$\mathbf s_{\theta}( x_n,n)=\nabla_{ x} \log q_{\lambda}( x| x_0)|_{ x= x_n}=\frac {\sqrt {\overline \alpha_n}  x_0 - x_n}{\overline \beta_n} \tag{6}$$</p>
+<p>变换得</p>
+<p>$$x_0 = \frac 1 {\overline \alpha_n} (\overline \beta_n \mathbf s_{\theta}(x_n, n) + x_n) \tag{7}$$</p>
+<p>代入 (5) 式或者 (2) 式，得 $p(x_{n-1}|x_n)$ 的期望为</p>
+<p>$$\mu_n(x_n)=\tilde \mu_n \left(x_n, \frac 1 {\sqrt {\overline \alpha_n}}(x_n+ {\overline \beta_n} \mathbf s_{\theta}(x_n, n))\right) \tag{8}$$</p>
+<p>训练目标为最小化负对数似然</p>
+<p>$$\min \mathbb E_{q(x_0)}[-\log p_{\theta}(x_0)] \tag{9}$$</p>
+<p>经过推导可知，等价于最小化变分下限 $L_{vb}$，如下（推导过程见 <a href="/2022/06/27/diffusion_model/ddpm">DDPM</a>），</p>
+<p>$$L_{vb}=\mathbb E_q \left[-\log p(x_0|x_1) + \sum_{n=2}^N D_{KL}(q(x_{n-1}|x_0,x_n)||p(x_{n-1}|x_n))+D_{KL}(q(x_N|x_0)||p(x_N)) \right] \tag{10}$$</p>
+<h1>3. 反向过程方差</h1>
+<p>(9) 式表示的训练目标其实等价于</p>
+<p>$$\min_{(\mu_n, \sigma _ n ^ 2) _ {n=1} ^ N}  \ L _ {vb} \Leftrightarrow  \min_{(\mu_n, \sigma_n ^ 2) _{n=1}^N}  \ D _ {KL} (q(x _ {0:N})||p(x _ {0:N})) \tag{11}$$</p>
+<p>根据 <a href="/2022/06/27/diffusion_model/ddpm">DDPM</a> 中的 (9) 式，</p>
+<p>$$\begin{aligned}L_{vb}&amp;=\mathbb E_q[-\log \frac {p(\mathbf x_{0:N})}{q(\mathbf x_{1:N}|\mathbf x_0)}]<br>
+\&amp;=\mathbb E_q[-\log \frac {p(\mathbf x_{0:N}) q(\mathbf x_0)}{q(\mathbf x_{0:N})}]\&amp;=D_{KL}(q_{0:N}||p(\mathbf x_{0:N}))+H(q(\mathbf x_0))<br>
+\end{aligned}$$</p>
+<p>由于 $H(q(\mathbf x_0))$ 与 $\mu_n, \ \sigma_n$ 无关，所以 (11) 式成立。</p>
+<p>实际应用中，为了提高生成样本质量，不直接优化 $L _ {vlb}$，而是采用下式得分函数的 MSE 进行优化，</p>
+<p>$$\min _ {s _ n} \mathbb E _ n \overline \beta _ n  \mathbb E _ {q _ n (x _ n)} ||s _ n (x _ n) - \nabla _ {x _ n} \log q _ n (x _ n)|| ^ 2= \mathbb E _ {n, x _ 0, \epsilon} || \epsilon + \sqrt {\overline \beta _ n} s _ n(x _ n) || ^ 2 + c \tag{12}$$</p>
+<p>上式推导中，因为 $q _ n (x _ n) = \mathcal N(\sqrt {\overline \alpha _ n} x _ 0, \overline \beta _ n I)$，所以 $\nabla _ {x _ n} \log q _ n (x _ n) = -\frac {x _ n - \sqrt {\overline \alpha _ n} x _ 0}{\overline \beta _ n}$，而 $x _ n$ 取值为 $x _ n = \sqrt {\overline \alpha _ n} x _ 0 + \sqrt {\overline \beta _ n} \epsilon$ 。由于消去了 $x _ n$，所以 (12) 式等号右端求期望时增加 $x _ n$ 和 $\epsilon$ 两个随机变量。</p>
+<p>注意 (12) 式没有学习反向转移分布 (3) 式的方差 $\sigma _ n ^2$，在之前的论文中，$\sigma ^ 2$ 都是手动选取值，例如取前向转移的方差 $\beta _ n$，或者后验分布 $q(x _ {n-1}|x _ n, x _ 0)$ 的方差 $\tilde \beta _ n$，这分别对应方差的上下限，或者是通过模型学习一个向量 $v$，然后对上下限进行插值 $\exp (v \log \beta _ t + (1-v) \log \tilde \beta _ t)$ 。DDIM 中则取 $\sigma _ n ^ 2 = \lambda _ n ^ 2$ 。</p>
+<p>作者认为这些手动选择的值不是 (11) 式的最佳解，从而导致性能不是最优。</p>
+<h2 id="3-1-反向方差的最优解析解">3.1 反向方差的最优解析解</h2>
+<p><strong># 定理 1</strong> 使用得分表示 (11) 式的最优解</p>
+<p>(11) 式的最优解即，最优期望 $\mu _ n ^ {\star} (x _ n)$ 和最优方差 $\sigma ^ {\star}$ 有解析形式，是关于得分函数的解析形式，如下所示，</p>
+<p>$$\mu_n ^ {\star}(x_n) = \tilde {\mu} _ n \left(x _ n,\frac 1 {\sqrt {\overline \alpha_n}}(x_n+ {\overline \beta_n} \nabla _ {x_n} \log q _ n(x _ n))\right) \tag{13}$$</p>
+<p>$$\sigma_n^{\star 2}=\lambda_n^2 + \left( \sqrt {\frac {\overline \beta_n}{\alpha_n}} - \sqrt {\overline \beta_{n-1}-\lambda_n^2} \right) ^ 2 \left(1-\overline \beta_n \mathbb E_{q_n(x_n)} \frac {|\nabla_{x_n} \log q_n(x_n)|^2}{d} \right) \tag{14}$$</p>
+<p>其中 $q _ n(x _ n)$ 是前向过程的边缘分布，$d$ 是数据维度，例如图像维度为 $3 \times H \times W$ 。</p>
+<p>当 $\lambda _ n ^ 2 = \tilde \beta _ n$ 时，定理 1 可以进一步简化为 DDPM 前向过程，详情见附录 D。也可以将定理 1 扩展到连续型 timesteps，此时相应的最佳期望和最佳方差也是关于得分函数的解析形式，见附录 E.1 。</p>
+<p>定理 1 表明，最佳反向过程的方差 $\sigma _ n ^ {\star 2}$ 在给定一个预先训练好的 score-based model $s _ n (x _ n)$ 之后不需要额外的训练，实际上，根据 (14) 式，要计算 $\sigma _ n ^ {\star 2}$，首先估计 $|| \nabla _ {x _ n} \log q _ n (x _ n)|| ^ 2 / d$ 的期望，使用模型得分代替得分函数 $\nabla _ {x _ n} \log q _ n (x _ n)$，期望计算使用蒙特卡洛估计，对 $x _ n$ 采样 $M$ 次，计算每个样本通过模型后的得分 $s _ n (x _ {n,m})$，那么蒙特卡洛估计为</p>
+<p>$$\Gamma _ n = \frac 1 M \sum _ {m=1} ^ M \frac {|| s _ n (x _ {n, m})||^2} d, \quad x _ {n,m} \sim q _ n (x _ n) \tag{15}$$</p>
+<p>对于 $N$ 个 timesteps，计算 $\Gamma = (\Gamma _ 1, \ldots, \Gamma _ N)$ 。对一个预训练好的模型，一次性计算好 $\Gamma$ 即可。附录 H.1 讨论了 $\Gamma$ 计算成本。 根据 (14) 式，可知 $\sigma _ n ^ {\star 2}$ 的估计为</p>
+<p>$$\hat \sigma _ n ^ 2 = \lambda _ n ^ 2 + \left (\sqrt {\frac {\overline \beta _ n} {\alpha _ n}} - \sqrt {\overline \beta _ {n-1} - \lambda _ n ^ 2} \right) ^ 2 (1-\overline \beta _ n \Gamma _ n) \tag{16}$$</p>
+<p>图 1 (a) ，作者画出了 DDPM 基于 CIFAR10 数据集训练的模型，然后估计方差得到 $\hat \sigma _ n ^ 2$，并画出了 $\beta _ n$ 和 $\tilde \beta _ n$（这两者作为 baseline 方便对比），在 timestep 较小的时候，这三者相差较大。图 1 (b) 说明对 $L _ {vb}$ 的每一项（参见 (10) 式），$\hat \sigma _ n ^ 2$ 方案都比 baselines 更好，尤其在 timestep 较小时。在其他数据集熵，作者也得到相似的结果（见附录 G.1）。作者发现，估计 $\Gamma$ 时，只需要较小的蒙特卡洛样本数，例如 $M=10,100$ ，性能与大 $M$ 的估计值差不多（见附录 G.2）。在附录 H.2 中作者讨论了使用 $\hat \sigma _ n ^ 2$ 后 $L _ {vb}$ 的随机性。</p>
+<p><img src="/images/diffusion_model/analytic_dpm_1.png" alt=""></p>
+<center>图 1. </center>
+<h2 id="3-2-讨论">3.2 讨论</h2>
+<p>我们这里讨论一下最佳反向期望和方差。</p>
+<p>目标优化问题为 (11) 式，以下有两种方案解决 (11) 式优化问题。</p>
+<h3 id="3-2-1-方法一">3.2.1 方法一</h3>
+<p>将 $L _ {vb}$ 展开为 (10) 式，</p>
+<p>对于最后一项 $D _ {KL}(q(x _ N|x _ 0)||p(x _ N))$，由于 $p(x _ N)=\mathcal N(x _ N|\mathbf 0,I)$，$q (x _ N|x _ 0)=\mathcal N(x _ N|\sqrt {\overline \alpha _ N} x _ 0, \overline \beta _ N I)$ 均为已知，可看作为常量。</p>
+<p>对于中间项 $D_{KL}(q(x_{n-1}|x_0,x_n)||p(x_{n-1}|x_n))$，最优解处必然是，$p(x _ {n-1}|x _ n)$ 与 $q(x _ {n-1}|x _ 0, x _ n)$ 相同，而后者分布见 (2) 式，所以 $p(x _ {n-1}|x _ n)$ 的期望应该也是 $\tilde \mu _ n(x _ n, x _ 0)$，然而反向（采样）过程中，$x _ 0$ 未知，所以根据</p>
+<p>$$\nabla _ {x _ n} q _ n (x _ n) = - \frac {x _ n - \sqrt {\overline \alpha _ n} x _ 0} {\overline \beta _ n}$$</p>
+<p>变换得</p>
+<p>$$x _ 0 = \frac 1 {\sqrt {\overline \alpha _ n}}(x _ n + \overline \beta _ n \nabla _ {x _ n} q _ n (x _ n))$$</p>
+<p>这样就得到 (13) 式 $\mu _ n ^ {\star}$ 。</p>
+<p>$p(x _ {n-1}|x _ n)$ 的方差也应该与 $q(x _ {n-1}|x _ 0, x _ n)$ 相同，即方差为 $\lambda _ n ^ 2$。</p>
+<p>对于第一项 $\mathbb E_q (-\log p(x_0|x_1))$，最小值需要满足 $p(x _ 0|x _ 1)=q(x _ 0|x _ 1)$，而 $q(x _ 0|x _ 1)$ 未知，在 DDPM 中，直接简单的使用 $q(x _ 0|x _ 1, \frac 1 {\sqrt {\overline \alpha _ 1}} (x _ 1 - \sqrt {1-\overline \alpha _ 1} \epsilon))$ 表示 $q(x _ 0|x _ 1)$。这么处理，并不能保证 $L _ {vb}$ 最小。</p>
+<h3 id="3-2-2-方法二">3.2.2 方法二</h3>
+<p>方法二就是本文的最佳期望和方差的推导。核心是 Lemma 9，求的是 $D _ {KL}(q (x _ {n-1}|x _ n)||p(x _ {n-1}|x _ n))$ 的最小值，而不是方法一中的 $D_{KL}(q(x_{n-1}|x_0,x_n)||p(x_{n-1}|x_n))$ 的最小值，这样就不再出现方法一中的 $\mathbb E_q (-\log p(x_0|x_1))$ 这项，而是全部统一为 $N$ 个 $D _ {KL}(q (x _ {n-1}|x _ n)||p(x _ {n-1}|x _ n))$ 项。</p>
+<h2 id="3-2-最优反向方差的边界">3.2 最优反向方差的边界</h2>
+<p>根据 (14) 和 (16) 式，$\hat \sigma _ n ^ 2$ 的估计偏差为</p>
+<p>$$|\sigma _ n ^ {\star 2} - \hat \sigma _ n ^ 2| = \left (\sqrt {\frac {\overline \beta _ n} {\alpha _ n}} - \sqrt {\overline \beta _ {n-1} - \lambda _ n ^ 2} \right) ^ 2 \overline \beta _ n |\Gamma _ n - E _ {q _ n (x _ n)} \frac {||\nabla _ {x _ n} \log q _ n(x _ n)|| ^ 2} d| \tag{17}$$</p>
+<p>上式中，右边差的绝对值部分为近似误差，左边则是系数。由于使用模型得分近似得分函数，所以这部分的近似误差是不可约简的，同时如果 timesteps 步数较小，那么系数会较大，这里简单解释一下：$\beta_n$ 的起始截止范围为 $10 ^ {-4} \cdot \frac {1000} N$ 和 $0.01 \cdot \frac {1000} N$，$\alpha _ n = 1-\beta _ n$，$\overline \alpha _ n = \prod _ {i=1} ^ n \alpha _ i, \ \overline \beta _ n = 1- \overline \alpha _ n$，当 $N$ 减小，$\beta _ n$ 增大，$\alpha _ n$ 减小，$\overline \alpha _ n$ 减小，$\overline \beta _ n$ 增大，(17) 式系数部分中，$\overline \beta _ n/\alpha _ n=1/\alpha _ n - \overline \alpha _ {n-1}$，$\overline \beta _ {n-1}=1-\overline \alpha _ {n-1}$，前者比后者随 $N$ 减小而增加的幅度更大，因为多了一个 $1/\alpha _ n$，所以系数部分的差的平方 $(\cdot) ^ 2$ 也增大，所以系数增大，最终导致偏差 (17) 式增大，详见第 4 节内容。</p>
+<p>为了降低偏差，首先推导出 $\sigma _ n ^ {\star 2}$ 的边界，然后将估计 $\hat \sigma _ n ^ 2$ clip 到边界内。注意，边界与数据分布 $q(x _ 0)$ 无关。</p>
+<p><strong># 定理 2</strong> 最佳反向方差的边界</p>
+<p>$$\lambda _ n ^ 2 \le \sigma _ n ^ {\star 2} \le \lambda _ n ^ 2 + \left(\sqrt {\frac {\overline \beta _ n} {\alpha _ n}} - \sqrt {\overline \beta _ {n-1} - \lambda _ n ^ 2} \right) ^ 2 \tag{18}$$</p>
+<p>如果我们进一步假设 $q(x _ 0)$ 是一个在 $[a,b]^d$ 内的有界分布，这里 $d$ 是数据维度，那么方差上限变为</p>
+<p>$$\sigma _ n ^ {\star 2} \le \lambda _ n ^ 2 + \left(\sqrt {\overline \alpha _ {n-1}} - \sqrt {\overline \beta _ {n-1} - \lambda _ n ^ 2} \right) ^ 2 \left(\frac {b-a} 2\right) ^ 2 \tag{19}$$</p>
+<p>定理 2 表明 $\lambda _ n ^ 2$ 是下限，例如 DDPM 中 $\lambda _ n ^ 2 = \tilde \beta _ n$ （回顾 DDPM 中提到 $\tilde \beta _ n$ 和 $\beta _ n$ 分别是下限和上限）。图 1 (a) 与定理 2 一致。</p>
+<h1>4. 最佳轨迹的解析估计</h1>
+<p>full timesteps 步数 $N$ 太大，使得 inference 太慢，考虑构建一个较短的前向过程 $q(x _ {\tau _ 1}, \cdots, x _ {\tau _ K}|x _ 0)$，轨迹为 ${\color{red}1 = \tau _ 1} &lt; \cdots &lt; {\color{red}\tau _ K = N}$ 共 $K$ 个 timesteps，$K$ 可以明显小于 $N$，这样可以加快 inference。较短过程定义如下</p>
+<p>$$\begin{aligned}q(x _ {\tau _ 1}, \ldots, x _ {\tau _ K}|x _ 0) &amp;= q(x _ {\tau _ K}|x _ 0)\prod _ {k=2} ^ K q(x _ {\tau _ {k-1}}|x _ {\tau _ k}, x _ 0)<br>
+\\ q(x _ {\tau _ {k-1}}|x _ {\tau _ k}, x _ 0) &amp;= \mathcal N(x _ {\tau _ {k-1}}|\tilde \mu _ {\tau _ {k-1}|\tau _ k} (x _ {\tau _ k}, x _ 0),  \lambda _ {\tau _ {k-1}|\tau _ k} ^ 2 I)<br>
+\\ \tilde \mu _ {\tau _ {k-1}|\tau _ k} (x _ {\tau _ k}, x _ 0) &amp;= \sqrt {\overline \alpha _ {\tau _ {k-1}}} x _ 0 + \sqrt {\overline \beta _ {\tau _ {k-1}} - \lambda _ {\tau _ {k-1}|\tau _ k} ^ 2} \cdot \frac {x _ {\tau _ k} - \sqrt {\overline \alpha _ {\tau _ k}} x _ 0} {\sqrt {\overline \beta _ {\tau _ k}}}<br>
+\end{aligned} \tag{20}$$</p>
+<p>反向过程为 $p(x _ 0, x _ {\tau _ 1}, \cdots, x _ {\tau _ K})=p(x _ {\tau _ K}) \prod _ {k=1} ^ K p(x _ {\tau _ {k-1}}|x _ {\tau _ k})$，其中反向转移过程定义为</p>
+<p>$$p(x _ {\tau _ {k-1}}|x _ {\tau _ k})=\mathcal N(x _ {\tau _ {k-1}}|\mu _ {\tau _ {k-1}|\tau _ k} (x _ {\tau _ k}), \sigma _ {\tau _ {k-1}|\tau _ k} ^ 2 I) \tag{21}$$</p>
+<p>以上均与使用 $N$ 个 timesteps 情况类似，仿照上文 (2) 和 (3) 式写出，注意下标 $\tau _ {k-1} | \tau _ k$ 表示时刻 $\tau _ {k-1}$ 与上一时刻 $\tau _ k$ 关联（反向过程）。根据定理 1，最佳（指具有最小 KL） $p ^ {\star}(x _ {\tau _ {k-1}}|x _ {\tau _ k})$ 的期望和方差为</p>
+<p>$$\mu _ {\tau _ {k-1}|\tau _ k} ^ {\star} (x _ {\tau _ k})=\tilde \mu _ {\tau _ {k-1}|\tau _ k} \left(x _ {\tau _ k}, \frac 1 {\sqrt {\overline \alpha _ {\tau _ k}}} (x _ {\tau _ k} + \overline \beta _ {\tau _ k} \nabla _ {x _ {\tau _ k}} \log q(x _ {\tau _ k}))\right) \tag{22}$$</p>
+<p>$$\sigma _ {\tau _ {k-1}|\tau _ k} ^ {\star 2}=\lambda _ {\tau _ {k-1}|\tau _ k} ^ 2 + \left(\sqrt {\frac {\overline \beta _ {\tau _ k}}{\alpha _ {\tau _ k|\tau _ {k-1}}}} - \sqrt {\overline \beta _ {\tau _ {k-1}} - \lambda _ {\tau _ {k-1}|\tau _ k} ^ 2} \right) ^ 2 \left(1 - \overline \beta _ {\tau _ k} E _ {q (x _ {\tau _ k}) } \frac {||\nabla \log q (x _ {\tau _ k})|| ^ 2} d \right)\tag{23}$$</p>
+<p>其中 $\alpha _ {\tau _ k | \tau _ {k-1}}:= \overline \alpha _ {\tau _ k} / \overline \alpha _ {\tau _ {k-1}}$ ，这是因为根据 Lemma 13 的证明过程可知，</p>
+<p>$$\alpha _ {\tau _ k | \tau _ {k-1}}=\sqrt {\overline \alpha _ {\tau _ {k-1}}} \cdot \sqrt {\frac {\overline \beta _ {\tau _ k}}{\overline \alpha _ {\tau _ k}}}= \sqrt {\frac {\overline \beta _ {\tau _ k}}{\overline \alpha _ {\tau _ k}/\overline \alpha _ {\tau _ {k-1}}}} \tag {24}$$</p>
+<p>注意 $\alpha _ {\tau _ k | \tau _ {k-1}}$ 与 $\alpha _ n$ 是两种不同的概念。 这里使用 DDIM 的前向过程，更多的是关注并使用 $\overline \alpha _ {\tau _ k}$ 和 $\overline \beta _ {\tau _ k}$， $\alpha _ {\tau _ k | \tau _ {k-1}}$ 则是根据 Lemma 13 推导出来的概念，与原生的 $\alpha _ n$ 不同，而 $\overline \alpha _ {\tau _ k}$ 和 $\overline \beta _ {\tau _ k}$ 则分别与原生的 $\overline \alpha _ n$ 和 $\overline \beta _ n$ 相同。</p>
+<p>$\overline \alpha _ {\tau _ k}=\prod _ {i=1} ^ {\tau _ k} \alpha _ i$，$\overline \beta _ {\tau _ k}=1-\overline \alpha _ {\tau _ k}$，且 (20) 式可以保证前向边缘分布为 $q(x _ {\tau _ k}|x _ 0) = \mathcal N(x _ {\tau _ k}| \sqrt {\overline \alpha _ {\tau _ k}} x _ 0, \overline \beta _ {\tau _ k} I)$，这与使用 $N$ 个 timesteps 时在相同的 $\tau _ k$ 时刻的前向边缘分布相同。</p>
+<p>根据定理 2，$\sigma _ {\tau _ {k-1}|\tau _ k} ^ {\star 2}$ 有类似的边界，详情参见附录 C。根据 (16) 式，$\sigma _ {\tau _ {k-1}|\tau _ k} ^ {\star 2}$ 的估计为</p>
+<p>$$\hat \sigma _ {\tau _ {k-1}|\tau _ k} ^ 2 = \lambda _ {\tau _ {k-1}|\tau _ k} ^ 2 + \left (\sqrt {\frac {\overline \beta _ {\tau _ k}} {\alpha _ {\tau _ k|\tau _ {k-1}}}} - \sqrt {\overline \beta _ {\tau _ {k-1}} - \lambda _ {\tau _ {k-1}|\tau _ k} ^ 2} \right ) ^ 2 (1 - \overline \beta _ {\tau _ k} \Gamma _ {\tau _ k}) \tag{25}$$</p>
+<p>其中 $\Gamma$ 定义为 (15) 式，选用不同的轨迹，$\Gamma$ 都相同，所以只需要一次性事先计算好就行。</p>
+<p>现在优化目标变为</p>
+<p>$$\min _ {\tau _ 1, \cdots, \tau _ K} D _ {KL}(q(x _ 0, x _ {\tau _ 1}, \cdots, x _ {\tau _ K})||p ^ {\star}(x _ 0, x _ {\tau _ 1}, \cdots, x _ {\tau _ K})) = \frac d 2 \sum _ {k=2} ^ K J(\tau _ {k-1}, \tau _ k) + c \tag{26}$$</p>
+<p>其中 $J(\tau _ {k-1}, \tau _ k)=\log (\sigma _ {\tau _ {k-1}|\tau _ k} ^ {\star 2}/ \lambda _ {\tau _ {k-1}|\tau _ k} ^ 2)$，$c$ 是与轨迹 $\tau$ 无关的常量。</p>
+<p>(26) 式这个优化问题是一个经典的最小成本路径问题（动态规划），节点为 $\{1, 2, \cdots, N \}$，从 $s$ 到 $t$ 的边具有成本 $J(s, t)$ ，优化目标是找到一个包含 $K$ 个节点的最小成本路径，这 $K$ 个节点，固定从 $1$ 开始到节点 $N$ 节点。</p>
+<p>这个动态规划问题的求解见附录 B。</p>
+<p>我们也可以将 (26) 式扩展到连续 timesteps 情况，此时最佳 KL 散度也可以分解为各个 terms，每个 term 由得分函数确定。关于这个扩展的讨论见附录 E.2 。</p>
+<h1>A. 推导证明</h1>
+<h2 id="A-1-Lemmas">A.1 Lemmas</h2>
+<p><strong># Lemma 1.</strong> 与高斯分布的交叉熵</p>
+<p>假设 $q(x)$ 的期望和方差分别为 $\mu _ q, \ \Sigma _ q$，且 $p(x) = \mathcal N(x|\mu, \Sigma)$ 是一高斯分布，那么 $q$ 与 $p$ 的交叉熵等于 $\mathcal N(x|\mu _ q, \Sigma _ q)$ 与 $p$ 的交叉熵，即</p>
+<p>$$\begin{aligned}H(q, p)&amp;=H(\mathcal N(x|\mu _ q, \Sigma _ q), p)<br>
+\\ &amp;= \frac 1 2 \log [(2\pi) ^ d|\Sigma|] + \frac 1 2 tr(\Sigma _ q \Sigma ^ {-1}) + \frac 1 2 (\mu _ q - \mu) ^ {\top} \Sigma ^ {-1} (\mu _ q - \mu)<br>
+\end{aligned}$$</p>
+<p>注：$q$ 是任意类型分布，不一定是高斯分布。</p>
+<p>证明：</p>
+<p>根据交叉熵定义，</p>
+<p>$$\begin{aligned}H(q, p) &amp;= - E _ {q(x)} \log p(x) = - E _ {q(x)}\left[ \log \frac 1 {\sqrt {(2\pi) ^ d |\Sigma|}} - \frac {(x-\mu) ^ {\top} \Sigma ^ {-1} (x-\mu)} 2 \right]<br>
+\\ &amp;=\frac 1 2 \log[(2\pi) ^ d |\Sigma|] + \frac 1 2 E _ {q(x)} (x-\mu) ^ {\top} \Sigma ^ {-1} (x-\mu)<br>
+\\ &amp; \stackrel{4}=\frac 1 2 \log[(2\pi) ^ d |\Sigma|] + \frac 1 2 E _ {q(x)} tr( (x-\mu)(x-\mu) ^ {\top} \Sigma ^ {-1})<br>
+\\ &amp;=\frac 1 2 \log[(2\pi) ^ d |\Sigma|] + \frac 1 2 tr( E _ {q(x)} [(x-\mu)(x-\mu) ^ {\top} ]\Sigma ^ {-1})<br>
+\\ &amp; \stackrel{6}=\frac 1 2 \log[(2\pi) ^ d |\Sigma|] + \frac 1 2 tr( E _ {q(x)} [(x-\mu _ q)(x-\mu _ q) ^ {\top} + (\mu _ q - \mu)(\mu _ q - \mu) ^ {\top}]\Sigma ^ {-1})<br>
+\\ &amp;=\frac 1 2 \log[(2\pi) ^ d |\Sigma|] + \frac 1 2 tr( [\Sigma _ q + (\mu _ q - \mu)(\mu _ q - \mu) ^ {\top}]\Sigma ^ {-1})<br>
+\\ &amp;=\frac 1 2 \log[(2\pi) ^ d |\Sigma|] + \frac 1 2 tr(\Sigma _ q \Sigma ^ {-1}) + \frac 1 2 (\mu _ q - \mu) ^ {\top}\Sigma ^ {-1} (\mu _ q - \mu) \qquad \qquad \qquad \square<br>
+\end{aligned}$$</p>
+<p>以上推导过程中，第四个等号关系推导用到了以下结论（第八个等号关系也用到这个结论）：</p>
+<p>$$u ^ {\top} A v=\sum_j (u ^ {\top} A _ {:,j}) \cdot v_j=\sum _ j (\sum _ i u_i a_{ij}) v_j=\sum _ j \sum _ i (v _ j u _ i) a _ {ij}=\sum _ j (v u ^ {\top})_{j,:} A _ {:,j} = tr (v u^{\top} A)$$</p>
+<p>其中 $u ^ {\top}, \ v$ 分别表示行列向量， $A$ 表示矩阵，$A _ {i,:}, \ A _ {:,j}$ 分别表示行列向量。</p>
+<p>第六个等号推导用到 $x-\mu = (x - \mu _ q) + (\mu _ q - \mu)$ 。</p>
+<p>第七个等号推导用到 二阶中心矩为协方差矩阵 这个结论。</p>
+<p>根据这个推导，$q$ 的分布无论是何类型，只要期望和协方差矩阵为 $\mu _ q$  和 $\Sigma _ q$，均满足上式，那么自然对于高斯分布类型的 $q$，也是满足上式。</p>
+<p><strong># Lemma 2.</strong> 与高斯分布的 KL 散度</p>
+<p>假设概率密度 $q(x)$ 的期望和协方差矩阵分别为 $\mu _ q$ 和 $\Sigma _ q$，且 $p(x)=\mathcal N(x|\mu, \Sigma)$ 是高斯分布，那么</p>
+<p>$$D _ {KL}(q||p) = D _ {KL} (\mathcal N(x|\mu _ q, \Sigma _ q)||p) + H(\mathcal N(x|\mu _ q, \Sigma _ q)) - H(q)$$</p>
+<p>其中 $H(\cdot)$ 表示熵，$D_{KL}(q||p)$ 表示 KL 散度（相对熵）。</p>
+<p>证明：</p>
+<p>根据定义以及 lemma 1，</p>
+<p>$$\begin{aligned}D_{KL}(q||p)&amp;=H(q,p)-H(q)=H(\mathcal N(x|\mu _ q, \Sigma _ q), p) - H(q)<br>
+\\ &amp;= H(\mathcal N(x|\mu _ q, \Sigma _ q), p) - H(\mathcal N(x|\mu _ q, \Sigma _ q)) + H(\mathcal N(x|\mu _ q, \Sigma _ q)) - H(q)<br>
+\\ &amp;= D_{KL}(\mathcal N(x|\mu _ q, \Sigma _ q) || p) + H(\mathcal N(x|\mu _ q, \Sigma _ q)) - H(q) \qquad \qquad \square<br>
+\end{aligned}$$</p>
+<p><strong># Lemma 3.</strong> 马尔可夫前向与后向之间的等价</p>
+<p>假设 $q(x _ {0:N}) = q(x _ 0) \prod _ {n=1} ^ N q(x _ n | x _ {n-1})$ 是马尔可夫链，那么 q 的反向也是马尔可夫链，即 $q(x_{0:N})=q(x _ N) \prod _ {n=1} ^ N q(x _ {n-1} | x _ n)$ 。</p>
+<p>证明：</p>
+<p>$$\begin{aligned} q(x _ {n-1} | x_n, \cdots, x _ N) &amp;= \frac {q(x _ {n-1}, x _ n, \cdots, x _ N)}{q(x _ n, \cdots, x _ N)}<br>
+\\ &amp;=\frac {q(x _ {n-1}) \prod _ {i=n} q(x _ i | x _ {i-1})}{q(x _ n) \prod _ {i=n+1} q(x _ i | x _ {i-1})}<br>
+\\ &amp;=\frac {q(x _ {n-1}) q(x _ n | x _ {n-1})}{q (x _ n)}<br>
+\\ &amp;=q(x _ {n-1} | x _ n)<br>
+\end{aligned}$$</p>
+<p>上式第二个等号推导用到马尔可夫转移的性质：$x _ i$ 的分布只与前一时刻即 $x _ {i-1}$ 有关，即 $q(x _ i|x _ {0:i-1})=q(x _ i | x _ {i-1})$，那么根据上式推导结论可知，</p>
+<p>$$\begin{aligned} q(x _ {0:N}) &amp;= q(N) \prod _ {n=1} ^ N q(x _ {N-n}|x _ {N-n+1}, \cdots, x _ N)<br>
+\\ &amp;=q(N) \prod _ {n=1} ^ N q(x _ {N-n}|x _ {N-n+1})<br>
+\\ &amp;= q(x _ N) \prod _ {n=1} ^ N q(x _ {n-1} | x _ n) \qquad \qquad \qquad \square<br>
+\end{aligned}$$</p>
+<p><strong># Lemma 4.</strong> 马尔可夫链的熵</p>
+<p>假设 $q(x _ {0:N})$ 是一马尔可夫链，那么</p>
+<p>$$\begin{aligned} H(q(x _ {0:N})) &amp;= H(q(x _ N)) + \sum _ {n=1} ^ N E _ q H(q(x _ {n-1}|x _ n))<br>
+\\ &amp;= H(q(x _ 0)) + \sum _ {n=1} ^ N E _ q H(q (x _ n | x _ {n-1}))<br>
+\end{aligned}$$</p>
+<p>根据熵的定义以及 lemma 3 可证。注意这里数学表达式的具体含义，</p>
+<p>$$\begin{aligned}E _ q H(q(x _ n|x _ {n-1})) &amp;=-E _ {q(x _ {n-1}, x _ n)} \log q(x _ n|x _ {n-1})<br>
+\\ &amp;= -\int q(x _ {n-1}) q(x _ n|x _ {n-1}) \log q(x _ n|x _ {n-1}) d x _ n d x _ {n-1}<br>
+\\ &amp;= \int q(x _ {n-1}) H(q(x _ n|x _ {n-1})) d x _ {n-1}<br>
+\\ &amp;= E _ {q(x _ {n-1})} H(q(x _ n|x _ {n-1}))<br>
+\end{aligned}$$</p>
+<p><strong># Lemma 5.</strong> DDPM 前向过程的熵</p>
+<p>假设 $q(x _ {0:N})$ 是一马尔可夫链，且前向转移为 $q(x _ n|x _ {n-1})=\mathcal N(x _ n|\sqrt {\alpha _ n} x _ {n-1}, \beta _ nI)$，那么</p>
+<p>$$H(q(x _ {0:N}))=H(q(x _ 0))+\frac d 2 \sum _ {n=1} ^ N \log (2 \pi e \beta _ n)$$</p>
+<p>其中 $d$ 是数据 $x _ n$ 的维度。</p>
+<p>证明：</p>
+<p>$$\begin{aligned}H(q(x _ n|x _ {n-1})) &amp;=- E _ {q(x _ n|x _ {n-1})} \log q(x _ n|x _ {n-1})<br>
+\\ &amp;=\frac d 2 [1+\log (2\pi)] + \frac d 2 \log \beta _ n<br>
+\\ &amp;= \frac d 2 \log (2\pi e \beta _ n)<br>
+\end{aligned}$$</p>
+<p>注意 $q(x _ n | x _ {n-1})$ 的协方差矩阵是 $\beta _ nI$，所以 $|\beta _ n I|=d \cdot \beta _ n$。上述多维高斯分布熵的证明过程见 <a href="/2022/06/29/math/gaussian">高斯分布</a> 一文的公式 (2) 和 (3)。</p>
+<p>于是 $E _ {q(x _ {n-1},x_n)} H(q(x _ n|x _ {n-1})) = E _ {q(x _ {n-1},x_n)} [\frac d 2 \log (2\pi e \beta _ n)]= \frac d 2 \log (2\pi e \beta _ n)$，那么再根据 lemma 4 可知，</p>
+<p>$$H(q(x _ {0:N}))=H(q(x _ 0)) + \frac d 2 \sum _ {n=1}^N \log (2 \pi e \beta _ n) \qquad \qquad \square$$</p>
+<p><strong># Lemma 6.</strong> 条件马尔可夫链的熵</p>
+<p>假设 $q(x _ {1:N}|x _ 0)$ 是一条件型马尔可夫链，即 $q(x _ {1:N}|x _ 0)=q(x _ 1|x _ 0)\prod _ {n=2} ^ N q(x _ n|x _ {n-1}, x _ 0)$，那么</p>
+<p>$$H(q(x _ {0:N})) = H(q(x _ 0)) + E _ q H(q(x _ N|x _ 0)) + \sum _ {n=2} ^ N E _ q H(q(x _ {n-1}|x _ n, x _ 0))$$</p>
+<p>证明：</p>
+<p>已知 $q(x _ {0:N})= q(x _ 0) q(x _ {1:N}|x _ 0)$ （将其看作一个具有两个状态节点的马尔可夫链），那么根据 lemma 4 可知，</p>
+<p>$$\begin{aligned}H(q(x _ {0:N})) &amp;= H(q(x _ 0)) + E _ {q(x _ 0)} H(q (x _ {1:N} | x _ 0))<br>
+\\ &amp;= H(q(x _ 0)) + E _ {q(x _ 0)} H(q (x _ N |x _ 0)) + \sum _ {n=2} ^ N E _ {q(x _ 0, x _ n)} H(q(x _ {n-1}|x _ n, x _ 0))  \qquad \square<br>
+\end{aligned}$$</p>
+<p>上式第二个等号也是利用了 lemma 4，因为 $q(x _ {1:N}|x _ 0)$ 也是一马尔可夫链。上式推导中，将期望 $E _ q$ 的下标详细标注是关于哪些随机变量。</p>
+<p>其实要搞懂关于哪些随机变量的分布求期望很简单，例如求 $E _ q H(q(x _ {n-1}|x _ n, x _ 0))$ ，其中 $H(q(x _ {n-1}|x _ n, x _ 0))$ 是 $x _ 0, x _ n$ 的函数（因为可以消去随机变量 $x _ {n-1}$），所以 $E _ q H(q(x _ {n-1}|x _ n, x _ 0))$ 是关于随机变量 $x _ 0, x _ n$ 的分布求期望。</p>
+<p>注意，根据 lemma 3，马尔可夫链的等价关系，有</p>
+<p>$$q(x _ {1:N}|x _ 0)=q(x _ 1|x _ 0)\prod _ {n=2} ^ N q(x _ n|x _ {n-1}, x _ 0)=q(x _ N|x _ 0)\prod _ {n=2} ^ N q(x _ {n-1}|x _ n, x _ 0)$$</p>
+<p><strong># Lemma 7.</strong> 泛化 DDPM 前向过程的熵</p>
+<p>假设 $q(x _ {1:N}|x _ 0)$ 是马尔可夫链，$q(x _ N|x _ 0)$ 是高斯分布，其协方差为 $\overline \beta _ N I$，且 $q(x _ {n-1}|x _ n,x _ 0)$ 是高斯分布，其协方差为 $\lambda _ n ^ 2 I$ ，那么</p>
+<p>$$H(q(x _ {0:N})) = H(q(x _ 0)) + \frac d 2 \log (2 \pi e \overline \beta _ N) + \frac d 2 \sum _ {n=2} ^ N \log (2 \pi e \lambda _ n ^ 2)$$</p>
+<p>其中 $\overline \beta _ n = 1 - \overline \alpha _ n$，所以 $q(x _ N|x _ 0)$ 的分布与前文 DDPM 的情况一致。这里仅对 $t= N$ 时刻的分布和反向转移过程的分布固定为高斯型，且给定协方差矩阵，期望则未指定，所以这是 DDPM 的一种泛化。</p>
+<p>证明：</p>
+<p>再次根据 <a href="/2022/06/29/math/gaussian">高斯分布</a> 一文的公式 (2) 和 (3)，可以得到</p>
+<p>$$E _ {q(x _ 0)} H(q(x _ N|x _ 0)) = E _ {q(x _ 0)} [\frac d 2 \log (2\pi e \overline \beta _ N)]= \frac d 2 \log (2\pi e \overline \beta _ N)$$</p>
+<p>$$E _ {q(x _ 0, x _ n)} H(q(x _ {n-1}|x _ n, x _ 0))=E _ {q(x _ 0, x _ n)} [\frac d 2 \log (2 \pi \lambda _ n ^ 2)]= \frac d 2 \log (2 \pi \lambda _ n ^ 2)$$</p>
+<p>利用 lemma 6 可以证明。</p>
+<p><strong># Lemma 8.</strong> 对马尔可夫链的 KL 散度</p>
+<p>假设 $q(x _ {0:N})$ 是一个概率分布，且 $p(x _ {0:N})=p(x _ N) \prod _ {n=1}^N p(x _ {n-1}|x _ n)$ 是一马尔可夫链，那么</p>
+<p>$$E _ q D _ {KL} (q(x _ {0:N-1}|x _ N)||p(x _ {0:N-1}|x _ N))=\sum _ {n=1} ^ N E _ q D _ {KL} (q(x _ {n-1}|x _ n)|| p(x _ {n-1}|x _ n))+c$$</p>
+<p>其中 $c=\sum _ {n=1} ^ N E _ q H(q(x _ {n-1}|x _ n)) - E _ q H(q(x _ {0:N-1}|x _ N))$ 仅与 $q$ 相关。特别地，如果 $q(x _ {0:N})$ 也是马尔可夫链，那么 $c=0$ 。</p>
+<p>证明：</p>
+<p>$$\begin{aligned} &amp; E _ q D _ {KL}  (q(x _ {0:N-1}|x _ N)||p(x _ {0:N-1}|x _ N)) = -E _ q \log p(x _ {0:N-1}|x _ N) - E _ q H(q(x_{0:N-1}|x _ N))<br>
+\\ = &amp; -\sum _ {n=1} ^ N E _ q \log p(x _ {n-1}|x _ n) -  E _ q H(q(x_{0:N-1}|x _ N))<br>
+\\ =&amp; \sum _ {n=1} ^ N E _ q D _ {KL} (q(x _ {n-1}|x _ n)||p(x _ {n-1}|x _ n)) + \sum _ {n=1} ^ N E _ q H(q(x _ {n-1}|x _ n)) - E _ q H(q(x _ {0:N-1}|x _ N))<br>
+\end{aligned}$$</p>
+<p>令 $c = \sum _ {n=1} ^ N E _ q H(q(x _ {n-1}|x _ n)) - E _ q H(q(x _ {0:N-1}|x _ N))$，得证。</p>
+<p>如果 $q(x _ {0:N})$ 也是马尔可夫链，那么根据 Lemma 4 有</p>
+<p>$$H(q(x _ {0:N})) = H(q(x _ N)) + \sum _ {n=1} ^ N E _ q H(q(x _ {n-1}|x _ n)) $$</p>
+<p>移项得</p>
+<p>$$\begin{aligned}\sum _ {n=1} ^ N E _ q H(q(x _ {n-1}|x _ n)) &amp;=H(q(x _ {0:N})) - H(q(x _ N))<br>
+\\ &amp;= - E _ {q(x _ {0:N})} [\log q(x _ {0:N}) - \log q(x _ N)]<br>
+\\ &amp;= - E _ {q(x _ {0:N})} \log q(x _ {0:N}|x _ N)<br>
+\\ &amp;= E _ q(x _ N) H(q (x _ {0:N-1}|x _ N))<br>
+\end{aligned}$$</p>
+<p>所以 $c = 0$， 证毕。</p>
+<p><strong># Lemma 9.</strong> 最佳高斯转移的马尔可夫反向过程等价于 moment matching</p>
+<p>假设 $q(x _ {0:N})$ 是一概率密度函数，且 $p(x _ {0:N})=\prod _ {n=1} ^ N p(x _ {n-1}|x _ n) p(x _ N)$ 是高斯型马尔可夫链，其中 $p(x _ {n-1}|x _ n)=\mathcal N(x _ {n-1}|\mu _ n(x _ n), \sigma _ n ^ 2 I)$，那么联合 KL 最优问题</p>
+<p>$$\min _ { {\mu _ n, \sigma _ n ^ 2 } _ {n=1} ^ N } D _ {KL} (q (x _ {0:N})|| p(x _ {0:N}))$$</p>
+<p>有最优解</p>
+<p>$$\mu _ n ^ {\star}(x _ n) = E _ {q(x _ {n-1}|x _ n)}[x _ {n-1}], \quad \sigma _ n ^ {\star 2} = E _ {q _ n (x _ n)} \frac {tr(Cov _ {q(x _ {n-1}|x _ n)} [x _ {n-1}])} d$$</p>
+<p>对应的最佳 KL 为</p>
+<p>$$D _ {KL}(q(x _ {0:N})||p ^ {\star}(x _ {0:N}))=H(q(x _ N), p(x _ N)) + \frac d 2 \sum _ {n=1} ^ N \log (2\pi e \sigma _ n ^ {\star 2}) - H(q(x _ {0:N}))$$</p>
+<h2 id="A-3-定理-2-证明">A.3 定理 2 证明</h2>
+<p>因为 $0 &lt; \overline \beta _ n &lt; 1$，且有</p>
+<p>$$\mathbb E_{q_n(x_n)} \frac {|\nabla_{x_n} \log q_n(x_n)|^2}{d} &gt; 0 \Rightarrow 1- \overline \beta _ n \mathbb E_{q_n(x_n)} \frac {|\nabla_{x_n} \log q_n(x_n)|^2}{d} &lt; 1$$</p>
+<p>根据定理 1 可知，</p>
+<p>$$\lambda _ n ^ 2 \le \sigma _ n ^ {\star 2} \le \lambda _ n ^ 2 + \left( \sqrt {\frac {\overline \beta_n}{\alpha_n}} - \sqrt {\overline \beta_{n-1}-\lambda_n^2} \right) ^ 2$$</p>
+<p>如果假设 $q(x _ 0)$ 是在 $[a,b]^d$ 范围内的有界分布，那么 $q(x _ 0|x _ n)$ 也是 $[a,b]^d$ 范围内的有界分布，根据 Lemma 12 有</p>
+<p>$$E _ {q(x _ n)} \frac {tr (Cov _ {q(x _ 0|x _ n)}[x _ 0])} d \le (\frac {b - a} 2) ^ 2$$</p>
+<p>再根据 Lemma 13 可得</p>
+<p>$$\sigma _ n ^ {\star 2} \le \lambda _ n ^ 2 + \left(\sqrt {\overline \alpha _ {n-1}} - \sqrt {\overline \beta _ {n-1} - \lambda _ n ^ 2} \cdot \sqrt {\frac {\overline \alpha _ n} {\overline \beta _ n}} \right)^2 \left(\frac {b - a} 2 \right) ^ 2$$</p>
+<h2 id="A-4-分解最佳-KL">A.4 分解最佳 KL</h2>
+<p><strong># 定理 3</strong> shorter 前向过程和最佳反向过程之间的 KL 散度为</p>
+<p>$$D _ {KL}(q(x _ 0, x _ {\tau _ 1}, \cdots, x _ {\tau _ K}) || p ^ {\star}(x _ 0, x _ {\tau _ 1}, \cdots, x _ {\tau _ K})) = \frac d 2 \sum _ {k=2} ^ K J(\tau _ {k-1}, \tau _ k) + c$$</p>
+<p>其中 $J(\tau _ {k-1}, \tau _ k) = \log \frac {\sigma _ {\tau _ {k-1}|\tau _ k} ^ {\star 2}}{\lambda _ {\tau _ {k-1}|\tau _ k} ^ 2}$，$c$ 是与轨迹 $\tau$ 无关的常量。</p>
+<p>证明：</p>
+<p>$$\begin{aligned} &amp; D _ {KL}(q(x _ 0, x _ {\tau _ 1}, \cdots, x _ {\tau _ K})|| p ^ {\star}(x _ 0, x _ {\tau _ 1}, \cdots, x _ {\tau _ K}))<br>
+\\ =&amp; -E _ q [\log p ^ {\star}(x _ 0 | x _ {\tau _ 1}, \cdots, x _ {\tau _ K}) + \log p ^ {\star}(x _ {\tau _ 1}, \cdots, x _ {\tau _ K})-\log q(x _ 0 | x _ {\tau _ 1}, \cdots, x _ {\tau _ K}) - \log q(x _ {\tau _ 1}, \cdots, x _ {\tau _ K})]<br>
+\\ =&amp; -E _ q [\log p ^ {\star}(x _ 0 | x _ 1) + \log p ^ {\star}(x _ {\tau _ 1}, \cdots, x _ {\tau _ K})-\log q(x _ 0 | x _ {\tau _ 1}, \cdots, x _ {\tau _ K}) - \log q(x _ {\tau _ 1}, \cdots, x _ {\tau _ K})]<br>
+\\ =&amp; E _ q D _ {KL}(q(x _ 0|x _ {\tau _ 1}, \cdots, x _ {\tau _ K})|| p ^ {\star}(x _ 0|x _ 1)) + D _ {KL} (q(x _ {\tau _ 1}, \cdots, x _ {\tau _ K})||p ^ {\star}(x _ {\tau _ 1}, \cdots, x _ {\tau _ K}))<br>
+\\ \stackrel{Lemma-9}= &amp; E _ q D _ {KL}(q(x _ 0|x _ {\tau _ 1}, \cdots, x _ {\tau _ K})|| p ^ {\star}(x _ 0|x _ 1)) + H(q(x _ N), p(x _ N)) \\</p>
+<ul>
+<li>&amp; \ \frac d 2 \sum _ {k=2} ^ K \log (2\pi e \sigma _ {\tau _ {k-1}|\tau _ k} ^ {\star 2}) - H(q(x _ {\tau _ 1}, \cdots, x _ {\tau _ K}))<br>
+\\ =&amp; -E _ q \log p ^ {\star} (x _ 0|x _ 1) + H(q(x _ N), p(x _ N)) + \frac d 2 \sum _ {k=2} ^ K \log (2\pi e \sigma _ {\tau _ {k-1}|\tau _ k} ^ {\star 2}) - H(q(x _ 0, x _ {\tau _ 1}, \cdots, x _ {\tau _ K}))<br>
+\\ \stackrel{Lemma-7} = &amp; -E _ q \log p ^ {\star} (x _ 0|x _ 1) + H(q(x _ N), p(x _ N)) + \frac d 2 \sum _ {k=2} ^ K \log (2\pi e \sigma _ {\tau _ {k-1}|\tau _ k} ^ {\star 2})<br>
+\\ - &amp; \ H(q(x _ 0)) - \frac d 2 \log (2 \pi e \overline \beta _ N) - \frac d 2 \sum _ {k=2} ^ K \log (2 \pi e \lambda _ {\tau _ {k-1}|\tau _ k} ^ 2)<br>
+\\ = &amp; -E _ q \log p ^ {\star} (x _ 0|x _ 1) +  H(q(x _ N), p(x _ N)) + \frac d 2 \sum _ {k=2} ^ K \log \frac {\sigma _ {\tau _ {k-1}|\tau _ k} ^ {\star 2}}{\lambda _ {\tau _ {k-1}|\tau _ k} ^ 2} - H(q(x _ 0)) - \frac d 2 \log (2 \pi e \overline \beta _ N)<br>
+\end{aligned}$$</li>
+</ul>
+<p>令 $J(\tau _ {k-1}, \tau _ k) = \log \frac {\sigma _ {\tau _ {k-1}|\tau _ k} ^ {\star 2}}{\lambda _ {\tau _ {k-1}|\tau _ k} ^ 2}$，并且 $c = - E _ q \log p ^ {\star} (x _ 0|x _ 1) +  H(q(x _ N), p(x _ N))  - H(q(x _ 0)) - \frac d 2 \log (2 \pi e \overline \beta _ N)$，那么 $c$ 是与轨迹 $\tau$ 无关的常量，且有</p>
+<p>$$D _ {KL}(q(x _ 0, x _ {\tau _ 1}, \cdots, x _ {\tau _ K})|| p ^ {\star}(x _ 0, x _ {\tau _ 1}, \cdots, x _ {\tau _ K})) = \frac d 2 \sum _ {k=2} ^ K J(\tau _ {k-1}, \tau _ k) + c$$</p>
+<p>上面推导过程中，第二个等号成立是因为 $p^{\star}(x _ 0, x _ {\tau _ 1}, \cdots, x _ {\tau _ K})$ 是一个马尔可夫链，所以</p>
+<p>$$p ^ {\star}(x _ 0 | x _ {\tau _ 1}, \cdots, x _ {\tau _ K})=p ^ {\star} (x _ 0 | x _ {\tau _ 1})$$</p>
+<p>而 $\tau _ 1$ 固定为 $\tau _ 1 = 1$ 。</p>
+<h1>B. DP 最小成本路径算法</h1>
+<p>给定一个成本函数 $J(s, t)$，其中 $1 \le s &lt; t$。两个自然数 $k,n \ge 1$，我们需要找到一个路径 $1=\tau _ 1 &lt; \cdots &lt; \tau _ k = n$，路径中包含 $k$ 个节点，固定起始和终止节点分别为 $1$ 和 $n$，并且要使得总的成本为 $C[k,n]=\sum _ {i=2} ^ k J(\tau _ {i-1}, \tau _ i)$。</p>
+<p><img src="/images/diffusion_model/analytic_dpm_2.png" alt=""><br>
+图 2. 一个 mini 例子(<a target="_blank" rel="noopener" href="https://www.crcv.ucf.edu/wp-content/uploads/2018/11/paper_9_Analytic-DPM.pdf">来源</a>)</p>
+<p>这是一个典型的动态规划（DP）问题，记 $C[k,n]$ 是最佳路径对应的最小成本，$D[k,n]$ 表示最佳路径中的 $\tau _ {k-1}$ 这个节点。为了简化问题，令 $J(s,t)=\infty$ 对 $s \ge t \ge 1$ 成立。那么，</p>
+<ol>
+<li>
+<p>$k=1$</p>
+<ul>
+<li>当 $n=1$ 时，路径 $1 = \tau _ k = n = 1$，起始节点就是截止节点，不需要经过任何路径，故总成本为 $0$</li>
+<li>当 $1\lt n \le N$ 时，此时没有满条条件的路径，故总成本为 $\infty$</li>
+</ul>
+<p>总结：</p>
+<p>$$C[1,n]=\begin{cases} 0 &amp; n=1 \\ \infty &amp; 1 \lt n \le N \end{cases}$$</p>
+<p>$D[1,n]=-1$，这是因为路径中就一个节点，故不存在最后第二个节点 $\tau _ {k-1}$</p>
+</li>
+<li>
+<p>$2 \le k \le N$</p>
+<ul>
+<li>
+<p>$n &lt; k$，此时不存在这样的路径，所以 $C[k,n]=\infty$ ，最后第二个节点 $D[k,n]=-1$。</p>
+</li>
+<li>
+<p>$k \le n \le N$，将 $k$ 个节点路径，转换为两步：第一步 $k-1$ 个节点路径，路径末尾节点记作 $s$，第二步，从 $s$ 到 $n$，那么成本为 $C[k-1,s]+J(s,n)$。确定 $s$ 的取值范围，首先 $s &lt; n$，即 $s\le n-1$，然后要求 $s \ge k-1$，否则第一步经过 $k-1$ 个节点到达 $s$ 无法实现，所以 $k-1 \le s \le n-1$，那么最终</p>
+</li>
+</ul>
+<p>$$C[k,n]=\min _ {k-1 \le s \le n-1} C[k-1,s]+J(s,n)=\min _ {1 \le s \le N} C[k-1,s] + J(s, n)$$</p>
+<p>第二个等式，当 $s \notin [k-1, n-1]$ 时，即 $s &lt; k-1$ 时，$C[k-1,s]=\infty$（见上一种 case）；当 $s \ge n$ 时，$J(s,n)=\infty$（题目约定的，为了简化问题）。</p>
+<p>注意 $C[1,1]$ 与 $J(s,s)$ 不同，$C[1,1]$ 中不包含任何 $J$，而 $J(s, s)=\infty$ 这是为了禁止原地踏步。</p>
+<p>显然 $s$ 就是最佳路径的最后第二个节点，所以</p>
+<p>$$D[k,n]=\argmin _ {k-1 \le s \le n-1} C[k-1,s]+J(s,n)=\argmin _ {1 \le s \le N} C[k-1,s] + J(s,n)$$</p>
+</li>
+</ol>
+<p>计算最佳路径步骤：</p>
+<p>按 $(k,s)$ pair 从小到大，依次计算 $C[k,s]$，以及对应的 $D[k,n]$，那么最小成本就是 $C[K,N]$，获取最优路径则需要倒序执行：令 $\tau _ K = N$，那么其前一个节点则是 $\tau _ {K-1}=D[K,\tau_K]$，从 $\tau _ 1=1$ 到 $\tau _ {K-1}$ 这个子路径的最小成本为 $C[K-1,\tau _ {K-1}]$，子路径的终点为 $\tau _ {K-1}$，其前一节点为 $\tau _ {K-2} = D[K-1,\tau _ {K-1}]$，依次进行下去，详见算法 1。</p>
+<p><img src="/images/diffusion_model/analytic_dpm_2.png" alt=""></p>
+<center>算法 1</center>
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2022/07/22/diffusion_model/analytic_dpm/">https://jianjiansha.github.io/2022/07/22/diffusion_model/analytic_dpm/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/diffusion-model/">
+                                    <span class="chip bg-color">diffusion model</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/07/22/diffusion_model/NCSN/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt="Noise Conditional Score Network">
+                        
+                        <span class="card-title">Noise Conditional Score Network</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-07-22
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/scored-based-model/">
+                        <span class="chip bg-color">scored based model</span>
+                    </a>
+                    
+                    <a href="/tags/generative-model/">
+                        <span class="chip bg-color">generative model</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/07/21/diffusion_model/ddim/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt="Denoising Diffusion Implicit Models">
+                        
+                        <span class="card-title">Denoising Diffusion Implicit Models</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            DDIM-非马尔可夫转移过程
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-07-21
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/diffusion-model/">
+                        <span class="chip bg-color">diffusion model</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

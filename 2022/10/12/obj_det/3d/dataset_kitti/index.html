@@ -1,0 +1,1633 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Kitti 数据集简介, SJJ">
+    <meta name="description" content="1 几种坐标系
+
+
+图像像素坐标系：表示三维空间物体在图像平面上的投影，像素是离散化的，其坐标原点在 CCD 图像平面的左上角，u 轴平行于CCD平面水平向右，v 轴垂直于 u 轴向下，坐标使用 (u,v) 来表示。图像宽度 W ，高度 H">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Kitti 数据集简介 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/10.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Kitti 数据集简介</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/3d-object-detection/">
+                                <span class="chip bg-color">3d object detection</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-10-12
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1>1 几种坐标系</h1>
+<ul>
+<li>
+<p>图像像素坐标系：表示三维空间物体在图像平面上的投影，像素是离散化的，其坐标原点在 CCD 图像平面的左上角，u 轴平行于CCD平面水平向右，v 轴垂直于 u 轴向下，坐标使用 (u,v) 来表示。图像宽度 W ，高度 H</p>
+</li>
+<li>
+<p>图像物理坐标系：坐标原点在CCD图像平面的中心，x,y 轴分别平行于图像像素坐标系的 (u,v) 轴，坐标用 $(x_p,y_p)$ 表示。</p>
+</li>
+<li>
+<p>相机坐标系：以相机的光心为坐标系原点，$x_c,y_c$ 轴平行于图像坐标系的 x,y 轴，相机的光轴为 $z_c$ 轴，坐标系满足右手法则，即 z-&gt;前</p>
+</li>
+<li>
+<p>世界坐标系（world coordinate）：也称为测量坐标系，是一个三维直角坐标系，以其为基准可以描述相机和待测物体的空间位置。世界坐标系的位置可以根据实际情况自由确定。</p>
+</li>
+</ul>
+<h3 id="1-1-世界坐标系转相机坐标系">1.1 世界坐标系转相机坐标系</h3>
+<p>$$\begin{bmatrix}x_c \\ y_c \\ z_c \\ 1\end{bmatrix}= \begin{bmatrix} \mathbf R &amp; \mathbf t \\ \mathbf 0 &amp; 1 \end{bmatrix} \begin{bmatrix} x_w \\ y_w \\ z_w \\ 1 \end{bmatrix} \tag{1}$$</p>
+<p>世界坐标系与相机坐标系之间的转换，可以将其中物体视作刚性物体，那么转换只有旋转和平移两种操作，上式中 $\mathbf R$ 是旋转矩阵，$\mathbf t$ 是平移矩阵。</p>
+<h3 id="1-1-1-平移">1.1.1 平移</h3>
+<p>点 A $(x_1, y_1, z_1)$ 平移 $(t_x, t_y, t_z)$ 后的坐标为</p>
+<p>$(x_2, y_2, z_2) = (x_1+t_x, y_1+t_y, z_1+t_z)$</p>
+<p>使用矩阵表示为</p>
+<p>$$\begin{bmatrix} x_2 \\ y_2 \\ z_2 \\ 1 \end{bmatrix} = \mathbf t \begin{bmatrix} x_1 \\ y_1 \\ z_1 \\ 1\end{bmatrix}= \begin{bmatrix}  1 &amp; 0 &amp; 0 &amp; t_x \\ 0 &amp; 1 &amp; 0 &amp; t_y \\ 0 &amp; 0 &amp; 1 &amp; t_z\\ 0 &amp; 0 &amp; 0 &amp; 1\end{bmatrix}\begin{bmatrix} x_1 \\ y_1 \\ z_1 \\ 1\end{bmatrix} \tag{2}$$</p>
+<h3 id="1-1-2-旋转">1.1.2 旋转</h3>
+<p><strong>二维平面的旋转</strong></p>
+<p>如图 1</p>
+<p><img src="/images/obj_det/3d/dataset_kitti_1.png" alt=""></p>
+<center>图 1. 二维平面中的旋转</center>
+<p>向量 $\overrightarrow  {OA}= (x_1, y_1)$ 逆时针旋转 $\theta$ 角度后为 $\overrightarrow {OB}=(x_2, y_2)$，易知</p>
+<p>$$\overrightarrow {OA}=\overrightarrow {OA}_x + \overrightarrow {OA}_y$$</p>
+<p>$\overrightarrow {OA}_x=(x_1, 0)$ 旋转后为 $(x_1 \cos \theta, x_1 \sin \theta)$，$\overrightarrow {OA}_y=(0, y_1)$ 旋转后为 $(-y_1 \sin \theta, y_1 \cos \theta)$，所以</p>
+<p>$$(x_2, y_2) = (x_1 \cos \theta, x_1 \sin \theta)+ (-y_1 \sin \theta, y_1 \cos \theta)$$</p>
+<p>写成矩阵形式为</p>
+<p>$$\begin{bmatrix} x_2 \\ y_2 \end{bmatrix} = \begin{bmatrix}\cos \theta  &amp; -\sin \theta \\ \sin \theta &amp; \cos \theta \end{bmatrix}\begin{bmatrix} x \\ y \end{bmatrix} \tag {3}$$</p>
+<p><strong>三维空间中的旋转</strong></p>
+<p>记旋转矩阵为 $\mathbf R$，将三维向量分别投影到 X-Y, Y-Z, X-Z 平面上，记 $\mathbf R$ 在 XY 平面上旋转角度为 $\theta_z$，在 YZ 平面上旋转角度为 $\theta_x$，在 XZ 平面上旋转角度为 $\theta_y$ （三个角度均指逆时针旋转角度），那么 $\mathbf R$ 可由三个角度 $(\theta_x, \theta_y, \theta_z)$ 表征，对应的三个旋转为 $(\mathbf R_x, \mathbf R_y, \mathbf R_z)$。</p>
+<p>根据前面二维平面的旋转公式 (3) 易知，</p>
+<p>$$\mathbf R_z = \begin{bmatrix} \cos \theta_z &amp; -\sin \theta_z &amp; 0 \\ \sin \theta_z &amp; \cos \theta_z &amp; 0 \\ 0 &amp; 0 &amp; 1\end{bmatrix}, \ \mathbf R_y = \begin{bmatrix} \cos \theta_y &amp; 0&amp; \sin \theta_y  \\ 0 &amp; 1 &amp; 0 \\ -\sin \theta_y &amp;0&amp; \cos \theta_y\end{bmatrix}, \ \mathbf R_x = \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; \cos \theta_x &amp;-\sin \theta_x  \\ 0&amp; \sin \theta_x &amp; \cos \theta_x\end{bmatrix}$$</p>
+<p>且有关系</p>
+<p>$$\mathbf R = \mathbf R_x \mathbf R_y \mathbf R_z \tag{4}$$</p>
+<h3 id="1-1-3-刚体变换">1.1.3 刚体变换</h3>
+<p>使用 $\mathbf T$ 表示刚体变换，刚体变换=平移+旋转，可以用分块矩阵表示如下，</p>
+<p>$$\mathbf T = [\mathbf R | \mathbf t] \tag{5}$$</p>
+<p>为社么可以用分块矩阵表示呢？因为先后两个变换可以用矩形相乘表示，</p>
+<p>$$\begin{aligned}\mathbf T &amp;= \mathbf {t R}<br>
+\\&amp;= \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; t_x \\ 0 &amp; 1 &amp; 0 &amp; t_y \\ 0 &amp; 0 &amp; 1 &amp; t_z \\ 0 &amp; 0 &amp; 0 &amp;1\end{bmatrix}\begin{bmatrix} r_1 &amp; r_2 &amp; r_3 &amp; 0 \\  r_4 &amp; r_5 &amp; r_6 &amp; 0 \\  r_7 &amp; r_8 &amp; r_9 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; 1 \end{bmatrix}<br>
+\\ &amp;= \begin{bmatrix} r_1 &amp; r_2 &amp; r_3 &amp; t_x \\  r_4 &amp; r_5 &amp; r_6 &amp; t_y \\  r_7 &amp; r_8 &amp; r_9 &amp; t_z \\ 0 &amp; 0 &amp; 0 &amp; 1 \end{bmatrix}=\begin{bmatrix} \mathbf R &amp; \mathbf t \\ \mathbf 0_{1 \times 3} &amp; 1\end{bmatrix}<br>
+\end{aligned} \tag{6}$$</p>
+<p>使用齐次坐标 $[x, y, z, 1]^{\top}$ 就使用 (6) 式的变换矩阵，而 $[x, y, z]^{\top}$ 坐标则使用 (5) 式变换矩阵。</p>
+<p>易知，使用 $\mathbf {R t}$ 结果与上面的一样，平移与旋转两个操作的先后顺序无关紧要。</p>
+<p>从世界坐标系到相机坐标系的刚体变换矩阵 $\mathbf T$ 也称为 <strong>相机外参</strong>（camera extrinsics）</p>
+<p>$$\begin{bmatrix} X_c \\ Y_c \\ Z_c \\ 1\end{bmatrix}= \mathbf T \begin{bmatrix}X_w \\ Y_w \\ Z_w \\ 1 \end{bmatrix}$$</p>
+<h2 id="1-2-相机坐标系到图像坐标系">1.2 相机坐标系到图像坐标系</h2>
+<p>空间点 P 在相机坐标系的齐次坐标为 $[x_c, y_c, z_c, 1]^{\top}$，其像点在图像坐标系的齐次坐标为 $[x_p, y_p, 1]^{\top}$，根据针孔成像原理，如图 2,3,4</p>
+<p><img src="/images/obj_det/3d/dataset_kitti_2.png" alt=""></p>
+<center>图 2. 相机的针孔成像图</center>
+<p><img src="/images/obj_det/3d/dataset_kitti_3.png" alt=""></p>
+<center>图 3. 相机坐标系和图像坐标系对应关系</center>
+<p><img src="/images/obj_det/3d/dataset_kitti_4.png" alt=""></p>
+<center>图 4. 考虑 Y-Z 平面的三角相似</center>
+<p>根据三角形的相似性可知</p>
+<p>$$\begin{cases} x_p = f \frac {x_c}{z_c} \\ y_p = f \frac {y_c}{z_c} \end{cases}$$</p>
+<p>矩阵变换形式为</p>
+<p>$$z_c \begin{bmatrix} x_p \\ y_p \\ 1 \end{bmatrix} = \begin{bmatrix} f &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; f &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 0 \end{bmatrix} \begin{bmatrix} x_c \\ y_c \ z_c \\ 1 \end{bmatrix} =[\mathbf K | \mathbf 0]  \begin{bmatrix} x_c \\ y_c \ z_c \\ 1 \end{bmatrix} \tag{7}$$</p>
+<p>$f$ 是相机焦距。</p>
+<h2 id="1-3-图像坐标系转像素坐标系">1.3 图像坐标系转像素坐标系</h2>
+<p><img src="/images/obj_det/3d/dataset_kitti_5.png" alt=""></p>
+<center>图 5. (u,v) 像素坐标系，(X,Y) 图像坐标系</center>
+<p>像素坐标系不利于坐标变换，因此需要建立图像坐标系，其坐标轴的单位通常为毫米（mm），原点是相机光轴与相面的交点（称为主点），即图像的中心点，X 轴、Y 轴分别与 u 轴、 v 轴平行。故两个坐标系实际是平移关系，即可以通过平移就可得到。</p>
+<p>图像坐标系转为像素坐标系：</p>
+<p>$$\begin{bmatrix}u \\ v \\  1\end{bmatrix}= \begin{bmatrix} 1/dx &amp; 0 &amp; u_0 \\  0 &amp; 1/dy &amp; v_0 \\ 0&amp;0&amp;1 \end{bmatrix} \begin{bmatrix} x_p \\ y_p \\ 1 \end{bmatrix}\tag{8}$$</p>
+<p>dx,dy 表示相邻像素之间的物理距离（例如单位长度为 mm），实际上 CCD 相机上每个像素对应一个感光点。</p>
+<p>(8) 式中，$x=0$ 对应图像坐标系的中心点，对应 $u=u_0$ 即像素坐标系中心点。</p>
+<p>假设图像的物理宽高为 $w, h$，那么 $\frac w {2 \cdot dx} = u_0, \ \frac h {2 \cdot dy}=v_0$ 。</p>
+<h2 id="1-4-综合">1.4 综合</h2>
+<p>综合以上，从世界坐标系到像素坐标系的变换为</p>
+<p>$$\begin{aligned}z_c\begin{bmatrix}u \\ v \\  1\end{bmatrix}&amp;=\begin{bmatrix} 1/dx &amp; 0 &amp; u_0 \\  0 &amp; 1/dy &amp; v_0 \\ 0&amp;0&amp;1 \end{bmatrix}\begin{bmatrix} f &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; f &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 0 \end{bmatrix}\begin{bmatrix} \mathbf R &amp; \mathbf t \\ \mathbf 0_{1\times 3} &amp; 1\end{bmatrix}\begin{bmatrix}x_w \\ y_w \\ z_w \\ 1\end{bmatrix}<br>
+\\ &amp;=\begin{bmatrix} f_x &amp; 0 &amp; u_0 &amp; 0 \\  0 &amp; f_y &amp; v_0 &amp; 0 \\ 0&amp;0&amp;1 &amp;0\end{bmatrix}\begin{bmatrix} \mathbf R &amp; \mathbf t \\ \mathbf 0_{1\times 3} &amp; 1\end{bmatrix}\begin{bmatrix}x_w \\ y_w \\ z_w \\ 1\end{bmatrix}<br>
+\end{aligned} \tag{9}$$</p>
+<p>$\begin{bmatrix} f_x &amp; 0 &amp; u_0 &amp; 0 \\  0 &amp; f_y &amp; v_0 &amp; 0 \\ 0&amp;0&amp;1 &amp;0\end{bmatrix}$ 为 <strong>相机内参</strong>（camera intrinsics）。 $\begin{bmatrix} \mathbf R &amp; \mathbf t \\ \mathbf 0_{1\times 3} &amp; 1\end{bmatrix}$ 为相机外参。相机标定就是为了求解这两个矩阵的参数。</p>
+<h1>2. 3D 目标检测</h1>
+<p>数据下载：</p>
+<p><a target="_blank" rel="noopener" href="https://www.cvlibs.net/datasets/kitti/raw_data.php">KITTI raw data</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d">KITTI 3d object</a></p>
+<p>几种坐标系图示</p>
+<p><img src="/images/obj_det/3d/dataset_kitti_6.png" alt=""></p>
+<center>图 6. 坐标系</center>
+<p>传感器与坐标轴的关系</p>
+<table>
+<thead>
+<tr>
+<th>Sensor</th>
+<th>X轴正向</th>
+<th>Y轴正向</th>
+<th>Z轴正向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>camera</td>
+<td>右</td>
+<td>下</td>
+<td>前</td>
+</tr>
+<tr>
+<td>LiDAR</td>
+<td>前</td>
+<td>左</td>
+<td>上</td>
+</tr>
+<tr>
+<td>GPS/IMU</td>
+<td>前</td>
+<td>左</td>
+<td>上</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-1-left-color-images">2.1 left color images</h2>
+<p>left color image 的图像方向：x-&gt;右，y-&gt;下，z-&gt;前</p>
+<h2 id="2-2-velodyne-point-clouds">2.2 velodyne point clouds</h2>
+<p>velodyne 激光雷达数据。 velodyne 激光雷达指标为，角度分辨率 0.09°，距离精度 2cm。视场角（FOV）：360° 水平，26.8° 垂直。测量范围：120m</p>
+<p>下载的 velodyne 数据包里面都是 bin 文件，其中存储了点云数据，每个点 <code>(x,y,z,r)</code> 表示 xyz 坐标和反射强度，坐标系方向：x-&gt;前，y-&gt;左，z-&gt;上。</p>
+<p>以 “000001.bin” 为例（其中 000001 是 id，图像，点云，标定，label 等文件），velodyne 文件内容如下，</p>
+<pre class="line-numbers language-none"><code class="language-none">7b14 4642 1058 b541 9643 0340 0000 0000
+46b6 4542 1283 b641 3333 0340 0000 0000
+4e62 4042 9643 b541 b072 0040 cdcc 4c3d
+8340 3f42 08ac b541 3bdf ff3f 0000 0000
+e550 4042 022b b841 9cc4 0040 0000 0000
+10d8 4042 022b ba41 4c37 0140 0000 0000
+3fb5 3a42 14ae b541 5a64 fb3f 0000 0000
+7dbf 3942 2731 b641 be9f fa3f 8fc2 f53d
+cd4c 3842 3f35 b641 4c37 f93f ec51 383e
+dbf9 3742 a69b b641 c3f5 f83f ec51 383e
+2586 3742 9a99 b741 fed4 f83f 1f85 6b3e
+...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>点云数据以浮点二进制文件格式存储，每行包含8个数据，每个数据由四位十六进制数表示（浮点数），每个数据通过空格隔开。一个点云数据由四个浮点数数据构成，分别表示点云的x、y、z、r（强度 or 反射值），点云的存储方式如下表所示，</p>
+<pre class="line-numbers language-none"><code class="language-none">pointcloud-1    |   pointcloud-2
+x   y   z   r   |   x   y   z   r
+pointcloud-3    |   pointcloud-4
+x   y   z   r   |   x   y   z   r
+...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>代码示例，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">get_lidar</span><span class="token punctuation">(</span>filepath<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''filepath: lidar file(bin 文件)'''</span>
+    np<span class="token punctuation">.</span>fromfile<span class="token punctuation">(</span>filepath<span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span><span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<h2 id="2-3-camera-calibration-matrices">2.3 camera calibration matrices</h2>
+<p>相机雷达标定文件，主要用于将激光雷达投影在图像上显示。以 “000001.txt” 文件为例，内容如下</p>
+<pre><code><pre class="line-numbers language-python" data-language="python"><code class="language-python">P0<span class="token punctuation">:</span> <span class="token number">7.215377000000e+02</span> <span class="token number">0.000000000000e+00</span> <span class="token number">6.095593000000e+02</span> <span class="token number">0.000000000000e+00</span> <span class="token number">0.000000000000e+00</span> <span class="token number">7.215377000000e+02</span> <span class="token number">1.728540000000e+02</span> <span class="token number">0.000000000000e+00</span> <span class="token number">0.000000000000e+00</span> <span class="token number">0.000000000000e+00</span> <span class="token number">1.000000000000e+00</span> <span class="token number">0.000000000000e+00</span>
+P1<span class="token punctuation">:</span> <span class="token number">7.215377000000e+02</span> <span class="token number">0.000000000000e+00</span> <span class="token number">6.095593000000e+02</span> <span class="token operator">-</span><span class="token number">3.875744000000e+02</span> <span class="token number">0.000000000000e+00</span> <span class="token number">7.215377000000e+02</span> <span class="token number">1.728540000000e+02</span> <span class="token number">0.000000000000e+00</span> <span class="token number">0.000000000000e+00</span> <span class="token number">0.000000000000e+00</span> <span class="token number">1.000000000000e+00</span> <span class="token number">0.000000000000e+00</span>
+P2<span class="token punctuation">:</span> <span class="token number">7.215377000000e+02</span> <span class="token number">0.000000000000e+00</span> <span class="token number">6.095593000000e+02</span> <span class="token number">4.485728000000e+01</span> <span class="token number">0.000000000000e+00</span> <span class="token number">7.215377000000e+02</span> <span class="token number">1.728540000000e+02</span> <span class="token number">2.163791000000e-01</span> <span class="token number">0.000000000000e+00</span> <span class="token number">0.000000000000e+00</span> <span class="token number">1.000000000000e+00</span> <span class="token number">2.745884000000e-03</span>
+P3<span class="token punctuation">:</span> <span class="token number">7.215377000000e+02</span> <span class="token number">0.000000000000e+00</span> <span class="token number">6.095593000000e+02</span> <span class="token operator">-</span><span class="token number">3.395242000000e+02</span> <span class="token number">0.000000000000e+00</span> <span class="token number">7.215377000000e+02</span> <span class="token number">1.728540000000e+02</span> <span class="token number">2.199936000000e+00</span> <span class="token number">0.000000000000e+00</span> <span class="token number">0.000000000000e+00</span> <span class="token number">1.000000000000e+00</span> <span class="token number">2.729905000000e-03</span>
+R0_rect<span class="token punctuation">:</span> <span class="token number">9.999239000000e-01</span> <span class="token number">9.837760000000e-03</span> <span class="token operator">-</span><span class="token number">7.445048000000e-03</span> <span class="token operator">-</span><span class="token number">9.869795000000e-03</span> <span class="token number">9.999421000000e-01</span> <span class="token operator">-</span><span class="token number">4.278459000000e-03</span> <span class="token number">7.402527000000e-03</span> <span class="token number">4.351614000000e-03</span> <span class="token number">9.999631000000e-01</span>
+Tr_velo_to_cam<span class="token punctuation">:</span> <span class="token number">7.533745000000e-03</span> <span class="token operator">-</span><span class="token number">9.999714000000e-01</span> <span class="token operator">-</span><span class="token number">6.166020000000e-04</span> <span class="token operator">-</span><span class="token number">4.069766000000e-03</span> <span class="token number">1.480249000000e-02</span> <span class="token number">7.280733000000e-04</span> <span class="token operator">-</span><span class="token number">9.998902000000e-01</span> <span class="token operator">-</span><span class="token number">7.631618000000e-02</span> <span class="token number">9.998621000000e-01</span> <span class="token number">7.523790000000e-03</span> <span class="token number">1.480755000000e-02</span> <span class="token operator">-</span><span class="token number">2.717806000000e-01</span>
+Tr_imu_to_velo<span class="token punctuation">:</span> <span class="token number">9.999976000000e-01</span> <span class="token number">7.553071000000e-04</span> <span class="token operator">-</span><span class="token number">2.035826000000e-03</span> <span class="token operator">-</span><span class="token number">8.086759000000e-01</span> <span class="token operator">-</span><span class="token number">7.854027000000e-04</span> <span class="token number">9.998898000000e-01</span> <span class="token operator">-</span><span class="token number">1.482298000000e-02</span> <span class="token number">3.195559000000e-01</span> <span class="token number">2.024406000000e-03</span> <span class="token number">1.482454000000e-02</span> <span class="token number">9.998881000000e-01</span> <span class="token operator">-</span><span class="token number">7.997231000000e-01</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</code></pre>
+<h3 id="2-3-1-投影矩阵">2.3.1 投影矩阵</h3>
+<p>0,1,2,3 表示相机编号。 0 为左边灰度相机，1 为右边灰度相机，2 为左边彩色相机，3 为右边彩色相机。P0~P3 是修正（rectified）后的相机投影矩阵 $R^{3 \times 4}$ ，也就是将 <strong>第 0 相机 rectified 坐标系</strong> 的点变换为 <strong>第 i 个相机的图像坐标（实际是像素坐标）</strong> 中，参考上面 (9) 式中的相机内参矩阵。</p>
+<p>需要注意的是，Pi 除了相机内参（投影变换），还包含了一个平移操作，表示第 <code>i</code> 个相机到 <code>0</code> 号相机摄像头的距离偏移，这是因为投影变换是同一个相机的相机坐标转图像（像素）坐标，而这里是 A 相机的相机坐标转 B 相机的图像（像素）坐标，所以需要组合两个先后顺序操作：1. A 相机到 B 相机的相机坐标系平移操作 $T_{AB}$；2. 相机的投影操作 $K$。用矩阵表示为</p>
+<p>$$\mathbf P_i=\begin{bmatrix} f_x &amp; 0 &amp; u_0 &amp; -f_x b_x \\ 0 &amp; f_y &amp; v_0 &amp; -f_y b_y \\ 0 &amp; 0 &amp; 1 &amp; -b_z \end{bmatrix} \tag{10}$$</p>
+<p>其中 $b_x, \ b_y, \ b_z$ 分别表示表示第 <code>i</code> 个相机到 <code>0</code> 号相机摄像头的 x，y，z 方向的距离偏移。由于四个相机均相同，故四个相机的 $f_x, f_y, u_0, v_0$  均分别相等（即相机内参矩阵均相等），只是四个相机的安装位置不同，所以需要用 $b_x, b_y, b_z$ 表示。</p>
+<p><strong>例子 1</strong></p>
+<p>例如 A 表示 0 号机，B 表示 2 号机，A 的（修正后）相机坐标系中某点 P 的坐标记为 $[x_a, y_a, z_a]^{\top}$， B 到 A （B 相对 A）的摄像头距离为 $T_{AB}=[b_x, b_y, b_z]^{\top}$，那么 P 平移到 B 相机坐标系中坐标为</p>
+<p>$$\begin{aligned} \begin{bmatrix}x_b\\ y_b\\ z_b\end{bmatrix}  &amp;= \begin{bmatrix}x_a\\ y_a\\ z_a\end{bmatrix}-T_{AB}  \qquad (\vec {BP}=\vec {AP}- \vec {AB})<br>
+\\&amp;= \begin{bmatrix}x_a-b_x\\ y_a-b_y\\ z_a-b_z\end{bmatrix}<br>
+\end{aligned}$$</p>
+<p>B 的相机坐标系转为 B 的图像（像素）坐标系的投影变换，参考 (9) 式可知，为</p>
+<p>$$\begin{aligned} z_a \begin{bmatrix} u_b \\ v_b \\ 1 \end{bmatrix}&amp;=\begin{bmatrix} f_x &amp; 0 &amp; u_0 &amp; 0 \\ 0 &amp; f_y &amp; v_0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 0\end{bmatrix}\begin{bmatrix}x_b\\ y_b\\ z_a\\1\end{bmatrix}<br>
+\\&amp;=\begin{bmatrix} f_x &amp; 0 &amp; u_0 &amp; 0 \\ 0 &amp; f_y &amp; v_0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 0\end{bmatrix}\begin{bmatrix}x_a-b_x\\ y_a-b_y\\ z_a\\1\end{bmatrix}<br>
+\\&amp;=\begin{bmatrix} f_x &amp; 0 &amp; u_0 &amp; -f_x b_x \\ 0 &amp; f_y &amp; v_0 &amp; -f_y b_y \\ 0&amp; 0&amp;1 &amp; 0\end{bmatrix}\begin{bmatrix}x_a\\ y_a\\ z_a\\1\end{bmatrix}<br>
+\end{aligned} \tag{11}$$</p>
+<p>上式就是从 A 相机坐标变换到 B 图像（像素）坐标的变换过程，注意深度值使用的是 A 相机中的 Z 轴值 $z_a$。将上式中的变换矩阵写成 $\mathbf P_i$ ，那么上式等式关系可写为</p>
+<p>$$\begin{bmatrix} z_au_b \\ z_av_b \\ z_b \end{bmatrix}=\mathbf P_i \begin{bmatrix}x_a\\ y_a\\ z_a\\1\end{bmatrix} \tag{12}$$</p>
+<p>下文的标定类方法 <code>rect_to_img</code> 中，就是使用上式先得到具有 <code>z_a</code> 缩放因子的 B 相机的图像像素坐标，然后除以 <code>z_a</code> 得到最终 B 的图像像素坐标 $u_b, v_b$，并通过 $z_b - (-b_z)=z_a$ 得到 A 相机坐标系中点的深度值。具体参见下文的代码注释。</p>
+<p>根据 (11) 式，可知 $z_a u_b = f_x x_a + u_0 z_a - f_x b_x$， 变换得</p>
+<p>$$x_a = (u_b-u_0)z_a/f_x + b_x \tag{13}$$</p>
+<p>类似地可计算出</p>
+<p>$$y_a=(v_b-v_0)z_a /f_y + b_y \tag{14}$$</p>
+<p>这就是从 2 号机图像像素坐标系变换到 0 号机的相机坐标系。</p>
+<h3 id="2-3-2-其他变换矩阵">2.3.2 其他变换矩阵</h3>
+<p>R0_rect： 0号相机的修正矩阵， size 为 $R^{3 \times 3}$，将 <strong>第 0 相机的相机坐标系</strong> 中的点变换为 <strong>第 0 相机的 rectified 坐标系</strong> 中，由于相机的不正，所以需要对相机坐标系中的各点进行修正。实际计算中常常扩展为</p>
+<p>$\begin{bmatrix} \mathbf R_{rect}^0 &amp; \mathbf 0_{3 \times 1} \\ \mathbf 0_{1\times 3} &amp; 1\end{bmatrix}$。</p>
+<p>Tr_velo_to_cam 是雷达到相机的旋转平移矩阵，参见上面 (6) 式。</p>
+<p>Tr_imu_to_velo 是惯导到雷达的旋转平移矩阵</p>
+<p>具体说明：</p>
+<p>label 文件中的 3d bbox 坐标都是位于第 0 相机的 rectified（矫正后？）坐标，将 label 中的某点 $\mathbf x$ （rectified 坐标系）变换到相机 i 的图像坐标系中（x-&gt;右，y-&gt;下，z-&gt;前），</p>
+<p>$$\mathbf y_i =\mathbf P_i \mathbf x \tag{15}$$</p>
+<p>将第 0 相机（即参考相机）坐标系下的点 $\mathbf x_0$ 变换到其 rectified 坐标系中，</p>
+<p>$$\mathbf x = \mathbf R_{rect}^0 \mathbf x_0 \tag{16}$$</p>
+<p>将 lidar 坐标系中的点 $\mathbf x_{velo}$ 变换到相机 0 的 <strong>相机坐标系</strong> 中，</p>
+<p>$$\mathbf x_0 = \mathbf T_{velo2cam} \mathbf x_{velo} \tag{17}$$</p>
+<p>将 lidar 坐标系中的点变换到第 i 相机的 <strong>图像坐标系</strong> 中，</p>
+<p>$$\mathbf y_i = \mathbf P_i \mathbf R_{rect}^0 \mathbf T_{velo2cam} \mathbf x_{velo} \tag{18}$$</p>
+<p>将第 0 相机的 rectified 坐标系中的点变换到 lidar 坐标系，</p>
+<p>$$\mathbf x_{velo} = \mathbf T_{velo2cam}^{-1} (\mathbf R_{rect}<sup>0)</sup>{-1} \mathbf x \tag{19}$$</p>
+<p>处理标定文件的代码，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">get_calib_from_file</span><span class="token punctuation">(</span>filepath<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    读取标定文件。功能：将激光雷达坐标系中的点投影到彩色图像（P2,P3）中，参见 (18) 式
+    但是 (18) 式中的变换矩阵都是扩展到 4x4 大小。
+    filepath: 标定文件路径
+    '''</span>
+    <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span>filepath<span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+        lines <span class="token operator">=</span> f<span class="token punctuation">.</span>readlines<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    obj <span class="token operator">=</span> lines<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">.</span>strip<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token string">' '</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">:</span><span class="token punctuation">]</span>       <span class="token comment"># 2 号相机，即左边彩色的投影矩阵left-color</span>
+    P2 <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span>obj<span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+    obj <span class="token operator">=</span> lines<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">.</span>strip<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token string">' '</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">:</span><span class="token punctuation">]</span>       <span class="token comment"># 右边彩色相机的投影矩阵</span>
+    P3 <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span>obj<span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+    obj <span class="token operator">=</span> lines<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">.</span>strip<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token string">' '</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">:</span><span class="token punctuation">]</span>       <span class="token comment"># 旋转矩阵</span>
+    R0 <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span>obj<span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+    obj <span class="token operator">=</span> lines<span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">.</span>strip<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token string">' '</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">:</span><span class="token punctuation">]</span>       <span class="token comment"># 雷达到相机的旋转平移矩阵</span>
+    Tr_velo_to_cam <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span>obj<span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">&#123;</span><span class="token string">'P2'</span><span class="token punctuation">:</span> P2<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token string">'P3'</span><span class="token punctuation">:</span> P3<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token string">'R0'</span><span class="token punctuation">:</span> R0<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token string">'Tr_velo2cam'</span><span class="token punctuation">:</span> Tr_velo_to_cam<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Calibration</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> filepath<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        calib <span class="token operator">=</span> get_calib_from_file<span class="token punctuation">(</span>filepath<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>P2 <span class="token operator">=</span> calib<span class="token punctuation">[</span><span class="token string">'P2'</span><span class="token punctuation">]</span>               <span class="token comment"># (3, 4)</span>
+        self<span class="token punctuation">.</span>R0 <span class="token operator">=</span> calib<span class="token punctuation">[</span><span class="token string">'R0'</span><span class="token punctuation">]</span>               <span class="token comment"># (3, 3)</span>
+        self<span class="token punctuation">.</span>V2C <span class="token operator">=</span> calib<span class="token punctuation">[</span><span class="token string">'Tr_velo2com'</span><span class="token punctuation">]</span>     <span class="token comment"># (3, 4)</span>
+        
+        <span class="token comment"># == 相机内参，参见上面 (9) 式 ==</span>
+        self<span class="token punctuation">.</span>cu <span class="token operator">=</span> self<span class="token punctuation">.</span>P2<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token comment"># u0</span>
+        self<span class="token punctuation">.</span>cv <span class="token operator">=</span> self<span class="token punctuation">.</span>P2<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token comment"># v0</span>
+        self<span class="token punctuation">.</span>fu <span class="token operator">=</span> self<span class="token punctuation">.</span>P2<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span> <span class="token comment"># fx</span>
+        self<span class="token punctuation">.</span>fv <span class="token operator">=</span> self<span class="token punctuation">.</span>P2<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token comment"># fy</span>
+        <span class="token comment"># == 相机内参，参见上面 (9) 式 ==</span>
+        <span class="token comment"># == (10) 式中的 bx 和 by ==</span>
+        self<span class="token punctuation">.</span>tx <span class="token operator">=</span> self<span class="token punctuation">.</span>P2<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">/</span> <span class="token punctuation">(</span><span class="token operator">-</span>self<span class="token punctuation">.</span>fu<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>ty <span class="token operator">=</span> self<span class="token punctuation">.</span>P2<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">/</span> <span class="token punctuation">(</span><span class="token operator">-</span>self<span class="token punctuation">.</span>fv<span class="token punctuation">)</span>
+        <span class="token comment"># == (10) 式中的 bx 和 by ==</span>
+
+    <span class="token keyword">def</span> <span class="token function">cart_to_hom</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> pts<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        转为齐次坐标。(x,y,z) -> (x,y,z,1)
+        pts: (N, 3 or 2)
+        :return pts_hom: (N, 4 or 3)
+        '''</span>
+        pts_hom <span class="token operator">=</span> np<span class="token punctuation">.</span>hstack<span class="token punctuation">(</span>pts<span class="token punctuation">,</span> np<span class="token punctuation">.</span>ones<span class="token punctuation">(</span><span class="token punctuation">(</span>pts<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> pts_hom
+
+    <span class="token keyword">def</span> <span class="token function">lidar_to_rect</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> pts_lidar<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        雷达坐标转为 0 号机的修正坐标。 x_rect = R0_rect · Tr_velo_to_cam · x_lidar
+        pts_lidar: (N, 3)
+        :return pts_rect: (N, 3)
+        '''</span>
+        pts_lidar_hom <span class="token operator">=</span> self<span class="token punctuation">.</span>cart_to_hom<span class="token punctuation">(</span>pts_lidar<span class="token punctuation">)</span>     <span class="token comment"># (N, 4)</span>
+        pts_rect <span class="token operator">=</span> np<span class="token punctuation">.</span>dot<span class="token punctuation">(</span>pts_lidar_hom<span class="token punctuation">,</span> np<span class="token punctuation">.</span>dot<span class="token punctuation">(</span>self<span class="token punctuation">.</span>V2C<span class="token punctuation">.</span>T<span class="token punctuation">,</span> self<span class="token punctuation">.</span>R0<span class="token punctuation">.</span>T<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment"># (N, 3)</span>
+        <span class="token keyword">return</span> pts_rect
+    
+    <span class="token keyword">def</span> <span class="token function">rect_to_img</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> pts_rect<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        0 号相机修正坐标到 2 号相机图像像素坐标
+        pts_rect: (N, 3), 0 号机的修正坐标
+        :return pts_img: (N, 2)，2 号机的图像像素坐标
+                pts_rect_depth: (N,)，0 号机修正坐标系的深度（z坐标）
+        '''</span>
+        pts_rect_hom <span class="token operator">=</span> self<span class="token punctuation">.</span>cart_to_hom<span class="token punctuation">(</span>pts_rect<span class="token punctuation">)</span>       <span class="token comment"># (N, 4)</span>
+        <span class="token comment"># (12) 式，转为经 z_a 缩放后的 2 号相机像素坐标</span>
+        pts_2d_hom <span class="token operator">=</span> np<span class="token punctuation">.</span>dot<span class="token punctuation">(</span>pts_rect_hom<span class="token punctuation">,</span> self<span class="token punctuation">.</span>P2<span class="token punctuation">.</span>T<span class="token punctuation">)</span>    <span class="token comment"># (N, 3)</span>
+        <span class="token comment"># (12) 式，除以 z_a，得到像素坐标 [u,v]</span>
+        pts_img <span class="token operator">=</span> <span class="token punctuation">(</span>pts_2d_hom<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">:</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">.</span>T <span class="token operator">/</span> pts_rect_hom<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>T <span class="token comment"># (N, 2)</span>
+        <span class="token comment"># (12) 式，2号相机图像坐标系深度+2号相对0号相机的深度偏差->得到 0 号相机（修正坐标系中）的深度</span>
+        <span class="token comment"># 参考上面例子1，则是 z_a = z_b + b_z</span>
+        pts_rect_depth <span class="token operator">=</span> pts_2d_hom<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">-</span> self<span class="token punctuation">.</span>P2<span class="token punctuation">.</span>T<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span>  <span class="token comment"># (N,)</span>
+        <span class="token keyword">return</span> pts_img<span class="token punctuation">,</span> pts_rect_depth
+    
+    <span class="token keyword">def</span> <span class="token function">lidar_to_img</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> pts_lidar<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        雷达坐标转为 2 号机图像像素坐标
+        pts_lidar: (N, 3)，雷达坐标系
+        :return pts_img: (N, 2)，2 号机图像像素坐标
+                pts_depth: (N, 1)， 0 号机的深度
+        '''</span>
+        pts_rect <span class="token operator">=</span> self<span class="token punctuation">.</span>lidar_to_rect<span class="token punctuation">(</span>pts_lidar<span class="token punctuation">)</span>    <span class="token comment"># 0 号机修正坐标</span>
+        pts_img<span class="token punctuation">,</span> pts_depth <span class="token operator">=</span> self<span class="token punctuation">.</span>rect_to_img<span class="token punctuation">(</span>pts_rect<span class="token punctuation">)</span> <span class="token comment"># 2 号机图像像素坐标</span>
+        <span class="token keyword">return</span> pts_img<span class="token punctuation">,</span> pts_depth
+    
+    <span class="token keyword">def</span> <span class="token function">img_to_rect</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> u<span class="token punctuation">,</span> v<span class="token punctuation">,</span> depth_rect<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        u: 像素坐标系 u 轴坐标, (N,)，2 号机图像像素坐标 u_b
+        v: 像素坐标系 v 轴坐标, (N,)，2 号机图像像素坐标 v_b
+        depth_rect: 0号机深度 z_a, (N,)，0 号机 z 坐标
+        :return pts_rect: (N, 3)，0 号机相机坐标系
+        '''</span>
+        <span class="token comment"># (13) (14) 两式</span>
+        x <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>u<span class="token operator">-</span>self<span class="token punctuation">.</span>cu<span class="token punctuation">)</span> <span class="token operator">*</span> depth_rect<span class="token punctuation">)</span> <span class="token operator">/</span> self<span class="token punctuation">.</span>fu <span class="token operator">+</span> self<span class="token punctuation">.</span>tx      <span class="token comment"># (N,)</span>
+        y <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>v<span class="token operator">-</span>self<span class="token punctuation">.</span>cv<span class="token punctuation">)</span> <span class="token operator">*</span> depth_rect<span class="token punctuation">)</span> <span class="token operator">/</span> self<span class="token punctuation">.</span>fv <span class="token operator">+</span> self<span class="token punctuation">.</span>ty      <span class="token comment"># (N,)</span>
+        pts_rect <span class="token operator">=</span> np<span class="token punctuation">.</span>concatenate<span class="token punctuation">(</span><span class="token punctuation">(</span>x<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> y<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> depth_rect<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>  <span class="token comment"># (N, 3)</span>
+        <span class="token keyword">return</span> pts_rect
+
+    <span class="token keyword">def</span> <span class="token function">depthmap_to_rect</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> depth_map<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        深度图转为 0 号机修正后的相机坐标
+        depth_map: (H, W)
+        :return pts_rect: (HW, 3)
+        '''</span>
+        x_range <span class="token operator">=</span> np<span class="token punctuation">.</span>arange<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> depth_map<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        y_range <span class="token operator">=</span> np<span class="token punctuation">.</span>arange<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> depth_map<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        x_idxs<span class="token punctuation">,</span> y_idxs <span class="token operator">=</span> np<span class="token punctuation">.</span>meshgrid<span class="token punctuation">(</span>x_range<span class="token punctuation">,</span> y_range<span class="token punctuation">)</span>
+        x_idxs<span class="token punctuation">,</span> y_idxs <span class="token operator">=</span> x_idxs<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> y_idxs<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+        depth <span class="token operator">=</span> depth_map<span class="token punctuation">[</span>y_idxs<span class="token punctuation">,</span> x_idxs<span class="token punctuation">]</span>   <span class="token comment"># (HW,)</span>
+        pts_rect <span class="token operator">=</span> self<span class="token punctuation">.</span>img_to_rect<span class="token punctuation">(</span>x_idxs<span class="token punctuation">,</span> y_idxs<span class="token punctuation">,</span> depth<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> pts_rect<span class="token punctuation">,</span> x_idxs<span class="token punctuation">,</span> y_idxs
+
+    <span class="token keyword">def</span> <span class="token function">corners3d_to_img_boxes</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> corners3d<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        3D 角点修正相机坐标转图像像素坐标
+        corners3d: (N, 8, 3) corners in rect coord . 长方体有 8 个顶点
+        :return boxes: 图像像素坐标 bounding box x1y1x2y2，(N, 4)
+                boxes_corner: 图像像素坐标，3d bbox corner，(N, 8, 2)
+        '''</span>
+        sample_num <span class="token operator">=</span> corners3d<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+        corners3d_hom <span class="token operator">=</span> np<span class="token punctuation">.</span>concatenate<span class="token punctuation">(</span><span class="token punctuation">(</span>corners3d<span class="token punctuation">,</span> np<span class="token punctuation">.</span>ones<span class="token punctuation">(</span><span class="token punctuation">(</span>sample_num<span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span>    <span class="token comment"># (N, 8, 4)</span>
+        <span class="token comment"># (12) 式，转为经 z_a 缩放后的 2 号相机像素坐标，z_a 是 0 号机修正坐标系中点的 z 坐标</span>
+        <span class="token comment"># 即每个点变换后的坐标为 [z_a*u_b, z_a*v_b, z_b]</span>
+        img_pts <span class="token operator">=</span> np<span class="token punctuation">.</span>matmul<span class="token punctuation">(</span>corners3d_hom<span class="token punctuation">,</span> self<span class="token punctuation">.</span>P2<span class="token punctuation">.</span>T<span class="token punctuation">)</span>   <span class="token comment"># (N, 8, 3)</span>
+        <span class="token comment"># 获取 2 号机图像像素坐标（为什么是除以 img_pts[:,:,2] ，而不是除以 corners3d_hom[:,:,2]？）</span>
+        x<span class="token punctuation">,</span> y <span class="token operator">=</span> img_pts<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">/</span> img_pts<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> img_pts<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">/</span> img_pts<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">]</span>
+        x1<span class="token punctuation">,</span> y1 <span class="token operator">=</span> np<span class="token punctuation">.</span><span class="token builtin">min</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> np<span class="token punctuation">.</span><span class="token builtin">min</span><span class="token punctuation">(</span>y<span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+        x2<span class="token punctuation">,</span> y2 <span class="token operator">=</span> np<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span>y<span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> np<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span>y<span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+
+        <span class="token comment"># (N, 4)</span>
+        boxes <span class="token operator">=</span> np<span class="token punctuation">.</span>concatenate<span class="token punctuation">(</span><span class="token punctuation">(</span>x1<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> y1<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> x2<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> y2<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+        boxes_corner <span class="token operator">=</span> np<span class="token punctuation">.</span>concatenate<span class="token punctuation">(</span><span class="token punctuation">(</span>x<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> y<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span>   <span class="token comment"># (N, 8, 2)</span>
+        <span class="token keyword">return</span> boxes<span class="token punctuation">,</span> boxes_corner
+
+    <span class="token keyword">def</span> <span class="token function">camera_dis_to_rect</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> u<span class="token punctuation">,</span> v<span class="token punctuation">,</span> d<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        u: 2 号机图像像素坐标系，点的 u 坐标，(N,)
+        v: 2 号机图像像素坐标系，点的 v 坐标，(N,)
+        d: 点与相机之间的距离，d^2=x^2+y^2+z^2
+        :return pts_rect: 相机修正后坐标系的点坐标， (N, 3)
+        '''</span>
+        <span class="token keyword">assert</span> self<span class="token punctuation">.</span>fu <span class="token operator">==</span> self<span class="token punctuation">.</span>fv<span class="token punctuation">,</span> <span class="token string">'%.8f != %.8f'</span> <span class="token operator">%</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span>fu<span class="token punctuation">,</span> self<span class="token punctuation">.</span>fv<span class="token punctuation">)</span>
+        <span class="token comment"># 统一到像素坐标系中，计算距离</span>
+        fd <span class="token operator">=</span> np<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span><span class="token punctuation">(</span>u <span class="token operator">-</span> self<span class="token punctuation">.</span>cu<span class="token punctuation">)</span><span class="token operator">**</span><span class="token number">2</span> <span class="token operator">+</span> <span class="token punctuation">(</span>v <span class="token operator">-</span> self<span class="token punctuation">.</span>cv<span class="token punctuation">)</span><span class="token operator">**</span><span class="token number">2</span> <span class="token operator">+</span> self<span class="token punctuation">.</span>fu<span class="token operator">**</span><span class="token number">2</span><span class="token punctuation">)</span>  <span class="token comment"># (N,)</span>
+        <span class="token comment"># 根据 (13) (14) 式</span>
+        x <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>u <span class="token operator">-</span> self<span class="token punctuation">.</span>cu<span class="token punctuation">)</span> <span class="token operator">*</span> d<span class="token punctuation">)</span> <span class="token operator">/</span> fd <span class="token operator">+</span> self<span class="token punctuation">.</span>tx      <span class="token comment"># (N,)</span>
+        y <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>v <span class="token operator">-</span> self<span class="token punctuation">.</span>cv<span class="token punctuation">)</span> <span class="token operator">*</span> d<span class="token punctuation">)</span> <span class="token operator">/</span> fd <span class="token operator">+</span> self<span class="token punctuation">.</span>ty      <span class="token comment"># (N,)</span>
+        z <span class="token operator">=</span> np<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>d<span class="token operator">**</span><span class="token number">2</span> <span class="token operator">-</span> x<span class="token operator">**</span><span class="token number">2</span> <span class="token operator">-</span> y<span class="token operator">**</span><span class="token number">2</span><span class="token punctuation">)</span>             <span class="token comment"># (N,)</span>
+        pts_rect <span class="token operator">=</span> np<span class="token punctuation">.</span>concatenate<span class="token punctuation">(</span><span class="token punctuation">(</span>x<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> y<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> z<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> pts_rect<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这里稍微解释一下 <code>camera_dis_to_rect</code> 方法。根据 (13) (14) 式，可根据 2 号机（因为上述代码片段中使用 P2）图像像素坐标计算出 0 号机的修正后相机坐标系中点坐标，但是需要注意 (13) 式中 $z_a$ 表示 0 号机相机修正坐标系中点的 z 坐标，这在 <code>camera_dist_to_rect</code> 是未知的，所以不能直接使用 (13) (14) 式计算 x，y 坐标。</p>
+<p>已知 $f_x=f/dx=f_y=f/dy$，记 $\delta = dx = dy$， 根据图 4，三角形相似可知，</p>
+<p>$$\frac {y_p}{y_a}=\frac f{z_a}= \frac l d$$</p>
+<p>其中 $(x_a, y_a, z_a)$ 表示 0 号机的相机坐标系中点坐标，下标 a 遵循了上面例子 1 中的 A 相机，即 0 号相机。$y_p$ 是 0 号相机的图像坐标系中点的 Y 轴坐标，下标 p 表示 picture，即图像坐标系（非像素坐标系），$f$ 是焦距（X,Y 轴焦距相等）。 l 和 d 分别是小大两个相似直角三角形的斜边边长。<br>
+另外，根据 (8) 式可知</p>
+<p>$$v=\frac {y_p}{dy} + v_0 \Rightarrow v-v_0=\frac {y_p}{\delta}$$</p>
+<p>类似地可得 $u-u_0=x_p/ \delta$，于是 $l / \delta = \sqrt { (u-u_0)<sup>2+(v-v_0)</sup>2}$</p>
+<p>所以</p>
+<p>$$\frac {z_a}{f_y}= \frac {z_a} {f} \delta=\frac d l \delta= d / \sqrt { (u-u_0)<sup>2+(v-v_0)</sup>2}$$</p>
+<p>注意，以上三式中的 $u, v , u_0, v_0$ 是点 p 和图像中心点的图像像素坐标系中的坐标值，这个像素坐标系可以是基于 0 号相机，也可以是基于 2 号相机，因为这两个像素坐标系仅仅通过一个平移即可相互转换，所以无论采用哪个相机的像素坐标系， $u-u_0$ 和 $v-v_0$ 均保持不变。上述代码中使用的是 2 号相机像素坐标系中的坐标。</p>
+<p>于是根据 (14) 式，有 $y_a=(v_b-v_0)z_a /f_y + b_y=(v_b-v_0)d / \sqrt { (u-u_0)<sup>2+(v-v_0)</sup>2}+b_y$ 。$x_a$ 的计算类似。这就是 <code>camera_dis_to_rect</code> 方法实现的数学原理。</p>
+<h2 id="2-4-training-labels">2.4 training labels</h2>
+<p>以 “000001.txt” 为例，内容为</p>
+<pre class="line-numbers language-none"><code class="language-none">type  trunc occlud alpha  x1     y1     x2     y2     h    w    l     x    y    z     rotation_y
+Truck 0.00  0       -1.57 599.41 156.40 629.75 189.25 2.85 2.63 12.34 0.47 1.49 69.44 -1.56
+Car 0.00 0 1.85 387.63 181.54 423.81 203.12 1.67 1.87 3.69 -16.53 2.39 58.49 1.57
+Cyclist 0.00 3 -1.65 676.60 163.95 688.98 193.93 1.86 0.60 2.02 4.59 1.32 45.84 -1.55
+DontCare -1 -1 -10 503.89 169.71 590.61 190.13 -1 -1 -1 -1000 -1000 -1000 -10
+DontCare -1 -1 -10 511.35 174.96 527.81 187.45 -1 -1 -1 -1000 -1000 -1000 -10
+DontCare -1 -1 -10 532.37 176.35 542.68 185.27 -1 -1 -1 -1000 -1000 -1000 -10
+DontCare -1 -1 -10 559.62 175.83 575.40 183.15 -1 -1 -1 -1000 -1000 -1000 -10<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>每个图片对应于一个label 文件， 每一行代表一个object, 且有16个数据，分别为</p>
+<ol>
+<li>
+<p>第一列(字符串) : 目标类别。 KITTI总共有9各类别:Car、Van、Truck、Pedestrian、Person_sitting、Cyclist、Tram、Misc、DontCare。其中DontCare标签表示该区域没有被标注，比如由于目标物体距离激光雷达太远。为了防止在评估过程中（主要是计算precision），将本来是目标物体但是因为某些原因而没有标注的区域统计为假阳性(false positives)，评估脚本会自动忽略DontCare区域的预测结果。</p>
+</li>
+<li>
+<p>第2列（浮点数）：代表物体是否被截断（truncated）数值在0（非截断）到1（截断）之间浮动，数字表示指离开图像边界对象的程度。</p>
+</li>
+<li>
+<p>第3列（整数）：代表物体是否被遮挡（occluded）。整数0、1、2、3分别表示被遮挡的程度。0: 全部可见；1: 部分遮挡；2: 大面积遮挡；3: 未知</p>
+</li>
+<li>
+<p>第4列（弧度数）：物体的观察角度（alpha）。取值范围为：-pi ~ pi（单位：rad），它表示在相机坐标系下，以相机原点为中心，相机原点到物体中心的连线为半径，将物体绕相机y轴旋转至相机z轴，此时物体方向与相机x轴的夹角，如图 7 所示。实际上也就是物体朝向与切线方向的夹角。</p>
+</li>
+<li>
+<p>第5~8列（浮点数）：物体的2D边界框大小（bbox）。四个数分别是xmin、ymin、xmax、ymax（单位：pixel），表示2维边界框的左上角和右下角的坐标。</p>
+</li>
+<li>
+<p>第9~11列（浮点数）：3D物体的尺寸（dimensions）。 分别是高、宽、长（单位：米）</p>
+</li>
+<li>
+<p>第12-14列（浮点数）：3D物体的位置（location）。 分别是x、y、z（单位：米），特别注意的是，这里的xyz是在相机坐标系下3D物体的中心点位置。</p>
+</li>
+<li>
+<p>第15列（弧度数）：3D物体的空间方向（rotation_y）。 取值范围为：$[-\pi, \pi)$（单位：rad），它表示，在照相机坐标系下，物体的全局方向角（物体前进方向 Z’ 与相机坐标系 Z 轴的夹角），也就是说 rotation_y 表示 绕相机 Y 轴旋转的角度 使得 Z 轴 变成物体的朝向 Z’ 轴，顺时针转动为正值，逆时针为负值。（参考 2 中说是与 X 轴的夹角，但是我怀疑说的是 LiDAR 坐标系）</p>
+<p>如图 8 ，我们给出 camera 坐标系下的三种旋转角度，根据右手定则确定正向：右手握住旋转所绕的轴，拇指为此轴正向，然后四指所指方向为正。例如图 11，右手握住 Y 轴，拇指向下，那么物体朝向顺时针旋转了 rotation_y 角度，与四指所指方向一致，故判断 rotation_y 为正。</p>
+</li>
+<li>
+<p>第16列（浮点数）：检测的置信度（score）。要特别注意的是，这个数据只在测试集的数据中有（待确认）。</p>
+</li>
+</ol>
+<p><img src="images/obj_det/3d/dataset_kitti_7.png" alt=""></p>
+<center>图 7.</center>
+<p><img src="images/obj_det/3d/dataset_kitti_8.png" alt=""></p>
+<center>图 8</center>
+<p><img src="images/obj_det/3d/dataset_kitti_9.png" alt=""></p>
+<center>图 9. 来源：kitti 官网</center>
+<p><img src="images/obj_det/3d/dataset_kitti_10.png" alt=""></p>
+<center>图 10. 来源：kitti 官网</center>
+<p><img src="images/obj_det/3d/point_rcnn_4.png" alt=""></p>
+<center>图 11</center>
+<p>图 9 和 10 是展示了各个传感器和各自的部署位置以及相应的坐标系。</p>
+<p>label 处理类 <code>Object3d</code> 代码，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">cls_type_to_id</span><span class="token punctuation">(</span>cls_type<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    type_to_id <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">'Car'</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">'Pedestrian'</span><span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token string">'Cyclist'</span><span class="token punctuation">:</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token string">'Van'</span><span class="token punctuation">:</span> <span class="token number">4</span><span class="token punctuation">&#125;</span>
+    <span class="token keyword">if</span> cls_type <span class="token keyword">not</span> <span class="token keyword">in</span> type_to_id<span class="token punctuation">.</span>keys<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span>
+    <span class="token keyword">return</span> type_to_id<span class="token punctuation">[</span>cls_type<span class="token punctuation">]</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Object3d</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> line<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''line: label 文件中的一行'''</span>
+        label <span class="token operator">=</span> line<span class="token punctuation">.</span>strip<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token string">' '</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>src <span class="token operator">=</span> line
+        self<span class="token punctuation">.</span>cls_type <span class="token operator">=</span> label<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+        self<span class="token punctuation">.</span>cls_id <span class="token operator">=</span> cls_type_to_id<span class="token punctuation">(</span>self<span class="token punctuation">.</span>cls_type<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>truncation <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>   <span class="token comment"># 被截断程度</span>
+        self<span class="token punctuation">.</span>occlusion <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span>    <span class="token comment"># 被遮挡程度</span>
+        self<span class="token punctuation">.</span>alpha <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>box2d <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>h <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">8</span><span class="token punctuation">]</span><span class="token punctuation">)</span>    <span class="token comment"># 高</span>
+        self<span class="token punctuation">.</span>w <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">9</span><span class="token punctuation">]</span><span class="token punctuation">)</span>    <span class="token comment"># 宽</span>
+        self<span class="token punctuation">.</span>l <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">10</span><span class="token punctuation">]</span><span class="token punctuation">)</span>   <span class="token comment"># 长</span>
+        self<span class="token punctuation">.</span>pos <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">11</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">13</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span><span class="token comment"># 物体中心点位置 (x,y,z)</span>
+        self<span class="token punctuation">.</span>dis_to_cam <span class="token operator">=</span> np<span class="token punctuation">.</span>linalg<span class="token punctuation">.</span>norm<span class="token punctuation">(</span>self<span class="token punctuation">.</span>pos<span class="token punctuation">)</span>  <span class="token comment"># 物体中心点距离相机的距离（相机坐标系）</span>
+        self<span class="token punctuation">.</span>ry <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">14</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>score <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>label<span class="token punctuation">[</span><span class="token number">15</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>label<span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">16</span> <span class="token keyword">else</span> <span class="token operator">-</span><span class="token number">1.0</span>     <span class="token comment"># 检测置信度</span>
+        self<span class="token punctuation">.</span>level_str <span class="token operator">=</span> <span class="token boolean">None</span>
+        self<span class="token punctuation">.</span>level <span class="token operator">=</span> self<span class="token punctuation">.</span>get_obj_level<span class="token punctuation">(</span><span class="token punctuation">)</span>   <span class="token comment"># 3d 目标检测的难易程度。物体越高，截断越小，遮挡越小，那么检测越容易</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="2-5-road-plane">2.5 road plane</h2>
+<p>有时候训练集中还包含道路平面的 label 文件，位于目录 <code>KITTI/object/training/planes</code> 下，这个文件夹包含 ego vehicle 的 ground planes，每个相机拍摄图片，均有一个相应的 ground plane 文件，例如 <code>000000.txt</code>，内容为</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># Matrix</span>
+WIDTH <span class="token number">4</span>
+HEIGHT <span class="token number">1</span>
+-7.051729e-03 -9.997791e-01 -1.980151e-02 <span class="token number">1</span>.680367e+00 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中 <code>WIDTH 4</code> 和 <code>HEIGHT 1</code> 表示是 gt 是 $1 \times 4$ 的矩阵，矩阵为</p>
+<p>$$[-7.051729e-03,\ -9.997791e-01,\ -1.980151e-02, \ 1.680367e+00]$$</p>
+<p>前三个数表示 plane 的法向量，这是根据车辆的 IMU 的数据 （roll，pitch， yaw）计算出来的，且法向量总是接近 $[0, \ -1, \ 0]$，这表示 plane 几乎平整（法向量沿 Y 轴负方向，即竖直向上）。第四个数是相机相对 ground plane 的高度。</p>
+<ol>
+<li>所有相机高度: 1.65m</li>
+<li>velodyne 激光扫描器高度: 1.73m</li>
+<li>GPS/IMU 高度: 0.93m</li>
+</ol>
+<h1>3. 车道线检测</h1>
+<p>数据集：<a target="_blank" rel="noopener" href="https://www.cvlibs.net/datasets/kitti/eval_road.php">Road/Lane Detection</a></p>
+<p>road &amp; lane estimation benchmark 包含 289 的训练图片和 290 个测试图片。道路场景包含 3 种分类：</p>
+<ol>
+<li>uu - urban unmarked (98/100) （98 training / 100 testing）</li>
+<li>um - urban marked (95/96)</li>
+<li>umm - urban multiple marked lanes (96/94)</li>
+<li>urban - 以上三种的合集</li>
+</ol>
+<p>如下图，</p>
+<p><img src="/images/obj_det/3d/dataset_kitti_11.jpg" alt=""></p>
+<p>ground truth 由人工标注，有两种道路地形：</p>
+<ol>
+<li>road - 道路区域，即，所有的 lanes（所有车道）</li>
+<li>lane - ego-lane，即，当前 ego vehicle 所行驶的车道（仅在 um 分类下的图片中存在）</li>
+</ol>
+<p>ground truth 仅在训练集中提供。</p>
+<h1>Ref</h1>
+<ol>
+<li>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/493026799">https://zhuanlan.zhihu.com/p/493026799</a></p>
+</li>
+<li>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/boon_228/article/details/125925739">https://blog.csdn.net/boon_228/article/details/125925739</a></p>
+</li>
+<li>
+<p>代码参考 <a target="_blank" rel="noopener" href="https://github.com/sshaoshuai/PointRCNN.git">https://github.com/sshaoshuai/PointRCNN.git</a></p>
+</li>
+</ol>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2022/10/12/obj_det/3d/dataset_kitti/">https://jianjiansha.github.io/2022/10/12/obj_det/3d/dataset_kitti/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/3d-object-detection/">
+                                    <span class="chip bg-color">3d object detection</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/10/18/obj_det/3d/pointnet/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="PointNet 论文解读">
+                        
+                        <span class="card-title">PointNet 论文解读</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-10-18
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/3d-object-detection/">
+                        <span class="chip bg-color">3d object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/10/11/obj_det/3d/pointcloud2bev/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/4.jpg" class="responsive-img" alt="点云生成鸟瞰图">
+                        
+                        <span class="card-title">点云生成鸟瞰图</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-10-11
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/3d-object-detection/">
+                        <span class="chip bg-color">3d object detection</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

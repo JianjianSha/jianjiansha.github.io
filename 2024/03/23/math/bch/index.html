@@ -1,0 +1,1688 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="BCH编码, SJJ">
+    <meta name="description" content="# 伽罗瓦域
+伽罗瓦域 $GF(p ^ m)$，有 $p ^ m$ 个元素，$p$ 是素数，以 $p=2$ 为例，根据本原多项式 $P(x)$ 构造元素，步骤：
+
+
+初始集合 $\lbrace 0, 1, x \rbrace$
+
+
+将集合最">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>BCH编码 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/10.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">BCH编码</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/math/">
+                                <span class="chip bg-color">math</span>
+                            </a>
+                        
+                            <a href="/tags/coding/">
+                                <span class="chip bg-color">coding</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2024-03-23
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p><strong># 伽罗瓦域</strong></p>
+<p>伽罗瓦域 $GF(p ^ m)$，有 $p ^ m$ 个元素，$p$ 是素数，以 $p=2$ 为例，根据本原多项式 $P(x)$ 构造元素，步骤：</p>
+<ol>
+<li>
+<p>初始集合 $\lbrace 0, 1, x \rbrace$</p>
+</li>
+<li>
+<p>将集合最后一个元素乘以 $x$，如果结果的阶大于等于 $m$，则将结果 $\mod P(x)$，将结果加入集合</p>
+<p>实际上 $x ^ {m+i+1} \mod P(x) = [(x ^ {m+i} \mod P(x)) \cdot x] \mod P(x)$</p>
+</li>
+<li>
+<p>直到集合中有 $2 ^ m$ 个元素，此时最后一个元素乘以 $x$ 后再 $\mod P(x)$ 的值等于 1 。</p>
+</li>
+</ol>
+<p>例如对 $GF(2 ^ 3)$ ，本原多项式为 $P(x) = x ^ 3 + x + 1$</p>
+<table>
+<thead>
+<tr>
+<th>幂表示</th>
+<th>多项式表示</th>
+<th>向量表示</th>
+<th>值表示</th>
+<th>最小多项式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$a ^ 0$</td>
+<td>$1$</td>
+<td>001</td>
+<td>1</td>
+<td>$x+1$</td>
+</tr>
+<tr>
+<td>$a ^ 1$</td>
+<td>$a$</td>
+<td>010</td>
+<td>2</td>
+<td>$x^3 + x+1$</td>
+</tr>
+<tr>
+<td>$a ^ 2$</td>
+<td>$a^2$</td>
+<td>100</td>
+<td>4</td>
+<td>$x^3 + x+1$</td>
+</tr>
+<tr>
+<td>$a ^ 3$</td>
+<td>$a+1$</td>
+<td>011</td>
+<td>3</td>
+<td>$x^3 + x ^ 2+1$</td>
+</tr>
+<tr>
+<td>$a ^ 4$</td>
+<td>$a^2+a$</td>
+<td>110</td>
+<td>6</td>
+<td>$x^3 + x+1$</td>
+</tr>
+<tr>
+<td>$a ^ 5$</td>
+<td>$a^2+a+1$</td>
+<td>111</td>
+<td>7</td>
+<td>$x^3 + x ^ 2+1$</td>
+</tr>
+<tr>
+<td>$a ^ 6$</td>
+<td>$a^2+1$</td>
+<td>101</td>
+<td>5</td>
+<td>$x^3 + x ^ 2+1$</td>
+</tr>
+<tr>
+<td>$a ^ 7$</td>
+<td>$1$</td>
+<td>001</td>
+<td>1</td>
+<td>$x+1$</td>
+</tr>
+</tbody>
+</table>
+<center>表 1</center>
+<p>结论：</p>
+<ol>
+<li>
+<p>多项式表示就是幂表示 $\mod P(x)$ 的结果。</p>
+</li>
+<li>
+<p>$a ^ i = a ^ {i+7}$，其中 $7 = 2 ^ m - 1$</p>
+</li>
+<li>
+<p>根据本原多项式构造出 $GF(2 ^ 3)$ 中的元素就是多项式表示这一列，$a ^ 7$ 这一行不算，$a ^ i, i &gt;= 2 ^ m - 1$ 都不算，重复了</p>
+</li>
+<li>
+<p>本原多项式阶数为 $m$，在 $GF(2 ^ m)$ 中定义了 $2 ^ m - 1$ 个非零元素（即，多项式表示这一列）</p>
+</li>
+<li>
+<p>三个最小多项式满足以下关系（注意是经过了 mod 2 处理，即 $x ^ i + x ^ i = 0, \forall i &gt;= 0$）</p>
+<p>$x ^ 7 + 1 = (x ^ 3 + x ^ 2 + 1) (x ^ 3 + x + 1)(x + 1)$</p>
+</li>
+<li>
+<p>$\lbrace a ^ i, \ i = 0, …, 6\rbrace$ 是单项式，通过本原多项式与多项式表示建立联系</p>
+</li>
+<li>
+<p>每一行 $a ^ i, \ i &gt;= 0$ 是对应的最小多项式 $M(x)$ 的根，$M(x)$ 的阶数决定它有几个根。</p>
+<p>例如 $M(x) = x ^ 3 + x ^ 2 + x$，一个根为 $x=a ^ 5$，那么</p>
+<p>$$M(a ^ 5) = (a ^ 5) ^ 3 + (a ^ 5) ^ 2 + 1 = a ^ {15} + a ^ {10} + 1$$</p>
+<p>由于 $a ^ 7 = 1$，那么 $a ^ {7k} = \prod _ {i=1} ^ k 1 = 1$，所以 $a ^ {15} = a ^ {15} / 1 = a ^ {15} / a ^ {14} = a$，类似地 $a ^ {10} = a ^ 3 = a + 1$，这里最后一步进行了 $\mod P(x)$ 操作，于是</p>
+<p>$$M(a ^ 5) = a + a + 1 + 1 = 0$$</p>
+</li>
+</ol>
+<p><strong># 最小多项式</strong></p>
+<p>假设 $a$ 是 $GF(p^m)$ 域中的一个元素，$a$ 关于 $GF(p^m)$ 的最小多项式是具有最小阶数的多项式，满足</p>
+<p>$$p(a)=0$$</p>
+<p>且 $p(x)$ 位于 $GF§[x]$ 。</p>
+<p>性质：</p>
+<ol>
+<li>记 $p(x)$ 的阶数为 $d$，有 $d | m$（表示 $m$ 能被 $d$ 整除）</li>
+<li>如果 $f(a)=0$，那么 $p(x)|f(x)$</li>
+<li>$p(x)$ 是 $GF§[x]$ 中的素多项式（不可约）</li>
+<li>如果 $a$ 是 $GF(p^m)$ 中的基本元，那么其最小多项式 $p(x)$ 是一个本原多项式。（这里要求 $a \ne 1$ ？）</li>
+</ol>
+<p>最小多项式 $p(x)$ 的关于根 $a$ 的共轭根为</p>
+<p>$$\lbrace a, a ^ p, a ^ {p ^ 2}, \ldots, a ^ {p ^ {d-1}} \rbrace$$</p>
+<p>考虑一个最小多项式 $x ^ 3 + x + 1$，其一个根为 $a ^ 1$，用 3 bit 表示为 $(001)$，那么旋转这三个 bits，</p>
+<p>$$(001) \rightarrow (010) \rightarrow (100)$$</p>
+<p>得到 $a ^ 1, a ^ 2, a ^ 4$，它们共享相同的最小多项式。</p>
+<p>考虑最小多项式 $x ^ 3 + x ^ 2 + 1$，一个根 $a ^ 3$，即 $(011)$，旋转为</p>
+<p>$$(011) \rightarrow (101) \rightarrow (110)$$</p>
+<p>$a ^ 3, a ^ 5, a ^ 6$ 共享相同的最小多项式。</p>
+<p><strong># 获取本原多项式</strong></p>
+<p>在 $GF(2 ^ m)$ 上，m 阶本原多项式 $P(x)$ 的充要条件是：</p>
+<ol>
+<li>$P(x)$ 不可约（即，不可因式分解）</li>
+<li>$P(x)$ 整除 $x ^ {2 ^ m - 1} + 1$，即 $(x ^ {2 ^ m - 1} + 1) \mod P(x) = 0$</li>
+<li>$P(x)$ 不能整除 $x ^ k + 1, \forall k=1,2,…,2^m - 2$</li>
+</ol>
+<p>以 $GF(2 ^ 3)$ 为例，$x ^ 7 + 1 = (x ^ 3 + x ^ 2 + 1)(x ^ 3 + x + 1)(x + 1)$，显然这三个因式均满足条件 <code>1, 2</code>，但是 $(x+1)$ 不满足条件 <code>3</code>，验证 $(x ^ 3 + x ^ 2 + 1)$ 是否满足条件 <code>3</code>：</p>
+<p>显然对于 $k &lt; 3$ 的情况肯定满足。当</p>
+<ol>
+<li>$k=3$，$(x ^ 3 + 1) \mod (x ^ 3 + x ^ 2 + 1) = x ^ 2$</li>
+<li>$k=4$，$(x ^ 4 + 1) \mod (x ^ 3 + x ^ 2 + 1) = x ^ 2 + x$</li>
+<li>$k=5$，$(x ^ 5 + 1) \mod (x ^ 3 + x ^ 2 + 1) = x$</li>
+<li>$k=4$，$(x ^ 6 + 1) \mod (x ^ 3 + x ^ 2 + 1) = x ^ 2 + x + 1$</li>
+</ol>
+<p>所以 $P(x)=x ^ 3 + x ^ 2 + 1$ 是一个本原多项式。</p>
+<p>类似地可以验证 $P(x)=x ^ 3 + x + 1$ 也是一个本原多项式。</p>
+<p>使用 matlab 验证如下，可以看出结果一致。</p>
+<pre class="line-numbers language-matlab" data-language="matlab"><code class="language-matlab"><span class="token function">gfprimfd</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token string">'all'</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span>
+<span class="token comment">%% ans = </span>
+<span class="token comment">%%      1   1   0   1</span>
+<span class="token comment">%%      1   0   1   1</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong># 创建 BCH 生成多项式</strong></p>
+<p>BCH 若要纠正 $t$ 个错误，那么从 $\lbrace a ^ i | i=1,2,…,2t\rbrace$ 中选择对应的最小多项式，去掉重复的最小多项式，然后将剩下的最小多项式相乘。</p>
+<p>例如上面的例子中，若 $t=1$，那么选择 $a ^ 1, a ^ 2$ 的最小多项式，均为 $x ^ 3 + x + 1$，于是 BCH 生成多项式为</p>
+<p>$$G(x) = x ^ 3 + x + 1$$</p>
+<p>用二进制表示这个生成多项式为 $(1011)$ 。</p>
+<p>若 $t=2$，那么选择 $a ^ 1, a ^ 2, a ^ 3, a ^ 4$ 的最小多项式，去重后得到</p>
+<p>$$G(x) = (x ^ 3 + x + 1)(x ^ 3 + x ^ 2 + 1)$$</p>
+<p>这个生成多项式可以纠正 2 个错误，但是由于此时的消息 bit 数只有 1 bit，所以没必要纠正 2 个错误，这种 BCH 编码设计没有意义。</p>
+<p>要纠正 1 个错误，生成多项式 $G(x)$ 中就要有 1 个最小多项式因子，要纠正 2 个错误，那么 $G(x)$ 中就要有 2 个最小多项式，编码后的码长为 $2 ^ m - 1$，而 $m$ 个 bits 的数值取值范围可覆盖 $0 \sim 2 ^ m - 1$，故每增加 1 个错误纠正能力，就要相应地增加 $m$ 个校验 bits，所以消息 bit 数为</p>
+<p>$$k = 2 ^ m - 1 - m\cdot t$$</p>
+<p><strong># BCH 编码</strong></p>
+<p>有了生成多项式 $G(x)$ 后，BCH 编码有两种方法。记消息为 $I(x)$</p>
+<p><strong>1. 非系统编码</strong></p>
+<p>编码后码字为 $C(x) = I(x) \cdot G(x)$，即 多项式相乘，这种编码，需要在错误纠正后根据 $I(x) = C(x) / G(x)$ 得到消息数据。</p>
+<p><strong>2. 系统编码</strong></p>
+<p>编码步骤为：</p>
+<ol>
+<li>
+<p>$C(x) = I(x) \cdot x ^ {n-k}$</p>
+<p>其中 $n, k$ 分别为码字长度和消息长度。这一步得到阶数为 $n$ 的多项式。</p>
+</li>
+<li>
+<p>$C(x) = C(x) + C(x) \mod G(x)$</p>
+<p>这一步确保了码字能被 $G(x)$ 整除。</p>
+</li>
+</ol>
+<p>在码字经过传输，纠正错误后，直接取左边的 $k$ 个 bits 可得消息数据。</p>
+<p><strong># 错误纠正</strong></p>
+<p>以 BCH(7, 4) 为例，码字长度 $n=7$，消息长度 $k=4$，码字经过传输引入了 1 bit 错误，记为</p>
+<p>$$R(x) = C(x) + E(x)$$</p>
+<p>其中 $R(x)$ 为接收的码字，$E(x)$ 表示错误。</p>
+<p>根据 $R(x) \mod G(x) = E(x) \mod G(x)$ 的值，可以定位到错误位置，如下表</p>
+<table>
+<thead>
+<tr>
+<th>$E(x)$</th>
+<th>二进制表示</th>
+<th>$E(x)\mod G(x)$</th>
+<th>二进制表示</th>
+<th>数值表示(Syndrome)</th>
+<th>错误位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$0$</td>
+<td>0000000</td>
+<td>$0$</td>
+<td>000</td>
+<td>0</td>
+<td>-</td>
+</tr>
+<tr>
+<td>$x^0=1$</td>
+<td>0000001</td>
+<td>$1$</td>
+<td>001</td>
+<td>1</td>
+<td>G</td>
+</tr>
+<tr>
+<td>$x^1$</td>
+<td>0000010</td>
+<td>$x$</td>
+<td>010</td>
+<td>2</td>
+<td>F</td>
+</tr>
+<tr>
+<td>$x^2$</td>
+<td>0000100</td>
+<td>$x ^ 2$</td>
+<td>100</td>
+<td>4</td>
+<td>E</td>
+</tr>
+<tr>
+<td>$x^3$</td>
+<td>0001000</td>
+<td>$x+1$</td>
+<td>011</td>
+<td>3</td>
+<td>D</td>
+</tr>
+<tr>
+<td>$x^4$</td>
+<td>0010000</td>
+<td>$x ^ 2 + x$</td>
+<td>110</td>
+<td>6</td>
+<td>C</td>
+</tr>
+<tr>
+<td>$x^5$</td>
+<td>0100000</td>
+<td>$x ^ 2 + x + 1$</td>
+<td>111</td>
+<td>7</td>
+<td>B</td>
+</tr>
+<tr>
+<td>$x^6$</td>
+<td>1000000</td>
+<td>$x ^ 2 + 1$</td>
+<td>101</td>
+<td>5</td>
+<td>A</td>
+</tr>
+</tbody>
+</table>
+<center>表 2</center>
+<p>表中第二列是第一列错误多项式的二进制表示，注意根码字一样是 7 位，第三列 $E(x) \mod G(x)$ 的多项式表示，第四、五列则是对应的二进制表示和数值表示，第五列称作综合值 (Syndrome) 。第六列表示错误位置，对于 7 位码字从左到右每个位置依次标记为 A~G，当然也可以标记为 1~7 。</p>
+<p>根据接收到的码字，我们根据接收到的码字 $R(x)$ 可以计算出第 5 列 Syndrome 值，然后查表可知错误位置。</p>
+<p>对于 4 位消息，总共有 $2 ^ 4 - 1=15$ 种 cases，如下列出，第一列为序号，第二列为消息，第三列为编码后（这里采用的系统编码）的校验码</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>消息</th>
+<th>校验码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0000</td>
+<td>000</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0001</td>
+<td>011</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0010</td>
+<td>101</td>
+</tr>
+<tr>
+<td>4</td>
+<td>0100</td>
+<td>111</td>
+</tr>
+<tr>
+<td>5</td>
+<td>0101</td>
+<td>100</td>
+</tr>
+<tr>
+<td>6</td>
+<td>0110</td>
+<td>001</td>
+</tr>
+<tr>
+<td>7</td>
+<td>0111</td>
+<td>010</td>
+</tr>
+<tr>
+<td>8</td>
+<td>1000</td>
+<td>101</td>
+</tr>
+<tr>
+<td>9</td>
+<td>1001</td>
+<td>110</td>
+</tr>
+<tr>
+<td>10</td>
+<td>1010</td>
+<td>011</td>
+</tr>
+<tr>
+<td>11</td>
+<td>1011</td>
+<td>000</td>
+</tr>
+<tr>
+<td>12</td>
+<td>1100</td>
+<td>010</td>
+</tr>
+<tr>
+<td>13</td>
+<td>1101</td>
+<td>001</td>
+</tr>
+<tr>
+<td>14</td>
+<td>1110</td>
+<td>100</td>
+</tr>
+<tr>
+<td>15</td>
+<td>1111</td>
+<td>111</td>
+</tr>
+</tbody>
+</table>
+<center>表 3</center>
+<p>我们以消息 $1100$ 为例，编码后码字为 $1100010$，</p>
+<p>假设错误为 $0100000$，即错误发生在左起第二位，那么接收码字为 $1000010$，计算 $R(x) \mod G(x)$ 为</p>
+<p>$$\begin{aligned} &amp; \quad \ \ 1011 \ 1011) &amp;\overline{ 1000010} \ &amp; 1011 \ &amp; \overline {001101} \ &amp; \quad 1011 \ &amp; \quad \overline {01100} \ &amp; \quad \ \ 1011 \ &amp; \quad \quad \overline {111}<br>
+\end{aligned}$$</p>
+<p>故 syndrome 值为 $7$，根据表 2 可知错误位置发生在 B 位置，也就是左起第二个位置。</p>
+<p>这里 $E(x)$ 可看作二进制向量。</p>
+<p>实际上，这里的例子中，只纠正 1 个错误即 $t=1$，此时生成多项式 $G(x)$ 就是所选的最小多项式，即表 1 中 $a ^ 1, a ^ 2$ 的最小多项式。如果 $G(x)$ 中有 $t&gt;1$ 个最小多项式因子，那么如何纠正这 $t &gt; 1$ 个错误呢？</p>
+<p>我们需要将接收的码字 $R(x)$ 分别对 $G(x)$ 中的每个最小多项式取模，得到 $t &gt; 1$ 个余式，每个最小多项式有对应的根，将根代入余式，得到 syndrome 值，然后可以得到错误位置。下面我们以码字长度 $n=7$，最大可纠正 $t=2$ 个错误为例说明，当然前面说了，此时消息长度 $k=n - 3 \cdot t = 1$，纠正 2 个错误没有意义，所以这里仅仅是为了便于说明举例，毕竟 $n=7$ 足够小。</p>
+<p>$t=2$ 时，生成多项式为 $G(x) = (x ^ 3 + x + 1)(x ^ 3 + x ^ 2 + 1)=\sum _ {i=0} ^ 6 x ^ i$，注意这是经过了 $\mod 2$ 处理，二进制表示是 $1111111$ (7 个 1)，根据上文系统编码的步骤，可得</p>
+<table>
+<thead>
+<tr>
+<th>index</th>
+<th>消息</th>
+<th>校验码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>000000</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>111111</td>
+</tr>
+</tbody>
+</table>
+<p>例如消息 $1$，编码后码字 $1111111$，错误为 $0101000$，那么接收的码字为 $R=1111111+0101000=1010111$，</p>
+<ol>
+<li>
+<p>$R(x) \mod (x ^ 3 + x + 1)=(1010111) \mod (1011)=100$，由于此最小多项式的根为 $a$，那么综合值为 $a ^ 2$</p>
+</li>
+<li>
+<p>$R(x) \mod (x ^ 3 + x ^ 2 + 1) = 110$，此最小多项式根为 $a^3$ （根据 表 1 可知），那么综合值为 $(a ^ 3 ) ^ 2 + a ^ 3=a ^ 6 + a ^ 3 = (a ^ 2 + 1) + (a + 1) = a ^ 2 + a = a ^ 4$</p>
+<p>上式推导中，根据表 1，$a ^ 6 = a ^ 2 + 1, a ^ 3 = a + 1$，然后 $\mod 2$，得到 $a ^ 2 + a$，根据表 1 得到单项 $a ^ 4$</p>
+</li>
+</ol>
+<p>我们也可以根据校验矩阵来得到 syndrome 的值。校验矩阵为</p>
+<p>$$H=\begin{bmatrix}a ^ 6 &amp; a ^ 5 &amp; \cdots &amp; a ^ 0<br>
+\ (a ^ 2) ^ 6 &amp; (a ^ 2) ^ 5 &amp; \cdots &amp; (a ^ 2) ^ 0<br>
+\ \vdots<br>
+\ (a ^ {2t}) ^ 6 &amp; (a ^ {2t}) ^ 5 &amp; \cdots &amp; (a ^ {2t}) ^ 0\end{bmatrix} \tag{1}$$</p>
+<p>这里根据 $t=2$，考虑 $a, a ^2, …, a ^ 4$ 这 4 行，$a, a ^ 2, a ^ 4$ 互相共轭，$a, a ^ 3$ 不互相共轭，所以实际上只需要考虑 $a, a ^ 3$ 对应的两行，故</p>
+<p>$$H=\begin{bmatrix} a ^ 6 &amp; a ^ 5 &amp; \cdots &amp; a ^ 0<br>
+\ (a ^ 3) ^ 6 &amp; (a ^ 3) ^ 5 &amp; \cdots &amp; (a ^ 3) ^ 0\end{bmatrix}$$</p>
+<p>那么综合值为</p>
+<p>$$S = R \cdot H ^ {\top}$$</p>
+<p>根据接收向量 $R=[1 \ 0 \ 1 \ 0 \ 1 \ 1 \ 1]$， 于是，</p>
+<p>$$\begin{aligned} S _ 1 &amp;= a ^ 6 + a ^ 4 + a ^ 2 + a + 1<br>
+\ &amp;=(a ^ 2 + 1) + (a ^ 2 + a) + a ^ 2 + a + 1<br>
+\ &amp; \stackrel{\mod 2}=a ^ 2<br>
+\end{aligned} \tag{2}$$</p>
+<p>$$\begin{aligned} S _ 2 &amp;= a ^ {18} + a ^ {12} + a ^ 6 + a ^ 3 + 1<br>
+\ &amp; \stackrel{/ x ^ 7}=a ^ 4 + a ^ 5 + a ^ 6 + a ^ 3 + 1<br>
+\ &amp;= a ^ 4 + (a ^ 2 + a + 1) + (a ^ 2 + 1) + a + 1 + 1<br>
+\ &amp; \stackrel{\mod 2}=a ^ 4<br>
+\end{aligned} \tag{3}$$</p>
+<p>在 $t=1$ 时，我们根据 syndrome 值查表就直到错误位置。在 $t=2$ 时，错误位置与 syndrome 值的对应关系已经与表 2 不同。如何计算出错误位置呢？</p>
+<p>记错误向量为 $E=[0 \ 0 \ \cdots 1 \ 0 \ \cdots \ 0 \ 1 \ 0 \ \cdots]$，其中两个错误位置 $i, j$ 处元素值为 1（<strong>从右往左计数下标</strong>，$i,j &gt;= 0$） ，那么 syndrome 为</p>
+<p>$$R \cdot H ^ {\top} = (C + E) \cdot H ^ {\top} = E \cdot H ^ {\top}=\begin{bmatrix} a ^ i \ a ^ {3i}\end{bmatrix} + \begin{bmatrix} a ^ j \ a ^ {3j}\end{bmatrix}=\begin{bmatrix} a ^ i + a ^ j \ a ^ {3i} + a ^ {3j}\end{bmatrix}=\begin{bmatrix} z _ 1 \ z _ 2\end{bmatrix}$$</p>
+<p>上式推导使用了 $C \cdot H ^ {\top} = \mathbf 0$，其中 $C$ 是发送码字。构造错误定位多项式</p>
+<p>$$S(x) = (x + a ^ i) (x + a ^ j)=x ^ 2 + (a ^ i + a ^ j) x + (a ^ i \cdot a ^ j)$$</p>
+<p>$S(x)$ 的根就是错误定位器，毕竟知道了 $a ^ i, a ^ j$ 就知道了 $i, j$ 的值。</p>
+<p>根据推导</p>
+<p>$$z _ 2 = a ^ {3i} + a ^ {3j} = (a ^ i + a ^ j)(a ^ {2i} + a ^ i a ^ j + a ^ {2j})=z _ 1 \cdot (z _ 1 ^ 2 + a ^ i a ^ j)$$</p>
+<p>所以 $a ^ i a ^ j = z _ 2 / z _ 1 + z _ 1 ^ 2$ 代入 $S(x)$ 得</p>
+<p>$$S(x) = x ^ 2 + z _ 1 x + (z _ 2 / z _ 1 + z _ 1 ^ 2)$$</p>
+<p>结论：</p>
+<ol>
+<li>如果 $z _ 1 = z _ 2 = 0$，也就是说，$S(x)=x^2$，此时 $R \cdot H ^ {\top} = \mathbf 0$，说明没有错误发生，即， $R = C$</li>
+<li>如果 $z _ 1 \ne 0, z _ 2 = z _ 1 ^ 3$，$S(x)=x(x + z _ 1)$，此时有一个错误，位于 $z _ 1$ 处。</li>
+<li>如果 $z _ 1 \ne 0, z _ 2 \ne z _ 1 ^ 3$，此时有两个错误，位于 $a ^ i$ 和 $a ^ j$ 处。</li>
+</ol>
+<p>在前面的例子中，我们已经计算出 syndrome 值为 $z _ 1 = a ^ 2, z _ 2 = a ^ 4$，写为</p>
+<p>$$a ^ i + a ^ j = a ^ 2<br>
+\ a ^ i a ^ j = a ^ 4 + a ^ 2=a$$</p>
+<p>上式方程组对称，不妨令 $i &lt; j$。解上式方程组，$a ^ i (a ^ 2 + a ^ i) = a$，等号左侧化简，得 $a ^ {2 + i} + a ^ {2i}=a$</p>
+<p>根据表 1，依次代入 $i=0, 1, 2, …, 6$，发现 $i=3$ 和 $i=5$ 满足条件，于是可以求得 $j$ 的值，</p>
+<p>$$\begin{cases} i = 3 \ j = 5 \end{cases}, \quad \begin{cases} i = 5 \ j = 3 \end{cases}$$</p>
+<p>根据 $i &lt; j$，可知 $i=3, j=5$，注意这是从右往左计数下标，且下表从 0 开始计数，所以在 $B, D$ 两个位置处发生错误。</p>
+<p><strong># BCH 解码</strong></p>
+<p>码字长度 $n$，消息长度 $k$，最大可纠正错误数 $t$，</p>
+<ol>
+<li>
+<p>接收码字与校验矩阵相乘，得到 syndrome 向量 $S = R \cdot H ^ {\top}$</p>
+</li>
+<li>
+<p>for $v = t, t - 1, …, 0$:</p>
+<p>计算 $M=\begin{bmatrix} S _ 1 &amp; \cdots &amp; S _ v \ S _ 2 &amp; \cdots &amp; S _ {v+1} \ \vdots \ S _ v &amp; \cdots &amp; S _ {2v}\end{bmatrix}$</p>
+<p>if $\det(M) = 0$: continue</p>
+<p>$\begin{bmatrix} \Lambda _ v \ \Lambda _ {v-1} \ \vdots \ \Lambda _ 1\end{bmatrix} = M ^ {-1} \begin{bmatrix} -S _ {v+1} \ -S _ {v+2} \ \vdots \ S _ {2v}\end{bmatrix}$</p>
+<p>解定位函数 $\Lambda(x) = 1 + \sum _ {i=1} ^ v \Lambda _ i x ^ i =  \prod _ {i=1}^v (1-X _ v x)$ 的根，其中 $X _ 1, X _ 2, \cdots, X _ v$ 是错误位置。</p>
+<p>解以下方程得到错误值 $\mathbf Y$，</p>
+<p>$$\begin{bmatrix} X _ 1 &amp; X _ 2 &amp; \cdots &amp; X _ v \ X _ 1 ^ 2&amp; X _ 2 ^ 2 &amp; \cdots &amp; X _ v ^ 2 \ \vdots \ X _ 1 ^ v &amp; X _ 2 ^ v &amp; \cdots &amp; X _ v ^ v\end{bmatrix}\begin{bmatrix} Y _ 1 \ Y _ 2 \ \cdots \ Y _ v \end{bmatrix}=\begin{bmatrix} S _ 1 \ S _ 2 \ \cdots \ S _ v \end{bmatrix}$$</p>
+</li>
+</ol>
+<p><strong># 例1</strong></p>
+<p>以上述例子 BCH(7, 1) 为例，消息 $1$，编码后码字 $1111111$，错误为 $0101000$，那么接收的码字为 $R=1111111+0101000=1010111$，最大可纠正位数 $t=2$，校验矩阵为前面 (1) 式，那么 syndrome 向量为</p>
+<p>$$S=\begin{bmatrix}a ^ 6 + a ^ 4 + a ^ 2 + a + 1<br>
+\ a ^ {12} + a ^ 8 + a ^ 4 + a ^ 2 + 1<br>
+\ a ^ {18} + a ^ {12} + a ^ 6 + a ^ 3 + 1<br>
+\ a ^ {24} + a ^ {16} + a ^ 8 + a ^ 4 + 1<br>
+\end{bmatrix}=\begin{bmatrix}a ^ 6 + a ^ 4 + a ^ 2 + a + 1<br>
+\ a ^ 5 + a ^ 1 + a ^ 4 + a ^ 2 + 1<br>
+\ a ^ 4 + a ^ 5 + a ^ 6 + a ^ 3 + 1<br>
+\ a ^ 3 + a ^ 2 + a ^ 1 + a ^ 4 + 1<br>
+\end{bmatrix}=\begin{bmatrix}a ^ 2<br>
+\ a ^ 4<br>
+\ a ^ 4<br>
+\ a<br>
+\end{bmatrix}$$</p>
+<p>令 $v=2$，那么</p>
+<p>$$\det(M) = \begin{vmatrix} S _ 1 &amp; S _ 2 \ S _ 2 &amp; S _ 3 \end{vmatrix}=\begin{vmatrix} a ^ 2 &amp; a ^ 4 \ a ^ 4 &amp; a ^ 4 \end{vmatrix}=a ^ 6 - a ^ 8=a ^ 6 - a=a ^ 5 \ne 0 $$</p>
+<p>计算出 $M ^ {-1}=\frac 1 {\det (M)}\begin{bmatrix} S _ 3 &amp; -S _ 2 \ -S _ 2 &amp; S _ 1 \end{bmatrix} = \begin{bmatrix} a ^ 6 &amp; -a ^ 6 \ -a ^ 6 &amp; a ^ 4 \end{bmatrix}$，于是</p>
+<p>$$\Lambda = M ^ {-1}\begin{bmatrix} -a ^ 4 \ - a  \end{bmatrix}=\begin{bmatrix}a ^ 3 + a ^ 0 \ a ^ 3 + a ^ 5\end{bmatrix} = \begin{bmatrix}a \ a ^ 2\end{bmatrix}$$</p>
+<p>定位函数 $\Lambda(x) = 1 + a ^ 2 x + a x ^ 2=1 + (a ^ 3 + a ^ 5) x + a ^ 8 x ^ 2=(1+a ^ 3 x)(1+a ^ 5 x)$，故</p>
+<p>$$X _ 1 = a ^ 3 , \ X _ 2 = a ^ 5$$</p>
+<p>即，在从右往左 index 为 $3$ 和 $5$ 两个地方发生错误（index 从 0 开始计数）。</p>
+<p><strong># Berlekamp 迭代算法</strong></p>
+<p>计算 syndrome 向量 $S = R \cdot H ^ {\top}$，错误多项式为 $\Lambda(x) = 1 + \sum _ {i=1} ^ v \Lambda _ i x ^ i =  \prod _ {i=1}^v (1- a ^ {j_i} x)$ ，这里 $a ^ {j_i}$ 给出了错误位置 $j_i$，那么 syndrome 可表示为</p>
+<p>$$\begin{aligned}S _ 1 &amp;= a ^ {j_1} + a ^ {j_2} + \ldots +  a ^ {j_v}<br>
+\ S _ 2 &amp;= (a ^ {j_1})^2 + (a ^ {j_2}) ^ 2 + \ldots + (a ^ {j_v}) ^ 2<br>
+\ \vdots<br>
+\ S _ {2t} &amp;= (a ^ {j_1})^{2t} + (a ^ {j_2}) ^ {2t} + \ldots + (a ^ {j_v}) ^ {2t}<br>
+\end{aligned}$$</p>
+<p>令 $\beta _ i = a ^ {j _ i}$，那么展开错误多项式 $\Lambda(x)$ 可得</p>
+<p>$$\begin{aligned} \Lambda _ 1 &amp;= \beta _ 1 + \beta _ 2 + \ldots + \beta _ v<br>
+\ \Lambda _ 2 &amp;= \beta _ 1 \beta _ 2 + \beta _ 2 \beta _ 3 + \ldots + \beta _ {v-1} \beta _ v<br>
+\ \vdots<br>
+\ \Lambda _ v &amp;= \beta _ 1 \beta _ 2 \ldots \beta _ v<br>
+\end{aligned}$$</p>
+<p>于是有如下牛顿恒等式，</p>
+<p>$$\begin{aligned} &amp; S _ 1 + \Lambda _ 1 = 0<br>
+\&amp; S _ 2 + \Lambda _ 1 S _ 1 + 2 \Lambda _ 2 = 0<br>
+\&amp; S _ 3 + \Lambda _ 1 S _ 2 + \Lambda _ 2 S _ 1 + 3 \Lambda _ 3 = 0<br>
+\ &amp; \ldots<br>
+\ &amp; S _ v + \Lambda _ 1 S _ {v-1} + \ldots + \Lambda _ {v-1} S _ 1 + v \Lambda _ v = 0<br>
+\ &amp; S _ {v+1} + \Lambda _ 1 S _ v + \ldots + \Lambda _ {v-1} S _ 2 + \Lambda _ v S _ 1 = 0<br>
+\end{aligned}$$</p>
+<p>二进制情况下，当 $i$ 为偶数时， $i \Lambda _i = 0$ 。</p>
+<p>Berlekamp 迭代：</p>
+<ol>
+<li>
+<p>求最低次多项式函数 $\Lambda ^ {(1)} (x)$（上标表示迭代次数），使得其系数满足第一个牛顿恒等式 $S _ 1 + \Lambda _ 1 = 0$</p>
+<p>显然，满足第一个牛顿恒等式，那么必然有 $\Lambda _ 1 = S _ 1$，所以错误多项式 $\Lambda ^ {(1)}(x) = 1 + \Lambda _ 1 x = 1 + S _ 1 x$，这里我们只要求最低次数多项式，所以 $\Lambda ^ {(1)}(x)$ 中 $\Lambda _ i , i &gt; 1$ 全部为零即可。</p>
+</li>
+<li>
+<p>检验 $\Lambda ^ {(1)}(x)$ 是否满足第二个牛顿恒等式 $S _ 2 + \Lambda S _ 1 + 2 S _ 2=0$：</p>
+<ol>
+<li>满足，则取 $\Lambda ^ {(2)}(x) = \Lambda ^ {(1)}(x)$</li>
+<li>不满足，则对 $\Lambda ^ {(1)}(x)$ 增加一个修正项，构成 $\Lambda ^ {(2)}(x)$，使得 $\Lambda ^ {(2)}(x)$ 的系数满足前两个牛顿恒等式。</li>
+</ol>
+</li>
+<li>
+<p>迭代一直进行到获得 $\Lambda ^ {(2t)}(x)$，$\Lambda ^ {(2t)}(x)$ 就是最终的 $\Lambda ^ {(2t)}(x)$</p>
+</li>
+</ol>
+<p>这里迭代 $2t$ 次，而牛等恒等式却只有 $v+1$ 个，可能有的人不理解，按这个迭代，迭代 $v+1$ 次不就满足所有牛顿恒等式了吗，为什么还要迭代 $2t$ 次呢？实际上，第 $u$ 次迭代求得的多项式 $\Lambda ^ {(u)}(x)$ 的阶数为 $j$，则需要满足前 $j$ 个牛顿恒等式，而根据 $i \Lambda _ i = 0$ 可知，第 $\Lambda ^ {(u)}(x)$ 的阶数最大为 $\lfloor (u+1)/2 \rfloor$，当 $u=2t$ 时，$\Lambda ^ {(2t)}(x)$ 的阶数最大为 $t$，当实际上有 $t$ 个错误时取得这个最大阶数，因为 $\Lambda ^ {(2t)}(x)$ 的阶数就表示发生错误的数量。</p>
+<p>这里，牛顿恒等式有 $v+1$ 个，而未知数 $\Lambda _ i$ 有 $v$ 个，$v$ 表示实际发生的错误数量，$v \le t$，所以我觉得只需要前 $v$ 个牛顿恒等式，最后一个等式是冗余的。</p>
+<p>记第 $u$ 步确定的错误多项式为</p>
+<p>$$\Lambda ^ {(u)}(x) = 1 + \Lambda _ 1 x + \Lambda _ 2 x ^ 2 + \ldots + \Lambda _ {l _ u} x ^ {l _ u}$$</p>
+<p>其中 $l _ u$ 是阶次（最高幂次）。</p>
+<p>第 $u$ 步差值为</p>
+<p>$$d _ {u} = S _ {u+1} + \Lambda _ 1 S _ u + \Lambda _ 2 S _ {u-1} + \ldots + \Lambda _ {l _ u} S _ {u +1- l _ u}$$</p>
+<p>迭代步骤为：</p>
+<ol>
+<li>
+<p>$d _ u =0$， $\Lambda ^{(u+1)}(x) = \Lambda ^{(u)}(x)$，$l _ {u+1} = l _ u$</p>
+</li>
+<li>
+<p>$d _ u \ne 0$，寻找前面第 $\rho$ 次迭代，满足 $d _ {\rho} \ne 0$，且 $\rho - l _ {\rho}$ 最大，</p>
+<p>$$\Lambda ^{(u+1)}(x) = \Lambda ^{(u)}(x) + d _ {u - 1} d _ {\rho} ^ {-1} x ^ {u-\rho} \Lambda ^ {(\rho)}(x)$$</p>
+<p>$$l _ {u+1} = \max (l _ u, l _ {\rho} + u - \rho)$$</p>
+<p>$\Lambda ^{(u+1)}(x)$ 阶次为两个单项式中 $x$ 的幂次最大者</p>
+</li>
+</ol>
+<p>迭代步骤 $u$ 范围为 $[0, 2t]$，<br>
+初始条件为 $\Lambda ^ {(0)}(x) = 1$，其阶次为 $l _ 0 = 0$， $d _ 0 = S _ 1$ 。</p>
+<p>迭代结束后得到 $\Lambda(x)$ 错误多项式，那么要求其根，只要将 $a ^ 0, a ^ 1, a ^ 2, \ldots, a ^ {n-1}$ 代入 $\Lambda (x)$，如果结果为 0，那么就是根。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2024/03/23/math/bch/">https://jianjiansha.github.io/2024/03/23/math/bch/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/math/">
+                                    <span class="chip bg-color">math</span>
+                                </a>
+                            
+                                <a href="/tags/coding/">
+                                    <span class="chip bg-color">coding</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2024/04/01/face/facenet/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="FaceNet 论文解读">
+                        
+                        <span class="card-title">FaceNet 论文解读</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2024-04-01
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/face-recognition/">
+                        <span class="chip bg-color">face recognition</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2024/03/21/hello-world/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="Hello World">
+                        
+                        <span class="card-title">Hello World</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2024-03-21
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

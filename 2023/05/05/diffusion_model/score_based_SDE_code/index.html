@@ -1,0 +1,1818 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Score-Based Generative Modeling Through SDE：代码分析, SJJ">
+    <meta name="description" content="本文是 Score-Based Generative Modeling Through SDE 一文具体实现的源码分析，源码位于 yang-song/score_sde_pytorch 。
+为了表述简洁，将 《Score-Based Gen">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Score-Based Generative Modeling Through SDE：代码分析 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/16.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Score-Based Generative Modeling Through SDE：代码分析</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/diffusion-model/">
+                                <span class="chip bg-color">diffusion model</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2023-05-05
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>本文是 <a href="/2022/07/26/diffusion_model/score_based_SDE">Score-Based Generative Modeling Through SDE</a> 一文具体实现的源码分析，源码位于 <a target="_blank" rel="noopener" href="https://github.com/yang-song/score_sde_pytorch">yang-song/score_sde_pytorch</a> 。</p>
+<p>为了表述简洁，将 《Score-Based Generative Modeling Through SDE》 一文简称为 score-based-sde 。</p>
+<p><strong>准备工作</strong></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">git</span> clone https://github.com/yang-song/score_sde_pytorch.git<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h1>1. DEMO</h1>
+<p>demo 文件为 <code>Score_SDE_demo_PyTorch.ipynb</code>。</p>
+<h2 id="1-1-Predictor-Corrector-sampling">1.1 Predictor Corrector sampling</h2>
+<p>以 CIFAR-10 为例说明，SDE 使用 VE-SDE， predictor 使用 ReverseDiffusionPredictor（这是 reverse-time SDE 采样，其他两种为原始采样，概率流采样），corrector 使用 LangevinCorrector，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># batch_size = 64。 采样得到 8 行 8 列图像</span>
+<span class="token comment"># img_size = 32，CIFAR-10</span>
+<span class="token comment"># channels = 3, CIFAR-10</span>
+shape <span class="token operator">=</span> <span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> channels<span class="token punctuation">,</span> img_size<span class="token punctuation">,</span> img_size<span class="token punctuation">)</span>
+predictor <span class="token operator">=</span> ReverseDiffusionPredictor
+corrector <span class="token operator">=</span> LangevinCorrector
+snr <span class="token operator">=</span> <span class="token number">0.16</span>  <span class="token comment"># 信噪比，参见下方 (2) 式中的 r</span>
+n_steps <span class="token operator">=</span> <span class="token number">1</span> <span class="token comment"># 单个噪声 scale 下，corrector 迭代 1 次</span>
+probability_flow <span class="token operator">=</span> <span class="token boolean">False</span>    <span class="token comment"># 不使用概率流</span>
+<span class="token comment"># 构造一个采样函数</span>
+<span class="token comment"># scalar: 输入数据（图像像素值）范围为 [0,1]， scalar 决定是否要 rescale 到 [-1,1]</span>
+<span class="token comment"># inverse_scalar: 将数据 rescale 到 [0,1]</span>
+sampling_fn <span class="token operator">=</span> sampling<span class="token punctuation">.</span>get_pc_sampler<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> shape<span class="token punctuation">,</span> predictor<span class="token punctuation">,</span> corrector<span class="token punctuation">,</span>
+                                      inverse_scaler<span class="token punctuation">,</span> snr<span class="token punctuation">,</span> n_steps<span class="token operator">=</span>n_steps<span class="token punctuation">,</span>
+                                      probability_flow<span class="token operator">=</span>probability_flow<span class="token punctuation">,</span>
+                                      continuous<span class="token operator">=</span>config<span class="token punctuation">.</span>training<span class="token punctuation">.</span>continuous<span class="token punctuation">,</span>
+                                      eps<span class="token operator">=</span>sampling_eps<span class="token punctuation">,</span> device<span class="token operator">=</span>config<span class="token punctuation">.</span>device<span class="token punctuation">)</span>
+<span class="token comment"># score_model: 使用 NCSNPP 模型预测得分函数</span>
+x<span class="token punctuation">,</span> n <span class="token operator">=</span> sampling_fn<span class="token punctuation">(</span>score_model<span class="token punctuation">)</span>
+show_samples<span class="token punctuation">(</span>x<span class="token punctuation">)</span>     <span class="token comment"># 显示生成的图像</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>接着看 <code>get_pc_sampler</code> 方法，其返回 <code>pc_sampler</code> 方法，这就是 PC 采样器。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">pc_sampler</span><span class="token punctuation">(</span>model<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">with</span> torch<span class="token punctuation">.</span>no_grad<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># 对于 SMLD 反向过程， 采样 xT = \sigma_max * z</span>
+        <span class="token comment"># 参考 score-based-sde 文中 1.1 一节最后的部分</span>
+        x <span class="token operator">=</span> sde<span class="token punctuation">.</span>prior_sampling<span class="token punctuation">(</span>shape<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>device<span class="token punctuation">)</span>
+        <span class="token comment"># sde.N = 1000 。反向过程转移次数</span>
+        <span class="token comment"># sde.T = 1，迭代次数 i -> i/N -> t，转为连续形式，这样 t 范围 [eps, 1]</span>
+        <span class="token comment"># eps: 1e-5，t 起始时间，使用 eps 代替 0，避免数值计算错误。参见 score_based_sde</span>
+        <span class="token comment"># 一文的 C.1 和 C.2 部分。</span>
+        timesteps <span class="token operator">=</span> torch<span class="token punctuation">.</span>linspace<span class="token punctuation">(</span>sde<span class="token punctuation">.</span>T<span class="token punctuation">,</span> eps<span class="token punctuation">,</span> sde<span class="token punctuation">.</span>N<span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
+
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>sde<span class="token punctuation">.</span>N<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            t <span class="token operator">=</span> timesteps<span class="token punctuation">[</span>i<span class="token punctuation">]</span>
+            vec_t <span class="token operator">=</span> torch<span class="token punctuation">.</span>ones<span class="token punctuation">(</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> device<span class="token operator">=</span>t<span class="token punctuation">.</span>device<span class="token punctuation">)</span> <span class="token operator">*</span> t
+            <span class="token comment"># x corrector 输出结果，带噪声</span>
+            <span class="token comment"># x_mean corrector 输出结果，不带噪声</span>
+            x<span class="token punctuation">,</span> x_mean <span class="token operator">=</span> corrector_update_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> vec_t<span class="token punctuation">,</span> model<span class="token operator">=</span>model<span class="token punctuation">)</span>
+            x<span class="token punctuation">,</span> x_mean <span class="token operator">=</span> predictor_update_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> vec_t<span class="token punctuation">,</span> model<span class="token operator">=</span>model<span class="token punctuation">)</span>
+        <span class="token comment"># 将生成的数据恢复到 [0,1] 范围</span>
+        <span class="token comment"># 总共的迭代次数 = N * (corrector 迭代次数 + predictor 迭代次数)</span>
+        <span class="token keyword">return</span> inverse_scaler<span class="token punctuation">(</span>x_mean <span class="token keyword">if</span> denoise <span class="token keyword">else</span> x<span class="token punctuation">)</span><span class="token punctuation">,</span> sde<span class="token punctuation">.</span>N <span class="token operator">*</span> <span class="token punctuation">(</span>n_steps <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上述代码中，先执行 corrector，然后执行 predictor，我没有在论文中看到作者提及这一顺序的变化，不过由于是在循环体中，所以改变执行顺序问题不大。</p>
+<h3 id="1-1-1-corrector-实现代码">1.1.1 corrector 实现代码</h3>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">shared_corrector_update_fn</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">,</span> sde<span class="token punctuation">,</span> model<span class="token punctuation">,</span> corrector<span class="token punctuation">,</span> continuous<span class="token punctuation">,</span> snr<span class="token punctuation">,</span> n_steps<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    x: 当前 step，输入数据 x_t，(batch_size, channels, img_size, img_size)
+    t: timestep，(batch_size,) 。 取值范围 [eps, 1]
+    sde: SDE 类实例（三种 SDE：VE, VP, sub-VP）
+    model: NCSNPP 模型
+    corrector: LangevinCorrector 类
+    continuous: True，表示使用连续模式
+    snr: 信噪比，0.16
+    n_steps: 单个噪声 scale 下的 corrector 迭代次数
+    '''</span>
+    score_fn <span class="token operator">=</span> mutils<span class="token punctuation">.</span>get_score_fn<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> model<span class="token punctuation">,</span> train<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> continuous<span class="token operator">=</span>continuous<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> corrector <span class="token keyword">is</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>   <span class="token comment"># 构建类实例</span>
+        corrector_obj <span class="token operator">=</span> corrector<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> score_fn<span class="token punctuation">,</span> snr<span class="token punctuation">,</span> n_steps<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> corrector_obj<span class="token punctuation">.</span>update_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span>    <span class="token comment"># 执行 corrector 步骤</span>
+
+
+<span class="token keyword">class</span> <span class="token class-name">LangevinCorrector</span><span class="token punctuation">(</span>Corrector<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token keyword">def</span> <span class="token function">update_fn</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        x: 输入数据 x，(batch_size, channels, img_size, img_size)
+        t: timestep，(batch_size,)
+        '''</span>
+        sde <span class="token operator">=</span> self<span class="token punctuation">.</span>sde
+        score_fn <span class="token operator">=</span> self<span class="token punctuation">.</span>score_fn
+        n_steps <span class="token operator">=</span> self<span class="token punctuation">.</span>n_steps
+        target_snr <span class="token operator">=</span> self<span class="token punctuation">.</span>snr   <span class="token comment"># PC1000 采样器固定信噪比为 0.16</span>
+        <span class="token keyword">if</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>sde<span class="token punctuation">,</span> <span class="token punctuation">(</span>sde_lib<span class="token punctuation">.</span>VPSDE<span class="token punctuation">,</span> sde_lib<span class="token punctuation">.</span>subVPSDE<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>   <span class="token comment"># VESDE</span>
+            alpha <span class="token operator">=</span> torch<span class="token punctuation">.</span>ones_like<span class="token punctuation">(</span>t<span class="token punctuation">)</span>  <span class="token comment"># (batch_size,)</span>
+        
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>n_steps<span class="token punctuation">)</span><span class="token punctuation">:</span>    <span class="token comment"># corrector 迭代 n_steps 次</span>
+            grad <span class="token operator">=</span> score_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span>   <span class="token comment"># 模型输出的得分函数，s_&#123;\theta&#125;-----</span>
+            noise <span class="token operator">=</span> torch<span class="token punctuation">.</span>randn_like<span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token comment"># 噪声 z ~ N(0,I)</span>
+            grad_norm <span class="token operator">=</span> torch<span class="token punctuation">.</span>norm<span class="token punctuation">(</span>grad<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>grad<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span>mean<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            noise_norm <span class="token operator">=</span> torch<span class="token punctuation">.</span>norm<span class="token punctuation">(</span>noise<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>noise<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span>mean<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token comment"># 参考下面 (3) 式</span>
+            step_size <span class="token operator">=</span> <span class="token punctuation">(</span>target_snr <span class="token operator">*</span> noise_norm <span class="token operator">/</span> grad_norm<span class="token punctuation">)</span> <span class="token operator">**</span> <span class="token number">2</span> <span class="token operator">*</span> <span class="token number">2</span> <span class="token operator">*</span> alpha
+            x_mean <span class="token operator">=</span> x <span class="token operator">+</span> step<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">]</span> <span class="token operator">*</span> grad   <span class="token comment"># 参考下方 (1) 式</span>
+            x <span class="token operator">=</span> x_mean <span class="token operator">+</span> torch<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>step_size <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">]</span> <span class="token operator">*</span> noise
+        <span class="token keyword">return</span> x<span class="token punctuation">,</span> x_mean<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>score_fn</code> 用于计算得分函数 $\mathbf s _ {\theta} (\mathbf x _ t, t)$ ，也就是模型的输出。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">get_score_fn</span><span class="token punctuation">(</span>sde<span class="token punctuation">,</span> model<span class="token punctuation">,</span> train<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> continuous<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    model_fn <span class="token operator">=</span> get_model_fn<span class="token punctuation">(</span>model<span class="token punctuation">,</span> train<span class="token operator">=</span>train<span class="token punctuation">)</span> <span class="token comment"># 模型前向传播计算，输出为得分函数</span>
+    <span class="token keyword">if</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>sde<span class="token punctuation">,</span> sde_lib<span class="token punctuation">.</span>VPSDE<span class="token punctuation">)</span> <span class="token keyword">or</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>sde<span class="token punctuation">,</span> sde_lib<span class="token punctuation">.</span>subVPSDE<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">def</span> <span class="token function">score_fn</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token comment"># subVP 必须使用连续模式</span>
+            <span class="token keyword">if</span> continuous <span class="token keyword">or</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>sde<span class="token punctuation">,</span> sde_lib<span class="token punctuation">.</span>subVPSDE<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                labels <span class="token operator">=</span> t <span class="token operator">*</span> <span class="token number">999</span>    <span class="token comment"># time step: 0, 1, ..., N-1</span>
+                score <span class="token operator">=</span> model_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> labels<span class="token punctuation">)</span> <span class="token comment"># 计算 s(xt, t)，t 作为模型的 time-embedding 输入</span>
+                <span class="token comment"># 连续模式下，计算 p(xt|x0) 分布的标准差，参见 score_based_sde 的 (B5/B6) 式</span>
+                <span class="token comment"># std 与 x0 无关，所以这里使用 0 代替了 x0</span>
+                std <span class="token operator">=</span> sde<span class="token punctuation">.</span>marginal_prob<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>zeros_like<span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span>
+            <span class="token keyword">else</span><span class="token punctuation">:</span>   <span class="token comment"># VP 的非连续情况，</span>
+                labels <span class="token operator">=</span> t <span class="token operator">*</span> <span class="token punctuation">(</span>sde<span class="token punctuation">.</span>N <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span>
+                score <span class="token operator">=</span> model_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> labels<span class="token punctuation">)</span>     <span class="token comment"># 计算得分函数</span>
+                <span class="token comment"># 计算 p(xt|x0) 分布的标准差，参考 score_based_sde 的 (7) 式</span>
+                std <span class="token operator">=</span> sde<span class="token punctuation">.</span>sqrt_1m_alphas_cumprod<span class="token punctuation">.</span>to<span class="token punctuation">(</span>labels<span class="token punctuation">.</span>device<span class="token punctuation">)</span><span class="token punctuation">[</span>labels<span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+            <span class="token comment"># 模型训练阶段，模型 target 为噪声 z （DDPM 原始采样）</span>
+            <span class="token comment"># 而得分函数对应的 target 为 \nabla_xt p(xt|x0) = -(xt-x0) / sigma^2 = - z/sigma</span>
+            <span class="token comment"># 所以模型输出 score 需要做如下处理后，才是真正的得分函数</span>
+            score <span class="token operator">=</span> <span class="token operator">-</span>score <span class="token operator">/</span> std<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">]</span>
+            <span class="token keyword">return</span> score
+    <span class="token keyword">elif</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>sde<span class="token punctuation">,</span> sde_lib<span class="token punctuation">.</span>VESDE<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">def</span> <span class="token function">score_fn</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">if</span> continuous<span class="token punctuation">:</span>
+                <span class="token comment"># labels 是 std，即 sigma(t)，参见 score_based_sde 中的 (B1) 式</span>
+                labels <span class="token operator">=</span> sde<span class="token punctuation">.</span>marginal_prob<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>zeros_like<span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span>
+            <span class="token keyword">else</span><span class="token punctuation">:</span>
+                <span class="token comment"># VE，t=0 对应最大的噪声 level</span>
+                labels <span class="token operator">=</span> sde<span class="token punctuation">.</span>T <span class="token operator">-</span> t
+                labels <span class="token operator">*=</span> sde<span class="token punctuation">.</span>N <span class="token operator">-</span> <span class="token number">1</span>
+                labels <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">round</span><span class="token punctuation">(</span>labels<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            score <span class="token operator">=</span> model_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> labels<span class="token punctuation">)</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>根据 <a href="/2022/07/26/diffusion_model/score_based_SDE">score-based-sde</a> 一文中算法 1（PC 采样，VE-SDE），Corrector 迭代公式为</p>
+<p>$$\mathbf x _ i  = \mathbf x _ i + \epsilon _ i \mathbf s _ {\theta} (\mathbf x _ i, \sigma _ i) + \sqrt {2 \epsilon _ i } \mathbf z \tag{1}$$</p>
+<p>(1) 式右端的第二、三项分别为信号和噪声，固定信噪幅度比为 <code>r</code> （不同的采样器，作者固定信噪幅度比为不同的值，参见论文 Table 5），</p>
+<p>$$\frac {||\epsilon _ i \mathbf s _ {\theta}(\mathbf x _ {t-1}, \sigma _ i)|| _ 2}{||\sqrt {2\epsilon _ i} \mathbf z|| _ 2} = r \tag{2}$$</p>
+<p>解得</p>
+<p>$$\epsilon _ i = 2  r ^ 2  \cdot \frac {\mathbf z ^ {\top} \mathbf z}{\mathbf s _ {\theta} ^ {\top} \mathbf s _ {\theta}} \tag{3}$$</p>
+<h3 id="1-1-2-Predictor-实现代码">1.1.2 Predictor 实现代码</h3>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">shared_predictor_update_fn</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">,</span> sde<span class="token punctuation">,</span> model<span class="token punctuation">,</span> predictor<span class="token punctuation">,</span> probability_flow<span class="token punctuation">,</span> continuous<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    构建 predictor 类实例
+    x: 输入数据     (batch_size, channels, img_size, img_size)
+    t: timestep     (batch_size,)
+    sde: VE-SDE 类实例
+    model: NCSN 模型
+    predictor: 反向 diffusion 类
+    probability_flow: 是否使用概率流采样
+    continuous: 是否使用连续模式
+    '''</span>
+    <span class="token comment"># 获取得分函数，score_fn 内部执行 model 前向传播，输出为 model 输出</span>
+    score_fn <span class="token operator">=</span> multils<span class="token punctuation">.</span>get_score_fn<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> model<span class="token punctuation">,</span> train<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> continuous<span class="token operator">=</span>continuous<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> predictor <span class="token keyword">is</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        <span class="token comment"># 创建 ReverseDiffusionPredictor 类实例</span>
+        predictor_obj <span class="token operator">=</span> predictor<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> score_fn<span class="token punctuation">,</span> probability_flow<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> predictor_obj<span class="token punctuation">.</span>update_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span>
+
+
+<span class="token keyword">class</span> <span class="token class-name">Predictor</span><span class="token punctuation">(</span>abc<span class="token punctuation">.</span>ABC<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> sde<span class="token punctuation">,</span> score_fn<span class="token punctuation">,</span> probability_flow<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>sde <span class="token operator">=</span> sde
+        <span class="token comment"># reverse sde</span>
+        self<span class="token punctuation">.</span>rsde <span class="token operator">=</span> sde<span class="token punctuation">.</span>reverse<span class="token punctuation">(</span>score_fn<span class="token punctuation">,</span> probability_flow<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>score_fn <span class="token operator">=</span> score_fn
+
+<span class="token keyword">class</span> <span class="token class-name">ReverseDiffusionPredictor</span><span class="token punctuation">(</span>Predictor<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token keyword">def</span> <span class="token function">update_fn</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># 获取离散化 f(x, t)，G(t)</span>
+        f<span class="token punctuation">,</span> G <span class="token operator">=</span> self<span class="token punctuation">.</span>rsde<span class="token punctuation">.</span>discretize<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span>
+        z <span class="token operator">=</span> torch<span class="token punctuation">.</span>randn_like<span class="token punctuation">(</span>x<span class="token punctuation">)</span>     <span class="token comment"># 噪声</span>
+
+        <span class="token comment"># f: 参见 score-based-sde 一文中 (39) 式。reverse-time SDE</span>
+        x_mean <span class="token operator">=</span> x <span class="token operator">-</span> f
+        x <span class="token operator">=</span> x_mean <span class="token operator">+</span> G<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">]</span> <span class="token operator">*</span> z
+        <span class="token keyword">return</span> x<span class="token punctuation">,</span> x_mean<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>rsde 为 <a href="/2022/07/26/diffusion_model/score_based_SDE">score-based-sde</a> 一文中的 (39) 式，离散化后数据迭代公式 (40) 式，其中包含了 f 函数和 G 函数，对于 VE，前向 SDE 为</p>
+<p>$$d \mathbf x = \mathbf f(\mathbf x, t) dt + \mathbf G(t) d\mathbf w \tag{4}$$</p>
+<p>其中</p>
+<p>$$\mathbf f (\mathbf x, t)=\mathbf 0, \ \mathbf G (t)= I \sqrt {\frac {d [\sigma ^ 2 (t) ]} {dt}} \tag{5}$$</p>
+<p>rsde 的实现代码以及离散化代码如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">SDE</span><span class="token punctuation">(</span>abc<span class="token punctuation">.</span>ABC<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">reverse</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> score_fn<span class="token punctuation">,</span> probability_flow<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        N <span class="token operator">=</span> self<span class="token punctuation">.</span>N      <span class="token comment"># 噪声 scale 数量</span>
+        T <span class="token operator">=</span> self<span class="token punctuation">.</span>T      <span class="token comment"># SDE 的 timestep 范围为 [0, 1]，故 T 为 1</span>
+        sde_fn <span class="token operator">=</span> self<span class="token punctuation">.</span>sde   <span class="token comment"># 前向 SDE 实现方法</span>
+        discretize_fn <span class="token operator">=</span> self<span class="token punctuation">.</span>discretize     <span class="token comment"># 离散化实现方法</span>
+
+        <span class="token keyword">class</span> <span class="token class-name">RSDE</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>__class__<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+            <span class="token keyword">def</span> <span class="token function">sde</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                <span class="token triple-quoted-string string">'''
+                反向 SDE 中的 f 和 G 函数，连续型
+                '''</span>
+                drift<span class="token punctuation">,</span> diffusion <span class="token operator">=</span> sde_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span> <span class="token comment"># SDE 中的 f G，见上面 (5) 式</span>
+                score <span class="token operator">=</span> score_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span>
+                <span class="token comment"># 反向 SDE：f &lt;- f - G G^T s_&#123;\theta&#125;</span>
+                <span class="token comment"># 参见 score-based-sde 一文中 (39) 式</span>
+                drift <span class="token operator">=</span> drift <span class="token operator">-</span> diffusion<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">]</span> <span class="token operator">**</span> <span class="token number">2</span> <span class="token operator">*</span> score \
+                    <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">0.5</span> <span class="token keyword">if</span> self<span class="token punctuation">.</span>probability_flow <span class="token keyword">else</span> <span class="token number">1.</span><span class="token punctuation">)</span>
+                <span class="token comment"># 概率流 ODE 不是 SDE，是确定的转移过程，所以没有 diffusion</span>
+                diffusion <span class="token operator">=</span> <span class="token number">0.</span> <span class="token keyword">if</span> self<span class="token punctuation">.</span>probability_flow <span class="token keyword">else</span> diffusion
+                <span class="token keyword">return</span> drift<span class="token punctuation">,</span> diffusion
+            
+            <span class="token keyword">def</span> <span class="token function">discretize</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                <span class="token triple-quoted-string string">'''
+                反向 SDE f 和 G 函数，离散型
+                '''</span>
+                f<span class="token punctuation">,</span> G <span class="token operator">=</span> discretize_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span>  <span class="token comment"># 得到离散化的 f G，见下方 (8) 式</span>
+                <span class="token comment"># 参见 score-based-sde 一文中 (40) 式</span>
+                rev_f <span class="token operator">=</span> f <span class="token operator">-</span> G<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">]</span> <span class="token operator">**</span> <span class="token number">2</span> <span class="token operator">*</span> score_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span> \
+                    <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">0.5</span> <span class="token keyword">if</span> self<span class="token punctuation">.</span>probability_flow <span class="token keyword">else</span> <span class="token number">1.</span><span class="token punctuation">)</span>
+                rev_G <span class="token operator">=</span> torch<span class="token punctuation">.</span>zeros_like<span class="token punctuation">(</span>G<span class="token punctuation">)</span> <span class="token keyword">if</span> self<span class="token punctuation">.</span>probability_flow <span class="token keyword">else</span> G
+                <span class="token keyword">return</span> rev_f<span class="token punctuation">,</span> rev_G
+        <span class="token keyword">return</span> RSDE<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment"># sde_fn 和 discretize_fn 方法</span>
+<span class="token keyword">class</span> <span class="token class-name">VESDE</span><span class="token punctuation">(</span>SDE<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> sigma_min<span class="token operator">=</span><span class="token number">0.01</span><span class="token punctuation">,</span> sigma_max<span class="token operator">=</span><span class="token number">50</span><span class="token punctuation">,</span> N<span class="token operator">=</span><span class="token number">1000</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span>N<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>sigma_min <span class="token operator">=</span> sigma_min
+        self<span class="token punctuation">.</span>sigma_max <span class="token operator">=</span> sigma_max
+        self<span class="token punctuation">.</span>discrete_sigmas <span class="token operator">=</span> torch<span class="token punctuation">.</span>exp<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>linspace<span class="token punctuation">(</span>np<span class="token punctuation">.</span>log<span class="token punctuation">(</span>self<span class="token punctuation">.</span>sigma_min<span class="token punctuation">)</span><span class="token punctuation">,</span> np<span class="token punctuation">.</span>log<span class="token punctuation">(</span>self<span class="token punctuation">.</span>sigma_max<span class="token punctuation">)</span><span class="token punctuation">,</span> N<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>N <span class="token operator">=</span> N
+
+    <span class="token keyword">def</span> <span class="token function">sde</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        前向 SDE
+        计算 SDE 中的 f(x, t) 和 G(x,t)，注意是 连续型
+        '''</span>
+        sigma <span class="token operator">=</span> self<span class="token punctuation">.</span>sigma_ <span class="token builtin">min</span> <span class="token operator">*</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span>sigma_max <span class="token operator">/</span> self<span class="token punctuation">.</span>sigma_min<span class="token punctuation">)</span> <span class="token operator">**</span> t    <span class="token comment"># 见下方 (6) 式</span>
+        drift <span class="token operator">=</span> torch<span class="token punctuation">.</span>zeros_like<span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token comment"># f, G ,参考 (5, 7) 两式</span>
+        diffusion <span class="token operator">=</span> sigma <span class="token operator">*</span> torch<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">*</span> <span class="token punctuation">(</span>np<span class="token punctuation">.</span>log<span class="token punctuation">(</span>self<span class="token punctuation">.</span>sigma_max<span class="token punctuation">)</span> <span class="token operator">-</span> np<span class="token punctuation">.</span>log<span class="token punctuation">(</span>self<span class="token punctuation">.</span>sigma_min<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> device<span class="token operator">=</span>t<span class="token punctuation">.</span>device<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> drift<span class="token punctuation">,</span> diffusion
+
+    <span class="token keyword">def</span> <span class="token function">discretize</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># 离散化 f，G，即 f_i+1, G_i+1 。这也是 前向过程</span>
+        timestep <span class="token operator">=</span> <span class="token punctuation">(</span>t <span class="token operator">*</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span>N <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">/</span> self<span class="token punctuation">.</span>T<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">(</span><span class="token punctuation">)</span>   <span class="token comment"># t [0,1] -> i [0, N-1]</span>
+
+        <span class="token comment"># timestep 处的 sigma</span>
+        sigma <span class="token operator">=</span> self<span class="token punctuation">.</span>discrete_sigma<span class="token punctuation">.</span>to<span class="token punctuation">(</span>t<span class="token punctuation">.</span>device<span class="token punctuation">)</span><span class="token punctuation">[</span>timestep<span class="token punctuation">]</span>  <span class="token comment"># sigma_&#123;i+1&#125;</span>
+        <span class="token comment"># timestep-1 处的 sigma，如果 timestep-1=0,那么 sigma=0</span>
+        adjacent_sigma <span class="token operator">=</span> torch<span class="token punctuation">.</span>where<span class="token punctuation">(</span>timestep <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">,</span> torch<span class="token punctuation">.</span>zeros_like<span class="token punctuation">(</span>t<span class="token punctuation">)</span><span class="token punctuation">,</span>    <span class="token comment"># sigma_i</span>
+                                     self<span class="token punctuation">.</span>discrete_sigmas<span class="token punctuation">[</span>timestep <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>t<span class="token punctuation">.</span>device<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        f <span class="token operator">=</span> torch<span class="token punctuation">.</span>zeros_like<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+        G <span class="token operator">=</span> torch<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>sigma <span class="token operator">**</span> <span class="token number">2</span> <span class="token operator">-</span> adjacent_sigma <span class="token operator">**</span> <span class="token number">2</span><span class="token punctuation">)</span>    <span class="token comment"># （8）式</span>
+        <span class="token keyword">return</span> f<span class="token punctuation">,</span> G<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>需要指出的是，<code>self.discrete_sigmas</code> 的初始化是在 $\sigma$ 的 log 空间中线性等分的，时间维度上等间距，这是因为（见 <a href="/2022/07/26/diffusion_model/score_based_SDE">score-based-sde</a> 一文中 (B1) 式），</p>
+<p>$$\sigma(t) = \sigma _ {min} (\frac {\sigma _ {max}}{\sigma _ {min}}) ^ t \tag{6}$$</p>
+<p>取对数后，$\log \sigma(t) = k t + c$，其中 $k, \ c$ 均为常数，所以相当于时间 $t$ 等间距。</p>
+<p>(6) 式代入 (5) 式，得</p>
+<p>$$G (t) = \sigma (t) \sqrt {2 \log \frac {\sigma _ {max}}{\sigma _ {min}}} \tag{7}$$</p>
+<p>对于离散化处理过程，则是 drift 和 diffusion 则是 <a href="/2022/07/26/diffusion_model/score_based_SDE">score-based-sde</a> 一文中的 (40.1) 式，这里再次列出如下</p>
+<p>$$\mathbf f _ {i+1} = \mathbf 0, \ \mathbf G _ {i+1} = I \sqrt {\sigma _ {i+1} ^ 2 - \sigma _ i ^ 2} \tag{8}$$</p>
+<p>反向 SDE 为 <a href="/2022/07/26/diffusion_model/score_based_SDE">score-based-sde</a> 一文中的 (39) 式，离散化后为 (40) 式。</p>
+<h2 id="1-2-概率流采样">1.2 概率流采样</h2>
+<p>获取概率流采样函数，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># 调用示例</span>
+shape <span class="token operator">=</span> <span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">)</span>
+sampling_fn <span class="token operator">=</span> sampling<span class="token punctuation">.</span>get_ode_sampler<span class="token punctuation">(</span>sde<span class="token punctuation">,</span>
+                                       shape<span class="token punctuation">,</span>
+                                       inverse_scaler<span class="token punctuation">,</span>
+                                       denoise<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span>
+                                       eps<span class="token operator">=</span>sampling_eps<span class="token punctuation">,</span>
+                                       device<span class="token operator">=</span>config<span class="token punctuation">.</span>device<span class="token punctuation">)</span>
+x<span class="token punctuation">,</span> nfe <span class="token operator">=</span> sampling_fn<span class="token punctuation">(</span>score_model<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>其中 <code>sampling_fn</code> 这个采样函数定义如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">get_ode_sampler</span><span class="token punctuation">(</span>sde<span class="token punctuation">,</span> shape<span class="token punctuation">,</span> inverse_scaler<span class="token punctuation">,</span> denoise<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+                    rtol<span class="token operator">=</span><span class="token number">1e-5</span><span class="token punctuation">,</span> atol<span class="token operator">=</span><span class="token number">1e-5</span><span class="token punctuation">,</span> method<span class="token operator">=</span><span class="token string">'RK45'</span><span class="token punctuation">,</span> eps<span class="token operator">=</span><span class="token number">1e-3</span><span class="token punctuation">,</span> device<span class="token operator">=</span><span class="token string">'cuda'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    sde: SDE 类实例
+    shape: 采样生成的图像 shape (batch_size, 3, 32, 32)
+    inverse_scaler: 将生成图像像素值恢复到 [0, 1] （原来 **可能** 是 [-1,1]）
+    denoise: 
+    '''</span>
+    <span class="token keyword">def</span> <span class="token function">denoise_update_fn</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        score_fn <span class="token operator">=</span> get_score_fn<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> model<span class="token punctuation">,</span> train<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> continuous<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        predictor_obj <span class="token operator">=</span> ReverseDiffusionPredictor<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> score_fn<span class="token punctuation">,</span> probability_flow<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+        vec_eps <span class="token operator">=</span> torch<span class="token punctuation">.</span>ones<span class="token punctuation">(</span>x<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> device<span class="token operator">=</span>x<span class="token punctuation">.</span>device<span class="token punctuation">)</span> <span class="token operator">*</span> eps
+        _<span class="token punctuation">,</span> x <span class="token operator">=</span> predictor_obj<span class="token punctuation">.</span>update_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> vec_eps<span class="token punctuation">)</span>  <span class="token comment"># 返回 x, x_mean</span>
+        <span class="token keyword">return</span> x    <span class="token comment"># 返回 x_mean，不加噪声，参考下方 (9) 式</span>
+
+    <span class="token keyword">def</span> <span class="token function">drift_fn</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        score_fn <span class="token operator">=</span> get_score_fn<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> model<span class="token punctuation">,</span> train<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> continuous<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        rsde <span class="token operator">=</span> sde<span class="token punctuation">.</span>reverse<span class="token punctuation">(</span>score_fn<span class="token punctuation">,</span> probability_flow<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> rsde<span class="token punctuation">.</span>sde<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">def</span> <span class="token function">ode_sampler</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> z<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        model: NCSN 模型
+        z: 如果有值，那么从 z 样本开始反向转移，否则从一个已知分布中采样然后反向转移
+        '''</span>
+        <span class="token keyword">with</span> torch<span class="token punctuation">.</span>no_grad<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">if</span> z <span class="token keyword">is</span> <span class="token boolean">None</span><span class="token punctuation">:</span>   <span class="token comment"># demo 中，走这个 分支</span>
+                <span class="token comment"># 采样 xT，从一个已知分布中采样 N(0, sigma_max^2 I)</span>
+                x <span class="token operator">=</span> sde<span class="token punctuation">.</span>prior_sampling<span class="token punctuation">(</span>shape<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>device<span class="token punctuation">)</span>
+            <span class="token keyword">else</span><span class="token punctuation">:</span>
+                x <span class="token operator">=</span> z
+
+            <span class="token keyword">def</span> <span class="token function">ode_func</span><span class="token punctuation">(</span>t<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                <span class="token triple-quoted-string string">'''t: 自变量； x: 因变量； 返回：偏微分表达式'''</span>
+                <span class="token comment"># x 本来是一维向量，numpy.narray 类型，转为 shape 的 torch.Tensor 类型</span>
+                x <span class="token operator">=</span> from_flattened_numpy<span class="token punctuation">(</span>x<span class="token punctuation">,</span> shape<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>device<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">type</span><span class="token punctuation">(</span>torch<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+                vec_t <span class="token operator">=</span> torch<span class="token punctuation">.</span>ones<span class="token punctuation">(</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> device<span class="token operator">=</span>x<span class="token punctuation">.</span>device<span class="token punctuation">)</span> <span class="token operator">*</span> t
+                drift <span class="token operator">=</span> drift_fn<span class="token punctuation">(</span>model<span class="token punctuation">,</span> x<span class="token punctuation">,</span> vec_t<span class="token punctuation">)</span>   <span class="token comment"># drift: (D2) 式 \tilde &#123;\mathbf f&#125;</span>
+                <span class="token comment"># drift 与 x shape 相同，(batch_size, channels, img_size, img_size)</span>
+                <span class="token comment"># 将 drift 平铺为 一维向量</span>
+                <span class="token keyword">return</span> to_flattened_numpy<span class="token punctuation">(</span>drift<span class="token punctuation">)</span>    
+            
+            solution <span class="token operator">=</span> integrate<span class="token punctuation">.</span>solve_ivp<span class="token punctuation">(</span>ode_func<span class="token punctuation">,</span> <span class="token punctuation">(</span>sde<span class="token punctuation">.</span>T<span class="token punctuation">,</span> eps<span class="token punctuation">)</span><span class="token punctuation">,</span> to_flattened_numpy<span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                                           rtol<span class="token operator">=</span>rtol<span class="token punctuation">,</span> atol<span class="token operator">=</span>atol<span class="token punctuation">,</span> method<span class="token operator">=</span>method<span class="token punctuation">)</span>
+            nfe <span class="token operator">=</span> solution<span class="token punctuation">.</span>nfev     <span class="token comment"># 右手端 evaluation 次数</span>
+            <span class="token comment"># solution.y    # 微分方程的解 (n, n_points)，n=batch_size * channels * img_size * img_size</span>
+            <span class="token comment"># solution.y[:,-1]  # 在 t=eps 处 x 的值</span>
+            x <span class="token operator">=</span> torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span>solution<span class="token punctuation">.</span>y<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>shape<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>device<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">type</span><span class="token punctuation">(</span>torch<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+            <span class="token keyword">if</span> denoise<span class="token punctuation">:</span>
+                x <span class="token operator">=</span> denoise_update_fn<span class="token punctuation">(</span>model<span class="token punctuation">,</span> x<span class="token punctuation">)</span>
+            x <span class="token operator">=</span> inverse_scaler<span class="token punctuation">(</span>x<span class="token punctuation">)</span>   <span class="token comment"># 将数据范围恢复到 [0, 1]</span>
+            <span class="token keyword">return</span> x<span class="token punctuation">,</span> nfe
+    <span class="token keyword">return</span> ode_sampler<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>ode_sampler</code> 函数中，参数 z 为默认值 None，所以从 $\mathcal N(0, \sigma _ {max} ^ 2 I)$ 中采样得到初始值 $\mathbf x _ T$ （参见  <a href="/2022/07/26/diffusion_model/score_based_SDE">score-based-sde</a> 一文的 1.1 小节内容），然后调用 <code>solve_ivp</code> 求解微分方程（参见  <a href="/2022/07/26/diffusion_model/score_based_SDE">score-based-sde</a> 一文中的 (D1) (D2) 式），这个微分方程自变量为 $t$，因变量为 $\mathbf x$，$t$ 范围为 $1 \sim 0$（因为是反向转移过程），对应 <code>sde.T</code> 和 <code>eps</code>（使用 <code>eps</code> 代替 0 是为了避免数值计算错误），$\mathbf x$ 的初值为 $\mathbf x _ T$，将 $\mathbf x$ 展开为一维向量：<code>to_flattened_numpy(x)</code>。</p>
+<p><code>ode_func</code> 的参数是偏微分方程的 自变量 和 因变量，返回的是偏微分表达式，使用 <code>drift_fn</code> 函数计算 (D1) 和 (D2) 式，这里不再详细说明 <code>drift_fn</code> 这个函数了，跟上面 1.1.2 小节分析类似，非常简单。</p>
+<p>这里，<code>denoise</code> 值为 True，那么对最后的 $\mathbf x$（即 ODE 在 <code>eps</code> 处的解）再进行一次 Predictor 操作，并且不添加噪声，也就是 <a href="/2022/07/26/diffusion_model/score_based_SDE">score-based-sde</a> 一文的 (40) 式并去掉包含噪声 $\mathbf z _ i$ 的项，如下，</p>
+<p>$$\mathbf x _ i = \mathbf x _ {i+1} - \mathbf f _ {i+1}(\mathbf x _ {i+1}) + \mathbf G _ {i+1} \mathbf G _ {i+1} ^ {\top} \mathbf s _ {\theta} (\mathbf x _ {i+1}, i+1) \tag{9}$$</p>
+<h3 id="1-2-1-似然函数计算">1.2.1 似然函数计算</h3>
+<p>直接看相关计算函数，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">get_likelihood_fn</span><span class="token punctuation">(</span>sde<span class="token punctuation">,</span> inverse_scaler<span class="token punctuation">,</span> hutchinson_type<span class="token operator">=</span><span class="token string">'Rademacher'</span><span class="token punctuation">,</span>
+                      rtol<span class="token operator">=</span><span class="token number">1e-5</span><span class="token punctuation">,</span> atol<span class="token operator">=</span><span class="token number">1e-5</span><span class="token punctuation">,</span> method<span class="token operator">=</span><span class="token string">'RK45'</span><span class="token punctuation">,</span> eps<span class="token operator">=</span><span class="token number">1e-5</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">drift_fn</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        score_fn <span class="token operator">=</span> mutils<span class="token punctuation">.</span>get_score_fn<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> model<span class="token punctuation">,</span> train<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> continuous<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        rsde <span class="token operator">=</span> sde<span class="token punctuation">.</span>reverse<span class="token punctuation">(</span>score_fn<span class="token punctuation">,</span> probability_flow<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> rsde<span class="token punctuation">.</span>sde<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>    <span class="token comment"># drift，参见 (D2) 式</span>
+    
+    <span class="token keyword">def</span> <span class="token function">div_fn</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">,</span> noise<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> get_div_fn<span class="token punctuation">(</span><span class="token keyword">lambda</span> xx<span class="token punctuation">,</span> tt<span class="token punctuation">:</span> drift_fn<span class="token punctuation">(</span>model<span class="token punctuation">,</span> xx<span class="token punctuation">,</span> tt<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">,</span> noise<span class="token punctuation">)</span>
+    
+    <span class="token keyword">def</span> <span class="token function">likelihood_fn</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        data: 一批数据，(batch_size, channels, img_size, img_size)
+        '''</span>
+        <span class="token keyword">with</span> torch<span class="token punctuation">.</span>no_grad<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            shape <span class="token operator">=</span> data<span class="token punctuation">.</span>shape
+            <span class="token keyword">if</span> hutchinson_type <span class="token operator">==</span> <span class="token string">'Gaussion'</span><span class="token punctuation">:</span>
+                epsilon <span class="token operator">=</span> torch<span class="token punctuation">.</span>randn_like<span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+            <span class="token keyword">elif</span> hutchinson_type <span class="token operator">==</span> <span class="token string">'Rademacher'</span><span class="token punctuation">:</span>
+                <span class="token comment"># -1. or 1.</span>
+                epsilon <span class="token operator">=</span> torch<span class="token punctuation">.</span>randint_like<span class="token punctuation">(</span>data<span class="token punctuation">,</span> low<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span> high<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">float</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">2</span> <span class="token operator">-</span> <span class="token number">1.</span>
+            <span class="token keyword">else</span><span class="token punctuation">:</span>
+                <span class="token keyword">raise</span> NotImplementedError<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            
+            <span class="token keyword">def</span> <span class="token function">ode_func</span><span class="token punctuation">(</span>t<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                <span class="token triple-quoted-string string">'''
+                t: 自变量 - 时间
+                x: 因变量，(batch_size * channels * img_size * img_size + batch_size)
+
+                '''</span>
+                <span class="token comment"># (batch_size, channels, img_size, img_size) 数据 tensor</span>
+                sample <span class="token operator">=</span> mutils<span class="token punctuation">.</span>from_flattened_numpy<span class="token punctuation">(</span>x<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token operator">-</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span> shape<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>data<span class="token punctuation">.</span>device<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">type</span><span class="token punctuation">(</span>torch<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+                <span class="token comment"># 自变量 t，批数据</span>
+                vec_t <span class="token operator">=</span> torch<span class="token punctuation">.</span>ones<span class="token punctuation">(</span>sample<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> device<span class="token operator">=</span>sampler<span class="token punctuation">.</span>device<span class="token punctuation">)</span> <span class="token operator">*</span> t
+                <span class="token comment"># 计算得到 drift，参见 (D2) 式</span>
+                drift <span class="token operator">=</span> mutils<span class="token punctuation">.</span>to_flattened_numpy<span class="token punctuation">(</span>drift_fn<span class="token punctuation">(</span>model<span class="token punctuation">,</span> sample<span class="token punctuation">,</span> vec_t<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token comment"># 计算 [\log pt(x)]', 参见下方的 (10) 式</span>
+                logp_grad <span class="token operator">=</span> mutils<span class="token punctuation">.</span>to_flattened_numpy<span class="token punctuation">(</span>div_fn<span class="token punctuation">(</span>model<span class="token punctuation">,</span> sample<span class="token punctuation">,</span> vec_t<span class="token punctuation">,</span> epsilon<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token comment"># 得到 (D3), (D4) 的导数向量</span>
+                <span class="token comment"># 前 batch_size*channels*img_size*img_size 个元素为 drift</span>
+                <span class="token comment"># 后 batch_size 个元素为 [\log pt(x)]'</span>
+                <span class="token keyword">return</span> np<span class="token punctuation">.</span>concatenate<span class="token punctuation">(</span><span class="token punctuation">[</span>drift<span class="token punctuation">,</span> logp_grad<span class="token punctuation">]</span><span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span> 
+            
+            <span class="token comment"># [x, 0]，一维向量，最后 batch_size 个元素为 0，前面 batch_size * channels * img_size * img_size 表示 x</span>
+            init <span class="token operator">=</span> np<span class="token punctuation">.</span>concatenate<span class="token punctuation">(</span><span class="token punctuation">[</span>mutils<span class="token punctuation">.</span>to_flattened_numpy<span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">,</span> np<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span><span class="token punctuation">(</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span>
+            solution <span class="token operator">=</span> integrate<span class="token punctuation">.</span>solve_ivp<span class="token punctuation">(</span>ode_func<span class="token punctuation">,</span> <span class="token punctuation">(</span>eps<span class="token punctuation">,</span> sde<span class="token punctuation">.</span>T<span class="token punctuation">)</span><span class="token punctuation">,</span> init<span class="token punctuation">,</span> rtol<span class="token operator">=</span>rtol<span class="token punctuation">,</span> atol<span class="token operator">=</span>atol<span class="token punctuation">,</span> method<span class="token operator">=</span>method<span class="token punctuation">)</span>
+            nfe <span class="token operator">=</span> solution<span class="token punctuation">.</span>nfev     <span class="token comment"># evaluation 次数</span>
+            <span class="token comment"># zp 中，后 batch_size 个元素为 -log pT(xT)，前面的则为 xT</span>
+            zp <span class="token operator">=</span> solution<span class="token punctuation">.</span>y<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span>   <span class="token comment"># 得到 t=T 时刻的数据值，即 xT 和 -\log p_T(xT)，参考下方 (10) 式</span>
+            <span class="token comment"># z: 提取 xT</span>
+            z <span class="token operator">=</span> mutils<span class="token punctuation">.</span>from_flattened_numpy<span class="token punctuation">(</span>zp<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token operator">-</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span> shape<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>data<span class="token punctuation">.</span>device<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">type</span><span class="token punctuation">(</span>torch<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+            <span class="token comment"># delta_logp: -log pT' (xT)，参考下方 (12) 式</span>
+            delta_logp <span class="token operator">=</span> mutils<span class="token punctuation">.</span>from_flattened_numpy<span class="token punctuation">(</span>zp<span class="token punctuation">[</span><span class="token operator">-</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>data<span class="token punctuation">.</span>device<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">type</span><span class="token punctuation">(</span>torch<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+            <span class="token comment"># xT 的先验分布为 N(0, sigma_max^2 I)，计算 先验分布的 log 值</span>
+            prior_logp <span class="token operator">=</span> sde<span class="token punctuation">.</span>prior_logp<span class="token punctuation">(</span>z<span class="token punctuation">)</span>      <span class="token comment"># log pT(xT)：先验分布的 log 值，shape 为 (batch_size,)</span>
+            bpd <span class="token operator">=</span> <span class="token operator">-</span><span class="token punctuation">(</span>prior <span class="token operator">+</span> delta_logp<span class="token punctuation">)</span> <span class="token operator">/</span> np<span class="token punctuation">.</span>log<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token comment"># -log p0(x0)： (12) 式 取负，表示 负对数似然， 然后转换为 2 为底的对数</span>
+            N <span class="token operator">=</span> np<span class="token punctuation">.</span>prod<span class="token punctuation">(</span>shape<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">)</span>      <span class="token comment"># 单个数据 x 的维度</span>
+            bpd <span class="token operator">=</span> bpd <span class="token operator">/</span> N           <span class="token comment"># bits/dim</span>
+            offset <span class="token operator">=</span> <span class="token number">7.</span> <span class="token operator">-</span> inverse_scaler<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1.</span><span class="token punctuation">)</span>   <span class="token comment"># 8.</span>
+            bpd <span class="token operator">=</span> bpd <span class="token operator">+</span> offset                  <span class="token comment"># shift bpd by 8.</span>
+            <span class="token keyword">return</span> bpd<span class="token punctuation">,</span> z<span class="token punctuation">,</span> nfe
+    <span class="token keyword">return</span> likelihood_fn<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上述代码中，<code>drift_fn</code> 函数计算 drift，即 $\tilde {\mathbf f} _ {\theta}$，参见 <a href="/2022/07/26/diffusion_model/score_based_SDE">score-based-sde</a> 一文的 (D2) 式，<code>solve_ivp</code> 求解的是 (D3) 和 (D4) 式，偏微分方程的初值为 <code>init</code>，这个向量包含两个部分：</p>
+<ol>
+<li>
+<p>$\mathbf x _ 0$，即 0 时刻的数据值，shape 为 <code>(batch_size, channels, img_size, img_size)</code>，放置 <code>init</code> 这个向量之前需要 flatten $\mathbf x _ 0$，这是 (D3) 式的初值</p>
+</li>
+<li>
+<p>$\mathbf 0$ 。这个初始值参考下方 (12) 式。</p>
+</li>
+</ol>
+<p>上述代码包含两个微分方程（微分方程组）的求解，自变量为 $t$，因变量为 $[\mathbf x, -\log p _ t (x)]$ 组成的向量，长度为 <code>channels*img_size*img_size + 1</code>，对于一个 batch 样本而言，这个长度还要再乘以 <code>batch_size</code>。</p>
+<p>$$\frac {d \mathbf x}{dt} = \tilde {\mathbf f}(\mathbf x, t), \quad \frac {-\partial \log  p _ t(\mathbf x)}{\partial t} = \nabla \cdot \tilde {\mathbf f} (\mathbf x, t) = \sum _ i \frac {\partial }{\partial x _ i} \tilde f _ i (\mathbf x, t) \tag{10}$$</p>
+<p>根据 (10) 式可知，</p>
+<p>$$-\log p _ T (\mathbf x _ T) - (-\log p _ 0 (\mathbf x _ 0)) = \int _ 0 ^ T \nabla \cdot \tilde {\mathbf f} (\mathbf x, t) dt$$</p>
+<p>变换后为</p>
+<p>$$\log p _ 0 (\mathbf x _ 0)=\log p _ T (\mathbf x _ T)  +  \int _ 0 ^ T \nabla \cdot \tilde {\mathbf f} (\mathbf x, t) dt \tag{11}$$</p>
+<p>我们要求的负对数似然就是 $-\log p _ 0 (\mathbf x _ 0)$，但是使用 <code>solve_ivp</code> 求解 (10) 式时，知道 $\mathbf x$ 的初态值，而 $-\log p _ t (\mathbf x_t)$  的初态值却是未知的，而且正是我们要求解的， $-\log p _ t (\mathbf x_t)$ 的末态值是已知的（$\mathbf x (T) \sim \mathcal N(\mathbf 0, \sigma _ {max} ^ 2 I)$ ），而 $\mathbf x$ 的末态值却又未知。</p>
+<p>为了得到 (10) 式微分方程组的初态值，作如下变换</p>
+<p>$$-\log p’ _ t (\mathbf x)=-\log p _ t (\mathbf x) + \log p _ 0 (\mathbf x _ 0) \tag{12}$$</p>
+<p>显然 $-\log p’ _ t(\mathbf x)$ 与 $-\log p _ t(\mathbf x)$ 的导数相同，满足 (10) 式，因为 $\log p _ 0 (\mathbf x _ 0)$ 是未知但固定的量（未知常数），并且 $t=0$ 时，$-\log p _ 0 ’ (\mathbf x _ 0) = 0$，所以 $-\log p _ 0 ‘(\mathbf x _ 0)$ 作为 (10) 式因变量的初始值，使用 <code>solve_ivp</code> 求解 ODE 后，可以得到最后状态 $t=T$ 的因变量的解，即 $-\log p’ _ T(\mathbf x _ T)$ 的值，也就是上述代码中的 <code>zp[-shape[0]:]</code> 这个向量，于是根据 (12) 式，当 $t=T$ 有</p>
+<p>$$-\log p’ _ T (\mathbf x(T)) = \int _ 0 ^ T  \nabla \cdot \tilde {\mathbf f} (\mathbf x, t) dt<br>
+\\ \log p _ 0 (\mathbf x _ 0) = \log p _ T (\mathbf x _ T) + (- \log p’ _ T (\mathbf x _ T)) \tag{13}$$</p>
+<p>这里 $\mathbf x _ T \sim \mathcal N(\mathbf 0, \sigma _ {max} ^ 2 I)$。</p>
+<p>这里 <code>div_fn</code> 计算的实际上是 (10) 式的导数值。</p>
+<p><a href="/2022/07/26/diffusion_model/score_based_SDE">score-based-sde</a> 一文的 (D6) 式用于高效计算上述 (10) 式，其中 $\epsilon$ 期望为 $\mathbf 0$，协方差为 $I$，见上述代码中的 <code>epsilon</code> 变量，有两种初始化方式：Gaussian 和 Rademacher，前者对应 $\epsilon \sim \mathcal N(\mathbf 0, I)$，后者对应二值分布 $\epsilon \sim \text{Bin}(-1, 1)$。</p>
+<p>下面给出 <code>get_div_fn</code> 函数的代码注释，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">get_div_fn</span><span class="token punctuation">(</span>fn<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">div_fn</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">,</span> eps<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''计算 score_based_sde 中的 (D7) 式'''</span>
+        <span class="token keyword">with</span> torch<span class="token punctuation">.</span>enable_grad<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token comment"># 设置可导，因为要计算 \nabla_x (\epsilon_T · f_&#123;\theta&#125;(x, t))，参见 score_based_sde 中的(D7)式</span>
+            x<span class="token punctuation">.</span>requires_grad_<span class="token punctuation">(</span><span class="token boolean">True</span><span class="token punctuation">)</span>  
+            <span class="token comment"># fn(x, t) 就是计算 drift: f_&#123;\theta&#125;(x, t)，然后计算 \epsilon · f_&#123;\theta&#125;(x, t)  这里 · 表示向量点乘</span>
+            fn_eps <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span>fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span> <span class="token operator">*</span> eps<span class="token punctuation">)</span>  
+            grad_fn_eps <span class="token operator">=</span> torch<span class="token punctuation">.</span>autograd<span class="token punctuation">.</span>grad<span class="token punctuation">(</span>fn_eps<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token comment"># \nabla_x (\epsilon · f_&#123;\theta&#125;(x, t))，</span>
+        x<span class="token punctuation">.</span>requires_grad_<span class="token punctuation">(</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+        <span class="token comment"># grad_fn_eps = \nabla_x (\epsilon · f_&#123;\theta&#125;(x, t)) 是标量对向量求导，导数是一个向量</span>
+        <span class="token comment"># grad_fn_eps * eps 向量点乘，然后沿 (channels, img_size, img_size) 求和</span>
+        <span class="token comment"># 返回 (batch_size,) 的向量</span>
+        <span class="token keyword">return</span> torch<span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span>grad_fn_eps <span class="token operator">*</span> eps<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token builtin">tuple</span><span class="token punctuation">(</span><span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>x<span class="token punctuation">.</span>shape<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> div_fn<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="1-2-2-重现">1.2.2 重现</h3>
+<p>Representation，代码较简单，如下所示，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">likelihood_fn <span class="token operator">=</span> likelihood<span class="token punctuation">.</span>get_likehood_fn<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> inverse_scaler<span class="token punctuation">,</span> eps<span class="token operator">=</span><span class="token number">1e-5</span><span class="token punctuation">)</span>
+sampling_fn <span class="token operator">=</span> sampling<span class="token punctuation">.</span>get_ode_sampler<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> shape<span class="token punctuation">,</span> inverse_scaler<span class="token punctuation">,</span> denoise<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> 
+                                       eps<span class="token operator">=</span>sampling_eps<span class="token punctuation">,</span> device<span class="token operator">=</span>config<span class="token punctuation">.</span>device<span class="token punctuation">)</span>
+
+<span class="token comment"># 获取一批用于 eval 的图像数据</span>
+eval_images <span class="token operator">=</span> torch<span class="token punctuation">.</span>from_numpy<span class="token punctuation">(</span>eval_images<span class="token punctuation">)</span><span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>config<span class="token punctuation">.</span>device<span class="token punctuation">)</span>
+<span class="token comment"># 计算似然，返回似然（bits/dim)、xT、微分方程 eval 次数</span>
+_<span class="token punctuation">,</span> latent_z<span class="token punctuation">,</span> _ <span class="token operator">=</span> likelihood_fn<span class="token punctuation">(</span>score_model<span class="token punctuation">,</span> scaler<span class="token punctuation">(</span>eval_images<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token comment"># 指定 xT，然后进行采样（前面是不指定 xT，xT 随机噪声采样）</span>
+x<span class="token punctuation">,</span> nfe <span class="token operator">=</span> sampling_fn<span class="token punctuation">(</span>score_model<span class="token punctuation">,</span> latent_z<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="1-3-受控生成">1.3 受控生成</h2>
+<h3 id="1-3-1-图像修复">1.3.1 图像修复</h3>
+<p>调用代码如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">train_ds<span class="token punctuation">,</span> eval_ds<span class="token punctuation">,</span> _ <span class="token operator">=</span> datasets<span class="token punctuation">.</span>get_dataset<span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+eval_iter <span class="token operator">=</span> <span class="token builtin">iter</span><span class="token punctuation">(</span>eval_ds<span class="token punctuation">)</span>
+bpds <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+
+<span class="token comment"># 参考 PC 采样的相关代码注释，这里不再重复</span>
+predictor <span class="token operator">=</span> ReverseDiffusionPredictor
+corrector <span class="token operator">=</span> LangevinCorrector
+snr <span class="token operator">=</span> <span class="token number">0.16</span>
+n_steps <span class="token operator">=</span> <span class="token number">1</span>
+probability_flow <span class="token operator">=</span> <span class="token boolean">False</span>
+
+pc_inpainter <span class="token operator">=</span> controllable_generation<span class="token punctuation">.</span>get_pc_inpainter<span class="token punctuation">(</span>sde
+                                                        predictor<span class="token punctuation">,</span> corrector<span class="token punctuation">,</span>
+                                                        inverse_scaler<span class="token punctuation">,</span>
+                                                        snr<span class="token operator">=</span>snr<span class="token punctuation">,</span>
+                                                        n_steps<span class="token operator">=</span>n_steps<span class="token punctuation">,</span>
+                                                        probability_flow<span class="token operator">=</span>probability_flow<span class="token punctuation">,</span>
+                                                        continuous<span class="token operator">=</span>config<span class="token punctuation">.</span>training<span class="token punctuation">.</span>continuous<span class="token punctuation">,</span>
+                                                        denoise<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+batch <span class="token operator">=</span> <span class="token builtin">next</span><span class="token punctuation">(</span>eval_iter<span class="token punctuation">)</span>
+img <span class="token operator">=</span> batch<span class="token punctuation">[</span><span class="token string">'image'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>_numpy<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token comment"># 得到一批数据，并转为 tensor，tensorflow 加载数据维度 (batch, height, width, channel)</span>
+<span class="token comment"># 转换维度为 (batch, channel, height, width)</span>
+img <span class="token operator">=</span> torch<span class="token punctuation">.</span>from_numpy<span class="token punctuation">(</span>img<span class="token punctuation">)</span><span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>config<span class="token punctuation">.</span>device<span class="token punctuation">)</span>
+show_samples<span class="token punctuation">(</span>img<span class="token punctuation">)</span>   <span class="token comment"># 显示原图</span>
+
+mask <span class="token operator">=</span> torch<span class="token punctuation">.</span>ones_like<span class="token punctuation">(</span>img<span class="token punctuation">)</span>
+mask<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token number">16</span><span class="token punctuation">:</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0.</span>        <span class="token comment"># 每个图片 widht=32， 所以每个图片右边一半像素值置零，黑色</span>
+show_samples<span class="token punctuation">(</span>img <span class="token operator">*</span> mask<span class="token punctuation">)</span>    <span class="token comment"># 显示右半黑色的图</span>
+
+x <span class="token operator">=</span> pc_inpainter<span class="token punctuation">(</span>score_model<span class="token punctuation">,</span> scaler<span class="token punctuation">(</span>img<span class="token punctuation">)</span><span class="token punctuation">,</span> mask<span class="token punctuation">)</span>
+show_samplers<span class="token punctuation">(</span>x<span class="token punctuation">)</span>        <span class="token comment"># 显示修复后的图像</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上面代码中的 <code>pc_inpainter</code> 是图像修复函数，其代码定义如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">get_inpaint_update_fn</span><span class="token punctuation">(</span>update_fn<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># update_fn：参加 score_based_sde 中的算法 1/2 中的 corrector 和 predictor</span>
+    <span class="token keyword">def</span> <span class="token function">inpaint_update_fn</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> data<span class="token punctuation">,</span> mask<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">with</span> torch<span class="token punctuation">.</span>no_grad<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            vec_t <span class="token operator">=</span> torch<span class="token punctuation">.</span>ones<span class="token punctuation">(</span>data<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> device<span class="token operator">=</span>data<span class="token punctuation">.</span>device<span class="token punctuation">)</span> <span class="token operator">*</span> t
+            <span class="token comment"># x_mean: 未加噪声</span>
+            <span class="token comment"># x: 加了噪声。x 和 x_mean 均是反向过程得到的数据</span>
+            x<span class="token punctuation">,</span> x_mean <span class="token operator">=</span> update_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> vec_t<span class="token punctuation">,</span> model<span class="token operator">=</span>model<span class="token punctuation">)</span>
+            <span class="token comment"># std: p(xt) 分布的标准差，边缘分布而非条件分布</span>
+            <span class="token comment"># masked_data_mean: p(xt) 分布的期望</span>
+            masked_data_mean<span class="token punctuation">,</span> std <span class="token operator">=</span> sde<span class="token punctuation">.</span>marginal_prob<span class="token punctuation">(</span>data<span class="token punctuation">,</span> vec_t<span class="token punctuation">)</span>
+            <span class="token comment"># masked_data: xt，这是前向过程中得到的数据</span>
+            masked_data <span class="token operator">=</span> masked_data_mean <span class="token operator">+</span> torch<span class="token punctuation">.</span>randn_like<span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token operator">*</span> std<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token boolean">None</span><span class="token punctuation">,</span><span class="token boolean">None</span><span class="token punctuation">,</span><span class="token boolean">None</span><span class="token punctuation">]</span>
+            <span class="token comment"># 在 t 时刻，被遮挡部分使用反向的 x，未被遮挡部分使用前向的 xt</span>
+            x <span class="token operator">=</span> x <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">1.</span> <span class="token operator">-</span> mask<span class="token punctuation">)</span> <span class="token operator">+</span> masked_data <span class="token operator">*</span> mask
+            x_mean <span class="token operator">=</span> x <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">1.</span> <span class="token operator">-</span> mask<span class="token punctuation">)</span> <span class="token operator">+</span> masked_data_mean <span class="token operator">*</span> mask
+            <span class="token keyword">return</span> x<span class="token punctuation">,</span> x_mean
+    <span class="token keyword">return</span> inpaint_update_fn
+
+projector_inpaint_update_fn <span class="token operator">=</span> get_inpaint_update_fn<span class="token punctuation">(</span>predictor_update_fn<span class="token punctuation">)</span>
+corrector_inpaint_update_fn <span class="token operator">=</span> get_inpaint_update_fn<span class="token punctuation">(</span>corrector_update_fn<span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">pc_inpainter</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> data<span class="token punctuation">,</span> mask<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">'''
+    model: 模型
+    data: 原输入图像数据 batch
+    mask: 用于遮挡部分图像的掩码
+    '''</span>
+    <span class="token keyword">with</span> torch<span class="token punctuation">.</span>no_grad<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># x: 图像数据被遮挡部分使用 xT 填充（xT 根据 sigma_max 噪声采样）</span>
+        x <span class="token operator">=</span> data <span class="token operator">*</span> mask <span class="token operator">+</span> sde<span class="token punctuation">.</span>prior_sampling<span class="token punctuation">(</span>data<span class="token punctuation">.</span>shape<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>data<span class="token punctuation">.</span>device<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">1.</span> <span class="token operator">-</span> mask<span class="token punctuation">)</span>
+        <span class="token comment"># 时间倒序，这是因为计算 xt，反向过程必须是一步一步进行，而前向过程可以一步到位</span>
+        timesteps <span class="token operator">=</span> torch<span class="token punctuation">.</span>linspace<span class="token punctuation">(</span>sde<span class="token punctuation">.</span>T<span class="token punctuation">,</span> eps<span class="token punctuation">,</span> sde<span class="token punctuation">.</span>N<span class="token punctuation">)</span>   
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>sde<span class="token punctuation">.</span>N<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            t <span class="token operator">=</span> timesteps<span class="token punctuation">[</span>i<span class="token punctuation">]</span>
+            x<span class="token punctuation">,</span> x_mean <span class="token operator">=</span> corrector_inpaint_update_fn<span class="token punctuation">(</span>model<span class="token punctuation">,</span> data<span class="token punctuation">,</span> mask<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span>
+            x<span class="token punctuation">,</span> x_mean <span class="token operator">=</span> projector_inpaint_update_fn<span class="token punctuation">(</span>model<span class="token punctuation">,</span> data<span class="token punctuation">,</span> mask<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> inverse_scaler<span class="token punctuation">(</span>x_mean <span class="token keyword">if</span> denoise <span class="token keyword">else</span> x<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>图像修复还是用到了原图数据，如果原图数据未知，只有被部分遮挡的图像数据，上述方法还有效吗？</p>
+<h3 id="1-3-2-着色">1.3.2 着色</h3>
+<p>COLORIZATION</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">predictor <span class="token operator">=</span> ReverseDiffusionPredictor
+corrector <span class="token operator">=</span> LangevinCorrector
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+img <span class="token operator">=</span> torch<span class="token punctuation">.</span>from_numpy<span class="token punctuation">(</span>img<span class="token punctuation">)</span><span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>config<span class="token punctuation">.</span>device<span class="token punctuation">)</span>
+<span class="token comment"># RGB channel 求均值，还要 repeat 保证channels=3，因为network 输入要求 channels=3</span>
+gray_scale_img <span class="token operator">=</span> torch<span class="token punctuation">.</span>mean<span class="token punctuation">(</span>img<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span> keepdims<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">.</span>repeat<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+gray_scale_img <span class="token operator">=</span> scaler<span class="token punctuation">(</span>gray_scale_img<span class="token punctuation">)</span>     <span class="token comment"># 可能scale 到[-1,1]，取决配置</span>
+pc_colorizer <span class="token operator">=</span> controllable_generation<span class="token punctuation">.</span>get_pc_colorizer<span class="token punctuation">(</span>
+    sde<span class="token punctuation">,</span> predictor<span class="token punctuation">,</span> corrector<span class="token punctuation">,</span> inverse_scaler<span class="token punctuation">,</span>
+    snr<span class="token operator">=</span>snr<span class="token punctuation">,</span> n_steps<span class="token operator">=</span>n_steps<span class="token punctuation">,</span> probability_flow<span class="token operator">=</span>probability_flow<span class="token punctuation">,</span>
+    continuous<span class="token operator">=</span>config<span class="token punctuation">.</span>training<span class="token punctuation">.</span>continuous<span class="token punctuation">,</span> denoise<span class="token operator">=</span><span class="token boolean">True</span>
+<span class="token punctuation">)</span>
+x <span class="token operator">=</span> pc_colorizer<span class="token punctuation">(</span>score_model<span class="token punctuation">,</span> gray_scale_img<span class="token punctuation">)</span>   <span class="token comment"># 上色</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上色函数如下，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># M: 3x3 的正交矩阵（正交矩阵的行列向量均是归一化向量）</span>
+invM <span class="token operator">=</span> torch<span class="token punctuation">.</span>inverse<span class="token punctuation">(</span>M<span class="token punctuation">)</span> <span class="token comment"># M^&#123;-1&#125;</span>
+<span class="token keyword">def</span> <span class="token function">decouple</span><span class="token punctuation">(</span>inputs<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># 经过decouple，每个channel值均不同</span>
+    <span class="token keyword">return</span> torch<span class="token punctuation">.</span>einsum<span class="token punctuation">(</span><span class="token string">'bihw,ij->bjhw'</span><span class="token punctuation">,</span> inputs<span class="token punctuation">,</span> M<span class="token punctuation">.</span>to<span class="token punctuation">(</span>inputs<span class="token punctuation">.</span>device<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">couple</span><span class="token punctuation">(</span>inputs<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> torch<span class="token punctuation">.</span>einsum<span class="token punctuation">(</span><span class="token string">'bihw,ij->bjhw'</span><span class="token punctuation">,</span> inputs<span class="token punctuation">,</span> invM<span class="token punctuation">.</span>to<span class="token punctuation">(</span>inputs<span class="token punctuation">.</span>device<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">get_mask</span><span class="token punctuation">(</span>image<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># 第一个channel为1，其他channel均为0</span>
+    mask <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span><span class="token punctuation">[</span>torch<span class="token punctuation">.</span>ones_like<span class="token punctuation">(</span>image<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                      torch<span class="token punctuation">.</span>zeros_like<span class="token punctuation">(</span>image<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> mask
+
+<span class="token keyword">def</span> <span class="token function">get_colorization_update_fn</span><span class="token punctuation">(</span>update_fn<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">colorization_update_fn</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> gray_scale_img<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        gray_scale_img: 灰度图
+        x: 反向过程中，t 时刻的输入数据
+        '''</span>
+        mask <span class="token operator">=</span> get_mask<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+        vec_t <span class="token operator">=</span> torch<span class="token punctuation">.</span>ones<span class="token punctuation">(</span>x<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> device<span class="token operator">=</span>x<span class="token punctuation">.</span>device<span class="token punctuation">)</span> <span class="token operator">*</span> t
+        <span class="token comment"># 得到反向过程 t 时刻 corrector/predictor 的输出数据 xt</span>
+        x<span class="token punctuation">,</span> x_mean <span class="token operator">=</span> update_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> vec_t<span class="token punctuation">,</span> model<span class="token operator">=</span>model<span class="token punctuation">)</span>
+        <span class="token comment"># 灰度图旋转到另一空间后，前向变换到 t 时刻的分布 pt 的期望和标准差</span>
+        masked_data_mean<span class="token punctuation">,</span> std <span class="token operator">=</span> sde<span class="token punctuation">.</span>marginal_prob<span class="token punctuation">(</span>decouple<span class="token punctuation">(</span>gray_scale_img<span class="token punctuation">)</span><span class="token punctuation">,</span> vec_t<span class="token punctuation">)</span>
+        <span class="token comment"># 前向过程的数据 xt</span>
+        masked_data <span class="token operator">=</span> masked_data_mean <span class="token operator">+</span> torch<span class="token punctuation">.</span>randn_like<span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token operator">*</span> std<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">]</span>
+        x <span class="token operator">=</span> couple<span class="token punctuation">(</span>decouple<span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">1.</span> <span class="token operator">-</span> mask<span class="token punctuation">)</span> <span class="token operator">+</span> masked_data <span class="token operator">*</span> mask<span class="token punctuation">)</span>
+        x_mean <span class="token operator">=</span> couple<span class="token punctuation">(</span>decouple<span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">1.</span> <span class="token operator">-</span> mask<span class="token punctuation">)</span> <span class="token operator">+</span> masked_data_mean <span class="token operator">*</span> mask<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> x<span class="token punctuation">,</span> x_mean
+    <span class="token keyword">return</span> colorization_update_fn 
+
+predictor_colorize_update_fn <span class="token operator">=</span> get_colorization_update_fn<span class="token punctuation">(</span>predictor_update_fn<span class="token punctuation">)</span>
+corrector_colorize_update_fn <span class="token operator">=</span> get_colorization_update_fn<span class="token punctuation">(</span>corrector_update_fn<span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">pc_colorizer</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> gray_scale_img<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># gray_scale_img: 每个 channel 值均相同（RGB 均相同，为原图像RGB三通道均值）</span>
+    <span class="token keyword">with</span> torch<span class="token punctuation">.</span>no_grad<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        shape <span class="token operator">=</span> gray_scale_img<span class="token punctuation">.</span>shape
+        mask <span class="token operator">=</span> get_mask<span class="token punctuation">(</span>gray_scale_img<span class="token punctuation">)</span> <span class="token comment"># 第一channel 通过滤波器</span>
+        <span class="token comment"># 将灰度图旋转变换到另一个空间，进行mask，保留第一channel，然后将</span>
+        <span class="token comment"># 采样得到xT，过滤掉其第一channel，然后旋转变换到另一空间，两者合并</span>
+        <span class="token comment"># 合并后再回到原来空间</span>
+        <span class="token comment"># x: 反向过程的初始值 xT</span>
+        x <span class="token operator">=</span> couple<span class="token punctuation">(</span>decouple<span class="token punctuation">(</span>gray_scale_img<span class="token punctuation">)</span> <span class="token operator">*</span> mask <span class="token operator">+</span> \
+                   decouple<span class="token punctuation">(</span>sde<span class="token punctuation">.</span>prior_sampling<span class="token punctuation">(</span>shape<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>gray_scale_img<span class="token punctuation">.</span>device<span class="token punctuation">)</span>
+                            <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">1.</span> <span class="token operator">-</span> mask<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        timesteps <span class="token operator">=</span> torch<span class="token punctuation">.</span>linspace<span class="token punctuation">(</span>sde<span class="token punctuation">.</span>T<span class="token punctuation">,</span> eps<span class="token punctuation">,</span> sde<span class="token punctuation">.</span>N<span class="token punctuation">)</span>
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>sde<span class="token punctuation">.</span>N<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            t <span class="token operator">=</span> timesteps<span class="token punctuation">[</span>i<span class="token punctuation">]</span>
+            x<span class="token punctuation">,</span> x_mean <span class="token operator">=</span> corrector_colorize_update_fn<span class="token punctuation">(</span>model<span class="token punctuation">,</span> gray_scale_img<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span>
+            x<span class="token punctuation">,</span> x_mean <span class="token operator">=</span> predictor_colorize_update_fn<span class="token punctuation">(</span>model<span class="token punctuation">,</span> gray_scale_img<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> inverse_scaler<span class="token punctuation">(</span>x_mean <span class="token keyword">if</span> denoise <span class="token keyword">else</span> x<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="1-3-3-根据标签生成图像">1.3.3 根据标签生成图像</h3>
+<p><strong># 计算分类器输出对输入的梯度</strong></p>
+<p>（以下代码源自 <a target="_blank" rel="noopener" href="https://github.com/yang-song/score_sde.git">score_sde</a>）</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># 分类器前向传播，得到非归一化得分</span>
+<span class="token keyword">def</span> <span class="token function">get_logit_fn</span><span class="token punctuation">(</span>classifier<span class="token punctuation">,</span> classifier_params<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">preprocess</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">:</span>   <span class="token comment"># 分类器输入数据归一化</span>
+        image_mean <span class="token operator">=</span> jnp<span class="token punctuation">.</span>asarray<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">0.49139968</span><span class="token punctuation">,</span> <span class="token number">0.48215841</span><span class="token punctuation">,</span> <span class="token number">0.44653091</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        image_std  <span class="token operator">=</span> jnp<span class="token punctuation">.</span>asarray<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">0.24703223</span><span class="token punctuation">,</span> <span class="token number">0.24348513</span><span class="token punctuation">,</span> <span class="token number">0.26158784</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>data <span class="token operator">-</span> image_mean<span class="token punctuation">[</span><span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">/</span> image_std<span class="token punctuation">[</span><span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">]</span>
+    
+    <span class="token keyword">def</span> <span class="token function">logit_fn</span><span class="token punctuation">(</span>data<span class="token punctuation">,</span> ve_noise_scale<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        data: 输入数据
+        ve_noise_scale: VE SDE 的 timesteps
+        '''</span>
+        data <span class="token operator">=</span> preprocess<span class="token punctuation">(</span>data<span class="token punctuation">)</span>     <span class="token comment"># 输入数据归一化</span>
+        logits <span class="token operator">=</span> classifier<span class="token punctuation">.</span><span class="token builtin">apply</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token string">'params'</span><span class="token punctuation">:</span> classifier_params<span class="token punctuation">&#125;</span><span class="token punctuation">,</span> data<span class="token punctuation">,</span> ve_noise_scale<span class="token punctuation">,</span> train<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> mutable<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> logits
+
+<span class="token keyword">def</span> <span class="token function">get_classifier_grad_fn</span><span class="token punctuation">(</span>logit_fn<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">grad_fn</span><span class="token punctuation">(</span>data<span class="token punctuation">,</span> ve_noise_scale<span class="token punctuation">,</span> labels<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        data: (B, 3, H, W)
+        labels: (B,)
+        '''</span>
+        <span class="token keyword">def</span> <span class="token function">prob_fn</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            logits <span class="token operator">=</span> logit_fn<span class="token punctuation">(</span>data<span class="token punctuation">,</span> ve_noise_scale<span class="token punctuation">)</span> <span class="token comment"># 分类器前向传播，得到非归一化得分，(B, C)</span>
+            <span class="token comment"># log p_t(y|x)   先计算得到所有分类的概率对数 (B, C) -> 然后根据标签条件，提取对应标签的 log p，(B,)</span>
+            <span class="token comment"># 然后求和，得到一个标量。为何要求和？因为计算 标量对向量 的梯度，即：log p 对 x 的梯度，见下方详细说明</span>
+            prob <span class="token operator">=</span> jax<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>log_softmax<span class="token punctuation">(</span>logits<span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">[</span>jnp<span class="token punctuation">.</span>arange<span class="token punctuation">(</span>labels<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> labels<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token builtin">sum</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token keyword">return</span> prob
+        <span class="token keyword">return</span> jax<span class="token punctuation">.</span>grad<span class="token punctuation">(</span>prob_fn<span class="token punctuation">)</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>  <span class="token comment"># shape 为 (B, 3, H, W)</span>
+    <span class="token keyword">return</span> grad_fn<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>分析以上代码：</p>
+<p>根据 <a href="/2022/07/26/diffusion_model/score_based_SDE">score_based_SDE</a> 一文中的 (I3) 式，需要计算分类器输出概率对数 对 输入数据的梯度 $\nabla _ {\mathbf x} \log p _ t(\mathbf y| \mathbf x)$，这里分类器的输入除了数据 $\mathbf x$，还有 timesteps $t$。上述代码中输入数据是一个 mini batch，记 batch size 为 $B$，那么输出 <code>prob</code> 为</p>
+<p>$$P=\sum _ {i=1} ^ B \log p _ t(y _ i|\mathbf x _ i)$$</p>
+<p>利用深度学习框架自带的求梯度功能，计算梯度则为，例如对 mini batch 中第 <code>i</code> 个输入数据 $\mathbf x _ i$ 的梯度为</p>
+<p>$$\nabla _ {\mathbf x _ i} P = \nabla _ {\mathbf x _ i} \log p _ t (y _ i|\mathbf x _ i)$$</p>
+<p><strong># 条件采样函数</strong></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">conditional_corrector_update_fn</span><span class="token punctuation">(</span>rng<span class="token punctuation">,</span> state<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">,</span> labels<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># 计算模型输出，即模型的得分估计 s_&#123;\theta&#125; -> \nabla_x log p_t(x)</span>
+    score_fn <span class="token operator">=</span> mutils<span class="token punctuation">.</span>get_score_fn<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> score_model<span class="token punctuation">,</span> state<span class="token punctuation">.</span>params_ema<span class="token punctuation">,</span> state<span class="token punctuation">.</span>model_state<span class="token punctuation">,</span> train<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+                                   continuous<span class="token operator">=</span>continuous<span class="token punctuation">)</span>
+    <span class="token keyword">def</span> <span class="token function">total_grad_fn</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        ve_noise_scale <span class="token operator">=</span> sde<span class="token punctuation">.</span>marginal_prob<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span>
+        <span class="token comment"># \nabla_x \log p_t(x) + \nabla_x \log p_t(y|x)</span>
+        <span class="token comment"># 参见下方 corrector 更新过程中的方括号部分 [...]</span>
+        <span class="token keyword">return</span> score_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> t<span class="token punctuation">)</span> <span class="token operator">+</span> classifier_grad_fn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> ve_noise_scale<span class="token punctuation">,</span> labels<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> corrector <span class="token keyword">is</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+        corrector_obj <span class="token operator">=</span> NoneCorrector<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> total_grad_fn<span class="token punctuation">,</span> snr<span class="token punctuation">,</span> n_steps<span class="token punctuation">)</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        corrector_obj <span class="token operator">=</span> corrector<span class="token punctuation">(</span>sde<span class="token punctuation">,</span> total_grad_fn<span class="token punctuation">,</span> snr<span class="token punctuation">,</span> n_steps<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> corrector_obj<span class="token punctuation">.</span>update_fn<span class="token punctuation">(</span>rng<span class="token punctuation">,</span> x<span class="token punctuation">,</span> t<span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">pc_conditional_sampler</span><span class="token punctuation">(</span>rng<span class="token punctuation">,</span> score_state<span class="token punctuation">,</span> labels<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    rng<span class="token punctuation">,</span> step_rng <span class="token operator">=</span> random<span class="token punctuation">.</span>split<span class="token punctuation">(</span>rng<span class="token punctuation">)</span>
+    x <span class="token operator">=</span> sde<span class="token punctuation">.</span>prior_sampling<span class="token punctuation">(</span>step_rng<span class="token punctuation">,</span> shape<span class="token punctuation">)</span>     <span class="token comment"># 反向过程的 xT ~ N(0, sigma_max*I)</span>
+    timesteps <span class="token operator">=</span> jnp<span class="token punctuation">.</span>linspace<span class="token punctuation">(</span>sde<span class="token punctuation">.</span>T<span class="token punctuation">,</span> eps<span class="token punctuation">,</span> sde<span class="token punctuation">.</span>N<span class="token punctuation">)</span> <span class="token comment"># timesteps 等间隔从 1 到 0 （反向过程）</span>
+
+    <span class="token keyword">def</span> <span class="token function">loop_body</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span> val<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># 当前 timestep，的输入样本 x，以及输入分布的期望 mu</span>
+        rng<span class="token punctuation">,</span> x<span class="token punctuation">,</span> x_mean <span class="token operator">=</span> val
+        t <span class="token operator">=</span> timesteps<span class="token punctuation">[</span>i<span class="token punctuation">]</span>
+        vec_t <span class="token operator">=</span> jnp<span class="token punctuation">.</span>ones<span class="token punctuation">(</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">*</span> t
+        rng<span class="token punctuation">,</span> step_rng <span class="token operator">=</span> random<span class="token punctuation">.</span>split<span class="token punctuation">(</span>rng<span class="token punctuation">)</span>
+        x<span class="token punctuation">,</span> x_mean <span class="token operator">=</span> conditional_corrector_update_fn<span class="token punctuation">(</span>step_rng<span class="token punctuation">,</span> score_state<span class="token punctuation">,</span> x<span class="token punctuation">,</span> vec_t<span class="token punctuation">,</span> labels<span class="token punctuation">)</span>
+        rng<span class="token punctuation">,</span> step_rng <span class="token operator">=</span> random<span class="token punctuation">.</span>split<span class="token punctuation">(</span>rng<span class="token punctuation">)</span>
+        x<span class="token punctuation">,</span> x_mean <span class="token operator">=</span> conditional_predictor_update_fn<span class="token punctuation">(</span>step_rng<span class="token punctuation">,</span> score_state<span class="token punctuation">,</span> x<span class="token punctuation">,</span> vec_t<span class="token punctuation">,</span> labels<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> rng<span class="token punctuation">,</span> x<span class="token punctuation">,</span> x_mean
+    
+    _<span class="token punctuation">,</span> x<span class="token punctuation">,</span> x_mean <span class="token operator">=</span> jax<span class="token punctuation">.</span>lax<span class="token punctuation">.</span>fori_loop<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> sde<span class="token punctuation">.</span>N<span class="token punctuation">,</span> loop_body<span class="token punctuation">,</span> <span class="token punctuation">(</span>rng<span class="token punctuation">,</span> x<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> inverse_scaler<span class="token punctuation">(</span>x_mean <span class="token keyword">if</span> denoise <span class="token keyword">else</span> x<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>以上代码简单易读。反向过程与 <a href="/2022/07/26/diffusion_model/score_based_SDE">score_based_SDE</a> 中的算法 1 一致（这里以 VE SDE 为例说明）。</p>
+<p>对于 corrector，更新过程为</p>
+<p><strong>for</strong> $j=1,\ldots,M$ <strong>do</strong></p>
+<p>  $\mathbf z \sim \mathcal N(\mathbf 0, I)$</p>
+<p>  $\mathbf x _ i \leftarrow \mathbf x _ i + \epsilon _ i [\mathbf s _ {\theta} ^ {\star} (\mathbf x _ i)+ \nabla _ {\mathbf x _ i} \log p _ t(y_i|\mathbf x _ i)] + \sqrt {2\epsilon _ i} \mathbf z$</p>
+<p>上述过程中 $M$ 就是代码中的 <code>n_steps</code> 变量。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2023/05/05/diffusion_model/score_based_SDE_code/">https://jianjiansha.github.io/2023/05/05/diffusion_model/score_based_SDE_code/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/diffusion-model/">
+                                    <span class="chip bg-color">diffusion model</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2023/06/13/diffusion_model/noise_sheduling/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/18.jpg" class="responsive-img" alt="Noise scheduling for diffusion models">
+                        
+                        <span class="card-title">Noise scheduling for diffusion models</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-06-13
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/diffusion-model/">
+                        <span class="chip bg-color">diffusion model</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2023/04/19/pytorch/norm/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="pytorch 中的各种 norm 总结">
+                        
+                        <span class="card-title">pytorch 中的各种 norm 总结</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            总结 pytorch 的所有 norm
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-04-19
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/PyTorch/">
+                        <span class="chip bg-color">PyTorch</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

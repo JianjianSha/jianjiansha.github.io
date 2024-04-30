@@ -1,0 +1,1324 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="PyTorch 方法总结, SJJ">
+    <meta name="description" content="1. Fold / Unfold
+Fold
+这是 torch.nn.Fold 类。
+首先我们来复习一下卷积过程，设输入 size 为 (N,C,H,W)，卷积 kernel size 为 (C,h,w)，碰撞系数为 d，padding 为 ">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>PyTorch 方法总结 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/7.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">PyTorch 方法总结</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/PyTorch/">
+                                <span class="chip bg-color">PyTorch</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-11-01
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1>1. Fold / Unfold</h1>
+<h2 id="Fold">Fold</h2>
+<p>这是 torch.nn.Fold 类。</p>
+<p>首先我们来复习一下卷积过程，设输入 size 为 <code>(N,C,H,W)</code>，卷积 kernel size 为 <code>(C,h,w)</code>，碰撞系数为 <code>d</code>，padding 为 <code>p</code>，stride 记为 <code>s</code>，那么整个过程相当于将 <code>Cxhxw</code> 大小的数据块在输入数据中滑动，每一次滑动做一次卷积，记共有 <code>L</code> 次卷积，即，从输入数据中切分出 <code>L</code> 个数据块与卷积核做卷积，当然每个数据块的大小与卷积核相同，为 <code>(C,h,w)</code>，最后得到的输出 map 大小为</p>
+<span id="more"></span>
+<p>$$H_o= \frac {H - [d(h-1)+1] + 2p} {s}+1<br>
+\\ W_o= \frac {W - [d(w-1)+1] + 2p} {s}+1$$<br>
+因为每一次卷积得到的值均作为输出 map 上的一点，故 <code>L</code> 为<br>
+$$L=H_o * W_o=\left(\frac {H - [d(h-1)+1] + 2p} {s}+1\right) \left(\frac {W - [d(w-1)+1] + 2p} {s}+1\right)$$</p>
+<p>好了，现在 Fold 要做的事情是反过来的，已知 fold 的输入为 <code>L</code> 个数据块，大小为 <code>(N,C*h*w,L)</code>，有关的构造参数为卷积核 size <code>(h,w)</code>，dilation，padding，stride，以及，指定最终的（Fold）输出大小 <code>(H,W)</code>，注意，Fold 做的事情是反过来的，也就是说，从 <code>L</code> 个数据块中恢复出原来普通卷积的输入 map 的大小，即 <code>(H,W)</code>，不是做完卷积之后的输出 map 的大小，记住，<strong>Fold 的输出是普通卷积的输入</strong>。</p>
+<p>Fold 的这些构造参数指明了卷积核大小，以及卷积输入的大小，然后根据其（这里指 Fold）输入 <code>L</code> 个数据块的 tensor，size 为 <code>(N,C*h*w,L)</code>，恢复出卷积输入的 tensor，因为 Fold 的构造参数中指定了 卷据输入 map 的 <code>(H,W)</code>，而批大小 <code>N</code> 也已知，所以要求出通道 <code>C</code>，根据 Fold 输入 tensor 的 第二个维度值 <code>C*h*w</code> 以及 Fold 的构造参数中卷积核大小 <code>(h,w)</code> 很容易得到通道 <code>C</code>。</p>
+<p>先使用 PyTorch 文档中的例子加以说明，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token operator">>></span><span class="token operator">></span> fold <span class="token operator">=</span> nn<span class="token punctuation">.</span>Fold<span class="token punctuation">(</span>output_size<span class="token operator">=</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">,</span> kernel_size<span class="token operator">=</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token comment"># (H,W)=(4,5), (h,w)=(2,2)</span>
+<span class="token operator">>></span><span class="token operator">></span> <span class="token builtin">input</span> <span class="token operator">=</span> torch<span class="token punctuation">.</span>randn<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span> <span class="token operator">*</span> <span class="token number">2</span> <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">)</span>   <span class="token comment"># (N, C*h*w,L)</span>
+<span class="token operator">>></span><span class="token operator">></span> output <span class="token operator">=</span> fold<span class="token punctuation">(</span><span class="token builtin">input</span><span class="token punctuation">)</span>
+<span class="token operator">>></span><span class="token operator">></span> output<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token punctuation">)</span>
+torch<span class="token punctuation">.</span>Size<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span>    <span class="token comment"># (N,C,H,W)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>将数据维度从 <code>H,W</code> 扩展到更多维度，就是 PyTorch 文档中关于 <code>L</code> 的计算式了，如下<br>
+$$L=\prod_d \lfloor \frac {\text{output_size} [d] + 2 \times \text{padding}[d]-\text{dilation}[d] \times (\text{kernel_size}[d]-1) -1} {\text{stride}[d]} +1 \rfloor$$</p>
+<p><strong>总结：</strong></p>
+<p>Fold 的输入 size 为 $(N, C \times \prod(\text{kernel_size}), L)$，输出 size 为 $(N,C, \text{output_size}[0], \text{output_size}[1], …)$</p>
+<h2 id="Unfold">Unfold</h2>
+<p>这是 torch.nn.Unfold 类，所做的事情与 Fold 相反，根据普通卷积的输入 tensor 以及卷积核大小，dilation，padding 和 stride 等计算得到 <code>L</code> 个与卷积核做卷积操作的数据块。<code>L</code> 计算方式如上。Unfold 的输入 size 为 $(N,C,*)$，其中 * 表示多维数据，输出 size 为 $(N,C \times \prod(\text{kernel_size}), L)$。</p>
+<p>引用PyTorch 文档中的例子，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token operator">>></span><span class="token operator">></span> unfold <span class="token operator">=</span> nn<span class="token punctuation">.</span>Unfold<span class="token punctuation">(</span>kernel_size<span class="token operator">=</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token operator">>></span><span class="token operator">></span> <span class="token builtin">input</span> <span class="token operator">=</span> torch<span class="token punctuation">.</span>randn<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span>
+<span class="token operator">>></span><span class="token operator">></span> output <span class="token operator">=</span> unfold<span class="token punctuation">(</span><span class="token builtin">input</span><span class="token punctuation">)</span>
+<span class="token operator">>></span><span class="token operator">></span> <span class="token comment"># each patch contains 30 values (2x3=6 vectors, each of 5 channels)</span>
+<span class="token operator">>></span><span class="token operator">></span> <span class="token comment"># 4 blocks (2x3 kernels) in total in the 3x4 input</span>
+<span class="token operator">>></span><span class="token operator">></span> output<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token punctuation">)</span>
+torch<span class="token punctuation">.</span>Size<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1>2. Normalization</h1>
+<h1>3. Pool</h1>
+<p>池化操作都比较简单易懂，这里介绍几个非常规的池化操作。</p>
+<h2 id="FractionalMaxPool2d">FractionalMaxPool2d</h2>
+<p>引用论文 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1412.6071">Fractional MaxPooling</a>。</p>
+<p>pool 操作通常是用于降低 feature map 的大小，以常规的 <code>2x2</code> max-pooling 为例，记输入大小为 $N_{in} \times N_{in}$，输出大小为 $N_{out} \times N_{out}$，那么有<br>
+$$N_{out}=\frac {N_{in}-k+2p} {s} + 1= N_{in} / 2 \Rightarrow N_{in} /N_{out} = 2$$</p>
+<p>将 $N_{in} \times N_{in}$ 的 feature map 划分出 $N_{out}^2$ 个 pooling 区域 $(P_{i,j})$。我们用 ${1,2,…,N_{in}}^2$ （或 $[1,N_{in}]^2$）表示输入 feature map，pixel 使用坐标点表示，显然 pooling 区域满足<br>
+$$P_{i,j} \subset {1,2,…,N_{in}}, \quad (i,j) \in {1,…,N_{out}}^2$$</p>
+<p>现在，我们想让 $N_{in} / N_{out} \in (1,2)$，或者为了提高速度，让 $N_{in} / N_{out} \in (2,3)$，反正，这个比例不再是整数，这就是 Fractional max-pooling（FMP）。</p>
+<p>那么，FMP 具体是如何实现的呢？</p>
+<p>令两个递增序列 $(a_i)<em>{i=0}^{N</em>{out}}, \ (b_i)<em>{i=0}^{N</em>{out}}$ 均以 <code>1</code> 开始，$N_{in}$ 结尾，递增量为 <code>1</code> 或者 <code>2</code>，即 $\forall i,\ a_{i+1}-a_{i} \in {1,2}$，那么 pooling 区域可以有如下两种表示：<br>
+$$P_{i,j}=[a_{i-1}, a_i-1] \times [b_{j-1},b_j-1], \quad i,j \in {1,…,N_{out}}<br>
+\\ P_{i,j}=[a_{i-1}, a_i] \times [b_{j-1},b_j], \quad i,j \in {1,…,N_{out}}$$<br>
+注意下标 <code>i,j</code> 的范围。</p>
+<p>第一种是 <code>disjoint</code> 表示，第二种是 <code>overlapping</code> 表示。显然使用第二种表示，相邻两个 pooling 区域是有重叠的，而第一种表示则不会。</p>
+<p>记下采样率 $\alpha = N_{in} / N_{out}$，有如下两种方法得到 $(a_i)<em>{i=0}^{N</em>{out}}$</p>
+<ol>
+<li>
+<p><code>random</code> 方法</p>
+<p>当 $\alpha$ 给定，那么 $(a_i-a_{i-1})<em>{i=1}^{N</em>{out}}$ 这个序列中有多少个 <code>1</code> 和多少个 <code>2</code> 已经是确定的了，将适量的 <code>1</code> 和 <code>2</code> shuffle 或者 random permutation，然后可可到 $\alpha = N_{in} / N_{out}$</p>
+</li>
+<li>
+<p><code>pseudorandom</code> 方法</p>
+<p>经过 $(0,0), \ (N_{out}, N_{in}-1)$ 的直线，其斜率为 $\alpha$（实际上是比下采样率小一点点，但是没关系，这两个值只要同时位于 $(1,2)$ 之间即可），将这个直线沿 y 轴 平移 $\alpha \cdot u$，其中 $\alpha \in (1,2), \ u \in (0,1), \alpha \cdot u \in (0,1)$，即<br>
+$$y=\alpha(i+u)$$<br>
+在此直线上取点，x 值依次为 $0,1,2,…,N_{out}$，对 y 值在应用 ceiling 函数，作为 $a_i$ 的值，<br>
+$$a_i=\text{ceiling}(\alpha(i+u)), \quad i=0,1,2,…,N_{out}$$<br>
+验证一下 ${a_i}$ 序列是否满足上述条件：</p>
+<ul>
+<li>$i=0$，$a_0=\text{ceiling}(\alpha \cdot u)$，由于 $\alpha \cdot u \in (0,1)$，故 $a_0=1$</li>
+<li>$i=N_{out}$，$a_{N_{out}}=\text{ceiling}(N_{in}-1+\alpha \cdot u)=N_{in}$</li>
+<li><code>otherwise：</code> $a_{i+1}-a_i=\text{ceiling}(\alpha \cdot i+\alpha+\alpha \cdot u)-\text{ceiling}(\alpha \cdot i+\alpha \cdot u)$。验证说明如下。</li>
+</ul>
+<p>下面验证最后一种情况：</p>
+<p>记 $\alpha \cdot i+\alpha \cdot u=f \in [k,k+1)$，k 是某个整数，那么当</p>
+<ul>
+<li>
+<p><code>f=k</code> 时，</p>
+<p>$a_{i+1}-a_i=\text{ceiling}(k+\alpha)-k=k+\text{ceiling}(\alpha)-k=\text{ceiling}(\alpha)=2$</p>
+</li>
+<li>
+<p><code>k&lt;f&lt;k+1</code> 时，</p>
+<p>$k+1&lt;f+\alpha&lt;k+3$</p>
+<p>$a_{i+1}-a_i=\text{ceiling}(f+\alpha)-k-1 \in {1,2}$</p>
+</li>
+</ul>
+<p>至此，验证了 $(a_i)$ 序列满足条件。显然，基于直线取离散点然后应用 ceiling 函数得到的是一种伪随机序列。</p>
+</li>
+</ol>
+<h1>4. ConvTranspose</h1>
+<h2 id="输出大小">输出大小</h2>
+<p>转置卷积，通常又称反卷积、逆卷积，然而转置卷积并非卷积的逆过程，并且转置卷积其实也是一种卷积，只不过与卷积相反的是，输出平面的大小通常不是变小而是变大。对于普通卷积，设输入平面边长 $L_{in}$，输出平面边长为 $L_{out}$，卷积核边长为 $k$，dilation 、stride 和 padding 分别为 $d, p, s$，那么有<br>
+$$L_{out}=\frac {L_{in}-(d(k-1)+1)+2p} s + 1 \tag {4-1}$$</p>
+<p>其中 $d(k-1)+1$ 是膨胀之后的 kernel size。</p>
+<p>对于转置卷积，令 $L_{in}^{\top}, \ L_{out}^{\top}$ 分别表示输入和输出的边长，于是有<br>
+$$L_{out}<sup>{\top}=s(L_{in}</sup>{\top} - 1) +d(k-1)+1 - 2p \tag{4-2}$$</p>
+<p>可见，转置卷积的输入输出边长的关系与普通卷积是反过来的。</p>
+<h2 id="转置卷积计算">转置卷积计算</h2>
+<h3 id="第一种方法">第一种方法</h3>
+<p>回顾一下卷积过程，以二维卷积为例，假设输入大小为 $4 \times 4$，卷积核 $3 \times 3$，不考虑 padding，且 stride 为 1，那么根据 $(4-1)$ 式输出大小为 $2 \times 2$，我们可以用卷积核在输入平面上滑窗并做卷积来理解卷积，实际计算则是根据输入矩阵得到 $4 \times 9$ 的矩阵（<strong>部分 element 用 0 填充</strong>），然后将卷积核展开成 $9 \times 1$ 的矩阵，然后进行卷积相乘得到 $4 \times 1$ 的输出矩阵。</p>
+<p>我们再看转置卷积，输入大小为 $2 \times 2$，卷积核大小为 $3 \times 3$，同样地，不考虑 padding 且 stride 为 1，那么根据 $(4-2)$ 式输出大小为 $4 \times 4$，实际的计算过程为：<strong>由于转置卷积也是一个普通卷积</strong>，所以先将输入矩阵 zero-padding 为 $6\times 6$ 的矩阵（$6 \times 6$ 的输入矩阵经过 $3 \times 3$ 的卷积才能得到 $4 \times 4$ 的输出大小），然后与普通卷积一样地得到为 $16 \times 9$ 的矩阵，卷积核 <strong>旋转 180°</strong>，然后 reshape 为 $9 \times 1$ 的矩阵，通过矩阵乘法，得到矩阵大小为 $16 \times 1$，然后 reshape 为 $4 \times 4$，此即输出矩阵。</p>
+<p>下面我们画图来展示卷积和转置卷积地过程：</p>
+<p><img src="/images/pytorch_mth_conv.png" alt=""></p>
+<center>普通卷积</center>
+<p><img src="/images/pytorch_mtd_conv_t.png" alt=""></p>
+<center>转置卷积</center>
+<p>使用 Pytorch 进行验证：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> torch
+<span class="token keyword">from</span> torch <span class="token keyword">import</span> nn
+convt <span class="token operator">=</span> nn<span class="token punctuation">.</span>ConvTranspose2d<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span>
+convt<span class="token punctuation">.</span>bias <span class="token operator">=</span> nn<span class="token punctuation">.</span>Parameter<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0.</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+convt<span class="token punctuation">.</span>weight <span class="token operator">=</span> nn<span class="token punctuation">.</span>Parameter<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">0.</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+                                            <span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+                                            <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token builtin">input</span> <span class="token operator">=</span> torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">12.</span><span class="token punctuation">,</span><span class="token number">12</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">[</span><span class="token number">10</span><span class="token punctuation">,</span><span class="token number">17</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+output <span class="token operator">=</span> convt<span class="token punctuation">(</span><span class="token builtin">input</span><span class="token punctuation">)</span>
+output
+<span class="token comment"># tensor([[[[ 0., 12., 36., 24.],</span>
+<span class="token comment">#           [24., 58., 61., 34.],</span>
+<span class="token comment">#           [20., 66., 70., 24.],</span>
+<span class="token comment">#           [ 0., 10., 37., 34.]]]])</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="第二种方法">第二种方法</h3>
+<p>还有另一种方法来理解计算卷积和转置卷积。还是以上面的例子进行说明。</p>
+<p>普通卷积中，输入矩阵 reshape 为 $1 \times 16$。因为有 4 个滑窗卷积动作，所以将卷积核分别以四种不同的 zero-padding 方式得到 4 个 $4 \times 4$ 的矩阵（即，卷积核的 $3 \times 4$ 部分位于 $4 \times 4$ 矩阵的左上角、右上角，左下角和右下角，其他位置 zero-padding），然后 reshape 为 $16 \times 4$，记这个 $16 \times 4$ 的矩阵为 $K$， 得到 $1 \times 4$ 矩阵，reshape 为 $2 \times 2$ 即输出矩阵。</p>
+<p>转置卷积中，输入矩阵大小为 $2 \times 2$（即 <code>[12,12,10,17]</code>），直接 reshape 为 $1 \times 4$，将上面的矩阵 $K$ <strong>转置</strong>，得到 $4 \times 16$ 的矩阵，然后矩阵相乘得到 $1 \times 16$ 矩阵，最后 reshape 为 $4 \times 4$ 即为输出矩阵。</p>
+<p>普通卷积的过程如下图示意，转置卷积非常简单，读者可以自己画图验证。</p>
+<p><img src="/images/pytorch_mtd_conv_t_1.png" alt="卷积的另一种计算过程"><center>卷积的另一种计算过程</center></p>
+<p>从转置卷积得到的结果来看，很明显，转置卷积不是普通卷积的逆过程。</p>
+<h3 id="dilation-1">dilation &gt; 1</h3>
+<p>现在，我们的讨论还未结束，来看 <code>dilation</code> 不为 1 的情况，例如 <code>dilation=2</code>，还是使用上面的例子，对于转置卷积，此时根据 $(4-2)$ 式得到输出矩阵大小为 $6 \times 6$，将卷积核膨胀后得到 $5 \times 5$ 矩阵（间隔填充 0），并 <strong>旋转 180°</strong>，由于转置卷积也是一种普通卷积，所以应该将输入矩阵 zero-padding 到 $10 \times 10$ 大小才能得到 $6 \times 6$ 的输出，也就是说，输入矩阵上下左右均进行 4 个单位的 zero-padding，</p>
+<p>记 <code>input</code> 为 $I$，zero-padding后，$I[4:6,4:6]=[[12.,12],[10,17]]$，其余位置为 <code>0</code>，膨胀后的卷积核 <strong>旋转 180°</strong> 后为 $K’=[[2., 0, 1, 0, 0],[0,0,0,0,0],[0,0,2,0,2],[0,0,0,0,0],[2,0,1,0,0]]$，可以手动计算卷积后的输出矩阵，这里给出 python 代码计算示例，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">convt1 <span class="token operator">=</span> nn<span class="token punctuation">.</span>ConvTranspose2d<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span>dilation<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span>
+convt1<span class="token punctuation">.</span>bias <span class="token operator">=</span> nn<span class="token punctuation">.</span>Parameter<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0.</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+convt1<span class="token punctuation">.</span>weight <span class="token operator">=</span> nn<span class="token punctuation">.</span>Parameter<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">0.</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+output1 <span class="token operator">=</span> convt1<span class="token punctuation">(</span><span class="token builtin">input</span><span class="token punctuation">)</span>
+output1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="stride-1">stride &gt; 1</h3>
+<p>依然以上面的例子进行说明，假设现在 <code>stride=2</code>，根据式 $(4-2)$ 转置卷积的输出大小为 $5 \times 5$。把转置卷积看作一种普通卷积，那么其输入大小应该为 $7 \times 7$，由于 <code>stride=2</code>，所以先将 $2 \times 2$ 输入矩阵膨胀为 $3 \times 3$ 的矩阵（2*(2-1)+1=3），然后再 zero-padding 成 $7 \times 7$ 的矩阵（上下左右 padding 的数量均为 (7-3)/2=2），经过这番处理，输入矩阵变为 $I[2,2]=I[2,4]=12, \ I[4,2]=10, \ I[4,4]=17$，其余位置均为 <code>0</code>，卷积核 <strong>旋转 180°</strong> 后为 $K’=[[2., 1, 0],[0,2,2],[2,1,0]]$，于是可以手动计算出卷积后的矩阵，这里给出 python 代码计算示例，</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">convt<span class="token punctuation">.</span>stride <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">)</span>
+output <span class="token operator">=</span> convt<span class="token punctuation">(</span><span class="token builtin">input</span><span class="token punctuation">)</span>
+output<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<h3 id="padding-0">padding &gt; 0</h3>
+<p>继续以上面的例子进行说明，假设现在 <code>padding=1</code>，根据式 $(4-2)$ 转置卷积的输出大小为 $2 \times 2$。将输入矩阵上下左右均进行 1 单位的 zero-padding，得到矩阵大小 $4 \times 4$，卷积核大小 $3 \times 3$，计算过程还是将卷积核 <strong>旋转 180°</strong>，卷积计算过程略，不过相信这是足够简单的事情。</p>
+<p>以上 <code>dialtion &gt; 1, stride &gt; 1, padding &gt; 0</code> 三种情况，除了可使用 python 程序验证，还可以使用 <code>第二种方法</code> 进行验证对输入矩阵以及卷积核的处理是正确的，并且，也可以使用 <code>第一种方法</code> 对输入矩阵和卷积核进行处理然后进行普通卷积计算得到输出矩阵。</p>
+<h1>5. Upsample</h1>
+<p>输入维度为 <code>minibatch x channels x [optional depth] x [optional height] x width</code>，即，输入可以是 3D/4D/5D。可用的算法包括 <code>nearest neighbor, linear, bilinear, bicubic, trilinear</code>。</p>
+<h2 id="nearest-neighbor">nearest neighbor</h2>
+<p>顾名思义，就是使用原平面上最近的一点作为上采样后的值。例如原平面 size 为 $m \times m$，在原平面上建立坐标系 S，上采样后的 size 为 $n \times n, \ n &gt; m$，设其上点的坐标为 $(x,y), \ x,y =0,1,…,n-1$。将上采样后平面点映射到 S 中，对应坐标记为 $(x’,y’)$，那么有</p>
+<p>$$\frac {x-0} {n-1-0}= \frac {x’-0}{m-1-0} \Rightarrow x’ = \frac {m-1} {n-1} \cdot x$$<br>
+同理有 $y’ = \frac {m-1} {n-1} \cdot y$，然后找出与点 $(i’,j’)$ 最近的那个整数坐标点，显然必然在以下四个点中产生 $(\lfloor x’\rfloor, \lfloor y’ \rfloor), \ (\lfloor x’\rfloor, \lceil y’ \rceil), \ (\lceil x’\rceil, \lfloor y’ \rfloor), \ (\lceil x’\rceil, \lceil y’ \rceil)$ （这四个点可能有重合），分别计算 $(x’,y’)$ 与这四个点的距离，距离最小的那个点的值即作为 $(x,y)$ 上采样后的值。（使用哪种距离指标，可以查看 PyTorch 底层实现代码，这里本人尚未去查看。）</p>
+<h2 id="bilinear">bilinear</h2>
+<p>输入必须是 4D。</p>
+<h3 id="align-corners-True">align_corners=True</h3>
+<p>双线性插值。记四个顶点为 $(x_1,y_1), \ (x_1,y_2), \ (x_2,y_1), \ (x_2,y_2)$，然后求目标点 $(x,y), \ x_1 \le x \le x_2, \ y_1 \le y \le y_2$ 的值。沿 x 轴线性插值，<br>
+$$f(x,y_1)=\frac {f_{21}-f_{11}} {x_2-x_1} \cdot (x-x_1)+f_{11}<br>
+\\ f(x,y_2)=\frac {f_{22}-f_{12}} {x_2-x_1} \cdot (x-x_1)+f_{12}<br>
+\\ f(x,y)=\frac {f_(x,y_2)-f(x,y_1)} {y_2-y_1} \cdot (y-y_1)+f(x,y_1)$$</p>
+<p>与 <code>nearest neighbor</code> 中一样，首先将点 $(x,y)$ 映射到原平面上一点 $(x’,y’)$，然后四个顶点为 $(\lfloor x’\rfloor, \lfloor y’ \rfloor), \ (\lfloor x’\rfloor, \lceil y’ \rceil), \ (\lceil x’\rceil, \lfloor y’ \rfloor), \ (\lceil x’\rceil, \lceil y’ \rceil)$。用这种映射方法，显然原平面的四个 corners 和上采样后平面的四个 corners 分别对齐，这就是 <code>align_corners=True</code> 的由来。</p>
+<h3 id="align-corners-False">align_corners=False</h3>
+<p>如下图所示，显示了 <code>align_corners</code> 不同值的区别。<br>
+<img src="/images/pytorch_mtd_aligncorners.png" alt=""><center>图源 <a target="_blank" rel="noopener" href="https://discuss.pytorch.org/t/what-we-should-use-align-corners-false/22663/9">pytorch 论坛</a></center></p>
+<p>从图中可以发现，映射回原平面坐标时，坐标计算方式不同，例如上菜以后平面上一点 $(x,y)$，映射回 S 中的坐标为<br>
+$$x’=(x+0.5)/2-0.5<br>
+\\ y’=(y+0.5)/2-0.5$$</p>
+<p>此后的插值方式一致（毕竟都是双线性插值），找到最近的 4 个点 $(\lfloor x’\rfloor, \lfloor y’ \rfloor), \ (\lfloor x’\rfloor, \lceil y’ \rceil), \ (\lceil x’\rceil, \lfloor y’ \rfloor), \ (\lceil x’\rceil, \lceil y’ \rceil)$ 进行双线性插值。</p>
+<h2 id="linear">linear</h2>
+<p>与 bilinear 类似，但是输入维度必须是 3D。</p>
+<h2 id="trilinear">trilinear</h2>
+<p>与 bilinear 类似，但是输入维度必须是 5D。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2019/11/01/pytorch/PyTorch-mtd/">https://jianjiansha.github.io/2019/11/01/pytorch/PyTorch-mtd/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/PyTorch/">
+                                    <span class="chip bg-color">PyTorch</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/12/05/dip/DIP-1/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="数字图像处理（一）">
+                        
+                        <span class="card-title">数字图像处理（一）</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+根据教材《数字图像处理》(Gonzalez)
+
+1. 坐标变换
+1.1 仿射变换
+特点：
+
+平直性：原图中的直线段在仿射变换后的图像中依然是直线段。
+平行性：原图中平行的两个线段在仿射变换后的图中依然是平行的
+
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2019-12-05
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/DIP/">
+                        <span class="chip bg-color">DIP</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/09/09/pytorch/DL-env/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="深度学习环境搭建">
+                        
+                        <span class="card-title">深度学习环境搭建</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            本文仅针对 ubuntu 系统进行讨论。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-09-09
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/DL/">
+                        <span class="chip bg-color">DL</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

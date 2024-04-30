@@ -1,0 +1,1383 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="h.264 码流分析, SJJ">
+    <meta name="description" content="1. 基本介绍
+# 码流格式
+
+
+AnnexB
+[start code]NALU | [start code]NALU | ...
+.h264 文件（h264 裸流）使用这种格式。
+
+
+AVCC
+([extradata]) | ([leng">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>h.264 码流分析 | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/16.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">h.264 码流分析</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                          <div class="article-tag">
+                            <span class="chip bg-color">无标签</span>
+                          </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2023-11-16
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1>1. 基本介绍</h1>
+<p><strong># 码流格式</strong></p>
+<ol>
+<li>
+<p>AnnexB</p>
+<p><code>[start code]NALU | [start code]NALU | ...</code></p>
+<p><code>.h264</code> 文件（h264 裸流）使用这种格式。</p>
+</li>
+<li>
+<p>AVCC</p>
+<p><code>([extradata]) | ([length] NALU) | ([length] NALU) | ...</code></p>
+<p>也称 AVC1 格式。没有起始码，每个帧最前面几个字节（通常4字节）是帧长度。这里的NALU一般没有<code>SPS PPS</code>等参数信息，参数信息属于额外数据extradata存在其他地方。<br>
+比如ffmpeg中解析mp4文件后sps pps存在<code>streams[index]-&gt;codecpar-&gt;extradata;</code>中。也就是说这种码流通常只包含VCL类型NALU。</p>
+<p>这些extradata通常有如下格式（可以根据这个规则ffmpeg解析mp4文件的SPS和PPS）</p>
+ <pre class="line-numbers language-none"><code class="language-none">第1字节：version (通常0x01)
+第2字节：avc profile (值同第1个sps的第2字节)
+第3字节：avc compatibility (值同第1个sps的第3字节)
+第4字节：avc level (值同第1个sps的第3字节)
+第5字节前6位：保留全1
+第5字节后2位：NALU Length 字段大小减1，通常这个值为3，即NAL码流中使用3+1&#x3D;4字节表示NALU的长度
+第6字节前3位：保留，全1
+第6字节后5位：SPS NALU的个数，通常为1
+第7字节开始后接1个或者多个SPS数据
+    SPS结构 [16位 SPS长度][SPS NALU data]
+
+SPS数据后
+第1字节：PPS的个数，通常为1
+第2字节开始接1个或多个PPS数据
+    PPS结构 [16位 PPS长度][SPS NALU data]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+</ol>
+<p><strong># NALU</strong></p>
+<p>以 AnnexB 为例说明。H264 码流 形式如下，</p>
+<p><code>[start code] [SPS] [start code] [PPS] [start code] [I Slice] [start code] [B Slice] [start code] [P Slice]</code></p>
+<p>以上除了 <code>[start code]</code> 之外每个部分都封装为 <code>NALU</code>，其中 <code>NAL</code> 又分为 VCL 和 non-VCL 两种，例如 <code>SPS, PPS</code> 等就是 non-VCL 。</p>
+<p>一个 NALU 表示 <code>nal unit</code>，以 <code>I Slice NALU</code> 为例说明，其结构如下：</p>
+<pre class="line-numbers language-none"><code class="language-none">    +--------------+
+    | I Slice NALU |
+    +-------+------|
+            |
+            v
++-------------+-----------+
+| NALU header | NALU data |
++-------------+-----+-----+
+                    |
+                    v
++--------------+------------+
+| Slice header | Slice data |
++--------------+-----+------+
+                     |
+                     v
+            +----+----+-----+----+
+            | MB | MB | ... | MB |
+            +----+----+-----+----+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>NALU header 占一个 byte。</p>
+<p><strong># 帧类型</strong></p>
+<ol>
+<li>
+<p>IDR 帧一定是 I 帧，反之不一定。IDR 帧之后的帧不能引用 IDR 之前的帧内容</p>
+</li>
+<li>
+<p>I 帧包含了 SPS，PPS，I Slice（注意 IDR 也是一个 I 帧）</p>
+<p>实际上是 I 帧前面会有 SPS, PPS</p>
+</li>
+<li>
+<p>P 帧包含 P Slice</p>
+</li>
+<li>
+<p>B 帧包含 B Slice</p>
+</li>
+</ol>
+<p><strong># SEI 补充增强信息</strong></p>
+<p>例如以下一段数据</p>
+<p><code>00 00 01 06 05 ff ff ab dc 45 e9 ...</code></p>
+<p>起始码为 <code>00 00 01</code>，然后 <code>06</code> 是 nal unit 类型，查表可知是 SEI，</p>
+<table>
+<thead>
+<tr>
+<th>NAL unit type</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>非 IDR 图像的编码条带</td>
+</tr>
+<tr>
+<td>5</td>
+<td>IDR 图像</td>
+</tr>
+<tr>
+<td>6</td>
+<td>SEI</td>
+</tr>
+<tr>
+<td>7</td>
+<td>SPS</td>
+</tr>
+<tr>
+<td>8</td>
+<td>PPS</td>
+</tr>
+<tr>
+<td>11</td>
+<td>流结束符</td>
+</tr>
+</tbody>
+</table>
+<p><code>05</code> 是 SEI payload 类型值，当类型值为 <code>05</code> 时，指定处理方法为 <code>user_data_unregistered()</code></p>
+<p>计算 SEI 负载大小：持续读取 8bit，直到非 0xff 为止，然后把所读的值相加，累加和即为 SEI payload size。例如上述数据片段中，读到数据为 <code>ff ff ab</code> 后停止，负载大小为 <code>255+255+171=681</code>。</p>
+<p>然后接下来 16 个 byte 表示 uuid，即 <code>dc 45 e9 ...</code> 等 16 个 byte 表示 uuid，然后剩下 <code>681-16=665</code> 个 byte 为 SEI 文本内容。这 665 个 byte 中最后一个 byte 为 <code>00</code>，这是结束符，然后跟一个 <code>80</code> byte，表示 RBSP trailing bits（拖尾）。</p>
+<p>SEI 中通常用于添加：</p>
+<ol>
+<li>
+<p>编码器参数</p>
+</li>
+<li>
+<p>视频版权信息</p>
+</li>
+<li>
+<p>摄像头参数</p>
+</li>
+<li>
+<p>其他与视频无关的信息</p>
+</li>
+</ol>
+<p><strong># I Slice</strong></p>
+<p>SEI 之后，数据为 <code>00 00 01 65 88 84 00 6f e9 92 f6 63 cf ff ...</code></p>
+<p>起始码 <code>00 00 01</code> 之后的一个 byte 为 <code>65</code> 这个 NALU header 表示这是一个 IDR 帧类型。</p>
+<p>在 H264 码流中，帧以 Slice 方式呈现，即 没有帧只有 Slice。如何判断一帧包含了多少个 Slice，一帧的开始和结束分别对应哪个 Slice？</p>
+<p>Slice header 中有个 <code>first_mb_in_slice</code> 字段，值为 0 则表示当前 slice 的第一个宏块在当前编码图像（当前帧）中的序号，这就意味着当前 slice 就是一帧的第一个 slice。一直这么找下去，直到下一个 <code>first_mb_in_slice=0</code> 出现，表示这是下一个帧的第一个 slice，那么这个 slice 的上一个 slice 就是一帧的最后一个 slice。</p>
+<p><code>first_mb_in_slice</code> 是以无符号指数哥伦布编码的，需要使用对应的解码方式才能得到，但是如果只要判断是否为 0，则不需要解码，只要通过如下方式判断即可：</p>
+<p><code>if slice_header[0] &amp; 0x80 == 1 then first_mb_in_slice=0</code></p>
+<p><strong># EBSP, RBSP, SODB</strong></p>
+<ol>
+<li>EBSP 扩展字节序列载荷</li>
+<li>RBSP 原始字节序列载荷</li>
+<li>SODB 原始编码数据 String Of Data Bits</li>
+</ol>
+<p>EBSP 完全等价于 NALU body，故 NALU 组成为</p>
+<p><code>NALU = NALU header + EBSP</code></p>
+<p>H264 文档中为 <code>NALU = NALU header + RBSP</code> ， EBSP 相较于 RBSP，多了一个防止竞争的字节：<code>0x03</code> 。</p>
+<p>起始码为 <code>0x000001</code> 或者 <code>0x00000001</code>，当检测到 <code>0x000000</code> 也表示当前 NALU 结束。<br>
+如果 NALU data（NALU 去掉 header）中包含了 0x000001 或者 0x000000，该怎么办？</p>
+<p>这就是 H264 的防竞争机制：</p>
+<p>当检测到如下左侧的 4 个序列是，编码器在最后一个字节前，插入新的字节 <code>0x03</code>，</p>
+<pre class="line-numbers language-none"><code class="language-none">0x000000 -&gt; 0x00000300
+0x000001 -&gt; 0x00000301
+0x000002 -&gt; 0x00000302
+0x000003 -&gt; 0x00000303<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>（<code>0x000002</code> 保留使用）。这样拿到 EBSP 数据时，如果检测到 <code>0x000003</code>，则去掉最后的 byte <code>0x03</code>，这样就得到 RBSP 。</p>
+<p><code>RBSP = SODB + RBSP尾部</code></p>
+<p>RBSP 尾部有几种，大多数为：</p>
+<p>在 SODB 的最后一个 byte 的最后一个 bit 后，紧跟 <code>1</code> 的 bit，然后增加若干 <code>0</code> bit，对齐这个 byte。</p>
+<p>还有 <strong>条带 RBSP 尾部</strong>：</p>
+<p>默认与普通 RBSP 尾部相同，当 <code>entropy_coding_mode_flag=1</code> 时，即 当前采用的熵编码为 CABAC，并且 <code>more_rbsp_trailing_data()</code> 返回 true，尾部继续添加若干 0x0000，直到 <code>more_rbsp_trailing_data()</code> 返回 0。</p>
+<p><strong># 起始码</strong></p>
+<p>有两种</p>
+<ol>
+<li><code>0x000001</code> 用在单帧多 slice 之间间隔（即，单帧多个 NALU 之间）</li>
+<li><code>0x00000001</code> 帧之间，或者 SPS PPS 等之前</li>
+</ol>
+<p>AnnexB 码流格式每个 NALU 之前都有起始码，且通常会周期性的在关键帧之前重复 SPS 和 PPS</p>
+<p><strong># AVPacket</strong></p>
+<p>AVPacket 是 ffmpeg 中的数据类，用于存储解封装后的压缩数据。而 AVFrame 是解码后保存的音视频帧。AVPacket 的 data 格式为</p>
+<p><code>size(4 byte) + NALU + size(4 byte) + NALU + ...</code></p>
+<p>包含一个或多个 NALU，size(4 byte) 表示 NALU 的大小。</p>
+<p>对于视频而言，一个 AVPacket 通常只包含一个压缩视频帧；对于音频而言，一个 AVPacket 可能包含多个完整的音频压缩帧。AVPacket 也可以不包含压缩编码数据，而只包含 SideData，这种包称为空 Packet。</p>
+<p>实际上对视频而言，一个 AVPacket 可能包含不到一帧压缩数据，可能要多个 AVPacket 才包含一帧。</p>
+<p><strong># Slice header</strong></p>
+<p><strong># SPS</strong></p>
+<p>(1) profile_idc</p>
+<p>标识当前H.264码流的profile。我们知道，H.264中定义了三种常用的档次profile：</p>
+<p>基准档次：baseline profile;</p>
+<p>主要档次：main profile;</p>
+<p>扩展档次：extended profile;</p>
+<p>在H.264的SPS中，第一个字节表示profile_idc，根据profile_idc的值可以确定码流符合哪一种档次。判断规律如下：</p>
+<p>profile_idc = 66 → baseline profile;</p>
+<p>profile_idc = 77 → main profile;</p>
+<p>profile_idc = 88 → extended profile;</p>
+<p>在新版的标准中，还包括了High、High 10、High 4:2:2、High 4:4:4、High 10 Intra、High</p>
+<p>4:2:2 Intra、High 4:4:4 Intra、CAVLC 4:4:4 Intra等，每一种都由不同的profile_idc表示。</p>
+<p>另外，constraint_set0_flag ~ constraint_set5_flag是在编码的档次方面对码流增加的其他一些额外限制性条件。</p>
+<p>(2) level_idc</p>
+<p>标识当前码流的Level。编码的Level定义了某种条件下的最大视频分辨率、最大视频帧率等参数，码流所遵从的level由level_idc指定。</p>
+<p>当前码流中，level_idc = 0x1e = 30，因此码流的级别为3。</p>
+<p>(3) seq_parameter_set_id</p>
+<p>表示当前的序列参数集的id。通过该id值，图像参数集pps可以引用其代表的sps中的参数。</p>
+<p>(4) log2_max_frame_num_minus4</p>
+<p>用于计算MaxFrameNum的值。计算公式如下：</p>
+<p>MaxFrameNum = 2^(log2_max_frame_num_minus4 + 4)</p>
+<p>MaxFrameNum是frame_num的上限值，frame_num是图像序号的一种表示方法，在帧间编码中常用作一种参考帧标记的手段。</p>
+<p>(5) pic_order_cnt_type</p>
+<p>表示解码picture order count(POC)的方法。POC是另一种计量图像序号的方式，与frame_num有着不同的计算方法。该语法元素的取值为0、1或2。</p>
+<p>(6) log2_max_pic_order_cnt_lsb_minus4</p>
+<p>用于计算MaxPicOrderCntLsb的值，该值表示POC的上限。计算公式如下：</p>
+<p>MaxPicOrderCntLsb = 2^(log2_max_pic_order_cnt_lsb_minus4 + 4)</p>
+<p>(7) max_num_ref_frames</p>
+<p>用于表示参考帧的最大数目。</p>
+<p>(8) gaps_in_frame_num_value_allowed_flag</p>
+<p>标识位，说明frame_num中是否允许不连续的值。</p>
+<p>(9) pic_width_in_mbs_minus1</p>
+<p>用于计算图像的宽度，单位为宏块个数。</p>
+<p>(10) pic_height_in_map_units_minus1</p>
+<p>使用PicHeightInMapUnits来度量视频中一帧图像的高度。PicHeightInMapUnits并非图像明确的以像素或宏块为单位的高度，而需要考虑该宏块是帧编码或场编码。</p>
+<p>(11) frame_mbs_only_flag</p>
+<p>标识位，说明宏块的编码方式。当该标识位为0时，宏块可能为帧编码或场编码；该标识位为1时，所有宏块都采用帧编码。根据该标识位取值不同，PicHeightInMapUnits的含义也不同，为0时表示一场数据按宏块计算的高度，为1时表示一帧数据按宏块计算的高度。</p>
+<p>按照宏块计算的图像实际高度FrameHeightInMbs的计算方法为：</p>
+<p>FrameHeightInMbs = ( 2 − frame_mbs_only_flag ) * PicHeightInMapUnits</p>
+<p>(12) mb_adaptive_frame_field_flag</p>
+<p>标识位，说明是否采用了宏块级的帧场自适应编码。当该标识位为0时，不存在帧编码和场编码之间的切换；当标识位为1时，宏块可能在帧编码和场编码模式之间进行选择。</p>
+<p>(13) direct_8x8_inference_flag</p>
+<p>标识位，用于B_Skip、B_Direct模式运动矢量的推导计算。</p>
+<p>(14) frame_cropping_flag</p>
+<p>标识位，说明是否需要对输出的图像帧进行裁剪。</p>
+<p>(15) vui_parameters_present_flag</p>
+<p>标识位，说明SPS中是否存在VUI信息。</p>
+<p>二、SPS的存储位置<br>
+在H264码流中，都是以&quot;0x00 0x00 0x01&quot;或者&quot;0x00 0x00 0x00 0x01&quot;作为起始码的，找到起始码之后，使用开始码之后的第一个字节的低5位判断是否为7，也就是SPS类型标识，伪代码如下：</p>
+<p>data[3] &amp; 0x1f == 7<br>
+data[4] &amp; 0x1f == 7</p>
+<p>三、如何计算宽高信息<br>
+根据SPS信息计算视频宽高的常用公式如下：</p>
+<p>width = (pic_width_in_mbs_minus1+1)*16;<br>
+height = (pic_height_in_map_units_minus1+1)*16;<br>
+复制<br>
+复制<br>
+但是这是针对宽高是16的整数倍的情况，如果宽高不是16整数倍时，frame_cropping_flag值为1，frame_mbs_only_flag为1，公式如下：(也可以认为这是统一公式)</p>
+<pre class="line-numbers language-none"><code class="language-none">width &#x3D; ((pic_width_in_mbs_minus1 +1)*16) - frame_crop_left_offset*2 - frame_crop_right_offset*2;
+
+height&#x3D; ((2 - frame_mbs_only_flag)* (pic_height_in_map_units_minus1 +1) * 16) - \
+(frame_crop_top_offset * 2) - (frame_crop_bottom_offset * 2);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>四、获取帧率</p>
+<p>用到 SPS 中的 VUI 信息，公式为</p>
+<pre class="line-numbers language-none"><code class="language-none">fps &#x3D; (float)(time_scale) &#x2F; (float)(num_units_in_tick*2)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>DTS: (Decode Time Stamp) 用于视频的解码序列，在解码阶段使用</p>
+<p>PTS: (Presentation Time Stamp) 用于视频的显示序列，在渲染阶段使用。若没有 B 帧，那么 DTS 与 PTS 输出顺序一样。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2023/11/16/stego/h264/">https://jianjiansha.github.io/2023/11/16/stego/h264/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            <span class="chip bg-color">无标签</span>
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2023/12/18/stego/ffmpeg/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="FFmpeg 源码分析">
+                        
+                        <span class="card-title">FFmpeg 源码分析</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-12-18
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/ffmpeg/">
+                        <span class="chip bg-color">ffmpeg</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2023/10/18/stego/intro/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/3.jpg" class="responsive-img" alt="隐写介绍">
+                        
+                        <span class="card-title">隐写介绍</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-10-18
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/stego/">
+                        <span class="chip bg-color">stego</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

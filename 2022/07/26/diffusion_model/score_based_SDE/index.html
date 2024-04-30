@@ -1,0 +1,1586 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Score-Based Generative Modeling Through SDE, SJJ">
+    <meta name="description" content="论文：Score-based generative modeling through stochastic differential equations
+代码：yang-song/score-sde
+1. 简介
+两类概率生成模型。
+1.1 ">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Score-Based Generative Modeling Through SDE | SJJ</title>
+    <link rel="icon" type="image/png" href="/medias/logo.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">SJJ</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/resume" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（英）</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/jianli" class="waves-effect waves-light">
+      
+      <i class="fas fa-file" style="zoom: 0.6;"></i>
+      
+      <span>简历（中）</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">SJJ</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/resume" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（英）
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/jianli" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-file"></i>
+			
+			简历（中）
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/jianjiansha/jianjiansha.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/jianjiansha/jianjiansha.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/6.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Score-Based Generative Modeling Through SDE</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/diffusion-model/">
+                                <span class="chip bg-color">diffusion model</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-07-26
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>论文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2011.13456">Score-based generative modeling through stochastic differential equations</a></p>
+<p>代码：<a target="_blank" rel="noopener" href="https://github.com/yang-song/score_sde">yang-song/score-sde</a></p>
+<h1>1. 简介</h1>
+<p>两类概率生成模型。</p>
+<h2 id="1-1-SMLD">1.1 SMLD</h2>
+<p>score matching + Langevin dynamics （SMLD）</p>
+<p>score matching，模型 $s_{\theta}(\mathbf x)$ 模拟 $\nabla_{\mathbf x} \log p_{data}(\mathbf x)$，由于 $p_{data}(\mathbf x)$ 往往不可知，故采用 denoising score matching 方法，即，对数据做一个非常小的噪声扰动，</p>
+<p>$$p_{\sigma}(\tilde {\mathbf x}|\mathbf x)=\mathcal N(\tilde {\mathbf x};\mathbf x,\sigma^2I) \tag{1}$$</p>
+<p>根据上下文，可以知道 $I$ 为单位矩阵，下同。可以得到边缘分布</p>
+<p>$$p_{\sigma}(\tilde {\mathbf x})=\int p_{data}(\mathbf x) p_{\sigma}(\tilde {\mathbf x}|\mathbf x) d\mathbf x \tag{2}$$</p>
+<p>考虑一系列的扰动噪声水平 $\sigma_{min}=\sigma_1 &lt; \ldots &lt; \sigma_N = \sigma_{max}$ 。$\sigma_{min}$ 必须足够小使得 $p_{\sigma_{min}}(\mathbf x) \approx p_{data}(\mathbf x)$ ，且 $\sigma _ {max}$ 必须足够大，使得 $p _ {\sigma _ {max}} (\mathbf x) \approx \mathcal N(\mathbf 0, \sigma _ {max} ^ 2I)$。根据 <a href="/2022/07/22/diffusion_model/NCSN">NCSN</a> 分析，由于数据位于低维度 manifolds，且多 mode 之间是数据低密度区域，会引起很多问题，所以<strong>先选择最大的噪声扰动，然后逐步降低噪声幅度</strong>。</p>
+<p>（SMLD 论文中使用的网络框架作者称为 NCSN。）</p>
+<p>训练的目标函数为</p>
+<p>$$\theta^{\star}=\arg \min_{\theta} \sum_{i=1}^N \sigma_i^2 \mathbb E_{p_{data}(\mathbf x)}\mathbb E_{p_{\sigma_i}(\tilde {\mathbf x}|\mathbf x)}[|\mathbf s_{\theta}(\tilde {\mathbf x}) - \nabla_{\tilde {\mathbf x}} \log p_{\sigma_i}(\tilde {\mathbf x}|\mathbf x)|_2^2] \tag{3}$$</p>
+<p>给定样本数据 $\mathbf x$，条件概率密度 $p_{\sigma_i}(\tilde {\mathbf x}|\mathbf x)$ 是我们预先设计好的 (设计扰动噪声方差 $\sigma_i$ 即可)，故条件概率密度已知，以此来监督训练模型参数 $\theta$ 。</p>
+<p>假设数据足够多，且模型空间组大大，那么最优参数模型 $\mathbf s_{\theta{\star}}(\tilde {\mathbf x},\sigma)$ 几乎匹配所有的 $\nabla_{\mathbf x} \log p_{\sigma}(\tilde {\mathbf x}), \ i=1,\ldots, N$ （证明过程参见 <a href="/2022/07/22/diffusion_model/NCSN">NCSN</a> 一文的 (3), (3.1), (3.2) 式以及相关结论）。</p>
+<p>使用 Langevin dynamics 采样</p>
+<p>$$\mathbf x_i^m = \mathbf x_i^{m-1}+ \epsilon_i \mathbf s_{\theta{\star}}(\mathbf x_i^{m-1}, \sigma_i) + \sqrt {2\epsilon_i} \mathbf z_i^m, \ m=1,\ldots, M \tag{4}$$</p>
+<p>其中 $\epsilon_i$ 是 step size，$M$ 是 step number，$\mathbf z_i \sim \mathcal N(0,I)$。依据 (4) 式的采样过程为，重复 $i=N,N-1,\ldots, 1$（倒序是因为从大到小使用 $\sigma$ ），对每个 $i$ 值，设置 $\mathbf x_i^0=\mathbf x_{i+1}^M$，其中初始值 $\mathbf x_N^0 \sim \mathcal N(\mathbf x|\mathbf 0, \sigma_{max}^2 I)$，这是因为 $\sigma _ {max}$ 远大于 $\mathbf x _ 0$ 的 各像素值（范围为 [0, 1]，或者 scale 到 [-1,1]），故 $p _ {\sigma _ {max}} (\mathbf x) \approx \mathcal N(\mathbf 0, \sigma _ {max} ^ 2I)$。</p>
+<h2 id="1-2-DDPM">1.2 DDPM</h2>
+<p>denoising diffusion probabilistic models，先前向过程对数据逐步加噪，然后反向过程中逐步降噪。即数据分布为 $\mathbf x_0 \sim p_{data}(\mathbf x)$，设置前向过程</p>
+<p>$$p(\mathbf x_i|\mathbf x_{i-1})=\mathcal N(\mathbf x_i; \sqrt {1-\beta_i} \mathbf x_{i-1},\beta_i I)\tag{5}$$</p>
+<p>$\beta_i$ 是噪声方差，且 $0&lt;\beta_1,\beta_2,\ldots, \beta_N &lt; 1 $，由此可推导出</p>
+<p>$$p_{\alpha_i}(\mathbf x_i|\mathbf x_0)=\mathcal N(\mathbf x_i; \sqrt {\alpha_i} \mathbf x_0, (1-\alpha_i)I) \tag{6}$$</p>
+<p>其中 $\alpha_i = \prod_{j=1}^i (1-\beta_j)$，与原文中的 $\overline \alpha_i$ 相同，这里为了表达简单，省掉了顶部横线。</p>
+<p>与 SMLD 相似，采用 denoising score matching，那么目标函数为</p>
+<p>$$\theta^{\star}=\arg\min_{\theta} \sum_{i=1}^N (1-\alpha_i)\mathbb E_{p_{data}(\mathbf x)} \mathbb E_{p_{\alpha_i}(\tilde {\mathbf x}|\mathbf x)} [|\mathbf s_{\theta}(\tilde {\mathbf x},i)-\nabla_{\tilde {\mathbf x}} \log p_{\alpha_i}(\tilde {\mathbf x}|\mathbf x_0)|_2^2] \tag{7}$$</p>
+<p>(7) 式中取 $\mathbf x=\mathbf x_0$。</p>
+<p>根据 <a href="/2022/07/22/diffusion_model/NCSN">NCSN</a> 分析，权重因子 $\lambda(\alpha_i) \propto (1-\alpha_i)$ 。</p>
+<p>根据 <a href="/2022/06/27/diffusion_model/ddpm">DDPM</a> 中 (12) 式可知 DDPM 的反向过程也是高斯分布，且高斯分布的期望为 $\tilde {\mu} _ i(\mathbf x_i, \mathbf x_0)$，这里再写出来如下，</p>
+<p>$$\tilde {\mu} _ i(\mathbf x_i, \mathbf x_0)=\frac {\sqrt {\alpha_{i-1}}\beta_i}{1- \alpha_i}\mathbf x_0+\frac {\sqrt {\alpha_i}(1-\overline \alpha_{i-1})}{1- \alpha_i} \mathbf x_i \tag{8}$$</p>
+<p>根据 (7) 式，训练完毕后应有</p>
+<p>$$\mathbf s_{\theta ^ {\star}}(\mathbf x_i,i)=\nabla_{\mathbf x} \log p_{\alpha_i}(\mathbf x|\mathbf x_0)|_{\mathbf x=\mathbf x_i}=\frac {\sqrt {\alpha_i} \mathbf x_0 -\mathbf x_i}{1-\alpha_i} \tag{9}$$</p>
+<p>(9) 式最后一个等号根据 (6) 式推导而得。训练阶段，$\mathbf x _ i = \sqrt {\alpha _ i} \mathbf x _ 0 + \sqrt {1-\alpha_i} \epsilon$，其中 $\epsilon \sim \mathcal N(\mathbf 0, I)$，代入 (9) 式有 $\mathbf s _ {\theta ^ {\star}}(\mathbf x _ i,i) = -\epsilon / \sqrt {1-\alpha_i}$ 。</p>
+<p>测试阶段，$\mathbf x_0$ 是未知的，是我们通过反向过程生成的目标，那么 (8) 中反向过程的期望如何计算呢？将 (9) 式代入 (8) 式消去 $\mathbf x_0$ 得，</p>
+<p>$$\mu_{\theta}(\mathbf x_i)=\frac 1 {\sqrt {1-\beta_i}} (\mathbf x_i+\beta_i \mathbf s_{\theta}(\mathbf x_i, i)) \tag{10}$$</p>
+<p>于是反向过程的转换为</p>
+<p>$$p_{\theta}(\mathbf x_{i-1}|\mathbf x_i)=\mathcal N(\mathbf x_{i-1}; \frac 1 {\sqrt {1-\beta_i}} (\mathbf x_i+\beta_i \mathbf s_{\theta}(\mathbf x_i, i)), \beta_iI) \tag{11}$$</p>
+<p>其中方差直接使用 $\beta_i$ ，这与 DDPM 中一样（当然，也可以使用 $\tilde {\beta _ i}$，这是可以计算出来的，参见 <a href="/2022/06/27/diffusion_model/ddpm">DDPM</a> 一文的 (12) 式，不过区别不大）。</p>
+<p>根据 (7) 式训练结束后得到最优解 $\mathbf s_{\theta^{\star}}(\mathbf x,i)$，然后生成过程为从 $\mathbf x_N \sim \mathcal N(\mathbf 0, I)$ 开始，依据 (11) 式进行采样，</p>
+<p>$$\mathbf x_{i-1}=\frac 1 {\sqrt {1-\beta_i}} (\mathbf x_i+\beta_i \mathbf s_{\theta^{\star}}(\mathbf x_i, i)) +\sqrt {\beta_i}\mathbf z_i, \quad i=N,N-1,\ldots, 1 \tag{12}$$</p>
+<p><strong># 与 DDPM 一文的方法联系</strong></p>
+<p>DDPM 一文原本的训练目标是令模型输出 $\epsilon_ {\theta} (\mathbf x _ i, i)$ 逼近目标 $\epsilon$，结合 (9) 式，可知 score matching 的训练方法与 DDPM 原本的方法存在关系 $\mathbf s _ {\theta ^ {\star}} = - \epsilon _ {\theta} / \sqrt {1 - \alpha _ i} $ ，代入 (12) 式就得到  <a href="/2022/06/27/diffusion_model/ddpm">DDPM</a> 一文得反向过程计算公式 (16) 式。</p>
+<h1>2. SDE 生成模型</h1>
+<p>思想：将上述按步加噪泛化到无限步加噪。为此，根据随机微分方程建立数据转换过程。</p>
+<h2 id="2-1-SDE-扰动">2.1 SDE 扰动</h2>
+<p>构造一个扩散过程 ${\mathbf x(t)}_{t=0}^T$，时刻 $t$ 是一个连续型变量，范围是 $t\in [0,T]$，数据分布记为 $\mathbf x(0) \sim p_0$，扩散最后的分布为 $\mathbf x(T) \sim p_T$。扩散/前向 过程使用 $It\hat o$ SDE 刻画，</p>
+<p>$$d\mathbf x = \mathbf f(\mathbf x, t) dt + g(t) d\mathbf w \tag{13}$$</p>
+<p>其中 $d\mathbf w =(W_{t+\Delta t}-W_t) \sim \mathcal N(0, \Delta t)$ 是标准布朗运动。$\mathbf f(\cdot, t): \mathbb R^d \rightarrow \mathbb R^d$ 是 $\mathbf x$ 的漂移系数，而 $g(\cdot): \mathbb R \rightarrow \mathbb R$ 是 $\mathbf x$ 的扩散系数。 关于 SDE 更多的知识可参考 <a href="/2022/07/25/math/SDE">这里</a> 。</p>
+<p>记 $\mathbf x(t)$ 的分布为 $p_t(\mathbf x)$，从 $\mathbf x(s)$ 到 $\mathbf x(t)$ 的转移记为 $p_{st}(\mathbf x(t)|\mathbf x(s))$，其中 $0 \le s &lt; t \le T$ 。</p>
+<h2 id="2-2-反转-SDE">2.2 反转 SDE</h2>
+<p>根据 $\mathbf x(T) \sim p_T$ 以及反向过程，可以采样得到来自 $p_0$ 的样本。根据 Brian D O Anderson. Reverse-time diffusion equation models. 1982. 的论文可知，反向 SDE 为</p>
+<p>$$d\mathbf x=[\mathbf f(\mathbf x,t)-g(t)^2 \nabla_{\mathbf x} \log p_t(\mathbf x)] dt + g(t) d\overline {\mathbf w} \tag{14}$$</p>
+<h2 id="2-3-SDE-的得分估计">2.3 SDE 的得分估计</h2>
+<p>为了计算 (14) 式，我们回顾一下，</p>
+<p>目标函数为</p>
+<p>$$\theta^{\star}=\arg \min_{\theta} \mathbb E_t {\lambda(t) \mathbb E_{p_0} \mathbb E_{p_{0t}}[|\mathbf s_{\theta}(\mathbf x(t), t)-\nabla_{\mathbf x(t)} \log p_{0t}(\mathbf x(t)|\mathbf x(0))|_2^2]}\tag{15}$$</p>
+<p>这里，$\lambda: [0,T] \rightarrow \mathbb R_{&gt;0}$ 是一个权重函数，$t$ 是连续型在 $[0,T]$ 上均匀采样。当数据量足够以及模型容量足够大，那么可以求得 (15) 式的最优解记为 $\mathbf s_{\theta^{\star}}(\mathbf x,t) \approx \nabla_{\mathbf x} \log p_t$，对几乎所有的 $\mathbf x$ 和 $t$ 均成立。</p>
+<p>根据 <a href="/2022/07/22/diffusion_model/NCSN">NCSN</a> 中的 (7.1) 式，通常取</p>
+<p>$$\lambda \propto 1 / \mathbb E[||\nabla_{\mathbf x(t)} \log p _ {0t} (\mathbf x(t) | \mathbf x (0))||^2]$$</p>
+<p>这样每个时刻的误差期望值大小相当。</p>
+<p>计算损失 (15) 式时，$\mathbf s _ {\theta}(\mathbf x (t),t)$ 就是模型输出，而得分函数这个 target 也很好计算，对于 DDPM，$p _ t(\mathbf x _ t|\mathbf x _ 0)=\mathcal N(\sqrt{\overline \alpha _ t} \mathbf x _ 0, (1-\overline \alpha _ t) I)$，于是得分函数为 $\nabla _ {\mathbf x _ t} \log p _ t (\mathbf x _ t|\mathbf x _ 0) = -(x _ t - \sqrt {\overline \alpha _ t} \mathbf x _ 0) / (1-\overline \alpha _ t)$，求这个梯度在模型输入数据 $\mathbf x _ t$ 处的值，模型输入为 $\mathbf x _ t = \sqrt {\overline \alpha _ t} \mathbf x _ 0+\sqrt {1-\overline \alpha _ t} \mathbf z$，代入梯度计算式得 $-\mathbf z/\sqrt {1-\overline \alpha _ t}$ ，所以 loss 计算代码为（下方 not likelihood_weighting 分支），</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># VESDE - SMLD</span>
+score <span class="token operator">=</span> score_fn<span class="token punctuation">(</span>perturbed_dat<span class="token punctuation">,</span> t<span class="token punctuation">)</span>  <span class="token comment"># 模型输出的得分估计：s(xt, t)</span>
+
+<span class="token keyword">if</span> <span class="token keyword">not</span> likelihood_weighting<span class="token punctuation">:</span>    <span class="token comment"># 不使用似然权重，那么就是上述 lambda = \sigma ^ 2</span>
+    losses <span class="token operator">=</span> torch<span class="token punctuation">.</span>square<span class="token punctuation">(</span>score <span class="token operator">*</span> std<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token boolean">None</span><span class="token punctuation">,</span><span class="token boolean">None</span><span class="token punctuation">,</span><span class="token boolean">None</span><span class="token punctuation">]</span> <span class="token operator">+</span> z<span class="token punctuation">)</span>
+    losses <span class="token operator">=</span> reduce_op<span class="token punctuation">(</span>losses<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>losses<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+<span class="token keyword">else</span><span class="token punctuation">:</span>
+    losses <span class="token operator">=</span> torch<span class="token punctuation">.</span>square<span class="token punctuation">(</span>score <span class="token operator">+</span> z <span class="token operator">/</span> std<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span><span class="token boolean">None</span><span class="token punctuation">,</span><span class="token boolean">None</span><span class="token punctuation">,</span><span class="token boolean">None</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token comment"># weighted</span>
+    g2 <span class="token operator">=</span> sde<span class="token punctuation">.</span>sde<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>zeros_like<span class="token punctuation">(</span>batch<span class="token punctuation">)</span><span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">**</span> <span class="token number">2</span>    <span class="token comment"># g(t)^2</span>
+    losses <span class="token operator">=</span> reduce_op<span class="token punctuation">(</span>losses<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>losses<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> g2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上述代码中，第一个分支，计算</p>
+<p>$$\lambda(t) \cdot \left[\mathbf s _ {\theta} - \left(-\frac {\mathbf z} {\sqrt {1-\overline \alpha _ t}}\right)\right] ^ {\top} \left[\mathbf s _ {\theta} - \left(-\frac {\mathbf z} {\sqrt {1-\overline \alpha _ t}}\right)\right]=(\sigma \mathbf s _ {\theta} +\mathbf z) ^ {\top} (\sigma \mathbf s _ {\theta} +\mathbf z)$$</p>
+<p>其中 $\lambda(t) = \sigma _ t ^ 2 = 1-\overline \alpha _ t$ 。</p>
+<p>然后将 losses 从 <code>(B, 3, H, W)</code> reshape 为 <code>(B, 3 * H * W)</code>，然后 reduce （求和，因为计算 vector norm 平方就是求平方和）为 <code>(B,)</code>。</p>
+<p>第二个计算分支，首先计算 unweighted loss，</p>
+<p>$$\left[\mathbf s _ {\theta} - \left(-\frac {\mathbf z} {\sqrt {1-\overline \alpha _ t}}\right)\right] ^ {\top} \left[\mathbf s _ {\theta} - \left(-\frac {\mathbf z} {\sqrt {1-\overline \alpha _ t}}\right)\right]$$</p>
+<p>然后乘以权重，这里权重使用 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2101.09258">Maximum Likelihood Training of Score-Based Diffusion Models</a> 中的方法，从代码上看，就是 SDE 中扩散系数的平方 $g(t) ^ 2$ 。</p>
+<h2 id="2-4-例子">2.4 例子</h2>
+<p>前面分析的通过 (15) 式训练模型，但是其中 $p_{0t}$ 是什么形式，以及通过 (14) 式进行采样，(14) 式中的 $\mathbf f(\mathbf x,t)$ 和 $g(t)$ 又分别是什么。 这一节通过具体的例子进行讲解。</p>
+<p>$p_{0t} = p _ {0t}(\mathbf x _ t|\mathbf x _ 0)$，描述了加噪后的数据分布，由 (13) 式决定。</p>
+<h3 id="2-4-1-VE">2.4.1 VE</h3>
+<p>variance exploding （SMLD）</p>
+<p>使用 N 个噪声 scale，每个扰动核为如下的马尔可夫链转移，</p>
+<p>$$\mathbf x_i = \mathbf x_{i-1} + \sqrt {\sigma_i^2 - \sigma_{i-1}^2}\mathbf z_{i-1}, \quad i=1,\ldots,N \tag{16}$$</p>
+<p>其中 $\mathbf z_{i-1} \sim \mathcal N(\mathbf 0, I)$，$\mathbf x_0 \sim p_{data}$。$\sigma_{min} = \sigma_1 &lt; \sigma_2 &lt; \cdots &lt; \sigma_N=\sigma_{max}$ 。</p>
+<p><strong>解释为什么是 (16) 的形式</strong>：</p>
+<p>在 SMLD 中，$\mathbf x_i$ 是在原数据 $\mathbf x_0$ 上加噪扰动而得，即 $\mathbf x _ i - \mathbf x _ 0 \sim \mathcal N(\mathbf 0, \sigma _i^2 I)$，类似地有 $\mathbf x _ {i-1} - \mathbf x _ 0 \sim \mathcal N(\mathbf 0, \sigma _ {i-1}^2 I)$，由于 $(\mathbf x _ i - \mathbf x _ 0)$ 与 $(\mathbf x _ {i-1} - \mathbf x _ 0)$ 独立（因为给定 $\mathbf x_0$ 时 $\mathbf x _ i$ 与 $\mathbf x _ {i-1}$ 条件独立），根据高斯分布的性质有</p>
+<p>$$\mathbf x _ i - \mathbf x _ {i-1} \sim \mathcal N(\mathbf 0, (\sigma _ i ^ 2 - \sigma _ {i-1} ^ 2))$$</p>
+<p>得到 (16) 式。注意 (16) 式与 DDPM 中的马尔科夫转移过程不同，DDPM 中 $\mathbf x _ i = \sqrt {1- \beta _ i} \mathbf x _ {i-1} + \sqrt {\beta _ i} \mathbf z _ i$ 。</p>
+<p>为了统一表示，记 $\sigma _ 0 = 0$，于是</p>
+<p>$$\mathbf x_i |\mathbf x_0 \sim \mathcal N(\mathbf x_0, (\sigma_i ^2 - \sigma_0^2)I) \tag{17}$$</p>
+<p>当 $N \rightarrow \infty$ ，马尔科夫链 $\{\mathbf x_i\} _ {i=1}^N$ 变成连续型随机过程 $\{\mathbf x(t)\} _ {t=0}^1$，将原来的 $i$ 变为 $t=i/N$ 即可，$\sigma _i$ 和 $\mathbf z _ i$ 类似地变为 $\sigma(t)$ 和 $\mathbf z(t)$，那么 (16) 式马尔科夫转移过程变为</p>
+<p>$$\mathbf x(t+\Delta t)=\mathbf x(t) + \sqrt {\sigma^2(t+\Delta t)-\sigma^2(t)}\mathbf z(t) = \mathbf x(t) + \sqrt {\frac {\Delta[\sigma^2(t)]}{\Delta t}\Delta t} \cdot \mathbf z(t) \tag{16.1}$$</p>
+<p>由于 $\mathbf z(t) \sim \mathcal N(\mathbf 0,I)$，那么 $\sqrt {\Delta t} \mathbf z(t) \sim \mathcal N(0, \Delta t\cdot I)$，此即布朗运动的增量随机变量 $d\mathbf w$，结合上式可得</p>
+<p>$$d\mathbf x = \sqrt {\frac {d[\sigma^2(t)]}{dt}}d\mathbf w \tag{18}$$</p>
+<p>对比 (13) 式，可知</p>
+<p>$$\mathbf f(\mathbf x,t)=\mathbf 0, \quad g(t)=\sqrt {\frac {d[\sigma^2(t)]}{dt}} \tag{19}$$</p>
+<p>(18) 时微分方程的初始条件为 $t=0$ 时， $\mathbf x(0)$ 为真实数据。</p>
+<p>于是我们知道了 $p_{0i}(\mathbf x_i|\mathbf x_0)$ 为 (17) 式，$\mathbf f(\mathbf x, t)$ 和 $g(t)$ 为 (19) 式，那么通过类比可知</p>
+<p>$$p_{0t}(\mathbf x(t)|\mathbf x(0))=\mathcal N(\mathbf x(0), [\sigma ^ 2(t) - \sigma ^ 2(0)]I) \tag{17.1}$$</p>
+<p>其中，$\sigma ^2 (t)$ 是预设的一个函数，例如某个线性递增函数，且 $t=0, \ t=1$ 两个端点值也预先给定。</p>
+<h3 id="2-4-2-VP">2.4.2 VP</h3>
+<p>variance preserving（DDPM）</p>
+<p>用在 DDPM 中，离散马尔科夫链为</p>
+<p>$$\mathbf x _ {i+1} =\sqrt {1-\beta _ i} \mathbf x _ i + \sqrt {\beta _ i} \mathbf z _ i , \quad i=0,\ldots,N-1 \tag{20}$$</p>
+<p>其中 $\mathbf z_i \sim \mathcal N(\mathbf 0, I)$ 。$0&lt; \beta_i &lt; 1, \ \forall i=0,\ldots,N-1$。 这里将变量下标做了调整，便于后续转为连续型变量时方便理解。</p>
+<p>令 $\overline \beta_i = N \beta_i, \ N \rightarrow \infty$，经过变换得 $\beta_i = \overline {\beta _ i} \cdot \frac 1 N$，这里的 $\frac 1 N$ 将作为 $\Delta t$，将离散型变量 $\overline {\beta _ i}$ 换成连续型变量 $\overline {\beta} (t)$，那么 $\beta _ i$ 的连续型则变为 $\overline {\beta} (t) \cdot \Delta t$，另外 $\mathbf x _ i$ 的连续形式记为 $\mathbf x (t)$， 于是 (20) 式变为</p>
+<p>$$\begin{aligned}\mathbf x(t +\Delta t)&amp;=\sqrt {1-\overline {\beta}(t) \Delta t} \cdot \mathbf x(t)+\sqrt {\overline {\beta} (t)\Delta t} \cdot \mathbf z(t)<br>
+\\ &amp; \stackrel{一阶展开} \approx \mathbf x(t) - \frac 1 2 \overline {\beta}(t)\Delta t \ \mathbf x(t) + \sqrt {\overline {\beta}(t)\Delta t} \ \mathbf z(t)<br>
+\end{aligned} \tag{21}$$</p>
+<p>$t\in \{0, \frac 1 N, \ldots, \frac {N-1} N \}$，下标除以 N 使得 $t$ 的范围统一到 $[0,1]$ 。</p>
+<p>根据上式推导结果可知</p>
+<p>$$d\mathbf x = -\frac  1 2 \overline {\beta}(t) \mathbf x \ dt + \sqrt {\overline {\beta}(t)} \ d\mathbf w \tag{22}$$</p>
+<p>对比 (13) 式可知</p>
+<p>$$\mathbf f(\mathbf x, t)=-\frac 1 2 \overline {\beta}(t) \mathbf x, \quad g(t) =\sqrt {\overline {\beta}(t)} \tag{23}$$</p>
+<p>其中 $\overline {\beta}(t)=N \beta _ i$ 。</p>
+<p><strong>比较</strong>：</p>
+<ol>
+<li>
+<p>SMLD 中，当 $t \rightarrow \infty$ 时，方差 $\sigma _ t ^2$ 将会爆炸，这是因为 $\sigma _ i ^ 2 - \sigma _ {i-1}^2 &gt; 0$ 始终成立，求和时，如果级数不收敛，则 $\sigma _ t ^2 \rightarrow \infty$</p>
+</li>
+<li>
+<p>DDPM 中，当 $t \rightarrow \infty$ 方差为 $1-\overline \alpha_t \rightarrow 1$</p>
+</li>
+</ol>
+<p>接下来计算 DDPM 的 $p(\mathbf x_i|\mathbf x_0)$，上面 (21) 式的种种变换和推导就是为了方便计算 $p(\mathbf x_i|\mathbf x_0)$。在原 DDPM 论文中，$q(\mathbf x_i |\mathbf x_0)$ 由 (6) 式给出。然而这里考虑连续情况，根据 SDE 进行推导，依据 (22) 式而非 (20) 式来描述马尔可夫链转移，故 $q(\mathbf x_i |\mathbf x_0)$ 不能使用 (6) 式，我们重新推导。</p>
+<p>根据随机变量 $Z=X+Y$，其中 $X, \ Y$ 独立，那么有 $E[Z]=E[X]+E[Y]$ 的知识，对 (21) 式两边取期望，</p>
+<p>$$\mathbf e(t+\Delta t)=\mathbf e(t)  - \frac 1 2 \overline {\beta}(t) \Delta t  \mathbf e(t)+\mathbf 0 \tag{24}$$</p>
+<p>上式中，$\mathbf e(t) \stackrel{\Delta}= \mathbb E _ {\mathbf x(t)}[\mathbf x(t)]$, $\mathbb E _ {\mathbf z(t)}[\mathbf z(t)] = \mathbf 0$，$\mathbf e(t+\Delta t) \stackrel{\Delta}= \mathbb E _ {\mathbf x(t+\Delta t)} [\mathbf x(t+\Delta t)]$。</p>
+<p>变换得</p>
+<p>$$d \mathbf e(t) = -\frac 1 2 \overline {\beta}(t) \mathbf e(t) \ dt \tag{25}$$</p>
+<p>对上式两边积分得，</p>
+<p>$$\mathbf e(t)=C e^{-\frac 1 2 \int_0^t \overline {\beta}(s)ds} \tag{26}$$</p>
+<p>根据初值条件 $\mathbf e(0)=\mathbf e_0$，可得 $C=\mathbf e_0$，于是</p>
+<p>$$\mathbf e(t)=\mathbf e_0  e^{-\frac 1 2 \int_0^t \overline {\beta}(s)ds} \tag{27}$$</p>
+<p>对 (21) 式两边取协方差，</p>
+<p>$$\Sigma(t+\Delta t)=[1-\overline {\beta}(t) \Delta t] \cdot \Sigma(t)+\overline {\beta}(t)\Delta t I \tag{28}$$</p>
+<p>故</p>
+<p>$$d \Sigma(t)= \overline {\beta}(t) (I - \Sigma(t)) dt \tag{29}$$</p>
+<p>积分得</p>
+<p>$$\Sigma(t)=Ce ^ {\int_0 ^ t -\overline {\beta}(s) ds} + I \tag{30}$$</p>
+<p>根据初值条件 $\Sigma(t)=\Sigma_0$，知 $C=\Sigma_0 -I$，于是</p>
+<p>$$\Sigma(t)=(\Sigma_0 -I) e ^ {\int _ 0 ^ t -\overline {\beta}(s) ds} + I \tag{31}$$</p>
+<p>于是条件分布为</p>
+<p>$$\mathbf x_t| \mathbf x_0 \sim  \mathcal N\left(\mathbf e_0  e ^ {-\frac 1 2 \int _ 0 ^ t \overline {\beta}(s)ds}, (\Sigma_0 -I) e ^ {\int _ 0 ^ t -\overline {\beta}(s) ds} + I\right) \tag{32}$$</p>
+<p>如果 $\mathbf x_0$ 已知，那么 $\mathbf e_0 =\mathbf x_0$，且 $\Sigma_0=\mathbf 0$，(32) 式变为</p>
+<p>$$\mathbf x_t| \mathbf x_0 \sim  \mathcal N\left(\mathbf x_0  e ^ {-\frac 1 2 \int _ 0 ^ t \overline {\beta}(s)ds},  -I e ^ {\int _ 0 ^ t -\overline {\beta}(s) ds} + I\right) \tag{33}$$</p>
+<p><strong># post 1</strong>:</p>
+<p>上面 (33) 式给出了 VP SDE 的 $p(\mathbf x _ t | \mathbf x _ 0)$。VE SDE 中，也可以根据 (16.1) 式进行类似的计算得到 $p(\mathbf x(t)|\mathbf x(0))$ 的表达式，根据 (16.1) 式，期望 $\mathbf e(t+\Delta t)=\mathbf e(t)$，这是一个递归公式，可得 $\mathbf e(t)=\mathbf e(0)=\mathbf x(0)$，协方差 $\Sigma(t+\Delta t)=\Sigma (t)+ [\sigma ^ 2(t+\Delta t)-\sigma ^ 2 (t)] I$，根据这个递归公式并结合 $\Sigma(0)=0$ 可知 $\Sigma (t) = (\sigma ^ 2(t) - \sigma ^2 (0)] I$。</p>
+<details>
+<summary>可以跳过的分析</summary>
+<p><strong># post 2</strong>:</p>
+<p>VP SDE 中，如果从 (20) 式出发，那么</p>
+<p>$$\mathbf e(t+\Delta t) = \sqrt {1- \beta(t)} \mathbf e(t) \Rightarrow d \mathbf e(t) = [\sqrt {1-\beta(t)}-1] \mathbf e(t)$$</p>
+<p>这里的 $\beta(t)$ 是 $\beta _ i$ 的连续形式， 与上面的 $\overline {\beta}(t)= \beta(t) / \Delta t$ 不同。</p>
+<p>上式变形，可得</p>
+<p>$$d \log \mathbf e(t) = \sqrt {1-\beta(t)}-1$$</p>
+<p>上式解为</p>
+<p>$$\log \mathbf e(t) = \log \mathbf e(0) + \int _ 0 ^ t \sqrt {1-\beta(s)}-1$$</p>
+<p>注意右侧积分项没有 $ds$ 这个因子，上式 变换之后得</p>
+<p>$$\mathbf e(t) = \mathbf e(0) \cdot e^{\int _ 0 ^ t \sqrt {1-\beta(s)}-1}$$</p>
+<p>DDPM 中 $\beta_i$ 一种选择方案是从 $10^{-4}$ 线性增大到 0.02，那么 $\beta(t)$ 形式为 $\beta(t)=kt + 10^{-4}$，但无论哪种方案，上式中的积分项都不好计算，所以想办法使用近似，使用泰勒一阶展开 $\sqrt {1-\beta(s)}=1-\frac 1 2 \beta(s)$，于是上式变为</p>
+<p>$$\mathbf e(t) = \mathbf e(0) \cdot e ^ {-\frac 1 2 \int _ 0 ^ t \beta(s)}$$</p>
+<p>上式指数部分的积分项中没有 $ds$，故依然不太好求积分，作变换 $\beta’(s)=\beta(s) N=\beta (s) / \Delta s$，这个 $\beta '(s)$ 实际上就是 $\overline {\beta} (s)$，于是 $\beta(s) =\overline {\beta}(s) ds$，于是上式变为</p>
+<p>$$\mathbf e(t) = \mathbf e(0) \cdot e ^ {-\frac 1 2 \int _ 0 ^ t \overline {\beta}(s) ds}$$</p>
+<p>上式与 (27) 式完全相同。嗯，这是可以预期的，毕竟 (20) 式的连续形式就是 (21) 式，且这里也与 (21) 式一样，做了泰勒一阶展开近似。</p>
+</details>
+<h3 id="2-4-3-sub-VP">2.4.3 sub-VP</h3>
+<p>受 VP SDE 启发，作者提出了一个新的 SDE，称为 sub-VP SDE，如下</p>
+<p>$$d\mathbf x = -\frac 1 2 \overline {\beta}(t) \mathbf x \ dt + \sqrt {\overline {\beta}(t)(1-e ^ {-2\int _ 0 ^ t \overline {\beta}(s)ds})} d\mathbf w \tag{34}$$</p>
+<p>与 DDPM VP (22) 式类似，只是扩散系数 $g(t)$ 不同，$\mathbf x(t)$ 的期望满足 (25) 式，于是期望为 (27) 式。</p>
+<p>协方差根据 (29) 式进行调整（多了一项指数积分），得</p>
+<p>$$d\Sigma(t) =\overline {\beta}(t) (I - I e ^ {-2\int _ 0 ^ t \overline {\beta}(s)ds} - \Sigma(t)) dt$$</p>
+<p>积分得</p>
+<p>$$\Sigma(t)=Ce ^ {\int _ 0 ^ t -\overline {\beta}(s) ds} I + I + I e ^ {-2\int _ 0 ^ t \overline {\beta}(s)ds}$$</p>
+<p>根据初值条件 $\Sigma(t)=\Sigma_0$，于是 $\Sigma_0=CI+I+I$，于是</p>
+<p>$$\Sigma(t)=(\Sigma_0-2I)e ^ {\int _0 ^ t -\overline {\beta}(s) ds} + I + I e ^ {-2\int_0 ^ t \overline {\beta}(s)ds}\tag{35}$$</p>
+<p><strong>性质：</strong></p>
+<ol>
+<li>
+<p>当 $\Sigma_{VP}(0)=\Sigma_{sub-VP}(0)$ 时，</p>
+<p>$$\Sigma_{VP}(t)-\Sigma_{sub-VP}(t)=I(e ^ {\int_0 ^ t -\overline {\beta}(s) ds}-e ^ {-2\int _ 0 ^ t \overline {\beta}(s)ds}) \succ 0 \cdot I$$</p>
+<p>由于 $-\int \overline {\beta}(s)ds - (-2 \int \overline {\beta}(s)ds )=\int \overline {\beta}(s)ds&gt;0$，即 $-\int \overline {\beta}(s)ds &gt; -2 \int \overline {\beta}(s)ds$，上式得证。</p>
+<p>这表明，使用 sub-VP SDE，$\mathbf x_t |\mathbf x_0$ 分布的方差更小。</p>
+</li>
+<li>
+<p>当 $\lim _ {t \rightarrow \infty} \int _ 0 ^ t \overline {\beta}(s) ds = \infty$ 时，</p>
+<p>$$\lim _ {t \rightarrow \infty} \Sigma _ {sub-VP} (t) = \lim _ {t \rightarrow \infty} \Sigma _ {VP} (t) = I$$</p>
+<p>将前向过程写成连续形式后，$t$ 可以不仅仅局限于 $[0, 1]$ 区间范围。</p>
+</li>
+</ol>
+<p>当 $\mathbf x_0$ 已知时，$\Sigma_0 = \mathbf 0$，此时 sub-VP 的扩散分布为</p>
+<p>$$\mathbf x_t|\mathbf x_0 \sim \mathcal N \left(\mathbf x_0  e ^ {-\frac 1 2 \int _ 0 ^ t \overline {\beta}(t)ds},  (1-e ^ {\int_ 0 ^ t -\overline {\beta}(s) ds}) ^ 2 I\right) \tag{36}$$</p>
+<h1>3. 解反向 SDE</h1>
+<p>根据设计好的 $\mathbf f(\mathbf x,t)$ 和 $g(t)$ 可以计算出 $\mathbf x_t|\mathbf x_0$ 的分布，然后可以训练 score-based 模型 $\mathbf s_{\theta}$，训练 target 为 $\nabla_{\mathbf x _ t} \log p(\mathbf x _ t|\mathbf x)$ ，根据前向 SDE 可以得到 reverse-time SDE（根据论文 Anderson 1982），然后使用数值解法以生成来自 $p_0$ 分布的样本。<br>
+数值解法包括 Euler-Maruyama 和 随机 Runge-Kutta 方法等。</p>
+<h2 id="3-1-反向扩散采样">3.1 反向扩散采样</h2>
+<p>给定前向 SDE</p>
+<p>$$d\mathbf x = \mathbf f(\mathbf x, t) dt + \mathbf G(t) d\mathbf w \tag{37}$$</p>
+<p>其中 $\mathbf x \in \mathbb R^d, \ \mathbf G(t) \in \mathbb R^{d \times d}$ 。</p>
+<p>离散化 (37) 式，将 $t, \ dt$ 从 (37) 式中剥离</p>
+<p>$$\mathbf x_{i+1} = \mathbf x_i + \mathbf f_i(\mathbf x_i) + \mathbf G_i \mathbf z_i, \quad i=0,1,\ldots,N-1 \tag{38}$$</p>
+<p>其中 $\mathbf z_i \sim \mathcal N(\mathbf 0, I)$ 。</p>
+<p>根据论文 Anderson 1982，reverse-time SDE 为</p>
+<p>$$d\mathbf x = [\mathbf f(\mathbf x, t)-\mathbf G(t)\mathbf G(t)^{\top} \nabla_{\mathbf x} \log p_t(\mathbf x)] dt + \mathbf G(t) d\overline {\mathbf w} \tag{39}$$</p>
+<p>注意 (39) 式中 $\overline {\mathbf w}$ 表示从时间 $T$ 开始到时间 $0$ 结束，即 $\mathbf w_{s-t} - \mathbf w_s \sim \mathcal N(\mathbf 0, t I)$ 。(39) 式离散化为</p>
+<p>$$\mathbf x_{i+1}-\mathbf x_i=\mathbf f_{i+1}(\mathbf x_{i+1})-\mathbf G_{i+1}\mathbf G_{i+1}^{\top} \mathbf s_{\theta}(\mathbf x_{i+1},i+1) - \mathbf G_{i+1}\mathbf z_{i+1}$$</p>
+<p>变换得</p>
+<p>$$\mathbf x_i=\mathbf x_{i+1}-\mathbf f_{i+1}(\mathbf x_{i+1})+\mathbf G_{i+1}\mathbf G_{i+1}^{\top} \mathbf s_{\theta}(\mathbf x_{i+1},i+1) + \mathbf G_{i+1}\mathbf z_{i+1}, \quad i=0,\ldots, N-1 \tag{40}$$</p>
+<p>(40) 式就是离散化的采样规则。注意这里使用 $\mathbf f_{i+1}(\mathbf x_{i+1})$ 而不使用 $\mathbf f_{i}(\mathbf x_{i+1})$ 的写法是为了下标统一，故 (40) 式中的 $\mathbf f_1,\ldots, \mathbf f_N$ 就是 (38) 式中的 $\mathbf f_0, \ldots, \mathbf f_{N-1}$，对 $\mathbf G$ 的下标也是如此。</p>
+<h3 id="3-1-1-reverse-time-VE-SDE-采样">3.1.1 reverse-time VE SDE 采样</h3>
+<p>将 (40) 式应用于 (16) 式，得到 reverse-time VE (SMLD) SDE 采样器。将 (16) 和 (38) 式下标 $i$ 的取值范围统一为 $i=0,\ldots, N-1$，对比 (16) 和 (38) 式可知 (40) 式中的的相关函数为</p>
+<p>$$\mathbf f_{i+1}(\mathbf x_{i+1})=\mathbf 0, \quad \mathbf G_{i+1}=I\sqrt {\sigma_{i+1}^2 - \sigma_i^2} \tag{40.1}$$</p>
+<p>注意 (40.1) 式中表达式是离散形式，要与 (19) 式的连续形式区分开来。实际上，将 $d \mathbf w=\sqrt{dt} \mathbf z$ 中的 $\sqrt{dt}$ 放到 (19) 式 $g(t)$ 中，就得到 $\sqrt {d[\sigma ^ 2 (t)]}$，离散形式就是 $\sqrt {\sigma _ {i+1} ^ 2 - \sigma _ i ^ 2}$ ，所以离散形式与连续形式两者之间的转换其实不难理解。</p>
+<p>将 (40.1) 式代入 (40) 式得到 VE 的采样过程，总结采样算法流程如下方算法 1 的蓝色部分。</p>
+<hr>
+<p><strong>算法 1</strong>： Predictor-Corrector(PC) 采样（VE SDE）</p>
+<p>$\mathbf x_N \sim \mathcal N(\mathbf 0, \sigma_{max}^2I)$</p>
+<p><strong>for</strong> $i=N-1,\ldots, 0$ <strong>do</strong></p>
+<p><font color='cyan'>  (Predictor)</p>
+<p>  $\mathbf x_i’ \leftarrow \mathbf x_{i+1} + (\sigma_{i+1}^2 - \sigma_i^2) \mathbf s_{\theta^{\star}}(\mathbf x_{i+1}, \sigma_{i+1})$</p>
+<p>  $\mathbf z \sim \mathcal N(\mathbf 0, I)$</p>
+<p>  $\mathbf x_i \leftarrow \mathbf x_i’ + \sqrt {\sigma_{i+1}^2 - \sigma_i^2} \mathbf z$<br>
+</font></p>
+<p><font color='orange'>  (Corrector)</p>
+<p>  <font style='font-weight:bold'>for</font> $j=1,\ldots, M$ <font style='font-weight:bold'>do</font></p>
+<p>    $\mathbf z \sim \mathcal N(\mathbf 0, I)$</p>
+<p>    $\mathbf x_i \leftarrow  \mathbf x_i + \epsilon_i \mathbf s_{\theta^{\star}}(\mathbf x_i, \sigma_i) + \sqrt {2 \epsilon_i} \mathbf z$<br>
+</font></p>
+<p><strong>return</strong> $\mathbf x_0$</p>
+<hr>
+<h3 id="3-1-2-reverse-time-VP-SDE-采样">3.1.2 reverse-time VP SDE 采样</h3>
+<p>将 (40) 式应用于 (20) 式，得到 reverse-time VE (DDPM) SDE 采样器。对比 (20) 和 (38) 式可知 (40) 式中的的相关函数为</p>
+<p>$$\mathbf f_{i+1}(\mathbf x_{i+1})=(\sqrt{1-\beta_{i+1}}-1)\mathbf x_{i+1}, \quad \mathbf G_{i+1}=I\sqrt {\beta_{i+1}} \tag{40.2}$$</p>
+<p>于是采样算法流程如下方算法 2 的蓝色部分。</p>
+<hr>
+<p><strong>算法 2</strong>： Predictor-Corrector(PC) 采样（VP SDE）</p>
+<p>$\mathbf x_N \sim \mathcal N(\mathbf 0, \sigma_{max}^2I)$</p>
+<p><strong>for</strong> $i=N-1,\ldots, 0$ <strong>do</strong></p>
+<p><font color='cyan'>  (Predictor)</p>
+<p>  $\mathbf x_i’ \leftarrow (2-\sqrt{1-\beta_{i+1}})\mathbf x_{i+1} + \beta_{i+1} \mathbf s_{\theta^{\star}}(\mathbf x_{i+1}, i+1)$</p>
+<p>  $\mathbf z \sim \mathcal N(\mathbf 0, I)$</p>
+<p>  $\mathbf x_i \leftarrow \mathbf x_i’ + \sqrt {\beta_{i+1}} \mathbf z$</p>
+</font>
+<font color='orange'>&emsp; (Corrector)
+<p>  <font style='font-weight:bold'>for</font> $j=1,\ldots, M$ <font style='font-weight:bold'>do</font></p>
+<p>    $\mathbf z \sim \mathcal N(\mathbf 0, I)$</p>
+<p>    $\mathbf x_i \leftarrow  \mathbf x_i + \epsilon_i \mathbf s_{\theta^{\star}}(\mathbf x_i, i) + \sqrt {2 \epsilon_i} \mathbf z$<br>
+</font></p>
+<p><strong>return</strong> $\mathbf x_0$</p>
+<hr>
+<p>作者称类似 算法 1 和 2 这样的基于 (40) 式的采样为 <em>reverse diffusion samplers</em> 。</p>
+<p><strong># reverse-time SDE sampling 与 ancestral sampling 的联系</strong></p>
+<p>以 VP (DDPM) 为例：</p>
+<ol>
+<li>
+<p>ancestral sampling</p>
+<p>DDPM 中 ancestral sampling 为 (12) 式，下面再次给出这个 (12) 式，省去前面翻看的麻烦。(12) 式可以通过贝叶斯定理计算出来，即根据前向马尔科夫转移分布 $p(\mathbf x _ i | \mathbf x _ {i-1})$ 计算后验分布 $p(\mathbf x _ {i-1} | \mathbf x _ i)$（这也是一个高斯分布），</p>
+<p>$$\mathbf x_{i-1}=\frac 1 {\sqrt {1-\beta_i}} (\mathbf x_i+\beta_i \mathbf s_{\theta}(\mathbf x_i, i)) +\sqrt {\beta_i}\mathbf z_i, \quad i=N,N-1,\ldots, 1 \tag{12}$$</p>
+<p>根据泰勒展开，</p>
+<p>$$(1-\beta_i)^{-\frac 1 2}=1+\frac 1 2 \beta_i + \frac 3 8 \beta_i^2 + \cdots$$</p>
+<p>当 $\beta_i \rightarrow 0$ 时，取一阶近似，代入 (12) 式</p>
+<p>$$\mathbf x_{i-1}=(1+\frac 1 2 \beta_i)\mathbf x_i + (\beta_i + \frac 1 2 \beta_i^2)\mathbf s_{\theta}(\mathbf x_i, i) + \sqrt {\beta_i} \mathbf z_i \tag{41.1}$$</p>
+</li>
+<li>
+<p>reverse-time SDE sampling</p>
+<p>将 (40.2) 式代入 (40) 式得到 DDPM 的反向 SDE 采样，也就是算法 2 中蓝色部分，</p>
+<p>$$\mathbf x_{i-1}=(2-\sqrt {1-\beta _ i})\mathbf x_i + \beta_i\mathbf s_{\theta}(\mathbf x_i, i) + \sqrt{\beta_i} \mathbf z_i \tag{41.2}$$</p>
+<p>根据泰勒展开有 $(1-\beta _ i) ^ {\frac 1 2} = 1 - \frac 1 2 \beta _ i - \frac 1 8 \beta _ i ^ 2 + \cdots$ 取一阶近似并代入 (41.2) 式，得</p>
+<p>$$\mathbf x_{i-1}=(1+ \frac 1 2 \beta _ i)\mathbf x _ i +  \beta_i\mathbf s_{\theta}(\mathbf x_i, i) + \sqrt{\beta_i} \mathbf z_i \tag{41.3}$$</p>
+</li>
+</ol>
+<p>忽略 (41.1) 式中的二阶项 $\beta_i^2$，可以发现 (41.1) 和 (41.3) 等价，即 <strong>reverse-time SDE 出发推导出来的采样规则与 ancestral 采样结果等价</strong>。</p>
+<h2 id="3-2-Predictor-Corrector-采样器">3.2 Predictor-Corrector 采样器</h2>
+<p>作者提出，可以使用 score-based MCMC 方法，例如 Langevin MCMC，从分布 $p _ i(\mathbf x _ i)$ 中直接采样，从而纠正 SDE 数值求解的结果。</p>
+<p>具体而言，每个 step $i$，SDE 数值求解会给出一个样本估计，此过程充当 “predictor”，如算法 1 和 2 中蓝色部分的 $\mathbf x_i$，然后，score-based MCMC 方法纠正这个样本估计，如算法 1 和 2 中橙色部分（使用 Langevin dynamics 方法），此过程充当 “corrector”。</p>
+<p>算法 1 和 2 中的 PC 采样就是指 Predictor-Corrector 采样。</p>
+<h2 id="3-3-概率流">3.3 概率流</h2>
+<p>对 scored-based 模型，求解 reverse-time SDE 有另一种数值法。对所有的扩散过程，均存在一种确定性过程，在其转移路径上边缘分布与 reverse-time SDE 的情况相同。这种确定性过程满足某个 ODE，</p>
+<p>$$d\mathbf x=[\mathbf f(\mathbf x, t)-\frac 1 2 g(t)^2 \nabla_{\mathbf x} \log p_t(\mathbf x)]dt \tag{42}$$</p>
+<p>详情参见附录 D，也就是将 (D3) 式中的 $\mathbf G(\mathbf x,t)$ 替换为 $g(t)$ 就得到 (42) 式。这样，一旦得分函数已知，(42) 式描述的过程就被确定，使用模型的得分函数 $\mathbf s_{\theta}(\mathbf x)$ 代替 (42) 式中的 $\nabla _ {\mathbf x} \log p _ t(\mathbf x)$。称 (42) 式这个 ODE 为 概率流 ODE （因为没有 $d\mathbf w$ 这一项，所以 (42) 式本质就是一个常微分方程）。当得分函数由时间相关的score-based model（这个 model 通常是神经网络 $\mathbf s_{\theta}(\mathbf x, t)$ ） 近似时，就是一个 neural ODE 。</p>
+<p>附录 D 有关于概率流 ODE 更多的讨论和分析。</p>
+<h1>4. 总结</h1>
+<p>设计一个前向 SDE，包括 $\mathbf f(\mathbf x, t)$ 和 $\mathbf G(\mathbf x, t)$ ，从而可以计算出  $p(\mathbf x|\mathbf x_0)$ 以及 reverse-time SDE ，根据 reverse-time SDE 可以得到采样过程。根据 score matching，可训练出得分函数 $\mathbf s_{\theta}(\mathbf x _ t, t)$ （ $t$ 作为模型的 time embedding 输入）。然后使用 PC 采样生成来自 $p_0$ 的样本。</p>
+<p>通过 SMLD 和 DDPM，验证了 SDE 求解问题的可行性，并与传统的离散化迭代过程（扩散过程）等价。所以我们可以直接从 SDE 出发，求解生成模型。</p>
+<h1>APPENDIX</h1>
+<h2 id="A-general-SDE-概述">A. general SDE 概述</h2>
+<p>考虑如下前向 SDE，</p>
+<p>$$d\mathbf x = \mathbf f(\mathbf x, t) dt + \mathbf G(\mathbf x, t) d\mathbf w \tag{A1}$$</p>
+<p>其中 $\mathbf f(\cdot, t): \mathbb R^d \rightarrow \mathbb R^d$，$\mathbf G(\cdot, t): \mathbb R^d \rightarrow \mathbb R^{d \times d}$ 。</p>
+<p>注意 (37) 式是上式的一个特例：$\mathbf G$ 函数中没有 $\mathbf x$ 这个自变量。(A1) 式对应的 reverse-time SDE 为</p>
+<p>$$d\mathbf x = {\mathbf f(\mathbf x, t)-\nabla \cdot [\mathbf G(\mathbf x,t)\mathbf G(\mathbf x, t)^{\top}] - \mathbf G(\mathbf x,t)\mathbf G(\mathbf x, t)^{\top} \nabla_{\mathbf x} \log p_t(\mathbf x)}dt + \mathbf G(\mathbf x, t)d\overline {\mathbf w} \tag{A2}$$</p>
+<p>其中 $\mathbf G(\mathbf x,t)\mathbf G(\mathbf x, t)^{\top}$ 表示两个矩阵相乘。对于矩阵 $\mathbf F(\mathbf x)\stackrel{\Delta}=[\mathbf f^1(\mathbf x), \cdots, \mathbf f^d(\mathbf x)]^{\top}$，定义</p>
+<p>$$\nabla \cdot F(\mathbf x)\stackrel{\Delta}=[\nabla \cdot \mathbf f^1(\mathbf x), \cdots, \nabla \cdot \mathbf f^d(\mathbf x)]^{\top}$$</p>
+<p><strong>注意，这里的 $\cdot$ 不可省略</strong></p>
+<p>上式是一个向量，向量各元素 $\nabla \cdot \mathbf f^i(\mathbf x)=\sum _ {i=1} ^ d \frac {\partial}{\partial x_i} f ^ i(\mathbf x)$。</p>
+<p>这表示 $\nabla \cdot \mathbf F(\mathbf x)$ 是对矩阵 $\mathbf F(\mathbf x)$ 的第 $i$ 行求针对 $\mathbf x _ i$ 的偏导数，这是一个向量，所得的偏导矩阵再求每一行的和，最终就是一个列向量。</p>
+<p>记 reverse-time SDE 为</p>
+<p>$$d\mathbf x = \overline {\mathbf f}(\mathbf x, t)dt + \overline {\mathbf G}(\mathbf x, t) d \overline {\mathbf w} \tag{A3}$$</p>
+<p>那么给定初值条件 $\mathbf x_T$ 时，可得 SDE 的解为</p>
+<p>$$\mathbf x_T - \mathbf x_t=\int_t^{T} \overline {\mathbf f}(\mathbf x, s)ds + \int_t^T \overline {\mathbf G}(\mathbf x, s) d\overline {\mathbf w}(s) \tag{A5}$$</p>
+<p>注意，实际上时间变量 $s$ 是从时刻 $T$ 到时刻 $t$，所以是</p>
+<p>$$\mathbf x _ t - \mathbf x _ T = \int _ T ^ t \overline {\mathbf f}(\mathbf x, s)ds + \int _ T ^ t \overline {\mathbf G}(\mathbf x, s) d\overline {\mathbf w}(s)$$</p>
+<p>两边取反得到 (A5) 式。</p>
+<h2 id="C-SDEs-in-the-wild">C. SDEs in the wild</h2>
+<p>本节讨论 VE 和 VP SDEs 的具体实例，这两者对应 SMLD 和 DDPM 模型，然后也分析了 sub-VP SDE。</p>
+<h3 id="C-1-SMLD">C.1 SMLD</h3>
+<p>SMLD 中，噪声 scales $\{ \sigma_i \} _ {i=1} ^ N$ 通常使用等比序列，其中固定 $\sigma_{min}=0.01$，$\sigma_{max}$ 则根据 《Improved Techniques for Training Score-Based Generative Models. Yang Song》一文中的 Technique 1 确定，根据等比数列性质有</p>
+<p>$$\sigma(\frac i N)=\sigma_i = \sigma _ {min} \left(\frac {\sigma_{max}}{\sigma _ {min}}\right)^{\frac {i-1}{N-1}}$$</p>
+<p>当 $N \rightarrow \infty$ 时有</p>
+<p>$$\sigma(t)=\sigma _ {min} (\frac {\sigma _ {max}} {\sigma_{min}})^t \tag{B1}$$</p>
+<p>上式代入 VE SDE 方程 (18) 式，为</p>
+<p>$$d \mathbf x = \sigma _ {min} \left(\frac {\sigma _ {max}} {\sigma _ {min}} \right)^t \sqrt {2 \log \frac {\sigma _ {max}} {\sigma _ {min}}} d \mathbf w \tag{B2}$$</p>
+<p>根据 (17.1) 式，扰动核为</p>
+<p>$$p_{0t}(\mathbf x(t) | \mathbf x(0)) = \mathcal N \left(\mathbf x(t); \mathbf x(0), \sigma _ {min} ^ 2 \left ( \frac {\sigma _ {max} } {\sigma _ {min}}\right) ^ {2t} I  \right) \tag{B3}$$</p>
+<p>注意这里为了统一，定义 $\sigma(0)=\sigma_0 = 0$，但是 $\sigma (0^+) := \lim _ {t \rightarrow 0^+} \sigma(t) = \sigma _ {min} \neq 0$。所以 $\sigma(t)$ 在 $t=0$ 处不可导，那么 VE SDE (18) 式在 $t=0$ 处未定义，实际应用中，我们解这个 SDE 以及对应得概率流 ODE 时，设置范围 $t \in [\epsilon, 1]$，例如作者使用 $\epsilon=10 ^ {-5}$ 。</p>
+<h3 id="C-2-DDPM">C.2 DDPM</h3>
+<p>DDPM 中 $\{ \beta_i \} _ {i=1} ^ N$ 通常是等差数列：$\beta_i = \beta _ 1 + \frac {i-1} {N-1} (\beta _ N - \beta _ 1), \ i=1,\ldots, N$。根据前面 (21) 式分析，令 $\overline {\beta} _ i = N \beta _ i$， 并将 $\overline \beta _ i$ 替换为连续型变量 $\overline \beta(t)$，那么</p>
+<p>$$\overline \beta(t) = \overline \beta _ {min} + t (\overline \beta _ {max} - \overline \beta _ {min}), \ t \in [0, 1]$$</p>
+<p>显然 $\overline \beta(t)$ 是 $t$ 的线性函数。</p>
+<p>将上式代入 VP SDE (22) 式得到一个更具体的表达式如下，</p>
+<p>$$d \mathbf x = -\frac 1 2 (\overline \beta _ {min} + t (\overline \beta _ {max} - \overline \beta _ {min})) \mathbf x dt + \sqrt {\overline \beta _ {min} + t (\overline \beta _ {max} - \overline \beta _ {min})} d \mathbf w \tag{B4}$$</p>
+<p>作者实验中选择 $\overline \beta _ {min}=0.1, \ \overline \beta _ {max} = 20$。回顾一下 DDPM 中，选择 $\beta _ {min} = 10^{-4}, \ \beta _ {max}=0.02$（从 $10^{-4}$ 线性增大到 0.02），根据关系 $\overline \beta _ i = N \beta _ i$，可知 $N=1000$ 。根据 (B4) 计算出扰动核为，</p>
+<p>$$p_{0t}(\mathbf x(t)|\mathbf x(0))= \\<br>
+\mathcal N \left(\mathbf x(t); e ^ {-\frac 1 4 t ^ 2(\overline \beta _ {max} - \overline \beta _ {min}) - \frac 1 2 t \overline \beta _ {min}} \mathbf x(0), I-I e ^ {-\frac 1 2 t ^ 2 (\overline \beta _ {max} - \overline \beta _ {min}) - t \overline \beta _ {min}} \right) \tag{B5}$$</p>
+<p>参考 (33) 式，将 $\overline \beta (s)$ 替换为 $\overline \beta _ {min} + t (\overline \beta _ {max} - \overline \beta _ {min})$ 可得到 (B5) 式。</p>
+<p>VP SDE (DDPM) 不存在 VE SDE 中的 $t=0$ 处不连续的问题，但是在 $t=0$ 处，训练和采样均存在数值不稳定的问题，因为 $t \rightarrow 0$ 时 $\mathbf x(t)$ 的方差太小，以至于无法表示（数值下溢），所以也限制范围为 $t \in [\epsilon, 1]$，例如作者使用 $\epsilon = 10 ^ {-3}$ 。</p>
+<h3 id="C-3-sub-VP-SDE">C.3 sub-VP SDE</h3>
+<p>sub-VP SDEs 使用与 VP SDEs 相同的 $\beta(t)$，那么根据 (36) 式扰动核为</p>
+<p>$$p_{0t}(\mathbf x(t)|\mathbf x(0))= \\<br>
+\mathcal N \left(\mathbf x(t); e ^ {-\frac 1 4 t ^ 2(\overline \beta _ {max} - \overline \beta _ {min}) - \frac 1 2 t \overline \beta _ {min}} \mathbf x(0), [1- e ^ {-\frac 1 2 t ^ 2 (\overline \beta _ {max} - \overline \beta _ {min}) - t \overline \beta _ {min}} ] ^ 2 I \right) \tag{B6}$$</p>
+<h2 id="D-概率流">D 概率流</h2>
+<h3 id="D-1-概率流-ODE-推导">D.1 概率流 ODE 推导</h3>
+<p>考虑 (A1) 式 SDE，推导出概率流 ODE 如下（推导过程略，见原论文附录），</p>
+<p>$$d\mathbf x = \tilde {\mathbf f}(\mathbf x, t) dt + \tilde {\mathbf G}(\mathbf x, t) d\mathbf w \tag{D1}$$</p>
+<p>其中 $\tilde {\mathbf G}(\mathbf x, t) := \mathbf 0$ 且</p>
+<p>$$\tilde {\mathbf f}:=\mathbf f(\mathbf x, t) - \frac 1 2 \nabla \cdot [\mathbf G(\mathbf x,t)\mathbf G(\mathbf x, t)^{\top}] - \frac 1 2 \mathbf G(\mathbf x,t)\mathbf G(\mathbf x, t)^{\top}\nabla_{\mathbf x} \log p_t(\mathbf x) \tag{D2}$$</p>
+<p>也就是说</p>
+<p>$$d \mathbf x = \tilde {\mathbf f}(\mathbf x, t) dt \tag{D3}$$</p>
+<p>推导过程使用了 Fokker-Planck 方程。</p>
+<h3 id="D-2-似然计算">D.2 似然计算</h3>
+<p>在 D.1 一节推导概率流 ODE 过程中有（详细过程见论文附录）</p>
+<p>$$\frac {\partial p _ t (\mathbf x)}{\partial t}=-\sum _ {i=1} ^ d \frac {\partial} {\partial x _ i} [\tilde f_i(\mathbf x, t) p _ t(\mathbf x)]$$</p>
+<p>变换得</p>
+<p>$$\frac {\partial [\log p _ t(\mathbf x)]}{\partial t}=-\nabla \cdot \tilde {\mathbf f}(\mathbf x(t), t) \tag{D4}$$</p>
+<p>其中 $\nabla \cdot \tilde {\mathbf f}(\mathbf x(t), t) \stackrel{\Delta}= \sum _ {i=1} ^ d \frac {\partial} {\partial x _ i} \tilde f _ i(\mathbf x, t)$ 。</p>
+<p>注意我们是从 SDE 出发进行讨论，所以变量 $\mathbf x$ 是从时刻 $0$ 变化到时刻 $T, \ T \le 1$（即，前向过程），所以解 (D4) 式，得</p>
+<p>$$\log p _ 0 (\mathbf x (0)) = \log p _ T (\mathbf x(T)) + \int _ 0 ^ T \nabla \cdot \tilde {\mathbf f}(\mathbf x(t), t) dt$$</p>
+<p>由于 $\tilde {\mathbf f}$ 中包含了 $p _ t(\mathbf x(t))$ ，所以上式难以计算，使用模型输出 $\mathbf s _ {\theta} (\mathbf x, t)$ 代替 (D2) 式中的 $\nabla _ {\mathbf x} \log p _ t (\mathbf x)$，于是上式变为</p>
+<p>$$\log p _ 0 (\mathbf x (0)) = \log p _ T (\mathbf x(T)) + \int _ 0 ^ T \nabla \cdot \tilde {\mathbf f}_{\theta}(\mathbf x(t), t) dt \tag{D5}$$</p>
+<p>其中</p>
+<p>$$\tilde {\mathbf f} _ {\theta}:=\mathbf f(\mathbf x, t) - \frac 1 2 \nabla \cdot [\mathbf G(\mathbf x,t)\mathbf G(\mathbf x, t)^{\top}] - \frac 1 2 \mathbf G(\mathbf x,t)\mathbf G(\mathbf x, t)^{\top} \mathbf s _ {\theta} (\mathbf x, t) \tag{D2.1}$$</p>
+<p>不过很多情况下 $\nabla \cdot \tilde {\mathbf f}_{\theta}(\mathbf x, t)$ 计算量很大（计算步骤： $d$ 次循环，每次循环进行一次反向梯度传播，设置 loss=$\tilde f _ {\theta} ^ i$，求得一个梯度向量，循环结束后得到一个矩阵，也就是向量 $\tilde {\mathbf f} _ {\theta}$ 对向量 $\mathbf x$ 的梯度矩阵，最后求矩阵对角线之和），所以作者使用 Skilling-Hutchinson trace estimator 对其进行估算，具体地，有</p>
+<p>$$\nabla \cdot \tilde {\mathbf f}_{\theta}(\mathbf x, t) = \mathbb E _ {p(\epsilon)} [\epsilon ^ {\top} \nabla \tilde {\mathbf f} _ {\theta} (\mathbf x, \epsilon) \epsilon] \tag{D7}$$</p>
+<p>其中 $\nabla \tilde {\mathbf f} _ {\theta}$ 指 $\tilde {\mathbf f} _ {\theta} (\cdot, t)$ 的 Jacobian（对 $\mathbf x$ 求导，向量对向量求导），$\epsilon$ 为随机变量且满足 $\mathbb E _ {p(\epsilon)}[\epsilon] = \mathbf 0, \ \text{Cov} _ {p(\epsilon)}[\epsilon] = I$。</p>
+<p>$\epsilon ^ {\top} \nabla \tilde {\mathbf f} _ {\theta} (\mathbf x, t)$ 可以使用自动微分软件计算（例如 PyTorch），这只需要一次反向梯度传播计算。因此，我们采样一个 $\epsilon \sim p(\epsilon)$，然后根据 (D6) 式计算 $\nabla \cdot \tilde {\mathbf f}_{\theta}(\mathbf x, t)$， 由于 (D6) 式是无偏估计，所以可以进行足够多次的计算，然后取平均值。</p>
+<p>作者实验中，使用 RK45 ODE solver 解 (D5) 式这个积分方程。</p>
+<h3 id="D-3-概率流采样">D.3 概率流采样</h3>
+<p>假设前向过程 SDE 为 $d \mathbf x = \mathbf f(\mathbf x, t) dt + \mathbf G(t) d\mathbf w$，其离散化形式为</p>
+<p>$$\mathbf x _ {i+1} = \mathbf x _ i + \mathbf f _ i (\mathbf x _ i ) + \mathbf G _ i \mathbf z _ i, \quad i = 0, 1, \ldots, N-1 \tag{D7}$$</p>
+<p>$\Delta t$ 已经放入 $\mathbf f_i$ 和 $\mathbf G_i$ 中。</p>
+<p>注意上式我们假设了扩散系数的形式为 $\mathbf G(t)$，而 $\mathbf G(t)$ 与 $\mathbf x$ 无关，$\tilde {\mathbf f}$ 表达式中第二项为 0， 所以概率流 ODE (D3) 式变为</p>
+<p>$$d\mathbf x = \{\mathbf f(\mathbf x,t) - \frac 1 2 \mathbf G(t) \mathbf G(t) ^ {\top} \nabla _ {\mathbf x} \log p _ t (\mathbf x)\} dt \tag{D8}$$</p>
+<p>离散化形式为（注意是前向，所以 $d\mathbf x$ 离散化为 $\mathbf x _ {i+1} - \mathbf x _ i$），</p>
+<p>$$\mathbf x _ i = \mathbf x _ {i+1} - \mathbf f _ {i+1} (\mathbf x _ {i+1}) + \frac 1 2 \mathbf G _ {i+1} \mathbf G _ {i+1} ^ {\top} \mathbf s _ {\theta}(\mathbf x _ {i+1}, i+1), \quad i = 0 , 1, \ldots, N-1 \tag{D9}$$</p>
+<p>(D9) 是一个确定性迭代规则，这与反向扩散采样（本文 (40) 式）/原始采样（DDPM 中推导的 $\mathbf x_{i-1}$ 表达式，本文 (12) 式）不同，(D9) 中没有添加随机噪声。</p>
+<p><strong>#1 SMLD</strong> 概率流采样</p>
+<p>参考 2.4.1 一节的 VE SDE 内容，结合 (16) 式和 (D7) 式，可知 $\mathbf f _ i = \mathbf 0, \mathbf G _ i=\sqrt {\sigma _ i ^ 2 - \sigma _ {i-1} ^ 2} I$，代入 (D9) 式，得</p>
+<p>$$\mathbf x _ i = \mathbf x _ {i+1} + \frac 1 2 (\sigma _ {i+1} ^ 2 - \sigma _ i ^ 2) \mathbf s _ {\theta} ^ {\star} (\mathbf x _ {i+1}, \sigma _ {i+1}), \quad i = 0,1,\ldots, N-1 \tag{D10}$$</p>
+<p>与 3.1.1 一节内容相呼应。</p>
+<p><strong>#2 DDPM</strong> 概率流采样</p>
+<p>参考 2.4.2 一节得 VP SDE 内容，结合 (20) 式和 (D7) 式，可知 $\mathbf f _ i = (\sqrt {1-\beta _ i}-1) \mathbf x _ i, \ \mathbf G _ i = \sqrt {\beta _ i }I$，注意这里将 i 范围统一为 $i=0,1,\ldots, N-1$，代入 (D9) 式，得</p>
+<p>$$\mathbf x _ i = (2-\sqrt {1- \beta _ {i+1}}) \mathbf x _ {i+1} + \frac 1 2 \beta _ {i+1} \mathbf s _ {\theta} ^ {\star} (\mathbf x _ {i+1}, i+1) \tag{D11}$$</p>
+<p>与 3.1.2 一节内容相呼应。</p>
+<h2 id="E-反向扩散采样">E. 反向扩散采样</h2>
+<p>见本文 3.1 一节内容，反向扩散采样过程为 (40) 式。DDPM 的原始采样与反向扩散采样在 $\beta_i \rightarrow 0$ 时是一致的，而 $\Delta t \rightarrow 0$ 时，$\beta _ i = \overline \beta _ i \Delta t \rightarrow 0$ 成立。见 (41.1) 式和 (41.2) 式。</p>
+<h2 id="F-SMLD-原始采样">F. SMLD 原始采样</h2>
+<p>DDPM 的原始采样为 (12) 式，反向扩散采样为 算法 2 中的 Predictor 蓝色部分，概率流采样为 (D11) 式。</p>
+<p>SMLD 反向扩散采样为 算法 1 中的 Predictor 蓝色部分，概率流采样为 (D10) 式，下面给出其原始采样。</p>
+<p>（注：SMLD 原论文中使用 Langevin dynamics 采样，而本文将 Langevin dynamics 作为 SMLD 和 DDPM 的 Corrector 部分，见算法 1、2 橙色部分）</p>
+<p>首先给出 SMLD 的前向马尔科夫链，</p>
+<p>$$p(\mathbf x _ i | \mathbf x _ {i-1}) = \mathcal N (\mathbf x _ i; \mathbf x _ {i-1}, (\sigma _ i ^ 2 - \sigma _ {i-1} ^ 2) I), \quad i = 1, 2,\ldots ,N$$</p>
+<p>边缘分布 $p(\mathbf x _ i|\mathbf x _ 0)=\mathcal N(\mathbf x _ 0; (\sigma _ i ^ 2 - \sigma _ 0 ^ 2)I)$，$p(\mathbf x _ {i-1}|\mathbf x _ 0)=\mathcal N(\mathbf x _ 0; (\sigma _ {i-1} ^ 2 - \sigma _ 0 ^ 2)I)$</p>
+<p>根据高斯分布的条件分布关系有，</p>
+<p>$$p(x _ 1) = \mathcal N(\mu _ 1, s _ 1 ^2), \quad p(x _ 2) = \mathcal N(\mu _ 2, s _ 2 ^2)<br>
+\\ p(x _ 1 | x _ 2)=\mathcal N(\mu _ 1 + \rho s _ 1 / s _ 2 (x _ 2 - \mu _ 2), (1-\rho ^ 2) s _ 1 ^ 2)<br>
+\\ p(x _ 2 | x _ 1)=\mathcal N(\mu _ 2 + \rho s _ 2 / s _ 1 (x _ 1 - \mu _ 1), (1-\rho ^ 2) s _ 2 ^ 2)$$</p>
+<p>将 $\mathbf x _ {i-1}, \ \mathbf x _ i$ 分别看作 $x _ 1, x _ 2$，那么有以下等式关系，</p>
+<p>$$\begin{aligned} \mu _ 1 = \mu _ 2 = \mathbf x _ 0<br>
+\\ s _ 1 ^ 2 = (\sigma _ {i-1} ^ 2 - \sigma _ 0 ^ 2), \ s _ 2 ^ 2 = (\sigma _ i ^ 2 - \sigma _ 0 ^ 2)<br>
+\\ \mathbf x _ 0 + \rho s _ 2 / s _ 1 (\mathbf x _ {i-1} - \mathbf x _ 0) = \mathbf x _ {i-1}<br>
+\\ (1-\rho ^ 2) s _ 2 ^ 2 = (\sigma _ i ^ 2 - \sigma _ {i-1} ^ 2) = s _ 2 ^ 2 - s _ 1 ^ 2<br>
+\end{aligned}$$</p>
+<p>根据以上关系可得</p>
+<p>$$\rho ^ 2 = \frac {\sigma _ {i-1} ^ 2 - \sigma _ 0 ^ 2}{\sigma _ i ^ 2 - \sigma _ 0 ^ 2} = \frac {s _ 1 ^ 2}{s _ 2 ^ 2} \\<br>
+\mu _ 1 + \rho s _ 1 / s _ 2 (x _ 2 - \mu _ 2)=\mathbf x _ 0 + \frac {\sigma _ {i-1} ^ 2 - \sigma _ 0 ^ 2}{\sigma _ i ^ 2 - \sigma _ 0 ^ 2}(\mathbf x _ i - \mathbf x _ 0) \\<br>
+(1-\rho ^ 2) s _ 1 ^ 2 = \frac { s _ 2 ^ 2 - s _ 1 ^ 2}{s _ 2  ^ 2} s _ 1 ^ 2= \frac {\sigma _ {i-1} ^ 2 - \sigma _ 0 ^ 2}{\sigma _ i ^ 2 - \sigma _ 0 ^ 2} (\sigma _ i ^ 2 - \sigma _ {i-1} ^ 2)$$</p>
+<p>由于 $\sigma _ 0 = 0$，所以可以得到后验分布为</p>
+<p>$$q(\mathbf x _ {i-1} | \mathbf x _ i, \mathbf x _ 0) = \mathcal N \left(\frac {\sigma _ {i-1} ^ 2}{\sigma _ i ^ 2} \mathbf x _ i + (1-\frac {\sigma _ {i-1} ^ 2}{\sigma _ i ^ 2}) \mathbf x _ 0, \ \frac {\sigma _ {i-1} ^ 2}{\sigma _ i ^ 2}(\sigma _ i ^ 2 - \sigma _ {i-1} ^ 2) I \right) \tag{F1}$$</p>
+<p>记反向转移过程为 $p _ {\theta} (\mathbf x _ {i-1} | \mathbf x _ i)=\mathcal N(\mathbf x _ {i-1}; \mu _ {\theta} (\mathbf x _ i, i), \tau _ i ^2 I)$，显然需要 $p_{\theta} (\mathbf x _ {i-1} | \mathbf x _ i)$ 尽量逼近 $q(\mathbf x _ {i-1} | \mathbf x _ i, \mathbf x _ 0)$ ，根据前向过程 $\mathbf x _ i = \mathbf x _ 0 + \sigma _ i \mathbf z$，其中 $\mathbf z$ 为随机噪声，可得 $\mathbf x _ 0 = \mathbf x _ i - \sigma _ i \mathbf z$ 代入 (F1) 式，并用 $\mathbf s _ {\theta} (\mathbf x _ i, i)$ 估计 $\mathbf z/\sigma _ i$ 得，</p>
+<p>$$\begin{aligned} \mu _ {\theta}(\mathbf x _ i, i) &amp;= \frac {\sigma _ {i-1} ^ 2}{\sigma _ i ^ 2} \mathbf x _ i + (1-\frac {\sigma _ {i-1} ^ 2}{\sigma _ i ^ 2}) (\mathbf x _ i - \sigma _ i ^ 2 \mathbf s _ {\theta} (\mathbf x _ i, i))=\mathbf x _ i + (\sigma _ i ^ 2 - \sigma _ {i-1} ^ 2 ) \mathbf s _ {\theta} (\mathbf x _ i, i) \\<br>
+\tau_i ^ 2 &amp;= \frac {\sigma _ {i-1} ^ 2}{\sigma _ i ^ 2}(\sigma _ i ^ 2 - \sigma _ {i-1} ^ 2)<br>
+\end{aligned} \tag{F2}$$</p>
+<p>故 SMLD 的原始采样为</p>
+<p>$$\mathbf x _ {i-1} = \mathbf x _ i + (\sigma _ i ^ 2 - \sigma _ {i-1} ^ 2)\mathbf s _ {\theta} ^ {\star} (\mathbf x _ i, i) + \sqrt {\frac {\sigma _ {i-1} ^ 2}{\sigma _ i ^ 2}(\sigma _ i ^ 2 - \sigma _ {i-1} ^ 2)} \mathbf z _ i, \quad i = 1,2,\ldots, N \tag{F3}$$</p>
+<p>其中 $\mathbf x _N \sim \mathcal N (\mathbf 0, \sigma _ N ^ 2 I), \ \mathbf z _ i \sim \mathcal N (\mathbf 0, I)$ 。</p>
+<p>$\mathbf z_i$ 是采样过程中使用的随机变量，而 $\mathbf z$ 是前向过程中使用的随机变量，模型输出 $\mathbf s _ {\theta} (\mathbf x _i, i)$ 用于估计 target $\mathbf z/\sigma _ i$ ，而 DDPM 的 target 为 $\mathbf z$ ，这里 SMLD 只是为了将 (F2) 表达形式与 SMLD 的 reverse-time SDE 采样类似（见算法 1 蓝色部分），理论上，将模型输出 $\mathbf s _ {\theta} (\mathbf x _i, i)$ 估计 target $\mathbf z$ 也是可以的，只要 (F2) 式对应的修改一下即可。</p>
+<h2 id="G-PC-Samplings">G. PC Samplings</h2>
+<p>PC 采样过程如上面算法 1、 2 所示。</p>
+<p><strong># Denoising</strong></p>
+<p>采样结束后，继续执行一个 denoising 步骤，使用 Tweedie 公式，如下所示</p>
+<p>$$E[\mu | z] = z + \sigma ^ 2 l’(z) \tag{G1}$$</p>
+<p>其中 $l’(z) = \frac d {dz} \log f(z)$ 。</p>
+<p>实际上，这相当于又做了一次不加噪的 Predictor 操作，(G1) 式对比算法 1， $l’(z)$ 表示得分函数，使用 $\mathbf s _ {\theta}$ 代替，$z$ 相当于 $\mathbf x(0 ^ +)$，$\sigma ^ 2$ 相当于 $\sigma (0 ^ +) ^ 2$。</p>
+<p>源码中，概率流采样的最后，就执行了这个 denoising 步骤，而 PC 采样的源码，将循环体中的 corrector 和 predictor 顺序调换，所以采样的最后没有额外使用 denoising 步骤，而是将最后一轮循环中的 predictor 不添加噪声。</p>
+<h2 id="I-可控生成">I. 可控生成</h2>
+<p>考虑前向 SDE： $d \mathbf x = \mathbf f (\mathbf x, t) dt + \mathbf G(\mathbf x, t) d \mathbf w$，并假设初始分布为 $p _ 0 (\mathbf x(0) | \mathbf y)$，在 t 时刻分布为 $p _ t (\mathbf x (t) | \mathbf y)$，即，基于 $\mathbf y$ 的条件分布。根据 Anderson (1982) 的论文研究，反向 SDE 如下，</p>
+<p>$$d \mathbf x = \{\mathbf f(\mathbf x,t) - \nabla \cdot [\mathbf G(\mathbf x, t) \mathbf G(\mathbf x, t) ^ {\top}] - \mathbf G(\mathbf x, t) \mathbf G(\mathbf x, t) ^ {\top} \nabla _ {\mathbf x} \log p_t (\mathbf x |\mathbf y)\} dt + \mathbf G(\mathbf x, t) d \overline {\mathbf w} \tag{I1}$$</p>
+<p>根据贝叶斯定理可知 $p _ t (\mathbf x|\mathbf y) \propto p _ t (\mathbf x) p(\mathbf y | \mathbf x)$，那么得分函数计算如下，</p>
+<p>$$\nabla _ {\mathbf x} \log p _ t (\mathbf x|\mathbf y) = \nabla _ {\mathbf x} p _ t (\mathbf x) + \nabla _ {\mathbf x} \log p(\mathbf y | \mathbf x) \tag{I2}$$</p>
+<p>前面所讨论的采样方法均可应用于条件型反向 SDE 的样本生成。</p>
+<h3 id="I-1-分类条件的采样">I.1 分类条件的采样</h3>
+<p>我们不仅可以从 $p _ 0$ 分布中采样，还可以从 $p _ 0(\mathbf x (0)|\mathbf y)$ 中采样，条件是 $p _ t (\mathbf y|\mathbf x (t))$ 已知。给定前向 SDE 如上文 (13) 式所示，要从 $p _ t (\mathbf x (t)|y)$ 中采样，需要先从 $p _ T (\mathbf x (T)|\mathbf y)$ 开始，然后求解以下条件型反向 SDE，</p>
+<p>$$d \mathbf x = \{\mathbf f(\mathbf x, t) - g(t) ^ 2 [\nabla _ {\mathbf x} \log p _ t(\mathbf x) + \nabla _ {\mathbf x} \log p _ t (\mathbf y|\mathbf x)] \} dt + g(t) d \overline {\mathbf w} \tag{I3}$$</p>
+<p>以上 (I3) 式根据 (I1) 和 (I2) 式简化而得。(I3) 式中，$\nabla _ {\mathbf x} \log p _ t (\mathbf x)$ 可以使用模型的得分 $\mathbf s _ {\theta}(\mathbf x (t), t)$ 来估计，而 $\nabla _ {\mathbf x} \log p _ t (\mathbf y|\mathbf x)$ 则可以训练一个分类器，分类器输入则是添加了噪声的数据 $\mathbf x(t)$，计算分类器输出对输入的梯度即可。</p>
+<p>将 (I3) 式与 (14) 式比较，发现 class-conditional 采样与之前的区别在于: $\nabla _ {\mathbf x} \log p _ t(\mathbf x) \rightarrow \nabla _ {\mathbf x} \log p _ t(\mathbf x) + \nabla _ {\mathbf x} \log p _ t (\mathbf y|\mathbf x)$。</p>
+<p>$\mathbf y$ 表示分类 label。</p>
+<p>训练一个分类器 $p _ t (\mathbf y | \mathbf x(t))$，用于条件型采样。</p>
+<p>首先从数据集中采样得到 $(\mathbf x (0), \mathbf y)$，然后加噪生成 $(\mathbf x (t), \mathbf y)$ 作为训练分类器的训练数据，使用跨时刻的交叉熵损失，类似于 (15) 式，模型输出 $\overline {\mathbf y} _ {\theta} (\mathbf x, t)$，target 为 $\mathbf y$。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">shajianjian</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://jianjiansha.github.io/2022/07/26/diffusion_model/score_based_SDE/">https://jianjiansha.github.io/2022/07/26/diffusion_model/score_based_SDE/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">shajianjian</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/diffusion-model/">
+                                    <span class="chip bg-color">diffusion model</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/08/06/generative_model/nice/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/1.jpg" class="responsive-img" alt="NICE:非线性独立成分估计">
+                        
+                        <span class="card-title">NICE:非线性独立成分估计</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-08-06
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/flow/">
+                        <span class="chip bg-color">flow</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/07/25/math/SDE/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="随机微分方程">
+                        
+                        <span class="card-title">随机微分方程</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-07-25
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            shajianjian
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/math/">
+                        <span class="chip bg-color">math</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    });
+</script>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2024</span>
+            
+            <a href="/about" target="_blank">shajianjian</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/jianjiansha" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:501834524@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=501834524" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 501834524" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+        <!-- <script src='https://unpkg.com/mermaid@latest/dist/mermaid.min.js'></script> -->
+        <script src='/libs/mermaid/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>
