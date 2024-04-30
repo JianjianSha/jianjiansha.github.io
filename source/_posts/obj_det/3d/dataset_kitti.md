@@ -136,7 +136,7 @@ dx,dy 表示相邻像素之间的物理距离（例如单位长度为 mm），�
 综合以上，从世界坐标系到像素坐标系的变换为
 
 $$\begin{aligned}z_c\begin{bmatrix}u \\\\ v \\\\  1\end{bmatrix}&=\begin{bmatrix} 1/dx & 0 & u_0 \\\\  0 & 1/dy & v_0 \\\\ 0&0&1 \end{bmatrix}\begin{bmatrix} f & 0 & 0 & 0 \\\\ 0 & f & 0 & 0 \\\\ 0 & 0 & 1 & 0 \end{bmatrix}\begin{bmatrix} \mathbf R & \mathbf t \\\\ \mathbf 0_{1\times 3} & 1\end{bmatrix}\begin{bmatrix}x_w \\\\ y_w \\\\ z_w \\\\ 1\end{bmatrix}
-\\&=\begin{bmatrix} f_x & 0 & u_0 & 0 \\\\  0 & f_y & v_0 & 0 \\\\ 0&0&1 &0\end{bmatrix}\begin{bmatrix} \mathbf R & \mathbf t \\\\ \mathbf 0_{1\times 3} & 1\end{bmatrix}\begin{bmatrix}x_w \\\\ y_w \\ z_w \\\\ 1\end{bmatrix}
+\\\\ &=\begin{bmatrix} f_x & 0 & u_0 & 0 \\\\  0 & f_y & v_0 & 0 \\\\ 0&0&1 &0\end{bmatrix}\begin{bmatrix} \mathbf R & \mathbf t \\\\ \mathbf 0_{1\times 3} & 1\end{bmatrix}\begin{bmatrix}x_w \\\\ y_w \\\\ z_w \\\\ 1\end{bmatrix}
 \end{aligned} \tag{9}$$
 
 $\begin{bmatrix} f_x & 0 & u_0 & 0 \\\\  0 & f_y & v_0 & 0 \\\\ 0&0&1 &0\end{bmatrix}$ 为 **相机内参**（camera intrinsics）。 $\begin{bmatrix} \mathbf R & \mathbf t \\\\ \mathbf 0_{1\times 3} & 1\end{bmatrix}$ 为相机外参。相机标定就是为了求解这两个矩阵的参数。

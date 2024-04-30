@@ -64,7 +64,7 @@ $$\arg \max_{(\mathbf w, b): \|\mathbf w\|=1} \ \min_{i \in [m]} |\mathbf w^{\to
 
 在训练集线性可分这一前提条件下，上式等价于
 
-$$\arg \max_{(\mathbf w, b): \|\mathbf w\|=1} \ \min_{i \in [m]} y_i(\mathbf w^{\top} \mathbf x_i+b) \tag{1} \label{1}$$
+$$\arg \max_{(\mathbf w, b): \|\mathbf w\|=1} \ \min_{i \in [m]} y_i(\mathbf w^{\top} \mathbf x_i+b) \tag{1}$$
 
 ### 变换
 
@@ -78,7 +78,7 @@ $$y_i (\frac {\mathbf w^{\top}} {\gamma}\mathbf x_i+\frac {b}{\gamma}) \ge 1$$
 
 
 
-而上面 $\eqref{1}$ 式要求 $\gamma$ 最大，
+而上面 (1) 式要求 $\gamma$ 最大，
 而 $\|\mathbf w\|=1$，
 那么意味着 $\frac {\|\mathbf w^{\top}\|}{\gamma}$ 最小（$b$ 由 $\mathbf w$ 唯一确定，不对其作约束），也就是说，(1) 式可以变换为如下问题：
 
