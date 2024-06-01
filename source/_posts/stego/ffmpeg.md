@@ -393,7 +393,14 @@ static int encode_send_frame_internal(AVCodecContext *avctx, const AVFrame* src)
 // 编码，编码后数据存储到 AVPacket 中
 static int encode_receive_packet_internal(AVCodecContext* avctx, AVPacket* avpkt) {
     ...
-    int ret = encode_simple_receive_packet(avctx, avpkt);
+    int ret;
+    if (ffcodec(avctx->codec)->cb_type == FF_CODEC_CB_TYPE_RECEIVE_PACKET) { // false
+        ret = ffcodec(avctx->codec)->cb.receive_packet(avctx, avpkt);
+        ...
+    } else {
+        // 执行这个分支
+        ret = encode_simple_receive_packet(avctx, avpkt);
+    }
 }
 
 static int encode_simple_receive_packet(AVCodecContext *avctx, AVPacket *avpkt) {
@@ -428,3 +435,174 @@ static int encode_simple_internal(AVCodecContext *avctx, AVPacket *avpkt) {
         ret = ff_encode_encode_cb(avctx, avpkt, frame, &got_packet);
 }
 ```
+
+我们先说明上述代码 `encode_receive_packet_internal` 中执行哪个分支：
+
+在 libx264.c 这个文件中，`ff_libx264_encoder` 的定义中有
+
+```c++
+// libx264.c
+FFCodec ff_libx264_encoder = {
+    ...
+    FF_CODEC_ENCODE_CB(X264_frame),
+};
+
+// codec_internal.h
+#define FF_CODEC_ENCODE_CB(func)                          \
+    .cb_type           = FF_CODEC_CB_TYPE_ENCODE,         \
+    .cb.encode         = (func)
+```
+
+故 `cb_type` 不等于 `FF_CODEC_CB_TYPE_RECEIVE_PACKET` 。
+
+然后 `encode_simple_internal` 这个函数中，编码实现有两个分支，其中第一个分支判断 `CONFIG_FRAME_THREAD_ENCODER` 这个宏定义为 1，`avci->frame_thread_encoder` 是否定义呢？
+
+我们先看 `avci` 这个字段，它在 avcodec.c 文件中的 `avcodec_open2` 函数中初始化，相关代码片段如下，
+
+```c++
+// 我们这里先讨论编码器
+// ff_encode_internal_alloc 函数就是分配 EncodeContext 这个结构体大小的内存
+avci = av_codec_is_decoder(codec) ? ff_decode_internal_alloc() : ff_encode_internal_alloc();
+avctx->internal = avci;
+...
+if (av_codec_is_encoder(avctx->codec))
+    ret = ff_encode_preinit(avctx);     // 这个函数内部调用 ff_frame_thread_encoder_init 函数
+...
+```
+
+简单跳转一下就发现，
+
+```c++
+av_cold int ff_frame_thread_encoder_init(AVCodecContext *avctx) {
+ThreadContext *c;
+...
+if(avctx->thread_count <= 1)
+    return 0;
+c = avctx->internal->frame_thread_encoder = av_mallocz(sizeof(ThreadContext));
+}
+```
+
+简单明了，如果编码器的 thread_count 设置为 1，那么不进行多线程编码，否则进行多线程编码，此时 `frame_thread_encoder` 有定义。
+
+现在让我们回到前面 `encode_simple_internal` 这个函数中的分支判断，如果编码器 thread_count 为 1，执行 if 分支，否则执行 else 分支。这里我们假设 thread_count 为 1，即，执行 `ff_encode_encode_cb` 函数进行帧编码。
+
+```c++
+// encode.c
+int ff_encode_encode_cb(AVCodecContext *avctx, AVPacket *avpkt,
+                        AVFrame *frame, int *got_packet) 
+{
+    const FFCodec *const codec = ffcodec(avctx->codec);
+    int ret;
+
+    ret = codec->cb.encode(avctx, avpkt, frame, got_packet);
+    ...
+}
+```
+
+上面的 `codec` 前面讲过，就是 `libx264.c` 文件中的 `ff_libx264_encoder` 变量，其 `.cb.encode` 由宏调用 `FF_CODEC_ENCODE_CB(X264_frame)` 给出，即 `X264_frame` 方法。
+
+```c++
+// libx264.c
+static int X264_frame(AVCodecContext *ctx, AVPacket *pkt, const AVFrame *frame,
+                      int *got_packet)
+{
+    X264Context *x4 = ctx->priv_data;
+    x264_nal_t *nal;
+    int nnal, ret;
+    x264_picture_t pic_out = {0}, *pic_in;
+    int pict_type;
+    int64_t wallclock = 0;
+    X264Opaque *out_opaque;
+
+    ret = setup_frame(ctx, frame, &pic_in); // 将 frame 的数据设置到 pic_in 中
+    do {
+        if (x264_encoder_encode(x4->enc, &nal, &nnal, pic_in, &pic_out) < 0)
+            return AVERROR_EXTERNAL;
+        ...
+    } while (!ret && !frame && x264_encoder_delayed_frames(x4->enc));
+    // while 判断：如果执行 OK，ret=0，并且 frame=NULL（最后冲刷的数据），并且编码器内部还有缓存的帧
+    //  那么继续进行帧编码，直到  执行出错 ret!=0，或者编码器内部没有缓存帧了，就退出 while 循环
+}
+```
+
+上述代码中，真正执行帧编码的是 `x264_encoder_encode` 函数，这个函数的定义位于 `x264` 项目[源码](https://code.videolan.org/videolan/x264.git) 的 `encoder.c` 文件中，这个函数定义有点庞大，可以慢慢研究。
+
+这里，我对 SPS 和 PPS 感兴趣，所幸在 `x264_encoder_encode` 中发现了如下代码，
+
+```c++
+int x264_encoder_encode(x264_t* h, x264_nal_t **pp_nal, int *pi_nal,
+    x264_picture_t *pic_in, x264_picture_t* pic_out) {
+    ...
+    if (h->fenc->b_keyframe) {  // 对于关键帧，需要加上 SPS PPS
+        nal_start(h, NAL_SPS, NAL_PRIORITY_HIGHEST);
+        x264_sps_write(&h->out.bs, h->sps);
+        ...
+        nal_start(h, NAL_PPS, NAL_PRIORITY_HIGHEST);
+        x264_pps_write(&h->out.bs, h->sps, h->pps);
+    }
+}
+```
+
+`x264_t` 的定义位于 `common.h` 文件（依然是 x264 项目源码，以下除非特别说明，否则均是指 x264 的项目源码）中，
+
+```c++
+struct x264_t {
+    ...
+    x264_sps_t sps[1];
+    x264_pps_t pps[1];
+};
+```
+
+先以 SPS 为例。这里 `x264_sps_write` 的函数定义位于 `set.c` 文件中，易知这是将 `h->sps` 数据写入 `h->out.bs` 中，那么 `h->sps` 数据怎么来的呢？也就是说，编码器是如何生成 SPS 的？
+
+让我暂时先回到 ffmpeg 源码中，在前面第 2 节 “关联上下文” 中，函数 `avcodec_open2` 打开编码器，这个函数内部调用了 `codec2->init(avctx);` 语句，这里 `init` 字段表示一个函数，字段设置位于 `libx264.c` 文件中的 `ff_libx264_encoder` 中，即 `init` 的值为 `X264_init`，所以起始是调用 `X264_init` 进行一些初始化工作，这个函数前面也讲过它做的一些工作，但是这里我们再看它做的一个初始化工作：
+
+```c++
+// X264_init 函数定义内部代码
+X264Context *x4 = avctx->priv_data;
+x264_param_default(&x4->params);
+... // x4->params 的一些字段设置，后面初始化 SPS 和 PPS 就用到 x4->params 的值
+x4->enc = x264_encoder_open(&x4->params); // 返回 x264_t 类型
+```
+
+上面代码中，`priv_data` 在调用 `avcodec_alloc_context3` 获取编码器 AVCodecContext 时，其内部调用 `init_context_defaults`， 见上文第 1 节内容，这个函数内部对 `priv_data` 进行了赋值，并设置了一些默认参数。
+
+其中 `x264_encoder_open` 是 x264 里面的函数，由这个函数打开 x264 的编码器，因为 ffmpeg 实际上就是使用 x264 的编码器，所以我们再次回到 x264 的项目源码。
+
+```c++
+// encoder.c
+x264_t* x264_encoder_open(x264_param_t* param, void* api) {
+    x264_t *h;
+    ...
+    memcpy(&h->param, param, sizeof(x264_param_t));
+    ...
+    x264_sps_init(h->sps, h->param.i_sps_id, &h->param);
+    x264_sps_init_scaling_list(h->sps, &h->param);
+    x264_pps_init(h->pps, h->param.i_sps_id, &h->param, h->sps);
+    ...
+}
+```
+
+以上几个函数的定义为，
+
+```c++
+// set.c
+void x264_sps_init(x264_sps_t *sps, int i_id, x264_param_t *param) {
+    ...
+}
+
+void x264_pps_init(x264_pps_t *pps, int i_id, x264_param_t *param, x264_sps_t *sps) {
+    ...
+}
+
+void x264_sps_init_scaling_list(x264_sps_t *sps, x264_param_t *param) {
+    ...
+}
+```
+
+
+
+
+## preset 几个值的性能比较
+
+参见 [文章](https://write.corbpie.com/ffmpeg-preset-comparison-x264-2019-encode-speed-and-file-size/)
